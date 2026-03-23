@@ -55,10 +55,10 @@
   <input type="file" id="compose-file" accept="image/*,video/*" multiple onchange="handleComposeFile(this)">
   <input type="text" class="compose-bar__input" id="compose-input"
          placeholder="{{ t('moments.share') }}..." onkeydown="if(event.key==='Enter')submitMoment()">
-  <button type="button" class="btn btn--ghost btn--sm" onclick="openComposeModal()" style="border-radius:999px;">
+  <button type="button" class="btn btn--ghost btn--sm" id="compose-details-button" onclick="openComposeModal()" style="border-radius:999px;">
     {{ t('moments.details') }}
   </button>
-  <button class="compose-bar__send" onclick="submitMoment()" aria-label="Send">&#9993;</button>
+  <button class="compose-bar__send" id="compose-send-button" onclick="submitMoment()" aria-label="Send">&#9993;</button>
 </div>
 
 <!-- New moment modal for photo upload -->
@@ -126,7 +126,7 @@
       </div>
       <div class="modal__footer">
         <button type="button" class="btn btn--secondary" onclick="closeComposeModal()">{{ t('common.cancel') }}</button>
-        <button type="submit" class="btn btn--primary">{{ t('moments.share') }}</button>
+        <button type="submit" class="btn btn--primary" id="compose-submit-button">{{ t('moments.share') }}</button>
       </div>
     </form>
   </div>
