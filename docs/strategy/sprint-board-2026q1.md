@@ -4,7 +4,7 @@
 
 ### `S01 - Shared Collaboration Reset`
 
-Status: Active
+Status: Implemented, ready for audit
 
 ### Sprint Goal
 
@@ -19,9 +19,9 @@ The main blocker is not lack of code. It is that the current implementation and 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
 | 0 | FB-001 | Product Contract and Operating System Bootstrap | P0 | done |
-| 1 | FB-002 | Account, Invite, and Admin Foundation | P0 | todo |
-| 2 | FB-003 | Flat Family Access and Shared Visibility Reset | P0 | todo |
-| 3 | FB-004 | Rich Person Record and Tagged Family Content Foundation | P1 | todo |
+| 1 | FB-002 | Account, Invite, and Admin Foundation | P0 | done |
+| 2 | FB-003 | Flat Family Access and Shared Visibility Reset | P0 | done |
+| 3 | FB-004 | Rich Person Record and Tagged Family Content Foundation | P1 | done |
 
 ### Stretch Packet
 

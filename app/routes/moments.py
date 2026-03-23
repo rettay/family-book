@@ -5,6 +5,14 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, func, extract
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access_control import (
+    can_create_moment_for_person,
+    can_manage_moment,
+    can_view_media,
+    can_view_moment,
+    get_accessible_person_ids,
+    get_person_access,
+)
 from app.auth import require_auth
 from app.database import get_db
 from app.models.media import Media
@@ -19,6 +27,7 @@ router = APIRouter(prefix="/api/moments", tags=["moments"])
 class MomentCreate(BaseModel):
     kind: str
     person_id: str | None = None
+    tagged_person_ids: list[str] = []
     body: str | None = Field(None, max_length=5000)
     title: str | None = Field(None, max_length=300)
     media_ids: list[str] = []
@@ -51,6 +60,7 @@ class MomentCard(BaseModel):
     kind: str
     poster: PersonBrief | None
     about: PersonBrief | None
+    tagged_people: list[PersonBrief]
     title: str | None
     body: str | None
     media: list[MediaBrief]
@@ -108,6 +118,19 @@ async def _build_moment_card(
             "photo_url": about_person.photo_url,
         }
 
+    tagged_people = []
+    for tagged_person_id in moment.tagged_person_ids:
+        result = await db.execute(select(Person).where(Person.id == tagged_person_id))
+        tagged_person = result.scalar_one_or_none()
+        if tagged_person:
+            tagged_people.append(
+                {
+                    "id": tagged_person.id,
+                    "display_name": tagged_person.display_name,
+                    "photo_url": tagged_person.photo_url,
+                }
+            )
+
     # Media
     media_list = []
     if moment.media_ids:
@@ -152,6 +175,7 @@ async def _build_moment_card(
         "kind": moment.kind,
         "poster": poster,
         "about": about,
+        "tagged_people": tagged_people,
         "title": moment.title,
         "body": moment.body,
         "media": media_list,
@@ -178,7 +202,8 @@ async def list_moments(
     db: AsyncSession = Depends(get_db),
 ):
     """List moments feed, reverse-chronological, paginated."""
-    query = select(Moment)
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
 
     if before:
         # Cursor-based: get the moment to use as cursor
@@ -188,10 +213,10 @@ async def list_moments(
             query = query.where(Moment.occurred_at < cursor_time)
 
     if person:
-        query = query.where(Moment.person_id == person)
+        if person not in accessible_person_ids:
+            raise HTTPException(status_code=403, detail="Not visible")
 
     if branch:
-        # Join to Person to filter by branch
         query = query.join(Person, Moment.person_id == Person.id).where(
             Person.branch == branch
         )
@@ -204,11 +229,13 @@ async def list_moments(
 
     # Filter by visibility
     if not current_user.is_admin:
-        query = query.where(Moment.visibility != "hidden")
+        query = query.where(Moment.visibility == "members")
 
     query = query.order_by(Moment.occurred_at.desc()).limit(limit)
     result = await db.execute(query)
     moments = result.scalars().all()
+    if person:
+        moments = [m for m in moments if m.person_id == person or person in m.tagged_person_ids]
 
     cards = []
     for m in moments:
@@ -229,8 +256,36 @@ async def create_moment(
 
     # Verify person exists
     result = await db.execute(select(Person).where(Person.id == person_id))
-    if not result.scalar_one_or_none():
+    person = result.scalar_one_or_none()
+    if not person:
         raise HTTPException(status_code=400, detail="Person not found")
+    if not can_create_moment_for_person(current_user, person):
+        raise HTTPException(status_code=403, detail="Not authorized to post for this profile")
+    if body.visibility == "admins" and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin visibility is restricted")
+    if body.visibility == "hidden" and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Hidden visibility is restricted")
+
+    approved_media_ids: list[str] = []
+    for media_id in body.media_ids:
+        media_result = await db.execute(select(Media).where(Media.id == media_id))
+        media = media_result.scalar_one_or_none()
+        if not media:
+            continue
+        if not await can_view_media(db, current_user, media):
+            raise HTTPException(status_code=403, detail="Not authorized to attach this media")
+        approved_media_ids.append(media.id)
+
+    approved_tagged_person_ids: list[str] = []
+    for tagged_person_id in body.tagged_person_ids:
+        tagged_person_result = await db.execute(select(Person).where(Person.id == tagged_person_id))
+        tagged_person = tagged_person_result.scalar_one_or_none()
+        if not tagged_person:
+            raise HTTPException(status_code=400, detail=f"Tagged person not found: {tagged_person_id}")
+        tagged_person_access = await get_person_access(db, current_user, tagged_person)
+        if not tagged_person_access.can_view:
+            raise HTTPException(status_code=403, detail="Not authorized to tag this person")
+        approved_tagged_person_ids.append(tagged_person.id)
 
     moment = Moment(
         person_id=person_id,
@@ -242,7 +297,8 @@ async def create_moment(
         visibility=body.visibility,
         posted_by=current_user.id,
     )
-    moment.media_ids = body.media_ids
+    moment.media_ids = approved_media_ids
+    moment.tagged_person_ids = approved_tagged_person_ids
 
     db.add(moment)
     await db.flush()
@@ -262,8 +318,7 @@ async def get_moment(
     moment = result.scalar_one_or_none()
     if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
-
-    if moment.visibility == "hidden" and not current_user.is_admin:
+    if not await can_view_moment(db, current_user, moment):
         raise HTTPException(status_code=403, detail="Not visible")
 
     return await _build_moment_card(db, moment, current_user.id)
@@ -282,10 +337,12 @@ async def update_moment(
     if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
 
-    if moment.posted_by != current_user.id and not current_user.is_admin:
+    if not can_manage_moment(current_user, moment):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     update_data = body.model_dump(exclude_unset=True)
+    if "visibility" in update_data and update_data["visibility"] in {"hidden", "admins"} and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Restricted visibility")
     for field, value in update_data.items():
         setattr(moment, field, value)
 
@@ -305,7 +362,7 @@ async def delete_moment(
     if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
 
-    if moment.posted_by != current_user.id and not current_user.is_admin:
+    if not can_manage_moment(current_user, moment):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     await db.delete(moment)
@@ -323,8 +380,11 @@ async def list_comments(
 ):
     """List comments on a moment."""
     result = await db.execute(select(Moment).where(Moment.id == moment_id))
-    if not result.scalar_one_or_none():
+    moment = result.scalar_one_or_none()
+    if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
+    if not await can_view_moment(db, current_user, moment):
+        raise HTTPException(status_code=403, detail="Not visible")
 
     result = await db.execute(
         select(MomentComment)
@@ -358,8 +418,11 @@ async def create_comment(
 ):
     """Add a comment to a moment."""
     result = await db.execute(select(Moment).where(Moment.id == moment_id))
-    if not result.scalar_one_or_none():
+    moment = result.scalar_one_or_none()
+    if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
+    if not await can_view_moment(db, current_user, moment):
+        raise HTTPException(status_code=403, detail="Not visible")
 
     comment = MomentComment(
         moment_id=moment_id,
@@ -392,6 +455,10 @@ async def delete_comment(
     comment = result.scalar_one_or_none()
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
+    moment_result = await db.execute(select(Moment).where(Moment.id == comment.moment_id))
+    moment = moment_result.scalar_one_or_none()
+    if moment and not await can_view_moment(db, current_user, moment) and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not visible")
 
     if comment.person_id != current_user.id and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -411,8 +478,11 @@ async def add_reaction(
 ):
     """Add or replace a reaction on a moment. One per person."""
     result = await db.execute(select(Moment).where(Moment.id == moment_id))
-    if not result.scalar_one_or_none():
+    moment = result.scalar_one_or_none()
+    if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
+    if not await can_view_moment(db, current_user, moment):
+        raise HTTPException(status_code=403, detail="Not visible")
 
     # Check for existing reaction
     result = await db.execute(
@@ -455,8 +525,11 @@ async def remove_reaction(
 ):
     """Remove the current user's reaction from a moment."""
     result = await db.execute(select(Moment).where(Moment.id == moment_id))
-    if not result.scalar_one_or_none():
+    moment = result.scalar_one_or_none()
+    if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
+    if not await can_view_moment(db, current_user, moment):
+        raise HTTPException(status_code=403, detail="Not visible")
 
     result = await db.execute(
         select(MomentReaction).where(

@@ -12,9 +12,9 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-002 | Account, Invite, and Admin Foundation | P0 | todo | `task_packets/FB-002_account_invite_and_admin_foundation.md` |
-| FB-003 | Flat Family Access and Shared Visibility Reset | P0 | todo | `task_packets/FB-003_flat_family_access_and_shared_visibility_reset.md` |
-| FB-004 | Rich Person Record and Tagged Family Content Foundation | P1 | todo | `task_packets/FB-004_rich_person_record_and_tagged_family_content_foundation.md` |
+| FB-002 | Account, Invite, and Admin Foundation | P0 | done | `task_packets/FB-002_account_invite_and_admin_foundation.md` |
+| FB-003 | Flat Family Access and Shared Visibility Reset | P0 | done | `task_packets/FB-003_flat_family_access_and_shared_visibility_reset.md` |
+| FB-004 | Rich Person Record and Tagged Family Content Foundation | P1 | done | `task_packets/FB-004_rich_person_record_and_tagged_family_content_foundation.md` |
 
 Stretch packets:
 

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.auth import UserSession, Invite, MagicLinkToken
 from app.models.person import Person, AccountState
+from app.config import get_settings
 
 SESSION_TOKEN_BYTES = 32
 SESSION_EXPIRY_DAYS = 30
@@ -188,4 +189,52 @@ async def validate_magic_link(db: AsyncSession, token: str) -> Person | None:
         return None
 
     ml.used_at = now
+    return person
+
+
+async def authenticate_google_identity(
+    db: AsyncSession,
+    *,
+    google_sub: str,
+    email: str | None,
+    email_verified: bool,
+) -> Person:
+    if not email_verified:
+        raise ValueError("Google account email is not verified.")
+
+    normalized_email = email.lower().strip() if email else None
+    settings = get_settings()
+
+    result = await db.execute(
+        select(Person).where(Person.google_sub == google_sub)
+    )
+    person = result.scalar_one_or_none()
+
+    if person is None:
+        if not normalized_email:
+            raise ValueError("Google account is missing an email address.")
+
+        result = await db.execute(
+            select(Person).where(Person.contact_email == normalized_email)
+        )
+        matches = result.scalars().all()
+
+        if len(matches) != 1:
+            raise ValueError(
+                "No family profile matches this Google account email. "
+                "Ask an admin to set your contact email first."
+            )
+
+        person = matches[0]
+        person.google_sub = google_sub
+
+    if person.account_state == AccountState.suspended.value:
+        raise ValueError("This account is suspended.")
+
+    if person.account_state == AccountState.pending.value:
+        if settings.REQUIRE_APPROVAL:
+            raise ValueError("This account is pending approval.")
+        person.account_state = AccountState.active.value
+
+    person.google_email = normalized_email
     return person

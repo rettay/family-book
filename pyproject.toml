@@ -17,6 +17,8 @@ dependencies = [
     "aiosqlite>=0.20,<1",
     "greenlet>=3.1,<4",
     "pillow>=12.1.1",
+    "google-auth>=2.38,<3",
+    "requests>=2.32,<3",
 ]
 
 [project.optional-dependencies]

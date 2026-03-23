@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Libro Familiar",
-    "tagline": "Nuestro salón, no el centro comercial"
+    "name": "Árbol Familiar",
+    "tagline": ""
   },
   "nav": {
     "tree": "Árbol Familiar",
@@ -71,11 +71,10 @@
   },
   "auth": {
     "login": "Iniciar Sesión",
-    "login_with_facebook": "Iniciar Sesión con Facebook",
-    "magic_link": "Enviar Enlace Mágico",
-    "email_placeholder": "tu@email.com",
-    "check_email": "Revisa tu correo para el enlace de inicio de sesión",
-    "invite_welcome": "Bienvenido/a al Libro Familiar",
+    "login_with_google": "Continuar con Google",
+    "google_help": "Inicia sesión con la cuenta de Google que coincide con el correo de tu perfil familiar.",
+    "google_not_configured": "Google Sign-In todavía no está configurado en este servidor.",
+    "invite_welcome": "Bienvenido/a al Árbol Familiar",
     "claim_invite": "Unirse a la Familia"
   },
   "common": {

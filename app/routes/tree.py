@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access_control import get_accessible_person_ids, get_person_access, redact_person_summary
 from app.auth import require_auth
 from app.database import get_db
 from app.models.person import Person, Visibility
@@ -9,9 +10,7 @@ from app.models.relationships import ParentChild, Partnership
 from app.schemas import (
     ParentChildResponse,
     PartnershipResponse,
-    PersonSummary,
     TreeResponse,
-    person_to_summary,
 )
 
 router = APIRouter(prefix="/api", tags=["tree"])
@@ -22,17 +21,23 @@ async def get_tree(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+
     # Get root person
-    result = await db.execute(select(Person).where(Person.is_root == True))
+    result = await db.execute(select(Person).where(Person.is_root.is_(True)))
     root = result.scalar_one_or_none()
-    root_id = root.id if root else ""
+    root_id = root.id if root and root.id in accessible_person_ids else ""
 
     # Get all visible persons
     result = await db.execute(
         select(Person).where(Person.visibility != Visibility.hidden.value)
     )
-    persons = result.scalars().all()
+    persons = [person for person in result.scalars().all() if person.id in accessible_person_ids]
     visible_person_ids = {person.id for person in persons}
+    summaries = [
+        redact_person_summary(person, await get_person_access(db, current_user, person))
+        for person in persons
+    ]
 
     # Get all parent-child relationships
     result = await db.execute(select(ParentChild))
@@ -54,7 +59,7 @@ async def get_tree(
 
     return TreeResponse(
         root_id=root_id,
-        persons=[person_to_summary(p) for p in persons],
+        persons=summaries,
         parent_child=[ParentChildResponse.model_validate(pc) for pc in parent_children],
         partnerships=[PartnershipResponse.model_validate(p) for p in partnerships],
     )

@@ -8,6 +8,7 @@ from datetime import datetime
 
 
 class AuthMethod(str, enum.Enum):
+    google_oauth = "google_oauth"
     facebook_oauth = "facebook_oauth"
     magic_link = "magic_link"
     invite_code = "invite_code"

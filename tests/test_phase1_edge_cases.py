@@ -1,20 +1,16 @@
 import asyncio
-from datetime import datetime, timedelta, timezone
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.auth import MagicLinkToken, UserSession
+from app.models.auth import UserSession
 from app.models.person import AccountState, Person, Visibility
 from app.models.relationships import ParentChild
-from app.services.auth_service import (
-    _hash_token,
-    create_magic_link,
-    create_session,
-    validate_session,
-)
+from app.routes import auth_routes
+from app.services.google_auth import GoogleAuthError
+from app.services.auth_service import create_session, validate_session
 
 ROOT_ID = "root-0000-0000-0000-000000000001"
 TYLER_ID = "tyler-000-0000-0000-000000000002"
@@ -56,39 +52,44 @@ async def test_branch_filter_sql_injection_payload_does_not_match(admin_client: 
 
 
 @pytest.mark.asyncio
-async def test_expired_magic_link_route_rejected(client: AsyncClient, seeded_db: AsyncSession):
-    token = await create_magic_link(seeded_db, TYLER_ID)
-    await seeded_db.commit()
-
-    result = await seeded_db.execute(
-        select(MagicLinkToken).where(MagicLinkToken.token_hash == _hash_token(token))
+async def test_google_login_invalid_credential_rejected(
+    client: AsyncClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(
+        auth_routes,
+        "verify_google_credential",
+        lambda credential: (_ for _ in ()).throw(GoogleAuthError("bad credential")),
     )
-    magic_link = result.scalar_one()
-    magic_link.expires_at = datetime.now(timezone.utc) - timedelta(minutes=1)
-    await seeded_db.commit()
 
-    resp = await client.get(f"/auth/magic-link/{token}")
-    assert resp.status_code == 404
-    assert "set-cookie" not in resp.headers
+    resp = await client.post("/auth/google", json={"credential": "bad-token"})
+    assert resp.status_code == 401
 
 
 @pytest.mark.asyncio
-async def test_magic_link_route_cannot_be_reused(client: AsyncClient, seeded_db: AsyncSession):
-    token = await create_magic_link(seeded_db, TYLER_ID)
-    await seeded_db.commit()
+async def test_google_login_requires_known_email(
+    client: AsyncClient,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.setattr(
+        auth_routes,
+        "verify_google_credential",
+        lambda credential: {
+            "sub": "google-sub-1",
+            "email": "missing@example.com",
+            "email_verified": True,
+        },
+    )
 
-    first = await client.get(f"/auth/magic-link/{token}")
-    second = await client.get(f"/auth/magic-link/{token}")
-
-    assert first.status_code == 200
-    assert second.status_code == 404
+    resp = await client.post("/auth/google", json={"credential": "signed-google-jwt"})
+    assert resp.status_code == 403
 
 
 @pytest.mark.asyncio
 async def test_session_limit_evicts_oldest_session(seeded_db: AsyncSession):
     tokens: list[str] = []
     for _ in range(11):
-        tokens.append(await create_session(seeded_db, TYLER_ID, "magic_link"))
+        tokens.append(await create_session(seeded_db, TYLER_ID, "google_oauth"))
         await seeded_db.commit()
 
     result = await seeded_db.execute(
@@ -226,9 +227,10 @@ async def test_tree_omits_hidden_person_relationships(
 
 
 @pytest.mark.asyncio
-async def test_suspended_user_magic_link_login_is_rejected(
+async def test_suspended_user_google_login_is_rejected(
     client: AsyncClient,
     seeded_db: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     suspended = Person(
         id="suspd-0000-0000-0000-000000000010",
@@ -240,9 +242,16 @@ async def test_suspended_user_magic_link_login_is_rejected(
     seeded_db.add(suspended)
     await seeded_db.commit()
 
-    token = await create_magic_link(seeded_db, suspended.id)
-    await seeded_db.commit()
+    monkeypatch.setattr(
+        auth_routes,
+        "verify_google_credential",
+        lambda credential: {
+            "sub": "google-sub-suspended",
+            "email": "suspended@example.com",
+            "email_verified": True,
+        },
+    )
 
-    resp = await client.get(f"/auth/magic-link/{token}")
-    assert resp.status_code == 404
+    resp = await client.post("/auth/google", json={"credential": "signed-google-jwt"})
+    assert resp.status_code == 403
     assert "set-cookie" not in resp.headers

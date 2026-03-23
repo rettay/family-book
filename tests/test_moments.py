@@ -1,5 +1,4 @@
 """Tests for Moments API — CRUD, feed, permissions."""
-import pytest
 
 
 TYLER_ID = "tyler-000-0000-0000-000000000002"
@@ -36,6 +35,15 @@ class TestMomentsCRUD:
         assert resp.status_code == 201
         assert resp.json()["about"]["id"] == TYLER_ID
 
+    async def test_member_can_create_moment_for_other_person(self, member_client):
+        resp = await member_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Impersonation attempt",
+            "person_id": TYLER_ID,
+        })
+        assert resp.status_code == 201
+        assert resp.json()["about"]["id"] == TYLER_ID
+
     async def test_create_moment_with_media_ids(self, admin_client):
         resp = await admin_client.post("/api/moments", json={
             "kind": "photo",
@@ -44,6 +52,22 @@ class TestMomentsCRUD:
         })
         assert resp.status_code == 201
         assert resp.json()["media"] == []  # fake ID, no media found
+
+    async def test_create_story_moment_with_tagged_people(self, admin_client):
+        resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "Story about more than one person",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+        })
+        assert resp.status_code == 201
+        body = resp.json()
+        assert body["kind"] == "story"
+        assert body["tagged_people"] == [{
+            "id": MEMBER_ID,
+            "display_name": "Jane Martin",
+            "photo_url": None,
+        }]
 
     async def test_create_moment_bad_person(self, admin_client):
         resp = await admin_client.post("/api/moments", json={
@@ -152,6 +176,37 @@ class TestMomentsFeed:
         for item in resp.json():
             assert item["about"]["id"] == TYLER_ID
 
+    async def test_member_branch_filter_returns_shared_results(self, admin_client, member_client):
+        included = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Martin branch update",
+            "person_id": TYLER_ID,
+        })
+        excluded = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Other branch update",
+            "person_id": "yuliya-00-0000-0000-000000000003",
+        })
+
+        resp = await member_client.get("/api/moments?branch=martin")
+        assert resp.status_code == 200
+        ids = {item["id"] for item in resp.json()}
+        assert included.json()["id"] in ids
+        assert excluded.json()["id"] not in ids
+
+    async def test_feed_filter_by_tagged_person(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "Tagged family story",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+        })
+        moment_id = create_resp.json()["id"]
+
+        resp = await admin_client.get(f"/api/moments?person={MEMBER_ID}")
+        assert resp.status_code == 200
+        assert any(item["id"] == moment_id for item in resp.json())
+
 
 class TestMomentsPermissions:
     """Permission checks for moment operations."""
@@ -187,3 +242,16 @@ class TestMomentsPermissions:
 
         resp = await member_client.get(f"/api/moments/{moment_id}")
         assert resp.status_code == 403
+
+    async def test_admin_only_moment_not_visible_to_member(self, admin_client, member_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Admins only",
+            "visibility": "admins",
+        })
+        moment_id = create_resp.json()["id"]
+
+        detail_resp = await member_client.get(f"/api/moments/{moment_id}")
+        feed_resp = await member_client.get("/api/moments")
+        assert detail_resp.status_code == 403
+        assert all(item["id"] != moment_id for item in feed_resp.json())

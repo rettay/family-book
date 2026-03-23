@@ -1,7 +1,7 @@
 import enum
 import json
 
-from sqlalchemy import Boolean, ForeignKey, String, Text
+from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, generate_uuid, utcnow
@@ -11,7 +11,9 @@ from datetime import datetime
 class MomentKind(str, enum.Enum):
     photo = "photo"
     video = "video"
+    audio = "audio"
     text = "text"
+    story = "story"
     milestone = "milestone"
     memorial = "memorial"
 
@@ -65,6 +67,7 @@ class Moment(Base):
     title: Mapped[str | None] = mapped_column(String(300), default=None)
     body: Mapped[str | None] = mapped_column(Text, default=None)
     _media_ids: Mapped[str | None] = mapped_column("media_ids", Text, default="[]")
+    _tagged_person_ids: Mapped[str | None] = mapped_column("tagged_person_ids", Text, default="[]")
     milestone_type: Mapped[str | None] = mapped_column(String(30), default=None)
     occurred_at: Mapped[datetime] = mapped_column(default=utcnow)
     occurred_precision: Mapped[str] = mapped_column(
@@ -84,6 +87,16 @@ class Moment(Base):
     @media_ids.setter
     def media_ids(self, value: list[str]) -> None:
         self._media_ids = json.dumps(value)
+
+    @property
+    def tagged_person_ids(self) -> list[str]:
+        if self._tagged_person_ids:
+            return json.loads(self._tagged_person_ids)
+        return []
+
+    @tagged_person_ids.setter
+    def tagged_person_ids(self, value: list[str]) -> None:
+        self._tagged_person_ids = json.dumps(value)
 
     def __repr__(self) -> str:
         return f"<Moment id={self.id[:8]} kind={self.kind}>"

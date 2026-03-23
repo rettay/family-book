@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Семейная Книга",
-    "tagline": "Наша гостиная, а не торговый центр"
+    "name": "Семейное Древо",
+    "tagline": ""
   },
   "nav": {
     "tree": "Семейное Древо",
@@ -71,11 +71,10 @@
   },
   "auth": {
     "login": "Войти",
-    "login_with_facebook": "Войти через Facebook",
-    "magic_link": "Отправить ссылку для входа",
-    "email_placeholder": "ваш@email.com",
-    "check_email": "Проверьте почту — ссылка для входа отправлена",
-    "invite_welcome": "Добро пожаловать в Семейную Книгу",
+    "login_with_google": "Продолжить через Google",
+    "google_help": "Войдите через Google-аккаунт, который совпадает с адресом почты в семейном профиле.",
+    "google_not_configured": "Google Sign-In пока не настроен на этом сервере.",
+    "invite_welcome": "Добро пожаловать в Семейное Древо",
     "claim_invite": "Присоединиться к семье"
   },
   "common": {

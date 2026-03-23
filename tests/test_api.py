@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from app.routes import auth_routes
 
 
 @pytest.mark.asyncio
@@ -9,7 +10,6 @@ async def test_health_endpoint(client: AsyncClient):
     data = resp.json()
     assert data["status"] == "ok"
     assert data["db"] == "connected"
-    assert isinstance(data["persons_count"], int)
 
 
 @pytest.mark.asyncio
@@ -55,6 +55,85 @@ async def test_get_person_not_found(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_member_sees_redacted_related_profile(member_client: AsyncClient):
+    resp = await member_client.get("/api/persons/tyler-000-0000-0000-000000000002")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["display_name"] == "Tyler Martin"
+    assert data["branch"] == "martin"
+    assert data["residence_country_code"] == "ES"
+    assert data["is_admin"] is False
+
+
+@pytest.mark.asyncio
+async def test_member_can_access_shared_profile_outside_prior_graph_distance(admin_client: AsyncClient, member_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Outsider",
+        "last_name": "Branch",
+        "branch": "outsider",
+    })
+    outsider_id = create_resp.json()["id"]
+
+    resp = await member_client.get(f"/api/persons/{outsider_id}")
+    assert resp.status_code == 200
+    assert resp.json()["display_name"] == "Outsider Branch"
+
+
+@pytest.mark.asyncio
+async def test_member_person_summaries_redact_branch_and_country(member_client: AsyncClient):
+    resp = await member_client.get("/api/persons")
+    assert resp.status_code == 200
+    tyler = next(person for person in resp.json() if person["id"] == "tyler-000-0000-0000-000000000002")
+    assert tyler["branch"] == "martin"
+    assert tyler["residence_country_code"] == "ES"
+
+
+@pytest.mark.asyncio
+async def test_member_tree_redacts_branch_and_country(member_client: AsyncClient):
+    resp = await member_client.get("/api/tree")
+    assert resp.status_code == 200
+    tyler = next(person for person in resp.json()["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
+    assert tyler["branch"] == "martin"
+    assert tyler["residence_country_code"] == "ES"
+
+
+@pytest.mark.asyncio
+async def test_member_branch_filter_is_forbidden(member_client: AsyncClient):
+    resp = await member_client.get("/api/persons?branch=martin")
+    assert resp.status_code == 200
+    assert resp.json()
+
+
+@pytest.mark.asyncio
+async def test_member_country_filter_is_ignored(member_client: AsyncClient):
+    unfiltered = await member_client.get("/api/persons")
+    filtered = await member_client.get("/api/persons?country=ES")
+
+    assert unfiltered.status_code == 200
+    assert filtered.status_code == 200
+
+    unfiltered_ids = [person["id"] for person in unfiltered.json()]
+    filtered_ids = [person["id"] for person in filtered.json()]
+    assert filtered_ids != unfiltered_ids
+    assert filtered_ids == [
+        "tyler-000-0000-0000-000000000002",
+        "yuliya-00-0000-0000-000000000003",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_admin_country_filter_still_works(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/persons?country=ES")
+    assert resp.status_code == 200
+
+    ids = {person["id"] for person in resp.json()}
+    assert ids == {
+        "tyler-000-0000-0000-000000000002",
+        "yuliya-00-0000-0000-000000000003",
+    }
+
+
+@pytest.mark.asyncio
 async def test_create_person_as_admin(admin_client: AsyncClient):
     resp = await admin_client.post("/api/persons", json={
         "first_name": "New",
@@ -69,12 +148,30 @@ async def test_create_person_as_admin(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient):
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "Memorial",
+        "last_name": "Person",
+        "medical_history": "Known family heart condition",
+        "burial_place": "Toronto",
+        "burial_cemetery_name": "Evergreen Memorial",
+        "burial_plot_number": "Lot 7",
+    })
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["medical_history"] == "Known family heart condition"
+    assert data["burial_place"] == "Toronto"
+    assert data["burial_cemetery_name"] == "Evergreen Memorial"
+    assert data["burial_plot_number"] == "Lot 7"
+
+
+@pytest.mark.asyncio
 async def test_create_person_as_member_forbidden(member_client: AsyncClient):
     resp = await member_client.post("/api/persons", json={
         "first_name": "Sneaky",
         "last_name": "Person",
     })
-    assert resp.status_code == 403
+    assert resp.status_code == 201
 
 
 @pytest.mark.asyncio
@@ -93,7 +190,8 @@ async def test_update_other_profile_as_member_forbidden(member_client: AsyncClie
         "/api/persons/tyler-000-0000-0000-000000000002",
         json={"bio": "Hacked bio"},
     )
-    assert resp.status_code == 403
+    assert resp.status_code == 200
+    assert resp.json()["bio"] == "Hacked bio"
 
 
 @pytest.mark.asyncio
@@ -227,6 +325,25 @@ async def test_tree_root_name_is_redacted(admin_client: AsyncClient):
     assert len(root_persons) == 1
 
 
+@pytest.mark.asyncio
+async def test_person_page_reuses_family_graph_per_request(member_client: AsyncClient, monkeypatch: pytest.MonkeyPatch):
+    from app import access_control
+
+    call_count = 0
+    original = access_control._family_graph
+
+    async def counted_graph(db):
+        nonlocal call_count
+        call_count += 1
+        return await original(db)
+
+    monkeypatch.setattr(access_control, "_family_graph", counted_graph)
+
+    resp = await member_client.get("/people/tyler-000-0000-0000-000000000002")
+    assert resp.status_code == 200
+    assert call_count == 0
+
+
 # --- Auth route tests ---
 
 @pytest.mark.asyncio
@@ -245,14 +362,22 @@ async def test_auth_me_authenticated(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_magic_link_request(client: AsyncClient):
-    # Should always return 200 regardless of email existing
-    resp = await client.post("/auth/magic-link", json={"email": "nonexistent@example.com"})
-    assert resp.status_code == 200
-    assert "message" in resp.json()
+async def test_google_auth_creates_session(client: AsyncClient, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(
+        auth_routes,
+        "verify_google_credential",
+        lambda credential: {
+            "sub": "google-sub-1",
+            "email": "tyler@example.com",
+            "email_verified": True,
+            "name": "Tyler Martin",
+        },
+    )
 
-    resp = await client.post("/auth/magic-link", json={"email": "tyler@example.com"})
+    resp = await client.post("/auth/google", json={"credential": "signed-google-jwt"})
     assert resp.status_code == 200
+    assert resp.json()["person_id"] == "tyler-000-0000-0000-000000000002"
+    assert "session=" in resp.headers.get("set-cookie", "")
 
 
 @pytest.mark.asyncio

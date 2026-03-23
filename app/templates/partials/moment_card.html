@@ -75,6 +75,17 @@
   </div>
   {% endif %}
 
+  {% if m.tagged_people %}
+  <div class="moment__body" style="padding-top:0;">
+    <p class="text-sm text-muted">
+      Tagged:
+      {% for tagged_person in m.tagged_people %}
+      <a href="/people/{{ tagged_person.id }}">{{ tagged_person.display_name }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  </div>
+  {% endif %}
+
   <div class="moment__actions">
     <div class="reactions">
       {% for emoji, count in (m.reactions or {}).items() %}

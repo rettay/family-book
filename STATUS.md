@@ -2,9 +2,9 @@
 
 ## Overall State
 
-Family Book is in **product-contract reset**.
+Family Book is in **shared-collaboration rebuild**.
 
-The codebase is substantial and partially tested, but the current shipped behavior is not aligned with the desired product model of a collaborative family wiki with flat member access.
+The product contract reset is complete, and the first implementation sprint now aligns the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, and richer persisted family-history content.
 
 ## North Star
 
@@ -17,13 +17,15 @@ The codebase is substantial and partially tested, but the current shipped behavi
 
 ## Current Baseline
 
-- Test baseline from current repo inspection:
+- Focused Sprint 01 verification:
+  - `uv run pytest tests/test_models.py tests/test_api.py tests/test_auth.py tests/test_media.py tests/test_moments.py tests/test_phase1_edge_cases.py -q`
+  - Result: `113 passed, 1 xfailed`
+- Syntax smoke check:
+  - `uv run python -m compileall app`
+  - Result: success
+- Known repo-wide baseline before this sprint work:
   - `uv run pytest -q`
-  - Result: `143 passed, 2 failed, 1 xfailed`
-- The two failing tests are naming/branding drift, not core runtime collapse.
-- The larger issue is product mismatch:
-  - current access-control behavior is graph-distance-driven and restrictive,
-  - the desired product is collaborative and flat-access for family members.
+  - Result observed earlier: `143 passed, 2 failed, 1 xfailed`
 
 ## Current Risks
 
@@ -35,11 +37,10 @@ The codebase is substantial and partially tested, but the current shipped behavi
 
 ## Current Priority Order
 
-1. Canonicalize the product contract and execution system
-2. Repair account/invite/onboarding foundation
-3. Replace graph-distance access with the flat family access model
-4. Expand the person/content model for collaborative family history
-5. Add user-facing tree customization, filtering, and map support
+1. Audit and harden the implemented Sprint 01 collaboration spine
+2. Add user-facing tree customization, filtering, and map support
+3. Add version history and moderation controls for broad collaborative editing
+4. Clarify and harden sensitive-data policy and encryption guarantees
 
 ## Active Sprint
 

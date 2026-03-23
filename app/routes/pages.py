@@ -6,20 +6,29 @@ All data fetching happens server-side. Templates use HTMX for dynamic interactio
 
 import os
 
-from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access_control import (
+    can_manage_person,
+    can_view_moment,
+    get_accessible_person_ids,
+    get_person_access,
+    redact_person_detail,
+    redact_person_summary,
+)
 from app.auth import get_current_user, require_admin, require_auth
 from app.database import get_db
 from app.i18n import t as translate
 from app.models.media import Media
 from app.models.moments import Moment, MomentComment
 from app.models.person import Person, AccountState, Visibility
+from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
-from app.services.auth_service import get_valid_invite
+from app.schemas import PersonSummary
 
 router = APIRouter(tags=["pages"])
 
@@ -72,6 +81,19 @@ async def _build_moment_card_simple(db: AsyncSession, moment: Moment, current_us
     if p:
         about = {"id": p.id, "display_name": p.display_name, "photo_url": p.photo_url}
 
+    tagged_people = []
+    for tagged_person_id in moment.tagged_person_ids:
+        result = await db.execute(select(Person).where(Person.id == tagged_person_id))
+        tagged_person = result.scalar_one_or_none()
+        if tagged_person:
+            tagged_people.append(
+                {
+                    "id": tagged_person.id,
+                    "display_name": tagged_person.display_name,
+                    "photo_url": tagged_person.photo_url,
+                }
+            )
+
     # Media
     media_list = []
     if moment.media_ids:
@@ -109,6 +131,7 @@ async def _build_moment_card_simple(db: AsyncSession, moment: Moment, current_us
         "kind": moment.kind,
         "poster": poster,
         "about": about,
+        "tagged_people": tagged_people,
         "title": moment.title,
         "body": moment.body,
         "media": media_list,
@@ -134,12 +157,14 @@ async def home(
     if not current_user:
         return templates.TemplateResponse("landing.html", _ctx(request))
 
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+
     # Build moments feed
-    query = select(Moment)
+    query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
     if kind:
         query = query.where(Moment.kind == kind)
     if not current_user.is_admin:
-        query = query.where(Moment.visibility != "hidden")
+        query = query.where(Moment.visibility == "members")
     query = query.order_by(Moment.occurred_at.desc()).limit(20)
     result = await db.execute(query)
     moments_orm = result.scalars().all()
@@ -163,30 +188,40 @@ async def login_page(request: Request, current_user: Person | None = Depends(get
     from app.config import get_settings
     settings = get_settings()
     return templates.TemplateResponse("login.html", _ctx(
-        request, fb_enabled=settings.FB_ENABLED,
+        request, google_client_id=settings.GOOGLE_CLIENT_ID,
     ))
 
 
 @router.get("/invite/{token}", response_class=HTMLResponse)
-async def invite_page(token: str, request: Request, db: AsyncSession = Depends(get_db)):
+async def invite_page(
+    token: str,
+    request: Request,
+    current_user: Person | None = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user:
+        return RedirectResponse("/", status_code=302)
+
+    from app.services.auth_service import get_valid_invite
+
     invite = await get_valid_invite(db, token)
     if not invite:
         return templates.TemplateResponse("invite.html", _ctx(
-            request, error="Invalid or expired invite link.", token=token,
-            person_name="", branch="",
+            request, error="This invite is invalid, expired, or already claimed.", token=token
         ))
 
-    result = await db.execute(select(Person).where(Person.id == invite.person_id))
-    person = result.scalar_one_or_none()
+    person = await db.get(Person, invite.person_id)
     if not person:
         return templates.TemplateResponse("invite.html", _ctx(
-            request, error="Person not found.", token=token,
-            person_name="", branch="",
+            request, error="This invite no longer points to a valid family member.", token=token
         ))
 
     return templates.TemplateResponse("invite.html", _ctx(
-        request, token=token, person_name=person.display_name,
-        branch=person.branch, error=None,
+        request,
+        person_name=person.display_name,
+        branch=person.branch,
+        token=token,
+        error=None,
     ))
 
 
@@ -211,22 +246,35 @@ async def people_page(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Person).where(Person.visibility != Visibility.hidden.value)
-    if branch:
-        query = query.where(Person.branch == branch)
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    branch_filter = branch
+    query = select(Person).where(
+        Person.visibility != Visibility.hidden.value,
+        Person.id.in_(accessible_person_ids),
+    )
+    if branch_filter:
+        query = query.where(Person.branch == branch_filter)
     query = query.order_by(Person.last_name, Person.first_name)
     result = await db.execute(query)
     persons = result.scalars().all()
 
-    # Get distinct branches
     branch_result = await db.execute(
-        select(Person.branch).where(Person.branch.isnot(None)).distinct()
+        select(Person.branch)
+        .where(Person.branch.isnot(None), Person.id.in_(accessible_person_ids))
+        .distinct()
     )
     branches = sorted([row[0] for row in branch_result.all() if row[0]])
 
+    summaries: list[PersonSummary] = []
+    for person in persons:
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            summaries.append(redact_person_summary(person, access))
+
     return templates.TemplateResponse("people.html", _ctx(
         request, current_user, active_page="people",
-        persons=persons, branches=branches, branch_filter=branch,
+        persons=summaries,
+        branches=branches, branch_filter=branch_filter,
     ))
 
 
@@ -241,20 +289,23 @@ async def person_detail_page(
     person = result.scalar_one_or_none()
     if not person:
         return RedirectResponse("/people", status_code=302)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        return RedirectResponse("/people", status_code=302)
 
     # Parents
     result = await db.execute(
         select(Person).join(ParentChild, ParentChild.parent_id == Person.id)
         .where(ParentChild.child_id == person_id)
     )
-    parents = result.scalars().all()
+    parent_people = result.scalars().all()
 
     # Children
     result = await db.execute(
         select(Person).join(ParentChild, ParentChild.child_id == Person.id)
         .where(ParentChild.parent_id == person_id)
     )
-    children = result.scalars().all()
+    child_people = result.scalars().all()
 
     # Partners
     result = await db.execute(
@@ -275,7 +326,7 @@ async def person_detail_page(
             partners.append(partner)
 
     # Siblings (share a parent)
-    parent_ids = [p.id for p in parents]
+    parent_ids = [p.id for p in parent_people]
     siblings = []
     if parent_ids:
         result = await db.execute(
@@ -284,12 +335,36 @@ async def person_detail_page(
         )
         siblings = list({s.id: s for s in result.scalars().all()}.values())
 
-    can_edit = person.id == current_user.id or current_user.is_admin
+    can_edit = can_manage_person(current_user, person)
+    visible_parents = []
+    for parent in parent_people:
+        parent_access = await get_person_access(db, current_user, parent)
+        if parent_access.can_view:
+            visible_parents.append(redact_person_summary(parent, parent_access))
+
+    visible_children = []
+    for child in child_people:
+        child_access = await get_person_access(db, current_user, child)
+        if child_access.can_view:
+            visible_children.append(redact_person_summary(child, child_access))
+
+    visible_partners = []
+    for partner in partners:
+        partner_access = await get_person_access(db, current_user, partner)
+        if partner_access.can_view:
+            visible_partners.append(redact_person_summary(partner, partner_access))
+
+    visible_siblings = []
+    for sibling in siblings:
+        sibling_access = await get_person_access(db, current_user, sibling)
+        if sibling_access.can_view:
+            visible_siblings.append(redact_person_summary(sibling, sibling_access))
+    person_view = redact_person_detail(person, access)
 
     return templates.TemplateResponse("person.html", _ctx(
         request, current_user, active_page="people",
-        person=person, parents=parents, children=children,
-        partners=partners, siblings=siblings, can_edit=can_edit,
+        person=person_view, parents=visible_parents, children=visible_children,
+        partners=visible_partners, siblings=visible_siblings, can_edit=can_edit,
     ))
 
 
@@ -300,9 +375,6 @@ async def person_edit_page(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    if person_id != current_user.id and not current_user.is_admin:
-        return RedirectResponse(f"/people/{person_id}", status_code=302)
-
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
     if not person:
@@ -310,6 +382,16 @@ async def person_edit_page(
 
     return templates.TemplateResponse("person_edit.html", _ctx(
         request, current_user, active_page="people", person=person,
+    ))
+
+
+@router.get("/people/new", response_class=HTMLResponse)
+async def new_person_page(
+    request: Request,
+    current_user: Person = Depends(require_auth),
+):
+    return templates.TemplateResponse("person_new.html", _ctx(
+        request, current_user, active_page="people",
     ))
 
 
@@ -325,9 +407,12 @@ async def person_card(
     person = result.scalar_one_or_none()
     if not person:
         return HTMLResponse("<p>Person not found</p>")
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        return HTMLResponse("<p>Person not found</p>")
 
     return templates.TemplateResponse("partials/person_sidebar.html", _ctx(
-        request, current_user, person=person,
+        request, current_user, person=redact_person_detail(person, access),
     ))
 
 
@@ -360,15 +445,26 @@ async def admin_page(
     )
     pending_persons = result.scalars().all()
 
-    # All persons for invite select
-    result = await db.execute(
-        select(Person).order_by(Person.last_name, Person.first_name)
+    people_result = await db.execute(
+        select(Person).where(Person.is_root.is_(False)).order_by(Person.last_name, Person.first_name)
     )
-    all_persons = result.scalars().all()
+    managed_people = people_result.scalars().all()
+
+    invite_result = await db.execute(select(Invite).order_by(Invite.created_at.desc()).limit(20))
+    invites = invite_result.scalars().all()
+
+    invite_people: dict[str, Person] = {}
+    for invite in invites:
+        person = await db.get(Person, invite.person_id)
+        if person:
+            invite_people[invite.id] = person
 
     return templates.TemplateResponse("admin.html", _ctx(
         request, current_user, active_page="admin",
-        stats=stats, pending_persons=pending_persons, all_persons=all_persons,
+        stats=stats, pending_persons=pending_persons,
+        managed_people=managed_people,
+        invites=invites,
+        invite_people=invite_people,
     ))
 
 
@@ -407,23 +503,26 @@ async def partial_moments(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: render moment cards for infinite scroll."""
-    from sqlalchemy import extract
 
-    query = select(Moment)
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
     if before:
         result = await db.execute(select(Moment.occurred_at).where(Moment.id == before))
         cursor_time = result.scalar_one_or_none()
         if cursor_time:
             query = query.where(Moment.occurred_at < cursor_time)
     if person:
-        query = query.where(Moment.person_id == person)
+        if person not in accessible_person_ids:
+            return HTMLResponse("")
     if kind:
         query = query.where(Moment.kind == kind)
     if not current_user.is_admin:
-        query = query.where(Moment.visibility != "hidden")
+        query = query.where(Moment.visibility == "members")
     query = query.order_by(Moment.occurred_at.desc()).limit(limit)
     result = await db.execute(query)
     moments_orm = result.scalars().all()
+    if person:
+        moments_orm = [m for m in moments_orm if m.person_id == person or person in m.tagged_person_ids]
 
     moments = []
     for m in moments_orm:
@@ -460,7 +559,11 @@ async def partial_people_grid(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: people grid for live search."""
-    query = select(Person).where(Person.visibility != Visibility.hidden.value)
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    query = select(Person).where(
+        Person.visibility != Visibility.hidden.value,
+        Person.id.in_(accessible_person_ids),
+    )
     if search:
         like = f"%{search}%"
         query = query.where(
@@ -472,8 +575,14 @@ async def partial_people_grid(
     result = await db.execute(query)
     persons = result.scalars().all()
 
+    summaries: list[PersonSummary] = []
+    for person in persons:
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            summaries.append(redact_person_summary(person, access))
+
     return templates.TemplateResponse("partials/people_grid.html", _ctx(
-        request, current_user, persons=persons,
+        request, current_user, persons=summaries,
     ))
 
 
@@ -485,11 +594,23 @@ async def partial_media_gallery(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: media gallery for person page."""
+    person_result = await db.execute(select(Person).where(Person.id == person_id))
+    person = person_result.scalar_one_or_none()
+    if not person:
+        return HTMLResponse("")
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        return HTMLResponse("")
+
     result = await db.execute(
-        select(Media).where(Media.person_id == person_id).order_by(Media.created_at.desc())
+        select(Media).order_by(Media.created_at.desc())
     )
-    media_list = result.scalars().all()
-    can_upload = person_id == current_user.id or current_user.is_admin
+    media_list = [
+        media
+        for media in result.scalars().all()
+        if media.person_id == person_id or person_id in media.tagged_person_ids
+    ]
+    can_upload = can_manage_person(current_user, person)
 
     return templates.TemplateResponse("partials/media_gallery.html", _ctx(
         request, current_user, media_list=media_list,
@@ -505,6 +626,11 @@ async def partial_comments(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: comment thread for a moment."""
+    moment_result = await db.execute(select(Moment).where(Moment.id == moment_id))
+    moment = moment_result.scalar_one_or_none()
+    if not moment or not await can_view_moment(db, current_user, moment):
+        return HTMLResponse("")
+
     result = await db.execute(
         select(MomentComment)
         .where(MomentComment.moment_id == moment_id)

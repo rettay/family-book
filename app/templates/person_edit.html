@@ -104,6 +104,11 @@
       </div>
 
       <div class="form-group">
+        <label>Medical History</label>
+        <textarea class="form-textarea" name="medical_history" rows="4">{{ person.medical_history or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
         <label>{{ t('person.languages') }} (comma-separated codes: en, es, ru)</label>
         <input type="text" class="form-input" name="languages" value="{{ person.languages | join(', ') }}">
       </div>
@@ -131,12 +136,32 @@
         </div>
       </div>
 
-      {% if current_user.is_admin %}
+      <h3 style="font-size:0.9rem; font-weight:600; margin: 16px 0 8px; color:var(--text-muted);">Burial Details</h3>
+
       <div class="form-row">
+        <div class="form-group">
+          <label>Burial Place</label>
+          <input type="text" class="form-input" name="burial_place" value="{{ person.burial_place or '' }}">
+        </div>
+        <div class="form-group">
+          <label>Cemetery Name</label>
+          <input type="text" class="form-input" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Plot Number</label>
+          <input type="text" class="form-input" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
+        </div>
         <div class="form-group">
           <label>Branch</label>
           <input type="text" class="form-input" name="branch" value="{{ person.branch or '' }}">
         </div>
+      </div>
+
+      {% if current_user.is_admin %}
+      <div class="form-row">
         <div class="form-group">
           <label>Visibility</label>
           <select class="form-select" name="visibility">

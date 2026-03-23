@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "Family Book",
-    "tagline": "Our living room, not the mall"
+    "name": "Family Tree",
+    "tagline": ""
   },
   "nav": {
     "tree": "Family Tree",
@@ -71,11 +71,10 @@
   },
   "auth": {
     "login": "Log In",
-    "login_with_facebook": "Log In with Facebook",
-    "magic_link": "Send Magic Link",
-    "email_placeholder": "your@email.com",
-    "check_email": "Check your email for the login link",
-    "invite_welcome": "Welcome to Family Book",
+    "login_with_google": "Continue with Google",
+    "google_help": "Sign in with the Google account that matches the email on your family profile.",
+    "google_not_configured": "Google Sign-In is not configured on this server yet.",
+    "invite_welcome": "Welcome to Family Tree",
     "claim_invite": "Join Family"
   },
   "common": {

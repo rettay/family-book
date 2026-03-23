@@ -12,6 +12,7 @@ os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production-use-1234
 os.environ.setdefault("FERNET_KEY", "dGVzdC1mZXJuZXQta2V5LW5vdC1mb3ItcHJvZHVjdGlvbg==")
 os.environ.setdefault("BASE_URL", "http://localhost:8000")
 os.environ.setdefault("DATABASE_URL", "sqlite:///data/family.db")
+os.environ.setdefault("GOOGLE_CLIENT_ID", "test-google-client-id.apps.googleusercontent.com")
 
 from app.database import get_db
 from app.models.base import Base
@@ -128,9 +129,10 @@ async def seeded_db(db: AsyncSession):
     # Tyler and Yuliya are parents of root (Luna)
     pc1 = ParentChild(parent_id=tyler.id, child_id=root.id, kind="biological")
     pc2 = ParentChild(parent_id=yuliya.id, child_id=root.id, kind="biological")
-    # Grandpa is Tyler's parent
+    # Grandpa is Tyler's parent and Jane's parent so member fixtures remain in-family.
     pc3 = ParentChild(parent_id=grandpa.id, child_id=tyler.id, kind="biological")
-    db.add_all([pc1, pc2, pc3])
+    pc4 = ParentChild(parent_id=grandpa.id, child_id=member.id, kind="biological")
+    db.add_all([pc1, pc2, pc3, pc4])
 
     # Tyler + Yuliya partnership (canonical ordering)
     a_id, b_id = sorted([tyler.id, yuliya.id])
@@ -201,7 +203,7 @@ async def admin_client(seeded_db: AsyncSession, client: AsyncClient):
     token = await create_session(
         seeded_db,
         person_id="tyler-000-0000-0000-000000000002",
-        auth_method="magic_link",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
     client.cookies.set("session", token)
@@ -227,7 +229,7 @@ async def member_client(seeded_db: AsyncSession, session_factory, app_under_test
     token = await create_session(
         seeded_db,
         person_id="member-00-0000-0000-000000000005",
-        auth_method="magic_link",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
 

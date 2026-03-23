@@ -1,5 +1,6 @@
 import hashlib
 import os
+import shutil
 import uuid
 from io import BytesIO
 
@@ -109,6 +110,7 @@ async def save_media_file(
     person_id: str,
     uploaded_by: str,
     caption: str | None = None,
+    tagged_person_ids: list[str] | None = None,
     data_dir: str | None = None,
 ) -> tuple[Media, bool]:
     """
@@ -127,13 +129,18 @@ async def save_media_file(
 
     existing = await check_duplicate(db, file_hash)
     if existing:
+        if tagged_person_ids:
+            existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
+        if caption and not existing.caption:
+            existing.caption = caption
+        await db.flush()
         return existing, True
 
     # Strip EXIF from images
     clean_data = strip_exif(file_data, mime_type)
 
     if data_dir is None:
-        data_dir = get_settings().DATA_DIR
+        data_dir = get_settings().resolved_data_dir
 
     media_id = str(uuid.uuid4())
     ext = os.path.splitext(filename)[1].lower() if filename else ""
@@ -172,6 +179,103 @@ async def save_media_file(
         source=MediaSource.manual.value,
         uploaded_by=uploaded_by,
     )
+    media.tagged_person_ids = tagged_person_ids or []
+    db.add(media)
+    await db.flush()
+
+    return media, False
+
+
+async def save_media_temp_file(
+    db: AsyncSession,
+    temp_path: str,
+    file_size: int,
+    file_hash: str,
+    filename: str,
+    mime_type: str,
+    person_id: str,
+    uploaded_by: str,
+    caption: str | None = None,
+    tagged_person_ids: list[str] | None = None,
+    data_dir: str | None = None,
+) -> tuple[Media, bool]:
+    """Persist a streamed upload without buffering the entire file in route code."""
+    if mime_type not in ALLOWED_MIME_TYPES:
+        raise ValueError(f"Unsupported MIME type: {mime_type}")
+
+    category = _category_for_mime(mime_type)
+    max_size = MAX_SIZE_BY_CATEGORY[category]
+    if file_size > max_size:
+        raise ValueError(f"File too large: {file_size} bytes (max {max_size})")
+
+    existing = await check_duplicate(db, file_hash)
+    if existing:
+        if tagged_person_ids:
+            existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
+        if caption and not existing.caption:
+            existing.caption = caption
+        await db.flush()
+        os.unlink(temp_path)
+        return existing, True
+
+    if data_dir is None:
+        data_dir = get_settings().resolved_data_dir
+
+    media_id = str(uuid.uuid4())
+    ext = os.path.splitext(filename)[1].lower() if filename else ""
+    relative_path = f"{media_id}{ext}"
+
+    media_dir = os.path.join(data_dir, "media")
+    os.makedirs(media_dir, exist_ok=True)
+
+    file_path = os.path.join(media_dir, relative_path)
+
+    width: int | None = None
+    height: int | None = None
+    stored_size = file_size
+
+    try:
+        if mime_type.startswith("image/"):
+            with open(temp_path, "rb") as temp_file:
+                original_data = temp_file.read()
+            clean_data = strip_exif(original_data, mime_type)
+            with open(file_path, "wb") as output_file:
+                output_file.write(clean_data)
+
+            thumb_data = generate_thumbnail(clean_data, mime_type)
+            if thumb_data:
+                thumb_dir = os.path.join(media_dir, "thumbnails")
+                os.makedirs(thumb_dir, exist_ok=True)
+                thumb_path = os.path.join(thumb_dir, f"{media_id}.jpg")
+                with open(thumb_path, "wb") as thumb_file:
+                    thumb_file.write(thumb_data)
+
+            width, height = get_image_dimensions(clean_data, mime_type)
+            stored_size = len(clean_data)
+            os.unlink(temp_path)
+        else:
+            shutil.move(temp_path, file_path)
+    except Exception:
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+        raise
+
+    media = Media(
+        id=media_id,
+        person_id=person_id,
+        file_path=relative_path,
+        original_filename=filename,
+        media_type=_media_type_for_mime(mime_type),
+        mime_type=mime_type,
+        width=width,
+        height=height,
+        file_size_bytes=stored_size,
+        file_hash=file_hash,
+        caption=caption,
+        source=MediaSource.manual.value,
+        uploaded_by=uploaded_by,
+    )
+    media.tagged_person_ids = tagged_person_ids or []
     db.add(media)
     await db.flush()
 

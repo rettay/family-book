@@ -5,9 +5,7 @@
 <div class="container" style="padding-top: 16px;">
   <div class="flex-between mb-16">
     <h1 style="font-family: var(--font-serif); font-size: 1.3rem;">{{ t('nav.people') }}</h1>
-    {% if current_user.is_admin %}
-    <a href="/admin/people/new" class="btn btn--primary btn--sm">+ {{ t('person.add') }}</a>
-    {% endif %}
+    <a href="/people/new" class="btn btn--primary btn--sm">+ {{ t('person.add') }}</a>
   </div>
 
   <div class="search-bar">

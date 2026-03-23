@@ -2,6 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access_control import (
+    can_manage_person,
+    get_accessible_person_ids,
+    get_person_access,
+    redact_person_detail,
+    redact_person_summary,
+)
 from app.auth import require_admin, require_auth
 from app.database import get_db
 from app.models.person import Person, Visibility
@@ -11,7 +18,6 @@ from app.schemas import (
     PersonSummary,
     PersonUpdate,
     person_to_detail,
-    person_to_summary,
 )
 from app.services.audit_service import log_audit
 
@@ -26,6 +32,8 @@ async def list_persons(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    country_filter = country
+
     query = select(Person).where(Person.visibility != Visibility.hidden.value)
 
     if search:
@@ -38,13 +46,21 @@ async def list_persons(
         )
     if branch:
         query = query.where(Person.branch == branch)
-    if country:
-        query = query.where(Person.residence_country_code == country)
+    if country_filter:
+        query = query.where(Person.residence_country_code == country_filter)
 
     query = query.order_by(Person.last_name, Person.first_name)
     result = await db.execute(query)
     persons = result.scalars().all()
-    return [person_to_summary(p) for p in persons]
+    accessible_ids = await get_accessible_person_ids(db, current_user)
+    summaries: list[PersonSummary] = []
+    for person in persons:
+        if person.id not in accessible_ids:
+            continue
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            summaries.append(redact_person_summary(person, access))
+    return summaries
 
 
 @router.get("/{person_id}", response_model=PersonDetail)
@@ -57,15 +73,16 @@ async def get_person(
     person = result.scalar_one_or_none()
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
-    if person.visibility == Visibility.hidden.value and not current_user.is_admin:
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
         raise HTTPException(status_code=403, detail="Not visible")
-    return person_to_detail(person)
+    return redact_person_detail(person, access)
 
 
 @router.post("", response_model=PersonDetail, status_code=status.HTTP_201_CREATED)
 async def create_person(
     body: PersonCreate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     person = Person(
@@ -88,7 +105,10 @@ async def create_person(
         residence_place=body.residence_place,
         residence_country_code=body.residence_country_code,
         burial_place=body.burial_place,
+        burial_cemetery_name=body.burial_cemetery_name,
+        burial_plot_number=body.burial_plot_number,
         bio=body.bio,
+        medical_history=body.medical_history,
         contact_whatsapp=body.contact_whatsapp,
         contact_telegram=body.contact_telegram,
         contact_signal=body.contact_signal,
@@ -116,14 +136,12 @@ async def update_person(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    # Allow self-edit or admin
-    if person_id != current_user.id and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Not authorized")
-
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if not can_manage_person(current_user, person):
+        raise HTTPException(status_code=403, detail="Not authorized")
 
     old_data = {"first_name": person.first_name, "last_name": person.last_name}
     update_data = body.model_dump(exclude_unset=True)
@@ -140,7 +158,8 @@ async def update_person(
                     old_value=old_data,
                     new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())})
 
-    return person_to_detail(person)
+    access = await get_person_access(db, current_user, person)
+    return redact_person_detail(person, access)
 
 
 @router.delete("/{person_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -47,6 +47,22 @@
   </div>
   {% endif %}
 
+  {% if person.medical_history %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">Medical History</h3>
+    <p>{{ person.medical_history }}</p>
+  </div>
+  {% endif %}
+
+  {% if person.burial_place or person.burial_cemetery_name or person.burial_plot_number %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">Burial Details</h3>
+    {% if person.burial_place %}<p><strong>Place:</strong> {{ person.burial_place }}</p>{% endif %}
+    {% if person.burial_cemetery_name %}<p><strong>Cemetery:</strong> {{ person.burial_cemetery_name }}</p>{% endif %}
+    {% if person.burial_plot_number %}<p><strong>Plot:</strong> {{ person.burial_plot_number }}</p>{% endif %}
+  </div>
+  {% endif %}
+
   <!-- Contact buttons -->
   {% if person.contact_whatsapp or person.contact_telegram or person.contact_signal or person.contact_email %}
   <div class="profile-section">
