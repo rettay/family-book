@@ -76,6 +76,7 @@ class Person(Base, TimestampMixin):
     residence_place: Mapped[str | None] = mapped_column(String(300), default=None)
     residence_country_code: Mapped[str | None] = mapped_column(String(2), default=None)
     burial_place: Mapped[str | None] = mapped_column(String(300), default=None)
+    burial_country_code: Mapped[str | None] = mapped_column(String(2), default=None)
     burial_cemetery_name: Mapped[str | None] = mapped_column(String(300), default=None)
     burial_plot_number: Mapped[str | None] = mapped_column(String(100), default=None)
 

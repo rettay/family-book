@@ -154,6 +154,7 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
         "last_name": "Person",
         "medical_history": "Known family heart condition",
         "burial_place": "Toronto",
+        "burial_country_code": "CA",
         "burial_cemetery_name": "Evergreen Memorial",
         "burial_plot_number": "Lot 7",
     })
@@ -161,6 +162,7 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
     data = resp.json()
     assert data["medical_history"] == "Known family heart condition"
     assert data["burial_place"] == "Toronto"
+    assert data["burial_country_code"] == "CA"
     assert data["burial_cemetery_name"] == "Evergreen Memorial"
     assert data["burial_plot_number"] == "Lot 7"
 
@@ -419,7 +421,7 @@ async def test_map_endpoint_returns_residence_and_burial_markers(admin_client: A
         "residence_place": "Austin",
         "residence_country_code": "US",
         "burial_place": "Guadalajara",
-        "birth_country_code": "MX",
+        "burial_country_code": "MX",
         "is_living": False,
     })
     assert create_resp.status_code == 201
@@ -430,6 +432,25 @@ async def test_map_endpoint_returns_residence_and_burial_markers(admin_client: A
     markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
     assert {marker["kind"] for marker in markers} == {"residence", "burial"}
     assert {marker["country_code"] for marker in markers} == {"US", "MX"}
+
+
+@pytest.mark.asyncio
+async def test_map_endpoint_skips_burial_marker_without_burial_country(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Buried",
+        "last_name": "Unknown",
+        "residence_country_code": "US",
+        "birth_country_code": "MX",
+        "burial_place": "Barcelona",
+        "is_living": False,
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    resp = await admin_client.get("/api/map")
+    assert resp.status_code == 200
+    markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
+    assert {marker["kind"] for marker in markers} == {"residence"}
 
 
 @pytest.mark.asyncio

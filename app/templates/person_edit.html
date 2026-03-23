@@ -155,6 +155,14 @@
           <input type="text" class="form-input" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
         </div>
         <div class="form-group">
+          <label>Burial Country</label>
+          <input type="text" class="form-input" name="burial_country_code" maxlength="2"
+                 value="{{ person.burial_country_code or '' }}" placeholder="US, MX, ES...">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
           <label>Branch</label>
           <input type="text" class="form-input" name="branch" value="{{ person.branch or '' }}">
         </div>

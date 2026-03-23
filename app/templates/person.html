@@ -54,10 +54,11 @@
   </div>
   {% endif %}
 
-  {% if person.burial_place or person.burial_cemetery_name or person.burial_plot_number %}
+  {% if person.burial_place or person.burial_country_code or person.burial_cemetery_name or person.burial_plot_number %}
   <div class="profile-section">
     <h3 class="profile-section__title">Burial Details</h3>
     {% if person.burial_place %}<p><strong>Place:</strong> {{ person.burial_place }}</p>{% endif %}
+    {% if person.burial_country_code %}<p><strong>Country:</strong> {{ country_flag(person.burial_country_code) }} {{ person.burial_country_code }}</p>{% endif %}
     {% if person.burial_cemetery_name %}<p><strong>Cemetery:</strong> {{ person.burial_cemetery_name }}</p>{% endif %}
     {% if person.burial_plot_number %}<p><strong>Plot:</strong> {{ person.burial_plot_number }}</p>{% endif %}
   </div>

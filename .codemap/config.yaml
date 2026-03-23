@@ -1,0 +1,54 @@
+name: family-book
+profile: governance
+language: auto
+
+exclude:
+  - node_modules
+  - .venv
+  - dist
+  - build
+  - __pycache__
+  - .git
+  - .codemap
+  - data
+  - docs
+  - foundation
+  - task_packets
+  - docker
+  - tests/ui
+  - tests/test_phase3.py
+  - security_best_practices_report.md
+
+scope:
+  - app
+  - tests
+  - alembic
+  - locales
+
+analysis:
+  depth: module
+  ai_narratives: false
+  model: claude-sonnet-4-6
+
+check:
+  hardcoded_secrets:
+    enabled: true
+    severity: fail
+    exclude_patterns:
+      - "*.test.*"
+      - "*.spec.*"
+      - "*/__tests__/*"
+      - "*/__mocks__/*"
+      - "tests/test_phase3.py"
+  injection_risks:
+    enabled: true
+    severity: warn
+    exclude_patterns:
+      - "*.test.*"
+      - "*.spec.*"
+      - "*/__tests__/*"
+      - "*/__mocks__/*"
+      - "tests/test_phase3.py"
+
+gc:
+  keep: 10

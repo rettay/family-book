@@ -105,6 +105,7 @@ async def create_person(
         residence_place=body.residence_place,
         residence_country_code=body.residence_country_code,
         burial_place=body.burial_place,
+        burial_country_code=body.burial_country_code,
         burial_cemetery_name=body.burial_cemetery_name,
         burial_plot_number=body.burial_plot_number,
         bio=body.bio,

@@ -271,14 +271,16 @@
       nodeGroup.append('circle')
         .attr('class', 'photo-clip')
         .attr('r', NODE_RADIUS);
-      nodeGroup.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('dy', '0.35em')
-        .attr('fill', '#2d5016')
-        .attr('font-size', '14px')
-        .attr('font-weight', '600')
-        .attr('pointer-events', 'none')
-        .text(person.display_name.substring(0, 2));
+      if (preferences.show_names) {
+        nodeGroup.append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dy', '0.35em')
+          .attr('fill', '#2d5016')
+          .attr('font-size', '14px')
+          .attr('font-weight', '600')
+          .attr('pointer-events', 'none')
+          .text(person.display_name.substring(0, 2));
+      }
     }
 
     nodeGroup.append('circle')

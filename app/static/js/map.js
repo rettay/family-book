@@ -4,6 +4,21 @@
   var svg = document.getElementById('map-svg');
   var emptyState = document.getElementById('map-empty');
 
+  function isSafePersonId(value) {
+    return typeof value === 'string' && /^[A-Za-z0-9-]{1,64}$/.test(value);
+  }
+
+  function safeText(value, fallback) {
+    if (typeof value !== 'string' || value.length === 0) {
+      return fallback || '';
+    }
+    return value.slice(0, 120);
+  }
+
+  function safeNumber(value) {
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
+
   function project(latitude, longitude) {
     var x = ((longitude + 180) / 360) * 1000;
     var y = ((90 - latitude) / 180) * 520;
@@ -31,7 +46,9 @@
   }
 
   function drawBackdrop() {
-    svg.innerHTML = '';
+    while (svg.firstChild) {
+      svg.removeChild(svg.firstChild);
+    }
 
     var namespace = 'http://www.w3.org/2000/svg';
     var backdrop = document.createElementNS(namespace, 'rect');
@@ -70,12 +87,18 @@
     emptyState.hidden = markers.length > 0;
 
     markers.forEach(function(marker) {
-      var point = project(marker.latitude, marker.longitude);
+      var latitude = safeNumber(marker.latitude);
+      var longitude = safeNumber(marker.longitude);
+      if (latitude === null || longitude === null || !isSafePersonId(marker.person && marker.person.id)) {
+        return;
+      }
+
+      var point = project(latitude, longitude);
       var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       group.setAttribute('transform', 'translate(' + point.x + ',' + point.y + ')');
       group.style.cursor = 'pointer';
       group.addEventListener('click', function() {
-        window.location.href = '/people/' + marker.person.id;
+        window.location.assign('/people/' + encodeURIComponent(marker.person.id));
       });
 
       var halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -96,7 +119,7 @@
       label.setAttribute('fill', '#29403a');
       label.setAttribute('font-size', '13');
       label.setAttribute('font-weight', '600');
-      label.textContent = marker.person.display_name;
+      label.textContent = safeText(marker.person.display_name, 'Family member');
       group.appendChild(label);
 
       var sublabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -104,7 +127,7 @@
       sublabel.setAttribute('y', '8');
       sublabel.setAttribute('fill', '#54665c');
       sublabel.setAttribute('font-size', '11');
-      sublabel.textContent = marker.place || marker.country_code;
+      sublabel.textContent = safeText(marker.place, safeText(marker.country_code, ''));
       group.appendChild(sublabel);
 
       svg.appendChild(group);

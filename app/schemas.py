@@ -24,6 +24,7 @@ class PersonCreate(BaseModel):
     residence_place: str | None = Field(None, max_length=300)
     residence_country_code: str | None = Field(None, max_length=2)
     burial_place: str | None = Field(None, max_length=300)
+    burial_country_code: str | None = Field(None, max_length=2)
     burial_cemetery_name: str | None = Field(None, max_length=300)
     burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] = []
@@ -57,6 +58,7 @@ class PersonUpdate(BaseModel):
     residence_place: str | None = Field(None, max_length=300)
     residence_country_code: str | None = Field(None, max_length=2)
     burial_place: str | None = Field(None, max_length=300)
+    burial_country_code: str | None = Field(None, max_length=2)
     burial_cemetery_name: str | None = Field(None, max_length=300)
     burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] | None = None
@@ -100,6 +102,7 @@ class PersonDetail(PersonSummary):
     birth_country_code: str | None = None
     residence_place: str | None = None
     burial_place: str | None = None
+    burial_country_code: str | None = None
     burial_cemetery_name: str | None = None
     burial_plot_number: str | None = None
     languages: list[str] = []
@@ -172,6 +175,7 @@ def person_to_detail(person) -> PersonDetail:
         birth_country_code=person.birth_country_code,
         residence_place=person.residence_place,
         burial_place=person.burial_place,
+        burial_country_code=person.burial_country_code,
         burial_cemetery_name=person.burial_cemetery_name,
         burial_plot_number=person.burial_plot_number,
         languages=person.languages,

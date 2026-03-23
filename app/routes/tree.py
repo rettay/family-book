@@ -200,9 +200,8 @@ async def get_map_data(
                     )
                 )
 
-        burial_country_code = person.birth_country_code or person.residence_country_code
-        if person.burial_place and burial_country_code:
-            burial_coordinates = country_centroid(burial_country_code)
+        if person.burial_place and person.burial_country_code:
+            burial_coordinates = country_centroid(person.burial_country_code)
             if burial_coordinates:
                 markers.append(
                     MapMarker(
@@ -214,7 +213,7 @@ async def get_map_data(
                         kind="burial",
                         label=f"{person.display_name} burial",
                         place=person.burial_place,
-                        country_code=burial_country_code,
+                        country_code=person.burial_country_code,
                         latitude=burial_coordinates[0],
                         longitude=burial_coordinates[1],
                     )

@@ -61,6 +61,7 @@ async def test_person_rich_fields_round_trip(db: AsyncSession):
         last_name="Profile",
         medical_history="Family history of hypertension",
         burial_place="Springfield",
+        burial_country_code="US",
         burial_cemetery_name="Maple Grove",
         burial_plot_number="A-42",
     )
@@ -71,6 +72,7 @@ async def test_person_rich_fields_round_trip(db: AsyncSession):
     fetched = result.scalar_one()
     assert fetched.medical_history == "Family history of hypertension"
     assert fetched.burial_place == "Springfield"
+    assert fetched.burial_country_code == "US"
     assert fetched.burial_cemetery_name == "Maple Grove"
     assert fetched.burial_plot_number == "A-42"
 
