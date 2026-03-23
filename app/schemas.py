@@ -75,6 +75,7 @@ class PersonSummary(BaseModel):
     display_name: str
     nickname: str | None
     photo_url: str | None
+    birth_date_raw: str | None = None
     residence_country_code: str | None
     branch: str | None
     is_living: bool
@@ -121,6 +122,7 @@ def person_to_summary(person) -> PersonSummary:
         display_name=person.display_name,
         nickname=person.nickname if not person.is_root else None,
         photo_url=person.photo_url,
+        birth_date_raw=person.birth_date_raw,
         residence_country_code=person.residence_country_code,
         branch=person.branch,
         is_living=person.is_living,

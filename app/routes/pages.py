@@ -237,6 +237,16 @@ async def tree_page(
     ))
 
 
+@router.get("/map", response_class=HTMLResponse)
+async def map_page(
+    request: Request,
+    current_user: Person = Depends(require_auth),
+):
+    return templates.TemplateResponse("map.html", _ctx(
+        request, current_user, active_page="map",
+    ))
+
+
 # ─── People ───────────────────────────────────────────────────────
 
 @router.get("/people", response_class=HTMLResponse)

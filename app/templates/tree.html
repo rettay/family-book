@@ -1,22 +1,170 @@
 {% extends "base.html" %}
 {% block title %}{{ t('tree.title') }} — {{ t('app.name') }}{% endblock %}
 {% block head %}
-<style>.page { padding-top: var(--nav-h); padding-bottom: 0; }</style>
+<style>
+  .page { padding-top: var(--nav-h); padding-bottom: 0; }
+  .tree-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    min-height: calc(100vh - var(--nav-h));
+  }
+  .tree-panel {
+    padding: 1rem;
+    background: rgba(255, 248, 237, 0.95);
+    border-right: 1px solid rgba(45, 80, 22, 0.12);
+    overflow-y: auto;
+  }
+  .tree-panel__group {
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    border-radius: 16px;
+    background: #fffdf8;
+    box-shadow: 0 10px 30px rgba(45, 80, 22, 0.06);
+  }
+  .tree-panel__title {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .tree-panel label {
+    display: block;
+    margin-bottom: 0.65rem;
+    font-size: 0.9rem;
+  }
+  .tree-panel input,
+  .tree-panel select,
+  .tree-panel button {
+    width: 100%;
+  }
+  .tree-panel input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.45rem;
+  }
+  .tree-panel__actions {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .tree-panel__hint {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+    color: #6b6054;
+  }
+  .tree-canvas {
+    position: relative;
+    min-height: calc(100vh - var(--nav-h));
+    background:
+      radial-gradient(circle at top, rgba(217, 234, 201, 0.8), transparent 40%),
+      linear-gradient(180deg, #fffaf1 0%, #f2ead9 100%);
+  }
+  .tree-page {
+    position: relative;
+    height: calc(100vh - var(--nav-h));
+  }
+  #tree-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .tree-status {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 4;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #6b6054;
+    font-size: 0.85rem;
+    box-shadow: 0 8px 18px rgba(45, 80, 22, 0.08);
+  }
+  .tree-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  @media (max-width: 900px) {
+    .tree-layout {
+      grid-template-columns: 1fr;
+    }
+    .tree-panel {
+      border-right: 0;
+      border-bottom: 1px solid rgba(45, 80, 22, 0.12);
+    }
+    .tree-canvas,
+    .tree-page {
+      min-height: 70vh;
+      height: 70vh;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="tree-page" id="tree-page">
-  <div class="tree-controls">
-    <button onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}">+</button>
-    <button onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}">&minus;</button>
-    <button onclick="treeReset()" title="{{ t('tree.reset_view') }}">&#8634;</button>
-  </div>
+<div
+  class="tree-layout"
+  id="tree-root"
+  data-load-error="{{ t('tree.load_error') }}"
+  data-empty-text="{{ t('tree.empty') }}"
+  data-status-template="{{ t('tree.status') }}"
+>
+  <aside class="tree-panel">
+    <section class="tree-panel__group">
+      <h2 class="tree-panel__title">{{ t('tree.display_preferences') }}</h2>
+      <label class="tree-toggle"><input type="checkbox" id="pref-show-names"> {{ t('tree.show_names') }}</label>
+      <label class="tree-toggle"><input type="checkbox" id="pref-show-birth-dates"> {{ t('tree.show_birth_dates') }}</label>
+      <label class="tree-toggle"><input type="checkbox" id="pref-show-country-flags"> {{ t('tree.show_country_flags') }}</label>
+      <label class="tree-toggle"><input type="checkbox" id="pref-show-photos"> {{ t('tree.show_photos') }}</label>
+      <div class="tree-panel__actions">
+        <button class="btn btn--primary" id="save-tree-preferences">{{ t('tree.save_preferences') }}</button>
+      </div>
+      <p class="tree-panel__hint">{{ t('tree.preferences_hint') }}</p>
+    </section>
 
-  <svg id="tree-svg"></svg>
+    <section class="tree-panel__group">
+      <h2 class="tree-panel__title">{{ t('tree.filters') }}</h2>
+      <label>
+        {{ t('tree.filter_living') }}
+        <select id="tree-filter-living">
+          <option value="all">{{ t('tree.filter_all') }}</option>
+          <option value="living">{{ t('tree.filter_living_only') }}</option>
+          <option value="deceased">{{ t('tree.filter_deceased_only') }}</option>
+        </select>
+      </label>
+      <label>
+        {{ t('tree.filter_branch') }}
+        <input type="text" id="tree-filter-branch" placeholder="{{ t('tree.filter_branch_placeholder') }}">
+      </label>
+      <label>
+        {{ t('tree.filter_residence_country') }}
+        <input type="text" id="tree-filter-residence-country" maxlength="2" placeholder="US">
+      </label>
+      <label>
+        {{ t('tree.filter_birth_country') }}
+        <input type="text" id="tree-filter-birth-country" maxlength="2" placeholder="MX">
+      </label>
+      <div class="tree-panel__actions">
+        <button class="btn btn--primary" id="apply-tree-filters">{{ t('tree.apply_filters') }}</button>
+        <button class="btn btn--secondary" id="reset-tree-filters">{{ t('tree.reset_filters') }}</button>
+      </div>
+    </section>
+  </aside>
 
-  <div class="person-sidebar" id="person-sidebar">
-    <button class="person-sidebar__close" onclick="closeSidebar()">&times;</button>
-    <div id="sidebar-content"></div>
+  <div class="tree-canvas">
+    <div class="tree-page" id="tree-page">
+      <div class="tree-controls">
+        <button onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}">+</button>
+        <button onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}">&minus;</button>
+        <button onclick="treeReset()" title="{{ t('tree.reset_view') }}">&#8634;</button>
+      </div>
+
+      <svg id="tree-svg"></svg>
+      <div class="tree-status" id="tree-status">{{ t('common.loading') }}</div>
+
+      <div class="person-sidebar" id="person-sidebar">
+        <button class="person-sidebar__close" onclick="closeSidebar()">&times;</button>
+        <div id="sidebar-content"></div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

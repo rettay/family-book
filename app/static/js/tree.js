@@ -3,24 +3,316 @@
 (function() {
   'use strict';
 
-  var svg, g, zoom, treeData;
+  var svg;
+  var g;
+  var zoom;
+  var treeData;
+  var preferences = {
+    show_names: true,
+    show_birth_dates: false,
+    show_country_flags: true,
+    show_photos: true
+  };
   var NODE_RADIUS = 30;
   var NODE_SPACING_X = 100;
   var NODE_SPACING_Y = 140;
 
-  // Fetch tree data and render
+  var root = document.getElementById('tree-root');
+  var statusNode = document.getElementById('tree-status');
+
+  function queryString(filters) {
+    var params = new URLSearchParams();
+    Object.keys(filters).forEach(function(key) {
+      if (filters[key] && filters[key] !== 'all') {
+        params.set(key, filters[key]);
+      }
+    });
+    var query = params.toString();
+    return query ? '?' + query : '';
+  }
+
+  function currentFilters() {
+    return {
+      living: document.getElementById('tree-filter-living').value,
+      branch: document.getElementById('tree-filter-branch').value.trim(),
+      residence_country: document.getElementById('tree-filter-residence-country').value.trim().toUpperCase(),
+      birth_country: document.getElementById('tree-filter-birth-country').value.trim().toUpperCase()
+    };
+  }
+
+  function syncPreferenceInputs() {
+    document.getElementById('pref-show-names').checked = !!preferences.show_names;
+    document.getElementById('pref-show-birth-dates').checked = !!preferences.show_birth_dates;
+    document.getElementById('pref-show-country-flags').checked = !!preferences.show_country_flags;
+    document.getElementById('pref-show-photos').checked = !!preferences.show_photos;
+  }
+
+  function readPreferenceInputs() {
+    preferences = {
+      show_names: document.getElementById('pref-show-names').checked,
+      show_birth_dates: document.getElementById('pref-show-birth-dates').checked,
+      show_country_flags: document.getElementById('pref-show-country-flags').checked,
+      show_photos: document.getElementById('pref-show-photos').checked
+    };
+  }
+
+  function setStatus(text) {
+    statusNode.textContent = text;
+  }
+
+  async function loadPreferences() {
+    var resp = await fetch('/api/tree/preferences');
+    if (resp.status === 401) {
+      window.location.href = '/login';
+      return false;
+    }
+    preferences = await resp.json();
+    syncPreferenceInputs();
+    return true;
+  }
+
+  async function savePreferences() {
+    readPreferenceInputs();
+    var resp = await fetch('/api/tree/preferences', {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(preferences)
+    });
+    if (resp.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+    preferences = await resp.json();
+    syncPreferenceInputs();
+    render();
+  }
+
+  async function loadTree() {
+    setStatus(document.body.dataset.loadingText || 'Loading...');
+    var resp = await fetch('/api/tree' + queryString(currentFilters()));
+    if (resp.status === 401) {
+      window.location.href = '/login';
+      return;
+    }
+    treeData = await resp.json();
+    render();
+  }
+
   async function init() {
     try {
-      var resp = await fetch('/api/tree');
-      if (resp.status === 401) {
-        window.location.href = '/login';
+      var loaded = await loadPreferences();
+      if (!loaded) {
         return;
       }
-      treeData = await resp.json();
-      render();
-    } catch(err) {
-      document.getElementById('tree-page').textContent = 'Failed to load tree data.';
+      await loadTree();
+    } catch (err) {
+      document.getElementById('tree-page').textContent = root.dataset.loadError;
     }
+  }
+
+  function drawEmptyState(w, h) {
+    g.append('text')
+      .attr('x', w / 2)
+      .attr('y', h / 2)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#6b6054')
+      .text(root.dataset.emptyText);
+    setStatus(root.dataset.statusTemplate.replace('{count}', '0'));
+  }
+
+  function buildTreeStructures() {
+    var personsById = {};
+    treeData.persons.forEach(function(person) {
+      personsById[person.id] = person;
+    });
+
+    var childToParents = {};
+    var parentToChildren = {};
+    treeData.parent_child.forEach(function(parentChild) {
+      if (!childToParents[parentChild.child_id]) {
+        childToParents[parentChild.child_id] = [];
+      }
+      childToParents[parentChild.child_id].push(parentChild.parent_id);
+      if (!parentToChildren[parentChild.parent_id]) {
+        parentToChildren[parentChild.parent_id] = [];
+      }
+      parentToChildren[parentChild.parent_id].push(parentChild.child_id);
+    });
+
+    return {
+      personsById: personsById,
+      childToParents: childToParents,
+      parentToChildren: parentToChildren
+    };
+  }
+
+  function determineRootId(personsById, childToParents) {
+    var rootId = treeData.root_id;
+    if (!rootId || !personsById[rootId]) {
+      var allChildIds = new Set(Object.keys(childToParents));
+      var rootCandidates = treeData.persons.filter(function(person) {
+        return !allChildIds.has(person.id);
+      });
+      rootId = rootCandidates.length > 0 ? rootCandidates[0].id : treeData.persons[0].id;
+    }
+    return rootId;
+  }
+
+  function layoutTree(rootId, parentToChildren) {
+    var visited = new Set();
+    var nodePositions = {};
+
+    function buildHierarchy(rootNodeId) {
+      var rootNode = {id: rootNodeId, children: [], depth: 0, x: 0, y: 0};
+      var queue = [rootNode];
+      visited.add(rootNodeId);
+
+      while (queue.length > 0) {
+        var node = queue.shift();
+        var children = parentToChildren[node.id] || [];
+        children.forEach(function(childId) {
+          if (visited.has(childId)) {
+            return;
+          }
+          visited.add(childId);
+          var childNode = {id: childId, children: [], depth: node.depth + 1, parent: node};
+          node.children.push(childNode);
+          queue.push(childNode);
+        });
+      }
+
+      return rootNode;
+    }
+
+    function applyLayout(node, xStart, y, maxDepth) {
+      node.y = y;
+      if (node.depth > maxDepth.value) {
+        maxDepth.value = node.depth;
+      }
+
+      if (node.children.length === 0) {
+        node.x = xStart + NODE_SPACING_X / 2;
+        return xStart + NODE_SPACING_X;
+      }
+
+      var nextX = xStart;
+      node.children.forEach(function(child) {
+        nextX = applyLayout(child, nextX, y + NODE_SPACING_Y, maxDepth);
+      });
+
+      var first = node.children[0];
+      var last = node.children[node.children.length - 1];
+      node.x = (first.x + last.x) / 2;
+      return nextX;
+    }
+
+    var rootNode = buildHierarchy(rootId);
+    var maxDepth = {value: 0};
+    applyLayout(rootNode, 0, 60, maxDepth);
+
+    var allNodes = [];
+    function collectNodes(node) {
+      allNodes.push(node);
+      nodePositions[node.id] = {x: node.x, y: node.y};
+      node.children.forEach(collectNodes);
+    }
+    collectNodes(rootNode);
+
+    var unvisited = treeData.persons.filter(function(person) {
+      return !visited.has(person.id);
+    });
+    var ux = 0;
+    unvisited.forEach(function(person) {
+      var detachedNode = {
+        id: person.id,
+        children: [],
+        depth: maxDepth.value + 1,
+        x: ux,
+        y: (maxDepth.value + 1) * NODE_SPACING_Y + 60
+      };
+      allNodes.push(detachedNode);
+      nodePositions[person.id] = {x: detachedNode.x, y: detachedNode.y};
+      ux += NODE_SPACING_X;
+    });
+
+    return {allNodes: allNodes, nodePositions: nodePositions};
+  }
+
+  function renderNode(node, person) {
+    var nodeGroup = g.append('g')
+      .attr('class', 'person-node' + (person.branch ? ' person-node--branch-' + person.branch : ''))
+      .attr('data-id', person.id)
+      .attr('transform', 'translate(' + node.x + ',' + node.y + ')')
+      .style('cursor', 'pointer');
+
+    var showPhoto = preferences.show_photos && person.photo_url;
+    if (showPhoto) {
+      var clipId = 'clip-' + person.id.replace(/[^a-zA-Z0-9]/g, '');
+      var defs = nodeGroup.append('defs');
+      defs.append('clipPath')
+        .attr('id', clipId)
+        .append('circle')
+        .attr('r', NODE_RADIUS);
+      nodeGroup.append('image')
+        .attr('href', '/api/media/' + person.photo_url + '/file')
+        .attr('x', -NODE_RADIUS)
+        .attr('y', -NODE_RADIUS)
+        .attr('width', NODE_RADIUS * 2)
+        .attr('height', NODE_RADIUS * 2)
+        .attr('clip-path', 'url(#' + clipId + ')')
+        .attr('preserveAspectRatio', 'xMidYMid slice');
+      nodeGroup.append('circle')
+        .attr('class', 'photo-clip')
+        .attr('r', NODE_RADIUS)
+        .attr('fill', 'none')
+        .attr('stroke', 'white')
+        .attr('stroke-width', 2);
+    } else {
+      nodeGroup.append('circle')
+        .attr('class', 'photo-clip')
+        .attr('r', NODE_RADIUS);
+      nodeGroup.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('fill', '#2d5016')
+        .attr('font-size', '14px')
+        .attr('font-weight', '600')
+        .attr('pointer-events', 'none')
+        .text(person.display_name.substring(0, 2));
+    }
+
+    nodeGroup.append('circle')
+      .attr('class', 'tap-target')
+      .attr('r', NODE_RADIUS + 10);
+
+    if (preferences.show_names) {
+      nodeGroup.append('text')
+        .attr('class', 'name-label')
+        .attr('dy', NODE_RADIUS + 16)
+        .text(person.display_name);
+    }
+
+    if (preferences.show_birth_dates && person.birth_date_raw) {
+      nodeGroup.append('text')
+        .attr('class', 'rel-label')
+        .attr('dy', NODE_RADIUS + (preferences.show_names ? 32 : 18))
+        .text(person.birth_date_raw);
+    }
+
+    if (preferences.show_country_flags && person.residence_country_code) {
+      nodeGroup.append('text')
+        .attr('class', 'rel-label')
+        .attr('dy', NODE_RADIUS + (preferences.show_names || preferences.show_birth_dates ? 46 : 18))
+        .text(countryFlag(person.residence_country_code));
+    }
+
+    nodeGroup.on('click', function() {
+      openPersonSidebar(person.id);
+    });
+
+    nodeGroup.on('dblclick', function() {
+      window.location.href = '/people/' + person.id;
+    });
   }
 
   function render() {
@@ -31,8 +323,6 @@
     svg = d3.select('#tree-svg')
       .attr('width', w)
       .attr('height', h);
-
-    // Clear any previous render
     svg.selectAll('*').remove();
 
     g = svg.append('g');
@@ -45,119 +335,16 @@
     svg.call(zoom);
 
     if (!treeData || !treeData.persons || treeData.persons.length === 0) {
-      g.append('text')
-        .attr('x', w / 2).attr('y', h / 2)
-        .attr('text-anchor', 'middle')
-        .attr('fill', '#6b6054')
-        .text('No family members yet');
+      drawEmptyState(w, h);
       return;
     }
 
-    // Build data structures
-    var personsById = {};
-    treeData.persons.forEach(function(p) { personsById[p.id] = p; });
+    var structures = buildTreeStructures();
+    var rootId = determineRootId(structures.personsById, structures.childToParents);
+    var layout = layoutTree(rootId, structures.parentToChildren);
 
-    // Build hierarchy from parent-child relationships
-    var childToParents = {};
-    var parentToChildren = {};
-    treeData.parent_child.forEach(function(pc) {
-      if (!childToParents[pc.child_id]) childToParents[pc.child_id] = [];
-      childToParents[pc.child_id].push(pc.parent_id);
-      if (!parentToChildren[pc.parent_id]) parentToChildren[pc.parent_id] = [];
-      parentToChildren[pc.parent_id].push(pc.child_id);
-    });
-
-    // Build partnership lookup
-    var partnerMap = {};
-    treeData.partnerships.forEach(function(p) {
-      if (!partnerMap[p.person_a_id]) partnerMap[p.person_a_id] = [];
-      partnerMap[p.person_a_id].push(p);
-      if (!partnerMap[p.person_b_id]) partnerMap[p.person_b_id] = [];
-      partnerMap[p.person_b_id].push(p);
-    });
-
-    // Find root
-    var rootId = treeData.root_id;
-    if (!rootId || !personsById[rootId]) {
-      var allChildIds = new Set(Object.keys(childToParents));
-      var rootCandidates = treeData.persons.filter(function(p) { return !allChildIds.has(p.id); });
-      rootId = rootCandidates.length > 0 ? rootCandidates[0].id : treeData.persons[0].id;
-    }
-
-    // Build tree hierarchy using BFS from root
-    var visited = new Set();
-    var nodePositions = {};
-
-    function buildHierarchy(rootId) {
-      var root = {id: rootId, children: [], depth: 0, x: 0, y: 0};
-      var queue = [root];
-      visited.add(rootId);
-
-      while (queue.length > 0) {
-        var node = queue.shift();
-        var children = parentToChildren[node.id] || [];
-        children.forEach(function(cid) {
-          if (visited.has(cid)) return;
-          visited.add(cid);
-          var child = {id: cid, children: [], depth: node.depth + 1, parent: node};
-          node.children.push(child);
-          queue.push(child);
-        });
-      }
-      return root;
-    }
-
-    var rootNode = buildHierarchy(rootId);
-
-    // Layout using simple recursive positioning
-    var maxDepth = 0;
-
-    function layoutTree(node, xStart, y) {
-      node.y = y;
-      if (node.depth > maxDepth) maxDepth = node.depth;
-
-      if (node.children.length === 0) {
-        node.x = xStart + NODE_SPACING_X / 2;
-        return xStart + NODE_SPACING_X;
-      }
-
-      var x = xStart;
-      node.children.forEach(function(child) {
-        x = layoutTree(child, x, y + NODE_SPACING_Y);
-      });
-
-      var first = node.children[0];
-      var last = node.children[node.children.length - 1];
-      node.x = (first.x + last.x) / 2;
-
-      return x;
-    }
-
-    layoutTree(rootNode, 0, 60);
-
-    // Collect all nodes
-    var allNodes = [];
-    function collectNodes(node) {
-      allNodes.push(node);
-      nodePositions[node.id] = {x: node.x, y: node.y};
-      node.children.forEach(collectNodes);
-    }
-    collectNodes(rootNode);
-
-    // Add unvisited persons at the bottom
-    var unvisited = treeData.persons.filter(function(p) { return !visited.has(p.id); });
-    var ux = 0;
-    unvisited.forEach(function(p) {
-      var node = {id: p.id, children: [], depth: maxDepth + 1, x: ux, y: (maxDepth + 1) * NODE_SPACING_Y + 60};
-      allNodes.push(node);
-      nodePositions[p.id] = {x: node.x, y: node.y};
-      ux += NODE_SPACING_X;
-    });
-
-    // Draw parent-child lines
     var lineGen = d3.line().curve(d3.curveBumpY);
-
-    allNodes.forEach(function(node) {
+    layout.allNodes.forEach(function(node) {
       if (node.children) {
         node.children.forEach(function(child) {
           g.append('path')
@@ -167,129 +354,89 @@
       }
     });
 
-    // Draw partnership lines
-    treeData.partnerships.forEach(function(p) {
-      var posA = nodePositions[p.person_a_id];
-      var posB = nodePositions[p.person_b_id];
-      if (!posA || !posB) return;
-      var dissolved = p.status === 'dissolved' || p.status === 'separated';
+    treeData.partnerships.forEach(function(partnership) {
+      var posA = layout.nodePositions[partnership.person_a_id];
+      var posB = layout.nodePositions[partnership.person_b_id];
+      if (!posA || !posB) {
+        return;
+      }
+      var dissolved = partnership.status === 'dissolved' || partnership.status === 'separated';
       g.append('line')
         .attr('class', 'partnership-line' + (dissolved ? ' partnership-line--dissolved' : ''))
-        .attr('x1', posA.x).attr('y1', posA.y)
-        .attr('x2', posB.x).attr('y2', posB.y);
+        .attr('x1', posA.x)
+        .attr('y1', posA.y)
+        .attr('x2', posB.x)
+        .attr('y2', posB.y);
     });
 
-    // Draw person nodes
-    allNodes.forEach(function(node) {
-      var person = personsById[node.id];
-      if (!person) return;
-
-      var nodeG = g.append('g')
-        .attr('class', 'person-node' + (person.branch ? ' person-node--branch-' + person.branch : ''))
-        .attr('data-id', person.id)
-        .attr('transform', 'translate(' + node.x + ',' + node.y + ')')
-        .style('cursor', 'pointer');
-
-      // Photo circle
-      if (person.photo_url) {
-        var clipId = 'clip-' + person.id.replace(/[^a-zA-Z0-9]/g, '');
-        var defs = nodeG.append('defs');
-        defs.append('clipPath').attr('id', clipId)
-          .append('circle').attr('r', NODE_RADIUS);
-        nodeG.append('image')
-          .attr('href', '/api/media/' + person.photo_url + '/file')
-          .attr('x', -NODE_RADIUS).attr('y', -NODE_RADIUS)
-          .attr('width', NODE_RADIUS * 2).attr('height', NODE_RADIUS * 2)
-          .attr('clip-path', 'url(#' + clipId + ')')
-          .attr('preserveAspectRatio', 'xMidYMid slice');
-        nodeG.append('circle')
-          .attr('class', 'photo-clip')
-          .attr('r', NODE_RADIUS)
-          .attr('fill', 'none')
-          .attr('stroke', 'white').attr('stroke-width', 2);
-      } else {
-        nodeG.append('circle')
-          .attr('class', 'photo-clip')
-          .attr('r', NODE_RADIUS);
-        nodeG.append('text')
-          .attr('text-anchor', 'middle').attr('dy', '0.35em')
-          .attr('fill', '#2d5016').attr('font-size', '14px').attr('font-weight', '600')
-          .attr('pointer-events', 'none')
-          .text(person.display_name.substring(0, 2));
+    layout.allNodes.forEach(function(node) {
+      var person = structures.personsById[node.id];
+      if (person) {
+        renderNode(node, person);
       }
-
-      // Larger tap target for mobile
-      nodeG.append('circle')
-        .attr('class', 'tap-target')
-        .attr('r', NODE_RADIUS + 10);
-
-      // Name label
-      nodeG.append('text')
-        .attr('class', 'name-label')
-        .attr('dy', NODE_RADIUS + 16)
-        .text(person.display_name);
-
-      // Country flag
-      if (person.residence_country_code) {
-        nodeG.append('text')
-          .attr('class', 'rel-label')
-          .attr('dy', NODE_RADIUS + 30)
-          .text(countryFlag(person.residence_country_code));
-      }
-
-      // Click handler — load person card into sidebar via HTMX
-      nodeG.on('click', function() {
-        openPersonSidebar(person.id);
-      });
-
-      // Double-click — navigate to profile
-      nodeG.on('dblclick', function() {
-        window.location.href = '/people/' + person.id;
-      });
     });
 
-    // Center the tree
     var bounds = g.node().getBBox();
     var dx = w / 2 - (bounds.x + bounds.width / 2);
     var dy = h / 2 - (bounds.y + bounds.height / 2);
     var scale = Math.min(w / (bounds.width + 100), h / (bounds.height + 100), 1);
-    svg.call(zoom.transform,
-      d3.zoomIdentity.translate(dx, dy).scale(scale));
+    svg.call(zoom.transform, d3.zoomIdentity.translate(dx, dy).scale(scale));
+
+    setStatus(root.dataset.statusTemplate.replace('{count}', String(treeData.persons.length)));
   }
 
-  // Open person sidebar using HTMX
   function openPersonSidebar(personId) {
     var sidebar = document.getElementById('person-sidebar');
-    var content = document.getElementById('sidebar-content');
     sidebar.classList.add('person-sidebar--open');
-    // Use HTMX to safely load server-rendered HTML
     htmx.ajax('GET', '/people/' + personId + '/card', {target: '#sidebar-content', swap: 'innerHTML'});
   }
 
-  // Country code to flag emoji
   function countryFlag(code) {
-    if (!code || code.length !== 2) return '';
-    var OFFSET = 127397;
-    return String.fromCodePoint(code.charCodeAt(0) + OFFSET, code.charCodeAt(1) + OFFSET);
+    if (!code || code.length !== 2) {
+      return '';
+    }
+    var offset = 127397;
+    return String.fromCodePoint(code.charCodeAt(0) + offset, code.charCodeAt(1) + offset);
   }
 
-  // Zoom controls
-  window.treeZoomIn = function() { svg.transition().call(zoom.scaleBy, 1.3); };
-  window.treeZoomOut = function() { svg.transition().call(zoom.scaleBy, 0.7); };
-  window.treeReset = function() { render(); };
+  window.treeZoomIn = function() {
+    if (svg && zoom) {
+      svg.transition().call(zoom.scaleBy, 1.3);
+    }
+  };
+  window.treeZoomOut = function() {
+    if (svg && zoom) {
+      svg.transition().call(zoom.scaleBy, 0.7);
+    }
+  };
+  window.treeReset = function() {
+    if (treeData) {
+      render();
+    }
+  };
   window.closeSidebar = function() {
     document.getElementById('person-sidebar').classList.remove('person-sidebar--open');
   };
 
-  // Handle resize
+  document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
+  document.getElementById('apply-tree-filters').addEventListener('click', loadTree);
+  document.getElementById('reset-tree-filters').addEventListener('click', function() {
+    document.getElementById('tree-filter-living').value = 'all';
+    document.getElementById('tree-filter-branch').value = '';
+    document.getElementById('tree-filter-residence-country').value = '';
+    document.getElementById('tree-filter-birth-country').value = '';
+    loadTree();
+  });
+
   var resizeTimeout;
   window.addEventListener('resize', function() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function() {
-      if (treeData) render();
+      if (treeData) {
+        render();
+      }
     }, 250);
   });
 
-  // Init on load
   init();
 })();

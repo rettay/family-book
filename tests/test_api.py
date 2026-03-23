@@ -306,6 +306,12 @@ async def test_tree_unauthenticated(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_tree_preferences_require_authentication(client: AsyncClient):
+    resp = await client.get("/api/tree/preferences")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
 async def test_tree_authenticated(admin_client: AsyncClient):
     resp = await admin_client.get("/api/tree")
     assert resp.status_code == 200
@@ -323,6 +329,125 @@ async def test_tree_root_name_is_redacted(admin_client: AsyncClient):
     data = resp.json()
     root_persons = [p for p in data["persons"] if p["display_name"] == "Our Family"]
     assert len(root_persons) == 1
+
+
+@pytest.mark.asyncio
+async def test_tree_preferences_persist_per_user(member_client: AsyncClient, admin_client: AsyncClient):
+    initial = await member_client.get("/api/tree/preferences")
+    assert initial.status_code == 200
+    assert initial.json()["show_birth_dates"] is False
+
+    update = await member_client.put("/api/tree/preferences", json={
+        "show_names": False,
+        "show_birth_dates": True,
+        "show_country_flags": False,
+        "show_photos": False,
+    })
+    assert update.status_code == 200
+    assert update.json() == {
+        "show_names": False,
+        "show_birth_dates": True,
+        "show_country_flags": False,
+        "show_photos": False,
+    }
+
+    member_reloaded = await member_client.get("/api/tree/preferences")
+    assert member_reloaded.status_code == 200
+    assert member_reloaded.json()["show_birth_dates"] is True
+    assert member_reloaded.json()["show_names"] is False
+
+    admin_view = await admin_client.get("/api/tree/preferences")
+    assert admin_view.status_code == 200
+    assert admin_view.json() == {
+        "show_names": True,
+        "show_birth_dates": False,
+        "show_country_flags": True,
+        "show_photos": True,
+    }
+
+
+@pytest.mark.asyncio
+async def test_tree_filters_by_living_and_country(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Memory",
+        "last_name": "Keeper",
+        "branch": "archive",
+        "birth_country_code": "MX",
+        "residence_country_code": "US",
+        "birth_date_raw": "1940",
+        "is_living": False,
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    deceased_tree = await admin_client.get("/api/tree?living=deceased")
+    assert deceased_tree.status_code == 200
+    deceased_ids = {person["id"] for person in deceased_tree.json()["persons"]}
+    assert person_id in deceased_ids
+    assert "tyler-000-0000-0000-000000000002" not in deceased_ids
+
+    residence_tree = await admin_client.get("/api/tree?residence_country=US")
+    assert residence_tree.status_code == 200
+    residence_ids = {person["id"] for person in residence_tree.json()["persons"]}
+    assert residence_ids == {person_id}
+
+    birth_tree = await admin_client.get("/api/tree?birth_country=MX")
+    assert birth_tree.status_code == 200
+    birth_ids = {person["id"] for person in birth_tree.json()["persons"]}
+    assert birth_ids == {person_id}
+
+
+@pytest.mark.asyncio
+async def test_tree_branch_filter_returns_matching_people(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/tree?branch=martin")
+    assert resp.status_code == 200
+    assert resp.json()["persons"]
+    assert all(person["branch"] == "martin" for person in resp.json()["persons"])
+
+
+@pytest.mark.asyncio
+async def test_map_endpoint_requires_authentication(client: AsyncClient):
+    resp = await client.get("/api/map")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_map_endpoint_returns_residence_and_burial_markers(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Memorial",
+        "last_name": "Marker",
+        "residence_place": "Austin",
+        "residence_country_code": "US",
+        "burial_place": "Guadalajara",
+        "birth_country_code": "MX",
+        "is_living": False,
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    resp = await admin_client.get("/api/map")
+    assert resp.status_code == 200
+    markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
+    assert {marker["kind"] for marker in markers} == {"residence", "burial"}
+    assert {marker["country_code"] for marker in markers} == {"US", "MX"}
+
+
+@pytest.mark.asyncio
+async def test_map_endpoint_applies_filters(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Branch",
+        "last_name": "Scoped",
+        "branch": "archive",
+        "residence_country_code": "CA",
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    filtered = await admin_client.get("/api/map?branch=archive")
+    assert filtered.status_code == 200
+    filtered_ids = {marker["person"]["id"] for marker in filtered.json()["markers"]}
+    assert person_id in filtered_ids
+    assert "tyler-000-0000-0000-000000000002" not in filtered_ids
 
 
 @pytest.mark.asyncio

@@ -19,6 +19,7 @@
     <div class="nav__links" id="nav-links">
       <a href="/" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
       <a href="/tree" class="nav__link {% if active_page == 'tree' %}nav__link--active{% endif %}">{{ t('nav.tree') }}</a>
+      <a href="/map" class="nav__link {% if active_page == 'map' %}nav__link--active{% endif %}">{{ t('nav.map') }}</a>
       <a href="/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>
       {% if current_user.is_admin %}
       <a href="/admin" class="nav__link {% if active_page == 'admin' %}nav__link--active{% endif %}">{{ t('nav.admin') }}</a>
