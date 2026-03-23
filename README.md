@@ -126,6 +126,7 @@ BOOTSTRAP_ADMIN_LAST_NAME=User
 
 Railway and Docker deployments do not load the demo family by default. Set `LOAD_DEMO_DATA=true` only if you explicitly want the fictional sample tree on startup.
 On a brand new empty deployment, set `BOOTSTRAP_ADMIN_EMAIL` so the app creates your first admin profile automatically at startup. After first login, you can edit that profile normally.
+Sensitive person contact and medical fields are protected through the application persistence layer. The current protection and backup contract is documented in [`docs/ops/protection-and-backup-contract.md`](docs/ops/protection-and-backup-contract.md).
 
 ### Deploy with Docker
 

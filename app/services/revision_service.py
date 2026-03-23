@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.moments import Moment
 from app.models.person import Person
 from app.models.revisions import EntityRevision
+from app.services.protection_service import decrypt_mapping_fields, encrypt_mapping_fields
 
 
 PERSON_MUTABLE_FIELDS = [
@@ -62,6 +63,14 @@ MOMENT_MUTABLE_FIELDS = [
     "deleted_by",
 ]
 
+PERSON_SNAPSHOT_PROTECTED_FIELDS = [
+    "medical_history",
+    "contact_whatsapp",
+    "contact_telegram",
+    "contact_signal",
+    "contact_email",
+]
+
 
 def _serialize_datetime(value: datetime | None) -> str | None:
     if value is None:
@@ -81,10 +90,11 @@ def _parse_datetime(value: str | None) -> datetime | None:
 def serialize_person_snapshot(person: Person) -> dict:
     snapshot = {field: getattr(person, field) for field in PERSON_MUTABLE_FIELDS}
     snapshot["languages"] = person.languages
-    return snapshot
+    return encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
 
 
 def apply_person_snapshot(person: Person, snapshot: dict) -> None:
+    snapshot = decrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
     for field in PERSON_MUTABLE_FIELDS:
         if field in snapshot:
             setattr(person, field, snapshot[field])

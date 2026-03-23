@@ -38,7 +38,9 @@ async def lifespan(app: FastAPI):
             )
 
     from app.services.bootstrap_service import ensure_bootstrap_admin
+    from app.services.protection_service import ensure_sensitive_person_fields_protected
     await ensure_bootstrap_admin()
+    await ensure_sensitive_person_fields_protected()
 
     # Start Matrix bot if configured
     from app.matrix.startup import start_matrix_bot, stop_matrix_bot

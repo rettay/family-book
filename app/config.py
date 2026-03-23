@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///data/family.db"
     DATA_DIR: str = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "data")
+    BACKUP_RETENTION_DAYS: int = 30
 
     # Facebook OAuth
     FB_ENABLED: bool = False

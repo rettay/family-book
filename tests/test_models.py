@@ -1,4 +1,5 @@
 import pytest
+from sqlalchemy import text
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -75,6 +76,44 @@ async def test_person_rich_fields_round_trip(db: AsyncSession):
     assert fetched.burial_country_code == "US"
     assert fetched.burial_cemetery_name == "Maple Grove"
     assert fetched.burial_plot_number == "A-42"
+
+
+@pytest.mark.asyncio
+async def test_sensitive_person_fields_persist_encrypted(db: AsyncSession):
+    person = Person(
+        first_name="Protected",
+        last_name="Person",
+        medical_history="High blood pressure notes",
+        contact_email="protected@example.com",
+        contact_signal="+15551234567",
+    )
+    db.add(person)
+    await db.flush()
+
+    row = (
+        await db.execute(
+            text(
+                """
+                SELECT medical_history, contact_email, contact_signal, contact_email_hash
+                FROM persons
+                WHERE id = :person_id
+                """
+            ),
+            {"person_id": person.id},
+        )
+    ).one()
+
+    assert row.medical_history != "High blood pressure notes"
+    assert row.contact_email != "protected@example.com"
+    assert row.contact_signal != "+15551234567"
+    assert row.contact_email_hash is not None
+
+    fetched = (
+        await db.execute(select(Person).where(Person.id == person.id))
+    ).scalar_one()
+    assert fetched.medical_history == "High blood pressure notes"
+    assert fetched.contact_email == "protected@example.com"
+    assert fetched.contact_signal == "+15551234567"
 
 
 @pytest.mark.asyncio

@@ -10,7 +10,12 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse, JSONResponse
 
 from app.auth import require_admin
-from app.backup.service import create_download_zip, get_backup_health, run_backup
+from app.backup.service import (
+    create_download_zip,
+    get_backup_health,
+    run_backup,
+    verify_backup_restore,
+)
 from app.models.person import Person
 
 router = APIRouter(prefix="/api/admin/backup", tags=["backup"])
@@ -38,3 +43,9 @@ async def download_backup(admin: Person = Depends(require_admin)) -> FileRespons
 async def backup_status(admin: Person = Depends(require_admin)) -> JSONResponse:
     """Return backup freshness info."""
     return JSONResponse(get_backup_health())
+
+
+@router.post("/verify")
+async def backup_verify(admin: Person = Depends(require_admin)) -> JSONResponse:
+    """Verify that the latest backup can restore into a usable temporary state."""
+    return JSONResponse(verify_backup_restore())

@@ -1,5 +1,6 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.person import AccountState, Person
@@ -168,6 +169,40 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
     assert data["burial_country_code"] == "CA"
     assert data["burial_cemetery_name"] == "Evergreen Memorial"
     assert data["burial_plot_number"] == "Lot 7"
+
+
+@pytest.mark.asyncio
+async def test_sensitive_fields_are_not_plaintext_in_database(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "Encrypted",
+        "last_name": "Storage",
+        "medical_history": "Sensitive family note",
+        "contact_email": "encrypted@example.com",
+        "contact_whatsapp": "+34600000000",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    row = (
+        await seeded_db.execute(
+            text(
+                """
+                SELECT medical_history, contact_email, contact_whatsapp, contact_email_hash
+                FROM persons
+                WHERE id = :person_id
+                """
+            ),
+            {"person_id": person_id},
+        )
+    ).one()
+
+    assert row.medical_history != "Sensitive family note"
+    assert row.contact_email != "encrypted@example.com"
+    assert row.contact_whatsapp != "+34600000000"
+    assert row.contact_email_hash is not None
 
 
 @pytest.mark.asyncio

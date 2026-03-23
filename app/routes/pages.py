@@ -30,6 +30,7 @@ from app.models.revisions import EntityRevision
 from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonSummary
+from app.backup.service import get_backup_health
 from app.services.moment_service import (
     build_moment_cards,
     build_moments_path,
@@ -455,6 +456,7 @@ async def admin_page(
         managed_people=managed_people,
         invites=invites,
         invite_people=invite_people,
+        backup_health=get_backup_health(),
     ))
 
 

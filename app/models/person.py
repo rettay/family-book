@@ -2,9 +2,27 @@ import enum
 import json
 
 from sqlalchemy import Boolean, Index, LargeBinary, String, Text, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, validates
+from sqlalchemy.types import TypeDecorator
 
 from app.models.base import Base, TimestampMixin, generate_uuid
+from app.services.protection_service import (
+    contact_email_lookup_hash,
+    decrypt_string,
+    encrypt_string,
+    normalize_email_for_lookup,
+)
+
+
+class EncryptedText(TypeDecorator):
+    impl = Text
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        return encrypt_string(value)
+
+    def process_result_value(self, value, dialect):
+        return decrypt_string(value)
 
 
 class NameDisplayOrder(str, enum.Enum):
@@ -87,12 +105,13 @@ class Person(Base, TimestampMixin):
 
     _languages: Mapped[str | None] = mapped_column("languages", Text, default="[]")
     bio: Mapped[str | None] = mapped_column(String(2000), default=None)
-    medical_history: Mapped[str | None] = mapped_column(Text, default=None)
+    medical_history: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
 
-    contact_whatsapp: Mapped[str | None] = mapped_column(String(20), default=None)
-    contact_telegram: Mapped[str | None] = mapped_column(String(100), default=None)
-    contact_signal: Mapped[str | None] = mapped_column(String(20), default=None)
-    contact_email: Mapped[str | None] = mapped_column(String(320), default=None)
+    contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    contact_telegram: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    contact_email: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    contact_email_hash: Mapped[str | None] = mapped_column(String(64), default=None)
 
     photo_url: Mapped[str | None] = mapped_column(String(2000), default=None)
     branch: Mapped[str | None] = mapped_column(String(100), default=None)
@@ -121,6 +140,7 @@ class Person(Base, TimestampMixin):
         Index("idx_persons_facebook_id", "facebook_id", unique=True, sqlite_where=text("facebook_id IS NOT NULL")),
         Index("idx_persons_country_code", "residence_country_code"),
         Index("idx_persons_is_root", "is_root", sqlite_where=text("is_root = 1")),
+        Index("idx_persons_contact_email_hash", "contact_email_hash"),
     )
 
     @property
@@ -145,3 +165,9 @@ class Person(Base, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<Person id={self.id[:8]} name={self.display_name!r}>"
+
+    @validates("contact_email")
+    def _validate_contact_email(self, key: str, value: str | None) -> str | None:
+        normalized = normalize_email_for_lookup(value)
+        self.contact_email_hash = contact_email_lookup_hash(normalized)
+        return normalized

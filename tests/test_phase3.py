@@ -72,7 +72,7 @@ class TestI18n:
 
         en = get_translations("en")
         assert en["nav"]["tree"] == "Family Tree"
-        assert en["app"]["name"] == "Family Book"
+        assert en["app"]["name"] == "Family Tree"
 
         ru = get_translations("ru")
         assert ru["nav"]["tree"] == "Семейное Древо"
@@ -143,6 +143,7 @@ class TestBackup:
         class MockSettings:
             DATA_DIR = str(tmp_path)
             DATABASE_URL = f"sqlite:///{db_path}"
+            BACKUP_RETENTION_DAYS = 30
 
         with patch("app.backup.service.get_settings", return_value=MockSettings()):
             from app.backup.service import run_backup, get_backup_health
@@ -158,6 +159,52 @@ class TestBackup:
             health = get_backup_health()
             assert health["backup_count"] >= 1
             assert health["fresh"] is True
+            assert health["restore_supported"] is True
+            assert health["retention_days"] == 30
+
+    def test_restore_backup_archive(self, tmp_path):
+        from unittest.mock import patch
+        import sqlite3
+
+        db_path = tmp_path / "family.db"
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("CREATE TABLE persons (id INTEGER PRIMARY KEY, first_name TEXT)")
+        conn.execute("INSERT INTO persons (id, first_name) VALUES (1, 'Tyler')")
+        conn.commit()
+        conn.close()
+
+        (tmp_path / "backups").mkdir()
+        media_dir = tmp_path / "media"
+        media_dir.mkdir()
+        (media_dir / "photo.jpg").write_bytes(b"jpg")
+
+        class MockSettings:
+            DATA_DIR = str(tmp_path)
+            resolved_data_dir = str(tmp_path)
+            DATABASE_URL = f"sqlite:///{db_path}"
+            sqlite_database_path = str(db_path)
+            BACKUP_RETENTION_DAYS = 30
+            FERNET_KEY = "test"
+
+        with patch("app.backup.service.get_settings", return_value=MockSettings()):
+            from app.backup.service import create_download_zip, restore_backup_archive, verify_backup_restore
+
+            archive_path = create_download_zip()
+            restore_target = tmp_path / "restored"
+            restored = restore_backup_archive(
+                archive_path,
+                target_data_dir=str(restore_target),
+                target_db_filename="family.db",
+            )
+
+            assert os.path.exists(restored["restored_db_path"])
+            assert restored["table_count"] >= 1
+            assert restored["person_count"] == 1
+            assert (restore_target / "media" / "photo.jpg").exists()
+
+            verification = verify_backup_restore()
+            assert verification["status"] == "ok"
+            assert verification["person_count"] == 1
 
 
 class TestBootstrapAdmin:
@@ -193,6 +240,17 @@ class TestBootstrapAdmin:
         assert people[0].last_name == "Maglio"
 
         await engine.dispose()
+
+
+class TestProtection:
+    @pytest.mark.asyncio
+    async def test_backup_status_reports_protection_contract(self, admin_client: AsyncClient):
+        resp = await admin_client.get("/api/admin/backup/status")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["restore_supported"] is True
+        assert body["protection"]["field_encryption_enabled"] is True
+        assert "contact_email" in body["protection"]["protected_person_fields"]
 
 
 # ─── Security headers ────────────────────────────────────────────────────
@@ -342,7 +400,7 @@ class TestPWA:
         resp = await fresh_client.get("/static/manifest.json")
         assert resp.status_code == 200
         data = resp.json()
-        assert data["name"] == "Family Book"
+        assert data["name"] == "Family Tree"
         assert "share_target" in data
 
     @pytest.mark.asyncio

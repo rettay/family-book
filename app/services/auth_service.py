@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.auth import UserSession, Invite, MagicLinkToken
 from app.models.person import Person, AccountState, PersonLifecycleState
 from app.config import get_settings
+from app.services.protection_service import contact_email_lookup_hash, normalize_email_for_lookup
 
 SESSION_TOKEN_BYTES = 32
 SESSION_EXPIRY_DAYS = 30
@@ -204,7 +205,7 @@ async def authenticate_google_identity(
     if not email_verified:
         raise ValueError("Google account email is not verified.")
 
-    normalized_email = email.lower().strip() if email else None
+    normalized_email = normalize_email_for_lookup(email)
     settings = get_settings()
 
     result = await db.execute(
@@ -217,7 +218,7 @@ async def authenticate_google_identity(
             raise ValueError("Google account is missing an email address.")
 
         result = await db.execute(
-            select(Person).where(Person.contact_email == normalized_email)
+            select(Person).where(Person.contact_email_hash == contact_email_lookup_hash(normalized_email))
         )
         matches = result.scalars().all()
 

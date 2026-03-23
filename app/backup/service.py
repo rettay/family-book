@@ -7,16 +7,15 @@ import logging
 import os
 import shutil
 import sqlite3
+import tempfile
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 from app.config import get_settings
+from app.services.protection_service import get_protection_contract
 
 logger = logging.getLogger(__name__)
-
-BACKUP_RETENTION_DAYS = 30
-
 
 def run_backup() -> str:
     """Run a SQLite backup + compress. Returns backup file path."""
@@ -53,7 +52,7 @@ def run_backup() -> str:
     os.remove(backup_path)
 
     logger.info("Backup created: %s", gz_path)
-    _cleanup_old_backups(backup_dir)
+    _cleanup_old_backups(backup_dir, getattr(settings, "BACKUP_RETENTION_DAYS", 30))
     return gz_path
 
 
@@ -94,9 +93,23 @@ def get_backup_health() -> dict:
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
     backup_dir = os.path.join(data_dir, "backups")
     backups = sorted(Path(backup_dir).glob("family-*.db.gz"), reverse=True)
+    database_path = getattr(
+        settings,
+        "sqlite_database_path",
+        settings.DATABASE_URL.replace("sqlite:///", "", 1),
+    )
 
     if not backups:
-        return {"last_backup": None, "backup_count": 0, "fresh": False}
+        return {
+            "last_backup": None,
+            "backup_count": 0,
+            "fresh": False,
+            "data_dir": data_dir,
+            "database_path": database_path,
+            "retention_days": getattr(settings, "BACKUP_RETENTION_DAYS", 30),
+            "restore_supported": True,
+            "protection": get_protection_contract(),
+        }
 
     latest = backups[0]
     mtime = datetime.fromtimestamp(latest.stat().st_mtime, tz=timezone.utc)
@@ -108,15 +121,103 @@ def get_backup_health() -> dict:
         "fresh": age_hours < 25,  # less than 25 hours old
         "latest_file": latest.name,
         "latest_size_bytes": latest.stat().st_size,
+        "data_dir": data_dir,
+        "database_path": database_path,
+        "retention_days": getattr(settings, "BACKUP_RETENTION_DAYS", 30),
+        "restore_supported": True,
+        "protection": get_protection_contract(),
     }
 
 
-def _cleanup_old_backups(backup_dir: str) -> None:
+def restore_backup_archive(
+    archive_path: str,
+    *,
+    target_data_dir: str,
+    target_db_filename: str | None = None,
+) -> dict:
+    target_root = Path(target_data_dir)
+    target_root.mkdir(parents=True, exist_ok=True)
+    media_target = target_root / "media"
+    media_target.mkdir(parents=True, exist_ok=True)
+
+    db_filename = target_db_filename or "family.db"
+    db_target = target_root / db_filename
+
+    with tempfile.TemporaryDirectory(prefix="family-book-restore-") as tmp_dir:
+        tmp_root = Path(tmp_dir)
+        with zipfile.ZipFile(archive_path, "r") as zf:
+            zf.extractall(tmp_root)
+
+        backup_candidates = sorted((tmp_root / "db").glob("*.db.gz"))
+        if not backup_candidates:
+            raise FileNotFoundError("Backup archive does not contain a database payload")
+
+        with gzip.open(backup_candidates[0], "rb") as f_in, open(db_target, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+        extracted_media = tmp_root / "media"
+        restored_media_files = 0
+        if extracted_media.is_dir():
+            for source in extracted_media.rglob("*"):
+                if not source.is_file():
+                    continue
+                rel_path = source.relative_to(extracted_media)
+                destination = media_target / rel_path
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, destination)
+                restored_media_files += 1
+
+    with sqlite3.connect(str(db_target)) as restored_db:
+        table_count = restored_db.execute(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
+        ).fetchone()[0]
+        try:
+            person_count = restored_db.execute("SELECT COUNT(*) FROM persons").fetchone()[0]
+        except sqlite3.DatabaseError:
+            person_count = None
+
+    return {
+        "restored_db_path": str(db_target),
+        "restored_media_files": restored_media_files,
+        "table_count": table_count,
+        "person_count": person_count,
+    }
+
+
+def verify_backup_restore() -> dict:
+    settings = get_settings()
+    archive_path = create_download_zip()
+    db_filename = Path(
+        getattr(
+            settings,
+            "sqlite_database_path",
+            settings.DATABASE_URL.replace("sqlite:///", "", 1),
+        )
+    ).name or "family.db"
+
+    with tempfile.TemporaryDirectory(prefix="family-book-restore-check-") as tmp_dir:
+        restored = restore_backup_archive(
+            archive_path,
+            target_data_dir=tmp_dir,
+            target_db_filename=db_filename,
+        )
+
+    return {
+        "status": "ok",
+        "archive_path": archive_path,
+        "db_filename": db_filename,
+        "table_count": restored["table_count"],
+        "person_count": restored["person_count"],
+        "restored_media_files": restored["restored_media_files"],
+    }
+
+
+def _cleanup_old_backups(backup_dir: str, retention_days: int) -> None:
     """Remove backups older than retention period."""
     now = datetime.now(timezone.utc)
     for f in Path(backup_dir).glob("family-*.db.gz"):
         mtime = datetime.fromtimestamp(f.stat().st_mtime, tz=timezone.utc)
         age_days = (now - mtime).days
-        if age_days > BACKUP_RETENTION_DAYS:
+        if age_days > retention_days:
             f.unlink()
             logger.info("Removed old backup: %s (%d days old)", f.name, age_days)

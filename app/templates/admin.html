@@ -33,6 +33,20 @@
         <a href="/people/new" class="btn btn--primary btn--sm">+ Add Person</a>
         <button class="btn btn--secondary btn--sm" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
         <button class="btn btn--secondary btn--sm" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
+        <button class="btn btn--secondary btn--sm" onclick="verifyBackupRestore()">Verify Restore</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-16">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Protection &amp; Backup Status</h2>
+      <div id="backup-status">
+        <p class="text-sm text-muted">Backups: {% if backup_health.fresh %}fresh{% else %}stale or missing{% endif %}</p>
+        <p class="text-sm text-muted">Latest file: {{ backup_health.latest_file or 'none' }}</p>
+        <p class="text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
+        <p class="text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
+        <p class="text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
       </div>
     </div>
   </div>
@@ -125,6 +139,16 @@ async function triggerBackup() {
 
 function downloadBackup() {
   window.location.href = '/api/admin/backup/download';
+}
+
+async function verifyBackupRestore() {
+  const resp = await fetch('/api/admin/backup/verify', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Restore verification failed');
+    return;
+  }
+  showToast(`Restore verified (${data.table_count} tables, ${data.person_count ?? 0} people)`);
 }
 
 async function approvePerson(id) {
