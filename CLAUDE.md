@@ -1,7 +1,16 @@
 # CLAUDE.md — Family Book Build Guide
 
 ## What This Is
-Family Book is a private, self-hosted family tree and archive with sovereign data ownership. Read SPEC.md (the complete 2000+ line specification) before touching any code.
+Family Book is a private, collaborative family wiki with a family tree, shared person records, media, stories, timeline history, and family administration.
+
+For launch-oriented work, read these first:
+- `operating_system.md`
+- `foundation/PRODUCT_VISION.md`
+- `foundation/V1_PRODUCT_REQUIREMENTS.md`
+- `foundation/COLLABORATION_AND_PRIVACY.md`
+- `docs/CODEBASE_BRIEFING.md`
+
+`SPEC.md` is useful background context, but it is not the canonical launch contract when it conflicts with the foundation docs above.
 
 ## Tech Stack
 - **Backend:** Python 3.12 + FastAPI + SQLAlchemy + Alembic
@@ -58,6 +67,7 @@ uv run alembic upgrade head
 5. **Source tracking.** Every Person, ParentChild, Partnership, Media, and Moment has a `source` field. Always set it correctly.
 6. **Dedup by hash.** All media imports must check SHA-256 file hash before creating records.
 7. **Audit everything.** All mutations to Person, ParentChild, Partnership create AuditLog entries.
+8. **Launch access model is flat family access.** Active invited family members should be treated as collaborators with shared visibility to family content. Do not introduce or preserve graph-distance visibility rules for launch work unless a new decision document explicitly changes the contract.
 
 ## Environment Variables
 See SPEC.md § Deployment > Environment Variables for the complete list.
