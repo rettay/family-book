@@ -1,0 +1,663 @@
+{
+  "id": "app/backup/service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "5dd6bc6c",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 13,
+    "lines": 122,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py"
+    ],
+    "imported_by": [
+      "app/backup/routes.py",
+      "app/backup/scheduler.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "run_backup",
+      "type": "function",
+      "summary": null,
+      "line": 21,
+      "signature": "() -> str"
+    },
+    {
+      "name": "create_download_zip",
+      "type": "function",
+      "summary": null,
+      "line": 60,
+      "signature": "() -> str"
+    },
+    {
+      "name": "get_backup_health",
+      "type": "function",
+      "summary": null,
+      "line": 91,
+      "signature": "() -> dict"
+    },
+    {
+      "name": "_cleanup_old_backups",
+      "type": "function",
+      "summary": null,
+      "line": 114,
+      "signature": "(backup_dir: str) -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "run_backup",
+      "kind": "function",
+      "line": 21,
+      "signature": "() -> str",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 23,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "getattr",
+          "line": 24,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "os.makedirs",
+          "line": 26,
+          "module_hint": "os"
+        },
+        {
+          "name": "datetime.now(timezone.utc).strftime",
+          "line": 28,
+          "module_hint": null
+        },
+        {
+          "name": "datetime.now",
+          "line": 28,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "os.path.join",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 34,
+          "module_hint": null
+        },
+        {
+          "name": "settings.DATABASE_URL.replace",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.exists",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "FileNotFoundError",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "sqlite3.connect",
+          "line": 43,
+          "module_hint": "sqlite3"
+        },
+        {
+          "name": "sqlite3.connect",
+          "line": 44,
+          "module_hint": "sqlite3"
+        },
+        {
+          "name": "src.backup",
+          "line": 45,
+          "module_hint": null
+        },
+        {
+          "name": "dst.close",
+          "line": 46,
+          "module_hint": null
+        },
+        {
+          "name": "src.close",
+          "line": 47,
+          "module_hint": null
+        },
+        {
+          "name": "open",
+          "line": 50,
+          "module_hint": null
+        },
+        {
+          "name": "gzip.open",
+          "line": 51,
+          "module_hint": "gzip"
+        },
+        {
+          "name": "shutil.copyfileobj",
+          "line": 52,
+          "module_hint": "shutil"
+        },
+        {
+          "name": "os.remove",
+          "line": 53,
+          "module_hint": "os"
+        },
+        {
+          "name": "logger.info",
+          "line": 55,
+          "module_hint": null
+        },
+        {
+          "name": "_cleanup_old_backups",
+          "line": 56,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "create_download_zip",
+      "kind": "function",
+      "line": 60,
+      "signature": "() -> str",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 62,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "getattr",
+          "line": 63,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "sorted",
+          "line": 67,
+          "module_hint": null
+        },
+        {
+          "name": "Path(backup_dir).glob",
+          "line": 67,
+          "module_hint": null
+        },
+        {
+          "name": "Path",
+          "line": 67,
+          "module_hint": "pathlib"
+        },
+        {
+          "name": "run_backup",
+          "line": 70,
+          "module_hint": null
+        },
+        {
+          "name": "sorted",
+          "line": 71,
+          "module_hint": null
+        },
+        {
+          "name": "Path(backup_dir).glob",
+          "line": 71,
+          "module_hint": null
+        },
+        {
+          "name": "Path",
+          "line": 71,
+          "module_hint": "pathlib"
+        },
+        {
+          "name": "os.path.join",
+          "line": 73,
+          "module_hint": null
+        },
+        {
+          "name": "zipfile.ZipFile",
+          "line": 74,
+          "module_hint": "zipfile"
+        },
+        {
+          "name": "zf.write",
+          "line": 77,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 77,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 80,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.isdir",
+          "line": 81,
+          "module_hint": null
+        },
+        {
+          "name": "os.walk",
+          "line": 82,
+          "module_hint": "os"
+        },
+        {
+          "name": "os.path.join",
+          "line": 84,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.relpath",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "zf.write",
+          "line": 86,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_backup_health",
+      "kind": "function",
+      "line": 91,
+      "signature": "() -> dict",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 93,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "getattr",
+          "line": 94,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 95,
+          "module_hint": null
+        },
+        {
+          "name": "sorted",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "Path(backup_dir).glob",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "Path",
+          "line": 96,
+          "module_hint": "pathlib"
+        },
+        {
+          "name": "datetime.fromtimestamp",
+          "line": 102,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "latest.stat",
+          "line": 102,
+          "module_hint": null
+        },
+        {
+          "name": "(datetime.now(timezone.utc) - mtime).total_seconds",
+          "line": 103,
+          "module_hint": null
+        },
+        {
+          "name": "datetime.now",
+          "line": 103,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "mtime.isoformat",
+          "line": 106,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 107,
+          "module_hint": null
+        },
+        {
+          "name": "latest.stat",
+          "line": 110,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_cleanup_old_backups",
+      "kind": "function",
+      "line": 114,
+      "signature": "(backup_dir: str) -> None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "datetime.now",
+          "line": 116,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "Path(backup_dir).glob",
+          "line": 117,
+          "module_hint": null
+        },
+        {
+          "name": "Path",
+          "line": 117,
+          "module_hint": "pathlib"
+        },
+        {
+          "name": "datetime.fromtimestamp",
+          "line": 118,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "f.stat",
+          "line": 118,
+          "module_hint": null
+        },
+        {
+          "name": "f.unlink",
+          "line": 121,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 122,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "run_backup",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 1,
+        "size": 36,
+        "nesting": 1,
+        "token_count": 252
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 43,
+              "line_end": 43
+            },
+            {
+              "line_start": 44,
+              "line_end": 44
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "create_download_zip",
+      "line": 60,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 8,
+        "size": 28,
+        "nesting": 3,
+        "token_count": 230
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 63,
+              "line_end": 63
+            },
+            {
+              "line_start": 74,
+              "line_end": 74
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 73,
+              "line_end": 73
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 84,
+              "line_end": 84
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 84,
+              "line_end": 84
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 73,
+              "line_end": 73
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_backup_health",
+      "line": 91,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 20,
+        "nesting": 1,
+        "token_count": 182
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_cleanup_old_backups",
+      "line": 114,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 8,
+        "nesting": 2,
+        "token_count": 86
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "filesystem: os.makedirs() at line 26",
+      "filesystem: open() at line 50",
+      "filesystem: os.remove() at line 53"
+    ],
+    "purity": "filesystem",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 55",
+      "logging: logger.info() at line 122"
+    ],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_cleanup_old_backups",
+      "create_download_zip",
+      "get_backup_health",
+      "run_backup"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T20:24:52+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.35,
+  "attention_score": 0.32,
+  "centrality_score": 0.1,
+  "quality_radar": {
+    "understandability": 0.46,
+    "changeability": 0.66,
+    "correctness": 0.5,
+    "security": 0.88,
+    "stability": 0.6
+  },
+  "domain_role": "utility",
+  "detected_patterns": [
+    {
+      "pattern_name": "factory",
+      "confidence": "medium",
+      "tier": 1,
+      "evidence": [
+        "create_download_zip() at line 60"
+      ],
+      "notes": ""
+    }
+  ],
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

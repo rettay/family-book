@@ -1,0 +1,694 @@
+{
+  "id": "app/services/revision_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T22:28:51.946063+00:00",
+  "source_hash": "99084dd3",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 10,
+    "lines": 170,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/moments.py",
+      "app/models/person.py",
+      "app/models/revisions.py"
+    ],
+    "imported_by": [
+      "app/routes/moments.py",
+      "app/routes/pages.py",
+      "app/routes/persons.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "_serialize_datetime",
+      "type": "function",
+      "summary": null,
+      "line": 66,
+      "signature": "(value: datetime | None) -> str | None"
+    },
+    {
+      "name": "_parse_datetime",
+      "type": "function",
+      "summary": null,
+      "line": 72,
+      "signature": "(value: str | None) -> datetime | None"
+    },
+    {
+      "name": "serialize_person_snapshot",
+      "type": "function",
+      "summary": null,
+      "line": 81,
+      "signature": "(person: Person) -> dict"
+    },
+    {
+      "name": "apply_person_snapshot",
+      "type": "function",
+      "summary": null,
+      "line": 87,
+      "signature": "(person: Person, snapshot: dict) -> None"
+    },
+    {
+      "name": "serialize_moment_snapshot",
+      "type": "function",
+      "summary": null,
+      "line": 95,
+      "signature": "(moment: Moment) -> dict"
+    },
+    {
+      "name": "apply_moment_snapshot",
+      "type": "function",
+      "summary": null,
+      "line": 105,
+      "signature": "(moment: Moment, snapshot: dict) -> None"
+    },
+    {
+      "name": "record_revision",
+      "type": "function",
+      "summary": null,
+      "line": 116,
+      "signature": "( db: AsyncSession, *, entity_type: str, entity_id: str, actor_id: str | None, action: str, snapshot: dict, ) -> EntityRevision"
+    },
+    {
+      "name": "list_revisions",
+      "type": "function",
+      "summary": null,
+      "line": 137,
+      "signature": "( db: AsyncSession, *, entity_type: str, entity_id: str, limit: int = 20, ) -> list[EntityRevision]"
+    },
+    {
+      "name": "get_revision",
+      "type": "function",
+      "summary": null,
+      "line": 156,
+      "signature": "( db: AsyncSession, *, revision_id: str, entity_type: str, entity_id: str, ) -> EntityRevision | None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_serialize_datetime",
+      "kind": "function",
+      "line": 66,
+      "signature": "(value: datetime | None) -> str | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "value.isoformat",
+          "line": 69,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_parse_datetime",
+      "kind": "function",
+      "line": 72,
+      "signature": "(value: str | None) -> datetime | None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "datetime.fromisoformat",
+          "line": 75,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "value.replace",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "parsed.replace",
+          "line": 77,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "serialize_person_snapshot",
+      "kind": "function",
+      "line": 81,
+      "signature": "(person: Person) -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "getattr",
+          "line": 82,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "apply_person_snapshot",
+      "kind": "function",
+      "line": 87,
+      "signature": "(person: Person, snapshot: dict) -> None",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "setattr",
+          "line": 90,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "serialize_moment_snapshot",
+      "kind": "function",
+      "line": 95,
+      "signature": "(moment: Moment) -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "getattr",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "_serialize_datetime",
+          "line": 97,
+          "module_hint": null
+        },
+        {
+          "name": "_serialize_datetime",
+          "line": 98,
+          "module_hint": null
+        },
+        {
+          "name": "_serialize_datetime",
+          "line": 99,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "apply_moment_snapshot",
+      "kind": "function",
+      "line": 105,
+      "signature": "(moment: Moment, snapshot: dict) -> None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "setattr",
+          "line": 108,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_datetime",
+          "line": 109,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 109,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_datetime",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_datetime",
+          "line": 111,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 111,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 112,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 113,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "record_revision",
+      "kind": "function",
+      "line": 116,
+      "signature": "( db: AsyncSession, *, entity_type: str, entity_id: str, actor_id: str | None, action: str, snapshot: dict, ) -> EntityRevision",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "EntityRevision",
+          "line": 125,
+          "module_hint": "app.models.revisions"
+        },
+        {
+          "name": "db.add",
+          "line": 132,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 133,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "list_revisions",
+      "kind": "function",
+      "line": 137,
+      "signature": "( db: AsyncSession, *, entity_type: str, entity_id: str, limit: int = 20, ) -> list[EntityRevision]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 144,
+          "module_hint": null
+        },
+        {
+          "name": "select(EntityRevision)\n        .where(\n            EntityRevision.entity_type == entity_type,\n            EntityRevision.entity_id == entity_id,\n        )\n        .order_by(EntityRevision.created_at.desc()).limit",
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "select(EntityRevision)\n        .where(\n            EntityRevision.entity_type == entity_type,\n            EntityRevision.entity_id == entity_id,\n        ).order_by",
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "select(EntityRevision).where",
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 145,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "EntityRevision.created_at.desc",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "list",
+          "line": 153,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 153,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 153,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_revision",
+      "kind": "function",
+      "line": 156,
+      "signature": "( db: AsyncSession, *, revision_id: str, entity_type: str, entity_id: str, ) -> EntityRevision | None",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 163,
+          "module_hint": null
+        },
+        {
+          "name": "select(EntityRevision).where",
+          "line": 164,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 164,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 170,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_serialize_datetime",
+      "line": 66,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_parse_datetime",
+      "line": 72,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 6,
+        "nesting": 1,
+        "token_count": 50
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "serialize_person_snapshot",
+      "line": 81,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 3,
+        "nesting": 0,
+        "token_count": 28
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "apply_person_snapshot",
+      "line": 87,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 5,
+        "nesting": 2,
+        "token_count": 40
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "serialize_moment_snapshot",
+      "line": 95,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 7,
+        "nesting": 0,
+        "token_count": 81
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 97,
+              "line_end": 97
+            },
+            {
+              "line_start": 98,
+              "line_end": 98
+            },
+            {
+              "line_start": 99,
+              "line_end": 99
+            },
+            {
+              "line_start": 100,
+              "line_end": 100
+            },
+            {
+              "line_start": 101,
+              "line_end": 101
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "apply_moment_snapshot",
+      "line": 105,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 8,
+        "nesting": 2,
+        "token_count": 100
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            },
+            {
+              "line_start": 111,
+              "line_end": 111
+            },
+            {
+              "line_start": 112,
+              "line_end": 112
+            },
+            {
+              "line_start": 113,
+              "line_end": 113
+            },
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            },
+            {
+              "line_start": 111,
+              "line_end": 111
+            },
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            },
+            {
+              "line_start": 111,
+              "line_end": 111
+            },
+            {
+              "line_start": 112,
+              "line_end": 112
+            },
+            {
+              "line_start": 113,
+              "line_end": 113
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "record_revision",
+      "line": 116,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 10,
+        "nesting": 0,
+        "token_count": 41
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "list_revisions",
+      "line": 137,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 10,
+        "nesting": 0,
+        "token_count": 57
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_revision",
+      "line": 156,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 8,
+        "nesting": 0,
+        "token_count": 39
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 2,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_parse_datetime",
+      "_serialize_datetime",
+      "apply_moment_snapshot",
+      "apply_person_snapshot",
+      "get_revision",
+      "list_revisions",
+      "record_revision",
+      "serialize_moment_snapshot",
+      "serialize_person_snapshot"
+    ],
+    "package": null,
+    "change_velocity": 1.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T18:15:01-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.15,
+  "centrality_score": 0.25,
+  "quality_radar": {
+    "understandability": 0.92,
+    "changeability": 0.65,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.75
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": [
+    {
+      "name": "primitive_obsession",
+      "evidence": "record_revision() has 6 params (line 116)",
+      "severity": "medium"
+    }
+  ],
+  "agent_briefing": null
+}

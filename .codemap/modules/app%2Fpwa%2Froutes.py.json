@@ -1,0 +1,214 @@
+{
+  "id": "app/pwa/routes.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "b6f7ccc4",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 6,
+    "lines": 91,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/auth.py",
+      "app/config.py",
+      "app/models/person.py",
+      "app/services/io_limits.py"
+    ],
+    "imported_by": [
+      "app/main.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "_ext_from_content_type",
+      "type": "function",
+      "summary": null,
+      "line": 83,
+      "signature": "(ct: str) -> str"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_ext_from_content_type",
+      "kind": "function",
+      "line": 83,
+      "signature": "(ct: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "{\n        \"image/jpeg\": \".jpg\",\n        \"image/png\": \".png\",\n        \"image/webp\": \".webp\",\n        \"image/gif\": \".gif\",\n        \"video/mp4\": \".mp4\",\n        \"video/webm\": \".webm\",\n    }.get",
+          "line": 84,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "share_target",
+      "line": 28,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 5,
+        "size": 47,
+        "nesting": 1,
+        "token_count": 253
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 38,
+              "line_end": 39
+            },
+            {
+              "line_start": 41,
+              "line_end": 42
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_ext_from_content_type",
+      "line": 83,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 8,
+        "nesting": 0,
+        "token_count": 66
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 86,
+              "line_end": 86
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "filesystem: os.makedirs() at line 60",
+      "filesystem: os.unlink() at line 67",
+      "filesystem: shutil.move() at line 69"
+    ],
+    "purity": "filesystem",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 71"
+    ],
+    "endpoints": [
+      "endpoint:fastapi: @router.post() at line 27"
+    ],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_ext_from_content_type"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T20:24:52+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.5,
+  "attention_score": 0.21,
+  "centrality_score": 0.03,
+  "quality_radar": {
+    "understandability": 0.75,
+    "changeability": 0.68,
+    "correctness": 0.5,
+    "security": 0.88,
+    "stability": 0.75
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

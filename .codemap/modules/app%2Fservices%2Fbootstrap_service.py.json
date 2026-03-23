@@ -1,0 +1,279 @@
+{
+  "id": "app/services/bootstrap_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "929a5fba",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 11,
+    "lines": 59,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py",
+      "app/database.py",
+      "app/models/person.py"
+    ],
+    "imported_by": [
+      "app/main.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "ensure_bootstrap_admin",
+      "type": "function",
+      "summary": null,
+      "line": 15,
+      "signature": "( session_factory: async_sessionmaker | None = None, ) -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "ensure_bootstrap_admin",
+      "kind": "function",
+      "line": 15,
+      "signature": "( session_factory: async_sessionmaker | None = None, ) -> None",
+      "complexity": 11,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 18,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "settings.BOOTSTRAP_ADMIN_EMAIL.strip().lower",
+          "line": 19,
+          "module_hint": null
+        },
+        {
+          "name": "settings.BOOTSTRAP_ADMIN_EMAIL.strip",
+          "line": 19,
+          "module_hint": null
+        },
+        {
+          "name": "factory",
+          "line": 24,
+          "module_hint": null
+        },
+        {
+          "name": "session.execute",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "select(func.count()).select_from",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "func.count",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "int",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "count_result.scalar",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "session.execute",
+          "line": 28,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 29,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "existing_result.scalar_one_or_none",
+          "line": 31,
+          "module_hint": null
+        },
+        {
+          "name": "session.commit",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 42,
+          "module_hint": null
+        },
+        {
+          "name": "Person",
+          "line": 48,
+          "module_hint": "app.models.person"
+        },
+        {
+          "name": "settings.BOOTSTRAP_ADMIN_FIRST_NAME.strip",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "settings.BOOTSTRAP_ADMIN_LAST_NAME.strip",
+          "line": 50,
+          "module_hint": null
+        },
+        {
+          "name": "session.add",
+          "line": 57,
+          "module_hint": null
+        },
+        {
+          "name": "session.commit",
+          "line": 58,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 59,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "ensure_bootstrap_admin",
+      "line": 15,
+      "metrics": {
+        "cyclomatic": 11,
+        "cognitive": 5,
+        "size": 42,
+        "nesting": 2,
+        "token_count": 260
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 38,
+              "line_end": 38
+            },
+            {
+              "line_start": 42,
+              "line_end": 45
+            },
+            {
+              "line_start": 59,
+              "line_end": 59
+            },
+            {
+              "line_start": 49,
+              "line_end": 49
+            },
+            {
+              "line_start": 50,
+              "line_end": 50
+            },
+            {
+              "line_start": 49,
+              "line_end": 49
+            },
+            {
+              "line_start": 50,
+              "line_end": 50
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 38",
+      "logging: logger.warning() at line 42",
+      "logging: logger.info() at line 59"
+    ],
+    "endpoints": [],
+    "databases": [
+      "database:sqlalchemy: session.execute() at line 25",
+      "database:sqlalchemy: session.execute() at line 28",
+      "database:sqlalchemy: session.commit() at line 37",
+      "database:sqlalchemy: session.add() at line 57",
+      "database:sqlalchemy: session.commit() at line 58"
+    ],
+    "services": [],
+    "unused_exports": [
+      "ensure_bootstrap_admin"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-22T23:40:48-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.55,
+  "attention_score": 0.24,
+  "centrality_score": 0.03,
+  "quality_radar": {
+    "understandability": 0.67,
+    "changeability": 0.68,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.6
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

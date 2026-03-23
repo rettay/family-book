@@ -1,0 +1,251 @@
+{
+  "id": "app/models/__init__.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T22:28:51.946063+00:00",
+  "source_hash": "b59c52e7",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 1,
+    "lines": 45,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/audit.py",
+      "app/models/auth.py",
+      "app/models/base.py",
+      "app/models/governance.py",
+      "app/models/imports.py",
+      "app/models/media.py",
+      "app/models/moments.py",
+      "app/models/notifications.py",
+      "app/models/person.py",
+      "app/models/preferences.py",
+      "app/models/relationships.py",
+      "app/models/revisions.py"
+    ],
+    "imported_by": [
+      "alembic/env.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "Base",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "Person",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "ParentChild",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "Partnership",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "Media",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "Moment",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "MomentReaction",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "MomentComment",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "UserSession",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "Invite",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "MagicLinkToken",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "AuditLog",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "EntityRevision",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "Notification",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "NotificationDelivery",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "NotificationPreference",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "TreePreference",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "ApprovalRequest",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "ApprovalVote",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "WhatsappImportBatch",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "MessengerImportBatch",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "AgentApiKey",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "ExternalIdentity",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
+      "name": "MemorialPlan",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    }
+  ],
+  "constructs": [],
+  "function_audits": [],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 3,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": 2.0,
+    "bus_factor": 1,
+    "author_count": 2,
+    "last_modified": "2026-03-23T16:57:43-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.18,
+  "centrality_score": 0.0,
+  "quality_radar": {
+    "understandability": 0.98,
+    "changeability": 0.68,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.55
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

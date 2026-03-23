@@ -21,7 +21,7 @@ BACKUP_RETENTION_DAYS = 30
 def run_backup() -> str:
     """Run a SQLite backup + compress. Returns backup file path."""
     settings = get_settings()
-    data_dir = settings.DATA_DIR
+    data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
     backup_dir = os.path.join(data_dir, "backups")
     os.makedirs(backup_dir, exist_ok=True)
 
@@ -31,8 +31,11 @@ def run_backup() -> str:
     gz_path = f"{backup_path}.gz"
 
     # Use SQLite's backup API (safe for WAL mode)
-    db_url = settings.DATABASE_URL
-    db_path = db_url.replace("sqlite:///", "")
+    db_path = getattr(
+        settings,
+        "sqlite_database_path",
+        settings.DATABASE_URL.replace("sqlite:///", "", 1),
+    )
 
     if not os.path.exists(db_path):
         raise FileNotFoundError(f"Database not found at {db_path}")
@@ -57,7 +60,7 @@ def run_backup() -> str:
 def create_download_zip() -> str:
     """Create a .zip containing latest backup + media directory. Returns zip path."""
     settings = get_settings()
-    data_dir = settings.DATA_DIR
+    data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
     backup_dir = os.path.join(data_dir, "backups")
 
     # Find latest backup
@@ -88,7 +91,8 @@ def create_download_zip() -> str:
 def get_backup_health() -> dict:
     """Return backup freshness info for health check."""
     settings = get_settings()
-    backup_dir = os.path.join(settings.DATA_DIR, "backups")
+    data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
+    backup_dir = os.path.join(data_dir, "backups")
     backups = sorted(Path(backup_dir).glob("family-*.db.gz"), reverse=True)
 
     if not backups:

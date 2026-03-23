@@ -1,0 +1,331 @@
+{
+  "id": "app/schemas.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:11:24.443401+00:00",
+  "source_hash": "cd1d1b5a",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 3,
+    "lines": 263,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/access_control.py",
+      "app/routes/pages.py",
+      "app/routes/persons.py",
+      "app/routes/relationships.py",
+      "app/routes/tree.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "PersonCreate",
+      "type": "class",
+      "summary": null,
+      "line": 7,
+      "signature": null
+    },
+    {
+      "name": "PersonUpdate",
+      "type": "class",
+      "summary": null,
+      "line": 41,
+      "signature": null
+    },
+    {
+      "name": "PersonSummary",
+      "type": "class",
+      "summary": null,
+      "line": 75,
+      "signature": null
+    },
+    {
+      "name": "PersonDetail",
+      "type": "class",
+      "summary": null,
+      "line": 89,
+      "signature": null
+    },
+    {
+      "name": "person_to_summary",
+      "type": "function",
+      "summary": null,
+      "line": 121,
+      "signature": "(person) -> PersonSummary"
+    },
+    {
+      "name": "person_to_detail",
+      "type": "function",
+      "summary": null,
+      "line": 136,
+      "signature": "(person) -> PersonDetail"
+    },
+    {
+      "name": "ParentChildCreate",
+      "type": "class",
+      "summary": null,
+      "line": 197,
+      "signature": null
+    },
+    {
+      "name": "ParentChildResponse",
+      "type": "class",
+      "summary": null,
+      "line": 209,
+      "signature": null
+    },
+    {
+      "name": "PartnershipCreate",
+      "type": "class",
+      "summary": null,
+      "line": 223,
+      "signature": null
+    },
+    {
+      "name": "PartnershipUpdate",
+      "type": "class",
+      "summary": null,
+      "line": 236,
+      "signature": null
+    },
+    {
+      "name": "PartnershipResponse",
+      "type": "class",
+      "summary": null,
+      "line": 243,
+      "signature": null
+    },
+    {
+      "name": "TreeResponse",
+      "type": "class",
+      "summary": null,
+      "line": 259,
+      "signature": null
+    }
+  ],
+  "constructs": [
+    {
+      "name": "PersonCreate",
+      "kind": "class",
+      "line": 7,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PersonUpdate",
+      "kind": "class",
+      "line": 41,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PersonSummary",
+      "kind": "class",
+      "line": 75,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PersonDetail",
+      "kind": "class",
+      "line": 89,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "person_to_summary",
+      "kind": "function",
+      "line": 121,
+      "signature": "(person) -> PersonSummary",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "PersonSummary",
+          "line": 123,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "person_to_detail",
+      "kind": "function",
+      "line": 136,
+      "signature": "(person) -> PersonDetail",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "PersonDetail",
+          "line": 139,
+          "module_hint": null
+        },
+        {
+          "name": "PersonDetail",
+          "line": 154,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "ParentChildCreate",
+      "kind": "class",
+      "line": 197,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "ParentChildResponse",
+      "kind": "class",
+      "line": 209,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PartnershipCreate",
+      "kind": "class",
+      "line": 223,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PartnershipUpdate",
+      "kind": "class",
+      "line": 236,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PartnershipResponse",
+      "kind": "class",
+      "line": 243,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "TreeResponse",
+      "kind": "class",
+      "line": 259,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "person_to_summary",
+      "line": 121,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 12,
+        "nesting": 1,
+        "token_count": 61
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "person_to_detail",
+      "line": 136,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 56,
+        "nesting": 1,
+        "token_count": 261
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 3,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "ParentChildCreate",
+      "ParentChildResponse",
+      "PartnershipCreate",
+      "PartnershipResponse",
+      "PartnershipUpdate",
+      "PersonCreate",
+      "PersonDetail",
+      "PersonSummary",
+      "PersonUpdate",
+      "TreeResponse",
+      "person_to_detail",
+      "person_to_summary"
+    ],
+    "package": null,
+    "change_velocity": 2.0,
+    "bus_factor": 1,
+    "author_count": 2,
+    "last_modified": "2026-03-23T11:44:52-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.28,
+  "centrality_score": 1.0,
+  "quality_radar": {
+    "understandability": 0.85,
+    "changeability": 0.59,
+    "correctness": 0.5,
+    "security": 0.8,
+    "stability": 0.4
+  },
+  "domain_role": "core",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

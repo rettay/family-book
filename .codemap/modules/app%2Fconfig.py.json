@@ -1,0 +1,280 @@
+{
+  "id": "app/config.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "4dcf3483",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 13,
+    "lines": 131,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/access_control.py",
+      "app/backup/service.py",
+      "app/database.py",
+      "app/inbound/routes.py",
+      "app/main.py",
+      "app/matrix/client.py",
+      "app/matrix/startup.py",
+      "app/middleware/security.py",
+      "app/pwa/routes.py",
+      "app/routes/auth_routes.py",
+      "app/routes/media.py",
+      "app/routes/pages.py",
+      "app/services/auth_service.py",
+      "app/services/bootstrap_service.py",
+      "app/services/google_auth.py",
+      "app/services/media_service.py",
+      "tests/test_media.py"
+    ],
+    "tested_by": [
+      "tests/test_media.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "Settings",
+      "type": "class",
+      "summary": null,
+      "line": 10,
+      "signature": null
+    },
+    {
+      "name": "get_settings",
+      "type": "function",
+      "summary": null,
+      "line": 130,
+      "signature": "() -> Settings"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "Settings",
+      "kind": "class",
+      "line": 10,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "get_settings",
+      "kind": "function",
+      "line": 130,
+      "signature": "() -> Settings",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "Settings",
+          "line": 131,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "admin_email_list",
+      "line": 67,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 39
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "resolved_data_dir",
+      "line": 73,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 19
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "normalized_database_url",
+      "line": 77,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 28
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "sqlite_database_path",
+      "line": 83,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 3,
+        "size": 14,
+        "nesting": 1,
+        "token_count": 114
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "trusted_host_list",
+      "line": 100,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 78
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "envelope_allowed_host_list",
+      "line": 110,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 5,
+        "size": 17,
+        "nesting": 2,
+        "token_count": 97
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_settings",
+      "line": 130,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 5
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "environment: os.environ at line 20"
+    ],
+    "purity": "environment",
+    "todo_count": 0,
+    "churn_count": 3,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "Settings",
+      "get_settings"
+    ],
+    "package": null,
+    "change_velocity": 0.5,
+    "bus_factor": 1,
+    "author_count": 2,
+    "last_modified": "2026-03-22T23:40:48-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.65,
+  "attention_score": 0.42,
+  "centrality_score": 0.83,
+  "quality_radar": {
+    "understandability": 0.45,
+    "changeability": 0.64,
+    "correctness": 1.0,
+    "security": 0.88,
+    "stability": 0.3
+  },
+  "domain_role": "core",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

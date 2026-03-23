@@ -9,8 +9,7 @@ import os
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import async_session_factory, engine
-from app.models.base import Base
+from app.database import async_session_factory
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
 

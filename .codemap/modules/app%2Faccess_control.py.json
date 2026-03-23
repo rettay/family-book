@@ -1,0 +1,1165 @@
+{
+  "id": "app/access_control.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T22:28:51.946063+00:00",
+  "source_hash": "58205cb8",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 73,
+    "lines": 268,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py",
+      "app/models/media.py",
+      "app/models/moments.py",
+      "app/models/person.py",
+      "app/models/relationships.py",
+      "app/schemas.py"
+    ],
+    "imported_by": [
+      "app/routes/media.py",
+      "app/routes/moments.py",
+      "app/routes/pages.py",
+      "app/routes/persons.py",
+      "app/routes/tree.py",
+      "app/services/moment_service.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "can_collaborate",
+      "type": "function",
+      "summary": null,
+      "line": 26,
+      "signature": "(current_user: Person | None) -> bool"
+    },
+    {
+      "name": "get_person_access",
+      "type": "function",
+      "summary": null,
+      "line": 30,
+      "signature": "( db: AsyncSession, current_user: Person, person: Person, ) -> PersonAccess"
+    },
+    {
+      "name": "get_accessible_person_ids",
+      "type": "function",
+      "summary": null,
+      "line": 69,
+      "signature": "( db: AsyncSession, current_user: Person, *, include_hidden: bool = False, ) -> set[str]"
+    },
+    {
+      "name": "can_manage_person",
+      "type": "function",
+      "summary": null,
+      "line": 98,
+      "signature": "(current_user: Person, person: Person) -> bool"
+    },
+    {
+      "name": "can_view_media",
+      "type": "function",
+      "summary": null,
+      "line": 108,
+      "signature": "( db: AsyncSession, current_user: Person, media: Media, ) -> bool"
+    },
+    {
+      "name": "can_view_moment",
+      "type": "function",
+      "summary": null,
+      "line": 120,
+      "signature": "( db: AsyncSession, current_user: Person, moment: Moment, ) -> bool"
+    },
+    {
+      "name": "can_manage_moment",
+      "type": "function",
+      "summary": null,
+      "line": 141,
+      "signature": "(current_user: Person, moment: Moment) -> bool"
+    },
+    {
+      "name": "can_create_moment_for_person",
+      "type": "function",
+      "summary": null,
+      "line": 147,
+      "signature": "(current_user: Person, person: Person) -> bool"
+    },
+    {
+      "name": "redact_person_detail",
+      "type": "function",
+      "summary": null,
+      "line": 151,
+      "signature": "(person: Person, access: PersonAccess) -> PersonDetail"
+    },
+    {
+      "name": "redact_person_summary",
+      "type": "function",
+      "summary": null,
+      "line": 205,
+      "signature": "(person: Person, access: PersonAccess) -> PersonSummary"
+    },
+    {
+      "name": "_graph_distances",
+      "type": "function",
+      "summary": null,
+      "line": 219,
+      "signature": "( db: AsyncSession, origin_id: str, max_distance: int, ) -> dict[str, int]"
+    },
+    {
+      "name": "_family_graph",
+      "type": "function",
+      "summary": null,
+      "line": 249,
+      "signature": "(db: AsyncSession) -> dict[str, set[str]]"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "can_collaborate",
+      "kind": "function",
+      "line": 26,
+      "signature": "(current_user: Person | None) -> bool",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "get_person_access",
+      "kind": "function",
+      "line": 30,
+      "signature": "( db: AsyncSession, current_user: Person, person: Person, ) -> PersonAccess",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "can_collaborate",
+          "line": 35,
+          "module_hint": null
+        },
+        {
+          "name": "PersonAccess",
+          "line": 36,
+          "module_hint": null
+        },
+        {
+          "name": "PersonAccess",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "PersonAccess",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "PersonAccess",
+          "line": 50,
+          "module_hint": null
+        },
+        {
+          "name": "PersonAccess",
+          "line": 59,
+          "module_hint": null
+        },
+        {
+          "name": "PersonAccess",
+          "line": 60,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_accessible_person_ids",
+      "kind": "function",
+      "line": 69,
+      "signature": "( db: AsyncSession, current_user: Person, *, include_hidden: bool = False, ) -> set[str]",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "can_collaborate",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 76,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person.id).where",
+          "line": 79,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 79,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "query.where",
+          "line": 83,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 84,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 87,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "db.execute",
+          "line": 88,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 89,
+          "module_hint": null
+        },
+        {
+          "name": "result.all",
+          "line": 90,
+          "module_hint": null
+        },
+        {
+          "name": "visible_ids.add",
+          "line": 94,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "can_manage_person",
+      "kind": "function",
+      "line": 98,
+      "signature": "(current_user: Person, person: Person) -> bool",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "can_collaborate",
+          "line": 99,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "can_view_media",
+      "kind": "function",
+      "line": 108,
+      "signature": "( db: AsyncSession, current_user: Person, media: Media, ) -> bool",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 113,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 114,
+          "module_hint": null
+        },
+        {
+          "name": "get_person_access",
+          "line": 117,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "can_view_moment",
+      "kind": "function",
+      "line": 120,
+      "signature": "( db: AsyncSession, current_user: Person, moment: Moment, ) -> bool",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 133,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 133,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 133,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 134,
+          "module_hint": null
+        },
+        {
+          "name": "get_person_access",
+          "line": 138,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "can_manage_moment",
+      "kind": "function",
+      "line": 141,
+      "signature": "(current_user: Person, moment: Moment) -> bool",
+      "complexity": 4,
+      "calls": []
+    },
+    {
+      "name": "can_create_moment_for_person",
+      "kind": "function",
+      "line": 147,
+      "signature": "(current_user: Person, person: Person) -> bool",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "can_manage_person",
+          "line": 148,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "redact_person_detail",
+      "kind": "function",
+      "line": 151,
+      "signature": "(person: Person, access: PersonAccess) -> PersonDetail",
+      "complexity": 33,
+      "calls": [
+        {
+          "name": "PersonDetail",
+          "line": 164,
+          "module_hint": "app.schemas"
+        }
+      ]
+    },
+    {
+      "name": "redact_person_summary",
+      "kind": "function",
+      "line": 205,
+      "signature": "(person: Person, access: PersonAccess) -> PersonSummary",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "PersonSummary",
+          "line": 206,
+          "module_hint": "app.schemas"
+        }
+      ]
+    },
+    {
+      "name": "_graph_distances",
+      "kind": "function",
+      "line": 219,
+      "signature": "( db: AsyncSession, origin_id: str, max_distance: int, ) -> dict[str, int]",
+      "complexity": 6,
+      "calls": [
+        {
+          "name": "db.info.setdefault",
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "cache.setdefault",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "_family_graph",
+          "line": 230,
+          "module_hint": null
+        },
+        {
+          "name": "deque",
+          "line": 232,
+          "module_hint": "collections"
+        },
+        {
+          "name": "queue.popleft",
+          "line": 235,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.get",
+          "line": 239,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 239,
+          "module_hint": null
+        },
+        {
+          "name": "queue.append",
+          "line": 243,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_family_graph",
+      "kind": "function",
+      "line": 249,
+      "signature": "(db: AsyncSession) -> dict[str, set[str]]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "db.info.setdefault",
+          "line": 250,
+          "module_hint": null
+        },
+        {
+          "name": "cache.get",
+          "line": 251,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 257,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 257,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "parent_child_rows.all",
+          "line": 258,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault(parent_id, set()).add",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault(child_id, set()).add",
+          "line": 260,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault",
+          "line": 260,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 260,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 262,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 262,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "partnerships.all",
+          "line": 263,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault(person_a_id, set()).add",
+          "line": 264,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault",
+          "line": 264,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 264,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault(person_b_id, set()).add",
+          "line": 265,
+          "module_hint": null
+        },
+        {
+          "name": "adjacency.setdefault",
+          "line": 265,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 265,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "can_collaborate",
+      "line": 26,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_person_access",
+      "line": 30,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 7,
+        "size": 32,
+        "nesting": 2,
+        "token_count": 134
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 50,
+              "line_end": 56
+            },
+            {
+              "line_start": 60,
+              "line_end": 66
+            },
+            {
+              "line_start": 50,
+              "line_end": 56
+            },
+            {
+              "line_start": 60,
+              "line_end": 66
+            },
+            {
+              "line_start": 37,
+              "line_end": 37
+            },
+            {
+              "line_start": 58,
+              "line_end": 58
+            },
+            {
+              "line_start": 37,
+              "line_end": 38
+            },
+            {
+              "line_start": 58,
+              "line_end": 59
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_accessible_person_ids",
+      "line": 69,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 9,
+        "size": 21,
+        "nesting": 2,
+        "token_count": 161
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 84,
+              "line_end": 84
+            },
+            {
+              "line_start": 88,
+              "line_end": 88
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 83,
+              "line_end": 83
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "can_manage_person",
+      "line": 98,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 3,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 48
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 101,
+              "line_end": 101
+            },
+            {
+              "line_start": 105,
+              "line_end": 105
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "can_view_media",
+      "line": 108,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 50
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "can_view_moment",
+      "line": 120,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 6,
+        "size": 14,
+        "nesting": 2,
+        "token_count": 104
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 125,
+              "line_end": 125
+            },
+            {
+              "line_start": 127,
+              "line_end": 127
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "can_manage_moment",
+      "line": 141,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 38
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 142,
+              "line_end": 142
+            },
+            {
+              "line_start": 143,
+              "line_end": 143
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "can_create_moment_for_person",
+      "line": 147,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 7
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "redact_person_detail",
+      "line": 151,
+      "metrics": {
+        "cyclomatic": 33,
+        "cognitive": 29,
+        "size": 51,
+        "nesting": 1,
+        "token_count": 341
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 169,
+              "line_end": 169
+            },
+            {
+              "line_start": 170,
+              "line_end": 170
+            },
+            {
+              "line_start": 178,
+              "line_end": 178
+            },
+            {
+              "line_start": 175,
+              "line_end": 175
+            },
+            {
+              "line_start": 176,
+              "line_end": 176
+            },
+            {
+              "line_start": 177,
+              "line_end": 177
+            },
+            {
+              "line_start": 198,
+              "line_end": 198
+            },
+            {
+              "line_start": 201,
+              "line_end": 201
+            },
+            {
+              "line_start": 175,
+              "line_end": 175
+            },
+            {
+              "line_start": 176,
+              "line_end": 176
+            },
+            {
+              "line_start": 177,
+              "line_end": 177
+            },
+            {
+              "line_start": 198,
+              "line_end": 198
+            },
+            {
+              "line_start": 201,
+              "line_end": 201
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "redact_person_summary",
+      "line": 205,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 11,
+        "nesting": 1,
+        "token_count": 71
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 211,
+              "line_end": 211
+            },
+            {
+              "line_start": 212,
+              "line_end": 212
+            },
+            {
+              "line_start": 213,
+              "line_end": 213
+            },
+            {
+              "line_start": 211,
+              "line_end": 211
+            },
+            {
+              "line_start": 212,
+              "line_end": 212
+            },
+            {
+              "line_start": 213,
+              "line_end": 213
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_graph_distances",
+      "line": 219,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 9,
+        "size": 23,
+        "nesting": 3,
+        "token_count": 157
+      },
+      "findings": [
+        {
+          "rule_id": "perf.nested_linear_membership",
+          "category": "algorithmic_inefficiency",
+          "evidence_spans": [
+            {
+              "line_start": 240,
+              "line_end": 240
+            }
+          ],
+          "estimated_effect": "Potential O(n^2) behavior from nested iteration + linear membership",
+          "confidence": 0.88
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n^2)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.84
+    },
+    {
+      "function": "_family_graph",
+      "line": 249,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 19,
+        "nesting": 1,
+        "token_count": 178
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 259,
+              "line_end": 259
+            },
+            {
+              "line_start": 260,
+              "line_end": 260
+            },
+            {
+              "line_start": 264,
+              "line_end": 264
+            },
+            {
+              "line_start": 257,
+              "line_end": 257
+            },
+            {
+              "line_start": 262,
+              "line_end": 262
+            },
+            {
+              "line_start": 257,
+              "line_end": 257
+            },
+            {
+              "line_start": 262,
+              "line_end": 262
+            },
+            {
+              "line_start": 259,
+              "line_end": 259
+            },
+            {
+              "line_start": 260,
+              "line_end": 260
+            },
+            {
+              "line_start": 264,
+              "line_end": 264
+            },
+            {
+              "line_start": 257,
+              "line_end": 257
+            },
+            {
+              "line_start": 262,
+              "line_end": 262
+            },
+            {
+              "line_start": 259,
+              "line_end": 259
+            },
+            {
+              "line_start": 260,
+              "line_end": 260
+            },
+            {
+              "line_start": 264,
+              "line_end": 264
+            },
+            {
+              "line_start": 259,
+              "line_end": 260
+            },
+            {
+              "line_start": 264,
+              "line_end": 265
+            },
+            {
+              "line_start": 258,
+              "line_end": 260
+            },
+            {
+              "line_start": 263,
+              "line_end": 265
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 3,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_family_graph",
+      "_graph_distances",
+      "can_collaborate",
+      "can_create_moment_for_person",
+      "can_manage_moment",
+      "can_manage_person",
+      "can_view_media",
+      "can_view_moment",
+      "get_accessible_person_ids",
+      "get_person_access",
+      "redact_person_detail",
+      "redact_person_summary"
+    ],
+    "package": null,
+    "change_velocity": 2.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T16:57:43-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.43,
+  "centrality_score": 0.5,
+  "quality_radar": {
+    "understandability": 0.38,
+    "changeability": 0.59,
+    "correctness": 0.5,
+    "security": 0.8,
+    "stability": 0.55
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

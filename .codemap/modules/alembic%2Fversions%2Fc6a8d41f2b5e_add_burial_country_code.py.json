@@ -1,0 +1,192 @@
+{
+  "id": "alembic/versions/c6a8d41f2b5e_add_burial_country_code.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:11:24.443401+00:00",
+  "source_hash": "e766983c",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 3,
+    "lines": 25,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "upgrade",
+      "type": "function",
+      "summary": null,
+      "line": 18,
+      "signature": "() -> None"
+    },
+    {
+      "name": "downgrade",
+      "type": "function",
+      "summary": null,
+      "line": 23,
+      "signature": "() -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "upgrade",
+      "kind": "function",
+      "line": 18,
+      "signature": "() -> None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "op.batch_alter_table",
+          "line": 19,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.add_column",
+          "line": 20,
+          "module_hint": null
+        },
+        {
+          "name": "sa.Column",
+          "line": 20,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 20,
+          "module_hint": "sqlalchemy"
+        }
+      ]
+    },
+    {
+      "name": "downgrade",
+      "kind": "function",
+      "line": 23,
+      "signature": "() -> None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "op.batch_alter_table",
+          "line": 24,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.drop_column",
+          "line": 25,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "upgrade",
+      "line": 18,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 43
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "downgrade",
+      "line": 23,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 27
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 24,
+              "line_end": 24
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": true,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 0,
+    "change_risk": "low",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": null,
+    "author_count": null,
+    "last_modified": null,
+    "recency_score": null,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": {
+    "understandability": 0.99,
+    "changeability": 0.7,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 1.0
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

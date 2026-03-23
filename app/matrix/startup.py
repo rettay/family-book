@@ -30,7 +30,7 @@ async def start_matrix_bot() -> None:
     handler = MatrixEventHandler(
         session_factory=async_session_factory,
         matrix_client=client,
-        data_dir=settings.DATA_DIR,
+        data_dir=settings.resolved_data_dir,
     )
 
     await client.start()

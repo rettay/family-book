@@ -5,21 +5,21 @@ Rate limits per SPEC.md:
 - /auth/*: 10 req / 15 min per IP
 - /api/*:  120 req / 1 min per user
 - /api/admin/backup: 2 req / 1 hour
-- /invite/*/claim: 5 req / 15 min per IP
 """
 
 import logging
 import time
 from collections import defaultdict
-from contextlib import suppress
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
+MB = 1024 * 1024
 
 
 def add_security_middleware(app: FastAPI) -> None:
@@ -39,8 +39,16 @@ def add_security_middleware(app: FastAPI) -> None:
         allow_headers=["*"],
     )
 
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=settings.trusted_host_list,
+    )
+
     # Security headers
     app.add_middleware(SecurityHeadersMiddleware)
+
+    # Request body limits
+    app.add_middleware(BodySizeLimitMiddleware)
 
     # Rate limiting
     app.add_middleware(RateLimitMiddleware)
@@ -55,11 +63,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Content Security Policy
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://unpkg.com https://d3js.org; "
+            "script-src 'self' 'unsafe-inline' https://unpkg.com https://d3js.org https://accounts.google.com; "
             "style-src 'self' 'unsafe-inline'; "
             "img-src 'self' data: blob:; "
-            "connect-src 'self'; "
+            "connect-src 'self' https://accounts.google.com; "
             "font-src 'self'; "
+            "frame-src https://accounts.google.com; "
             "frame-ancestors 'none'; "
             "base-uri 'self'; "
             "form-action 'self'"
@@ -80,7 +89,48 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "max-age=31536000; includeSubDomains"
             )
 
+        if request.url.path.startswith("/api/") and request.url.path != "/health":
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Pragma"] = "no-cache"
+        elif request.cookies.get("session") and not request.url.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "private, no-store"
+            response.headers["Pragma"] = "no-cache"
+
         return response
+
+
+class BodySizeLimitMiddleware(BaseHTTPMiddleware):
+    """Reject oversized multipart requests before form parsing allocates buffers."""
+
+    def __init__(self, app):
+        super().__init__(app)
+        self._limits = {
+            ("POST", "/api/media"): 105 * MB,
+            ("POST", "/api/share"): 11 * MB,
+        }
+
+    async def dispatch(self, request: Request, call_next):
+        limit = self._limits.get((request.method.upper(), request.url.path))
+        if limit is None:
+            return await call_next(request)
+
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > limit:
+                    return Response(
+                        content='{"detail": "Request body too large"}',
+                        status_code=413,
+                        media_type="application/json",
+                    )
+            except ValueError:
+                return Response(
+                    content='{"detail": "Invalid Content-Length"}',
+                    status_code=400,
+                    media_type="application/json",
+                )
+
+        return await call_next(request)
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -124,8 +174,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         """Returns (max_requests, window_seconds, key_type) or None."""
         if path.startswith("/auth/") or path.startswith("/api/auth/"):
             return (10, 900, "ip")  # 10/15min per IP
-        if "/invite/" in path and path.endswith("/claim"):
-            return (5, 900, "ip")  # 5/15min per IP
         if path == "/api/admin/backup":
             return (2, 3600, "ip")  # 2/hour
         if path.startswith("/api/"):

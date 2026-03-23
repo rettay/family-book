@@ -8,7 +8,6 @@ Relationship terms loaded separately for domain-specific cultural accuracy.
 import json
 import logging
 import os
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

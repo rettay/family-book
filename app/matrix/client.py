@@ -10,10 +10,7 @@ during FastAPI lifespan.
 """
 
 import asyncio
-import hashlib
 import logging
-import os
-from datetime import datetime, timezone
 
 import httpx
 
@@ -218,5 +215,5 @@ def create_matrix_client() -> MatrixClient | None:
         user_id=bot_user,
         password=bot_pass,
         family_room=family_room,
-        data_dir=settings.DATA_DIR,
+        data_dir=settings.resolved_data_dir,
     )

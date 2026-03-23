@@ -115,10 +115,17 @@ Set environment variables:
 ```
 SECRET_KEY=<generate with: python3 -c "import secrets; print(secrets.token_hex(32))">
 FERNET_KEY=<generate with: python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())">
-DATABASE_URL=sqlite:///data/family.db
-DATA_DIR=data
+DATABASE_URL=sqlite:////data/family.db
+DATA_DIR=/data
 BASE_URL=https://your-app.up.railway.app
+LOAD_DEMO_DATA=false
+BOOTSTRAP_ADMIN_EMAIL=you@example.com
+BOOTSTRAP_ADMIN_FIRST_NAME=Admin
+BOOTSTRAP_ADMIN_LAST_NAME=User
 ```
+
+Railway and Docker deployments do not load the demo family by default. Set `LOAD_DEMO_DATA=true` only if you explicitly want the fictional sample tree on startup.
+On a brand new empty deployment, set `BOOTSTRAP_ADMIN_EMAIL` so the app creates your first admin profile automatically at startup. After first login, you can edit that profile normally.
 
 ### Deploy with Docker
 
@@ -127,6 +134,7 @@ docker compose up -d
 ```
 
 The `docker-compose.yml` includes the app, persistent volume for `/data`, and optional Matrix bridge for WhatsApp/Messenger import.
+Set explicit immutable image references for the bridge services in `.env` before using Compose; the stack intentionally refuses to default to mutable `:latest` tags.
 
 ---
 

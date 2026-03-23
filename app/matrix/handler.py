@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.imports import ExternalIdentity
 from app.models.media import Media, MediaSource, MediaType
-from app.models.moments import Moment, MomentKind, MomentSource
+from app.models.moments import Moment, MomentKind
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class MatrixEventHandler:
         # Create Media record
         media = Media(
             person_id=person_id,
-            file_path=f"media/{filename}",
+            file_path=filename,
             original_filename=content.get("body"),
             media_type=media_type.value,
             mime_type=content_type,

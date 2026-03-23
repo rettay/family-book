@@ -15,6 +15,15 @@ document.addEventListener('click', function(e) {
 // Logout
 async function logout() {
   await fetch('/auth/logout', {method: 'POST'});
+  if ('caches' in window) {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    } catch (err) {}
+  }
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
   window.location.href = '/login';
 }
 

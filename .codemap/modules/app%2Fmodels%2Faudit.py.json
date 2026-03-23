@@ -1,0 +1,215 @@
+{
+  "id": "app/models/audit.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "8de2fee0",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 5,
+    "lines": 52,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/base.py"
+    ],
+    "imported_by": [
+      "app/models/__init__.py",
+      "app/routes/pages.py",
+      "app/services/audit_service.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "AuditAction",
+      "type": "class",
+      "summary": null,
+      "line": 11,
+      "signature": null
+    },
+    {
+      "name": "AuditLog",
+      "type": "class",
+      "summary": null,
+      "line": 19,
+      "signature": null
+    }
+  ],
+  "constructs": [
+    {
+      "name": "AuditAction",
+      "kind": "class",
+      "line": 11,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "AuditLog",
+      "kind": "class",
+      "line": 19,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "old_value",
+      "line": 32,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "old_value",
+      "line": 38,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "new_value",
+      "line": 42,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "new_value",
+      "line": 48,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "__repr__",
+      "line": 51,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 24
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "AuditAction",
+      "AuditLog"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T18:59:37+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.15,
+  "centrality_score": 0.21,
+  "quality_radar": {
+    "understandability": 0.93,
+    "changeability": 0.64,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.65
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

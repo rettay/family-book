@@ -1,4 +1,3 @@
-import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.audit import AuditLog
 

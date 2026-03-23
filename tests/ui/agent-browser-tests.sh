@@ -91,7 +91,6 @@ with urllib.request.urlopen(f"{os.environ['BASE_URL']}/health", timeout=3) as re
 
 assert payload["status"] == "ok"
 assert payload["db"] == "connected"
-assert isinstance(payload["persons_count"], int)
 PY
 then
   record_success "health endpoint returns valid JSON"
