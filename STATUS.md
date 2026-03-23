@@ -52,4 +52,5 @@ Sprint 01 and Sprint 02 are closed.
   - `S01 - Shared Collaboration Reset`
   - `S02 - Tree and Discovery Foundation`
 - Next recommended sprint: `S03 - Timeline and Family Moments Expansion`
+- Sprint 03 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s03.md`
 - See `/Users/cheech/code/family-book/backlog.md` and `/Users/cheech/code/family-book/docs/strategy/kanban-2026q1.md`.

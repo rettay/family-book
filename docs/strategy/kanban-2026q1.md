@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-006 | Timeline and Family Moments Expansion | P1 | `task packet to be authored in Sprint 03 planning` |
+| FB-006 | Timeline and Family Moments Expansion | P1 | `task_packets/FB-006_timeline_and_family_moments_expansion.md` |
 | FB-007 | Version History, Revert, and Moderation Controls | P1 | `task packet to be authored` |
 | FB-009 | Encryption and Backup Hardening Pass | P1 | `task packet to be authored` |
 

@@ -1,24 +1,23 @@
 # Family Book Backlog
 
-Sprint: `S02 - Tree and Discovery Foundation`
-Status: Closed
+Sprint: `S03 - Timeline and Family Moments Expansion`
+Status: Planned
 
-## Current Sprint `S02 - Tree and Discovery Foundation`
+## Current Sprint `S03 - Timeline and Family Moments Expansion`
 
 Sprint goal:
-- Make the shared family record easier to explore through persisted tree preferences, server-backed filters, and a first authenticated map view.
+- Make Family Book feel like a living family archive by improving stories, notes, and multi-person moments across the home feed and person timelines.
 
 Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-005 | Tree Preferences, Filters, and Map Foundation | P2 | done | `task_packets/FB-005_tree_preferences_filters_and_map_foundation.md` |
+| FB-006 | Timeline and Family Moments Expansion | P1 | planned | `task_packets/FB-006_timeline_and_family_moments_expansion.md` |
 
-Closeout:
-- Sprint 02 is complete.
-- Implementation and audit both landed on `codex/shared-collaboration-reset`.
-- Verified builder baseline at closeout: `56 passed` on `tests/test_api.py` and `tests/test_models.py`.
-- Repo-local CodeMap config now exists at `.codemap/config.yaml` to keep governance scans focused on product code.
+Execution slices:
+- `S03-1` Timeline Query and Ordering Hardening
+- `S03-2` Rich Moments Authoring and Tagged Events
+- `S03-3` Home and Person Timeline Integration
 
 ## Recently Completed
 
@@ -33,7 +32,8 @@ Closeout:
 ## Next Sprint
 
 - `S03 - Timeline and Family Moments Expansion`
-- Recommended opening packet: `FB-006 Timeline and Family Moments Expansion`
+- Sprint plan: `docs/strategy/sprint-plan-s03.md`
+- Slice plan: `docs/strategy/sprint-slices-s03.md`
 - Follow-on candidates after `FB-006`:
   - `FB-007 Version History, Revert, and Moderation Controls`
   - `FB-009 Encryption and Backup Hardening Pass`

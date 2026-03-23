@@ -113,6 +113,12 @@ Make the shared family record practically explorable through persisted tree pref
 - Primary packet: `FB-006 Timeline and Family Moments Expansion`
 - Rationale: the collaboration and discovery spine now exist; the next product-value step is making family history richer through stories, notes, tagged multi-person moments, and a more useful time-based view.
 
+### Planning Artifacts
+
+- Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s03.md`
+- Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s03.md`
+- Task packet: `/Users/cheech/code/family-book/task_packets/FB-006_timeline_and_family_moments_expansion.md`
+
 ## Proof Obligations for the Next Execution Cycle
 
 ### FB-002
