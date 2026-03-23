@@ -47,4 +47,5 @@ Sprint 01 is closed.
 
 - Closed sprint: `S01 - Shared Collaboration Reset`
 - Next recommended sprint: `S02 - Tree and Discovery Foundation`
+- Sprint 02 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s02.md`
 - See `/Users/cheech/code/family-book/backlog.md` and `/Users/cheech/code/family-book/docs/strategy/kanban-2026q1.md`.
