@@ -4,6 +4,8 @@
 
 ### S02-1 Tree Preference Persistence
 
+Status: `done`
+
 - Objective:
   persist per-user tree display preferences on the server
 - Scope:
@@ -15,6 +17,8 @@
 
 ### S02-2 Tree Filters
 
+Status: `done`
+
 - Objective:
   make the tree meaningfully explorable through supported filters
 - Scope:
@@ -25,6 +29,8 @@
   focused tests for filtered tree results and UI/backend parameter alignment
 
 ### S02-3 Authenticated Map Foundation
+
+Status: `done`
 
 - Objective:
   provide the first private map view for shared family location data
@@ -51,3 +57,9 @@
 ## PM Note
 
 The slices are intentionally narrow. The goal of Sprint 02 is user-facing exploration value, not another deep platform rewrite.
+
+## Closeout Note
+
+- Sprint 02 shipped all three slices.
+- Audit follow-up added truthful burial-location mapping and corrected the tree-name privacy toggle.
+- CodeMap setup was added for this repo so later governance scans are scoped to product code instead of docs/data noise.

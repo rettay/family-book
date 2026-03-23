@@ -72,6 +72,47 @@ The sprint is successful when all are true:
 - Planning artifact: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s02.md`
 - Execution slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s02.md`
 
+## Closed Sprint
+
+### `S02 - Tree and Discovery Foundation`
+
+Status: Closed
+
+### Sprint Goal
+
+Make the shared family record practically explorable through persisted tree preferences, supported tree filters, and a first authenticated map view.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 4 | FB-005 | Tree Preferences, Filters, and Map Foundation | P2 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S02-1 | Tree Preference Persistence | done |
+| S02-2 | Tree Filters | done |
+| S02-3 | Authenticated Map Foundation | done |
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implementation completed on `codex/shared-collaboration-reset`
+- Auditor follow-up defects were fixed
+- Focused verification at closeout:
+  - `uv run pytest tests/test_api.py tests/test_models.py -q`
+  - result: `56 passed`
+  - `uv run python -m compileall app`
+  - result: success
+
+### Recommended Next Sprint
+
+- `S03 - Timeline and Family Moments Expansion`
+- Primary packet: `FB-006 Timeline and Family Moments Expansion`
+- Rationale: the collaboration and discovery spine now exist; the next product-value step is making family history richer through stories, notes, tagged multi-person moments, and a more useful time-based view.
+
 ## Proof Obligations for the Next Execution Cycle
 
 ### FB-002

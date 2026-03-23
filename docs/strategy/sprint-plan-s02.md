@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S02 - Tree and Discovery Foundation`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-005 Tree Preferences, Filters, and Map Foundation`
 
 ## Sprint Goal
@@ -25,12 +25,12 @@ Sprint 01 built the collaboration spine. The next highest-value gap is not permi
 
 ## Acceptance Criteria
 
-1. A logged-in member can change tree display settings and see them persist across refresh/session restart.
-2. A second logged-in member retains their own independent display settings.
-3. Tree filters affect actual API or rendered outputs, not just local UI state.
-4. The map view loads only for authenticated users and returns only authorized person/location data.
-5. Burial locations appear on the map when present in the underlying person record.
-6. Focused tests or browser evidence prove one-user preference persistence and filtered tree correctness.
+1. A logged-in member can change tree display settings and see them persist across refresh/session restart. `done`
+2. A second logged-in member retains their own independent display settings. `done`
+3. Tree filters affect actual API or rendered outputs, not just local UI state. `done`
+4. The map view loads only for authenticated users and returns only authorized person/location data. `done`
+5. Burial locations appear on the map when present in the underlying person record. `done`
+6. Focused tests or browser evidence prove one-user preference persistence and filtered tree correctness. `done`
 
 ## In Scope
 
@@ -113,3 +113,18 @@ Sprint 01 built the collaboration spine. The next highest-value gap is not permi
 ## Exit Target
 
 Sprint 02 is complete when Family Book moves from “shared but hard to navigate” to “shared and practically explorable” for everyday family members.
+
+## Closeout Result
+
+- Exit result: `pass`
+- Builder implementation landed on `codex/shared-collaboration-reset`
+- Auditor defects were fixed and follow-up validation completed
+- Focused verification at closeout:
+  - `uv run pytest tests/test_api.py tests/test_models.py -q`
+  - result: `56 passed`
+  - `uv run python -m compileall app`
+  - result: success
+- Supporting governance run:
+  - `codemap analyze /Users/cheech/code/family-book`
+  - `codemap check /Users/cheech/code/family-book --json`
+  - repo-local config added at `/Users/cheech/code/family-book/.codemap/config.yaml`
