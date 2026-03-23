@@ -71,6 +71,7 @@
     <form id="compose-form" onsubmit="submitDetailedMoment(event)">
       <div class="modal__body">
         <div id="compose-preview" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;"></div>
+        <div id="compose-error" class="hidden" style="margin-bottom:12px; padding:10px 12px; border-radius:10px; background:#fbe7e7; color:#8a1f1f; font-size:0.92rem;"></div>
         <div class="form-group">
           <label class="form-label" for="compose-kind">{{ t('moments.type') }}</label>
           <select class="form-select" name="kind" id="compose-kind" onchange="toggleMilestoneFields()">
@@ -162,6 +163,7 @@ function handleComposeFile(input) {
 function openComposeModal(defaultPersonId = null) {
   const modal = document.getElementById('compose-modal');
   const quickInput = document.getElementById('compose-input');
+  clearComposeError();
   modal.classList.remove('hidden');
   if (!document.getElementById('compose-body').value && quickInput.value.trim()) {
     document.getElementById('compose-body').value = quickInput.value.trim();
@@ -175,6 +177,7 @@ function openComposeModal(defaultPersonId = null) {
 function closeComposeModal() {
   document.getElementById('compose-modal').classList.add('hidden');
   COMPOSE_FILES.length = 0;
+  clearComposeError();
   const preview = document.getElementById('compose-preview');
   while (preview.firstChild) preview.removeChild(preview.firstChild);
   document.getElementById('compose-file').value = '';
@@ -187,6 +190,28 @@ function toggleMilestoneFields() {
   const kind = document.getElementById('compose-kind').value;
   const milestoneGroup = document.getElementById('compose-milestone-group');
   milestoneGroup.classList.toggle('hidden', kind !== 'milestone');
+}
+
+function showComposeError(message) {
+  const errorBox = document.getElementById('compose-error');
+  errorBox.textContent = message;
+  errorBox.classList.remove('hidden');
+}
+
+function clearComposeError() {
+  const errorBox = document.getElementById('compose-error');
+  errorBox.textContent = '';
+  errorBox.classList.add('hidden');
+}
+
+async function cleanupUploadedMedia(mediaIds) {
+  for (const mediaId of mediaIds) {
+    try {
+      await fetch(`/api/media/${mediaId}`, {method: 'DELETE'});
+    } catch (error) {
+      console.error('Failed to cleanup media', mediaId, error);
+    }
+  }
 }
 
 async function submitMoment() {
@@ -211,6 +236,7 @@ async function submitMoment() {
 
 async function submitDetailedMoment(e) {
   e.preventDefault();
+  clearComposeError();
   const kindField = document.getElementById('compose-kind').value;
   const aboutPersonId = document.getElementById('compose-person').value || null;
   const title = document.getElementById('compose-title').value.trim() || null;
@@ -223,19 +249,29 @@ async function submitDetailedMoment(e) {
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true;
   btn.textContent = '{{ t("common.loading") }}';
+  const mediaIds = [];
 
   try {
+    if (!title && !body && COMPOSE_FILES.length === 0 && kindField !== 'milestone') {
+      showComposeError('Add some text, a title, or media before sharing.');
+      return;
+    }
+
     // Upload media first
-    const mediaIds = [];
     for (const file of COMPOSE_FILES) {
       const fd = new FormData();
       fd.append('file', file);
-      fd.append('person_id', '{{ current_user.id if current_user else "" }}');
-      const resp = await fetch('/api/media', {method: 'POST', body: fd});
-      if (resp.ok) {
-        const data = await resp.json();
-        mediaIds.push(data.id);
+      fd.append('person_id', aboutPersonId || '{{ current_user.id if current_user else "" }}');
+      if (taggedPeople.length > 0) {
+        fd.append('tagged_person_ids', JSON.stringify(taggedPeople));
       }
+      const resp = await fetch('/api/media', {method: 'POST', body: fd});
+      if (!resp.ok) {
+        const error = await resp.json().catch(() => ({}));
+        throw new Error(error.detail || 'Media upload failed');
+      }
+      const data = await resp.json();
+      mediaIds.push(data.id);
     }
 
     const kind = mediaIds.length > 0 && kindField === 'text' ? 'photo' : kindField;
@@ -250,14 +286,23 @@ async function submitDetailedMoment(e) {
       occurred_at: occurredAtValue ? `${occurredAtValue}T12:00:00Z` : null,
     };
 
-    await fetch('/api/moments', {
+    const createResp = await fetch('/api/moments', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(payload)
     });
+    if (!createResp.ok) {
+      const error = await createResp.json().catch(() => ({}));
+      throw new Error(error.detail || 'Could not create moment');
+    }
     document.getElementById('compose-input').value = '';
     closeComposeModal();
     window.location.reload();
+  } catch (error) {
+    if (mediaIds.length > 0) {
+      await cleanupUploadedMedia(mediaIds);
+    }
+    showComposeError(error.message || 'Could not create moment');
   } finally {
     btn.disabled = false;
     btn.textContent = '{{ t("moments.share") }}';

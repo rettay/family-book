@@ -15,7 +15,7 @@ from app.access_control import (
 from app.auth import require_auth
 from app.database import get_db
 from app.models.media import Media
-from app.models.moments import Moment, MomentComment, MomentReaction
+from app.models.moments import Moment, MomentComment, MomentReaction, MomentVisibility
 from app.models.person import Person
 from app.services.moment_service import (
     build_moment_card,
@@ -101,6 +101,13 @@ class ReactionCreate(BaseModel):
     emoji: str = Field(max_length=10)
 
 
+ALLOWED_MOMENT_VISIBILITIES = {
+    MomentVisibility.members.value,
+    MomentVisibility.admins.value,
+    MomentVisibility.hidden.value,
+}
+
+
 def _has_moment_content(
     *,
     title: str | None,
@@ -177,6 +184,13 @@ async def _approved_tagged_person_ids(
     return approved_ids
 
 
+def _validated_visibility(value: str | None) -> str:
+    visibility = value or MomentVisibility.members.value
+    if visibility not in ALLOWED_MOMENT_VISIBILITIES:
+        raise HTTPException(status_code=400, detail="Invalid visibility")
+    return visibility
+
+
 # --- Routes ---
 
 @router.get("")
@@ -222,9 +236,10 @@ async def create_moment(
     person_id = body.person_id or current_user.id
 
     await _validate_person(db, current_user, person_id, require_manage=True)
-    if body.visibility == "admins" and not current_user.is_admin:
+    visibility = _validated_visibility(body.visibility)
+    if visibility == MomentVisibility.admins.value and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin visibility is restricted")
-    if body.visibility == "hidden" and not current_user.is_admin:
+    if visibility == MomentVisibility.hidden.value and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Hidden visibility is restricted")
     approved_media_ids = await _approved_media_ids(db, current_user, body.media_ids)
     approved_tagged_person_ids = await _approved_tagged_person_ids(
@@ -245,7 +260,7 @@ async def create_moment(
         body=body.body,
         milestone_type=body.milestone_type,
         occurred_at=body.occurred_at or datetime.now(timezone.utc),
-        visibility=body.visibility,
+        visibility=visibility,
         posted_by=current_user.id,
     )
     moment.media_ids = approved_media_ids
@@ -291,8 +306,13 @@ async def update_moment(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     update_data = body.model_dump(exclude_unset=True)
-    if "visibility" in update_data and update_data["visibility"] in {"hidden", "admins"} and not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="Restricted visibility")
+    if "visibility" in update_data:
+        update_data["visibility"] = _validated_visibility(update_data["visibility"])
+        if (
+            update_data["visibility"] in {MomentVisibility.hidden.value, MomentVisibility.admins.value}
+            and not current_user.is_admin
+        ):
+            raise HTTPException(status_code=403, detail="Restricted visibility")
     if "person_id" in update_data and update_data["person_id"]:
         await _validate_person(
             db, current_user, update_data["person_id"], require_manage=True

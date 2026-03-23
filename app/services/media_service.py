@@ -280,3 +280,17 @@ async def save_media_temp_file(
     await db.flush()
 
     return media, False
+
+
+def delete_media_files(media: Media, data_dir: str | None = None) -> None:
+    if data_dir is None:
+        data_dir = get_settings().resolved_data_dir
+
+    if media.file_path:
+        file_path = os.path.join(data_dir, "media", media.file_path)
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+
+    thumb_path = os.path.join(data_dir, "media", "thumbnails", f"{media.id}.jpg")
+    if os.path.isfile(thumb_path):
+        os.unlink(thumb_path)

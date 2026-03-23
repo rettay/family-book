@@ -13,7 +13,11 @@ from app.database import get_db
 from app.models.media import Media
 from app.models.person import Person
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
-from app.services.media_service import save_media_temp_file, ALLOWED_MIME_TYPES
+from app.services.media_service import (
+    ALLOWED_MIME_TYPES,
+    delete_media_files,
+    save_media_temp_file,
+)
 
 router = APIRouter(prefix="/api/media", tags=["media"])
 
@@ -245,6 +249,26 @@ async def list_media_for_person(
             }
         )
     return response
+
+
+@router.delete("/{media_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_media(
+    media_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete media owned by the uploader or an admin."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    if not current_user.is_admin and media.uploaded_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    delete_media_files(media)
+    await db.delete(media)
+    await db.flush()
 
 
 def _max_upload_size(content_type: str | None) -> int:

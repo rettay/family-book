@@ -83,6 +83,14 @@ class TestMomentsCRUD:
         })
         assert resp.status_code == 400
 
+    async def test_create_rejects_invalid_visibility(self, member_client):
+        resp = await member_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Invisible ghost post",
+            "visibility": "custom",
+        })
+        assert resp.status_code == 400
+
     async def test_update_moment_supports_richer_fields(self, admin_client):
         create_resp = await admin_client.post("/api/moments", json={
             "kind": "text",
@@ -102,6 +110,18 @@ class TestMomentsCRUD:
         assert payload["body"] == "Edited story body"
         assert payload["occurred_at"].startswith("2001-09-09")
         assert payload["tagged_people"][0]["id"] == MEMBER_ID
+
+    async def test_update_rejects_invalid_visibility(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Original",
+        })
+        moment_id = create_resp.json()["id"]
+
+        resp = await admin_client.put(f"/api/moments/{moment_id}", json={
+            "visibility": "custom",
+        })
+        assert resp.status_code == 400
 
     async def test_create_moment_bad_person(self, admin_client):
         resp = await admin_client.post("/api/moments", json={

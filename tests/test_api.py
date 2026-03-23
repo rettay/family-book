@@ -490,6 +490,15 @@ async def test_person_page_reuses_family_graph_per_request(member_client: AsyncC
     assert call_count == 0
 
 
+@pytest.mark.asyncio
+async def test_home_page_uses_selected_person_for_media_upload_and_handles_create_failures(admin_client: AsyncClient):
+    resp = await admin_client.get("/")
+    assert resp.status_code == 200
+    assert "fd.append('person_id', aboutPersonId ||" in resp.text
+    assert "await cleanupUploadedMedia(mediaIds);" in resp.text
+    assert "if (!createResp.ok)" in resp.text
+
+
 # --- Auth route tests ---
 
 @pytest.mark.asyncio

@@ -221,6 +221,53 @@ class TestMediaServing:
         assert resp.status_code == 200
 
 
+class TestMediaDeletion:
+    """DELETE /api/media/{id}"""
+
+    async def test_uploader_can_delete_media(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("delete-me.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        delete_resp = await admin_client.delete(f"/api/media/{media_id}")
+        assert delete_resp.status_code == 204
+
+        metadata_resp = await admin_client.get(f"/api/media/{media_id}")
+        assert metadata_resp.status_code == 404
+
+    async def test_non_uploader_cannot_delete_media(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("keep-me.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        delete_resp = await member_client.delete(f"/api/media/{media_id}")
+        assert delete_resp.status_code == 403
+
+
 class TestMediaThumbnails:
     """GET /api/media/{id}/thumbnail"""
 
