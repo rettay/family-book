@@ -1,5 +1,7 @@
 """Tests for Moments API — CRUD, feed, permissions."""
 
+import re
+
 
 TYLER_ID = "tyler-000-0000-0000-000000000002"
 MEMBER_ID = "member-00-0000-0000-000000000005"
@@ -57,17 +59,49 @@ class TestMomentsCRUD:
         resp = await admin_client.post("/api/moments", json={
             "kind": "story",
             "body": "Story about more than one person",
+            "title": "A shared memory",
             "person_id": TYLER_ID,
             "tagged_person_ids": [MEMBER_ID],
+            "occurred_at": "1998-06-15T12:00:00Z",
         })
         assert resp.status_code == 201
         body = resp.json()
         assert body["kind"] == "story"
+        assert body["title"] == "A shared memory"
+        assert body["occurred_at"].startswith("1998-06-15")
         assert body["tagged_people"] == [{
             "id": MEMBER_ID,
             "display_name": "Jane Martin",
             "photo_url": None,
         }]
+
+    async def test_create_rejects_empty_moment(self, admin_client):
+        resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "   ",
+            "title": "",
+        })
+        assert resp.status_code == 400
+
+    async def test_update_moment_supports_richer_fields(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Original",
+        })
+        moment_id = create_resp.json()["id"]
+
+        resp = await admin_client.put(f"/api/moments/{moment_id}", json={
+            "title": "Edited story title",
+            "body": "Edited story body",
+            "tagged_person_ids": [MEMBER_ID],
+            "occurred_at": "2001-09-09T12:00:00Z",
+        })
+        assert resp.status_code == 200
+        payload = resp.json()
+        assert payload["title"] == "Edited story title"
+        assert payload["body"] == "Edited story body"
+        assert payload["occurred_at"].startswith("2001-09-09")
+        assert payload["tagged_people"][0]["id"] == MEMBER_ID
 
     async def test_create_moment_bad_person(self, admin_client):
         resp = await admin_client.post("/api/moments", json={
@@ -226,6 +260,59 @@ class TestMomentsFeed:
         resp = await admin_client.get(f"/api/moments?person={MEMBER_ID}&limit=20")
         assert resp.status_code == 200
         assert any(item["id"] == moment_id for item in resp.json())
+
+    async def test_partial_person_timeline_matches_api_order(self, admin_client):
+        first = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "title": "Shared trip",
+            "body": "A trip that included Jane",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+            "occurred_at": "2099-05-01T12:00:00Z",
+        })
+        second = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "title": "Jane's birthday",
+            "body": "Birthday note",
+            "person_id": MEMBER_ID,
+            "occurred_at": "2100-05-01T12:00:00Z",
+        })
+
+        api_resp = await admin_client.get(f"/api/moments?person={MEMBER_ID}&limit=20")
+        assert api_resp.status_code == 200
+        api_ids = [item["id"] for item in api_resp.json()]
+        assert api_ids[:2] == [second.json()["id"], first.json()["id"]]
+
+        partial_resp = await admin_client.get(f"/partials/moments?person={MEMBER_ID}&limit=20")
+        assert partial_resp.status_code == 200
+        partial_ids = re.findall(r'<div class="moment" id="moment-([^"]+)"', partial_resp.text)
+        assert partial_ids[:2] == api_ids[:2]
+        assert "Jane&#39;s birthday" in partial_resp.text
+        assert "Shared trip" in partial_resp.text
+
+    async def test_home_feed_matches_api_order_for_same_visible_moments(self, admin_client):
+        latest = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "title": "Latest family story",
+            "body": "Newest moment in the feed",
+            "occurred_at": "2100-01-03T12:00:00Z",
+        })
+        earlier = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Earlier family note",
+            "occurred_at": "2100-01-02T12:00:00Z",
+        })
+
+        api_resp = await admin_client.get("/api/moments?limit=5")
+        assert api_resp.status_code == 200
+        api_ids = [item["id"] for item in api_resp.json()]
+
+        home_resp = await admin_client.get("/")
+        assert home_resp.status_code == 200
+        home_ids = re.findall(r'<div class="moment" id="moment-([^"]+)"', home_resp.text)
+        assert home_ids[:2] == api_ids[:2]
+        assert latest.json()["id"] in home_ids
+        assert earlier.json()["id"] in home_ids
 
 
 class TestMomentsPermissions:

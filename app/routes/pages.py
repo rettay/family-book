@@ -29,6 +29,11 @@ from app.models.person import Person, AccountState, Visibility
 from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonSummary
+from app.services.moment_service import (
+    build_moment_cards,
+    build_moments_path,
+    list_visible_moments,
+)
 
 router = APIRouter(tags=["pages"])
 
@@ -62,87 +67,25 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
     }
 
 
-async def _build_moment_card_simple(db: AsyncSession, moment: Moment, current_user_id: str) -> dict:
-    """Lightweight moment card builder for template rendering."""
-    from app.models.moments import MomentReaction
-
-    # Poster
-    poster = None
-    if moment.posted_by:
-        result = await db.execute(select(Person).where(Person.id == moment.posted_by))
-        p = result.scalar_one_or_none()
-        if p:
-            poster = {"id": p.id, "display_name": p.display_name, "photo_url": p.photo_url}
-
-    # About person
-    about = None
-    result = await db.execute(select(Person).where(Person.id == moment.person_id))
-    p = result.scalar_one_or_none()
-    if p:
-        about = {"id": p.id, "display_name": p.display_name, "photo_url": p.photo_url}
-
-    tagged_people = []
-    for tagged_person_id in moment.tagged_person_ids:
-        result = await db.execute(select(Person).where(Person.id == tagged_person_id))
-        tagged_person = result.scalar_one_or_none()
-        if tagged_person:
-            tagged_people.append(
-                {
-                    "id": tagged_person.id,
-                    "display_name": tagged_person.display_name,
-                    "photo_url": tagged_person.photo_url,
-                }
-            )
-
-    # Media
-    media_list = []
-    if moment.media_ids:
-        for mid in moment.media_ids:
-            result = await db.execute(select(Media).where(Media.id == mid))
-            m = result.scalar_one_or_none()
-            if m:
-                media_list.append({"id": m.id, "url": f"/api/media/{m.id}/file", "width": m.width, "height": m.height})
-
-    # Reactions
+async def _moment_people(
+    db: AsyncSession, current_user: Person
+) -> list[PersonSummary]:
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
     result = await db.execute(
-        select(MomentReaction.emoji, func.count(MomentReaction.id))
-        .where(MomentReaction.moment_id == moment.id)
-        .group_by(MomentReaction.emoji)
-    )
-    reactions = {row[0]: row[1] for row in result.all()}
-
-    # My reaction
-    result = await db.execute(
-        select(MomentReaction.emoji).where(
-            MomentReaction.moment_id == moment.id,
-            MomentReaction.person_id == current_user_id,
+        select(Person)
+        .where(
+            Person.visibility != Visibility.hidden.value,
+            Person.id.in_(accessible_person_ids),
         )
+        .order_by(Person.last_name, Person.first_name)
     )
-    my_reaction = result.scalar_one_or_none()
 
-    # Comment count
-    result = await db.execute(
-        select(func.count(MomentComment.id)).where(MomentComment.moment_id == moment.id)
-    )
-    comment_count = result.scalar() or 0
-
-    return {
-        "id": moment.id,
-        "kind": moment.kind,
-        "poster": poster,
-        "about": about,
-        "tagged_people": tagged_people,
-        "title": moment.title,
-        "body": moment.body,
-        "media": media_list,
-        "milestone_type": moment.milestone_type,
-        "occurred_at": moment.occurred_at.isoformat() if moment.occurred_at else None,
-        "source": moment.source if hasattr(moment, "source") else None,
-        "reactions": reactions,
-        "my_reaction": my_reaction,
-        "comment_count": comment_count,
-        "created_at": moment.created_at.isoformat() if moment.created_at else None,
-    }
+    people: list[PersonSummary] = []
+    for person in result.scalars().all():
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            people.append(redact_person_summary(person, access))
+    return people
 
 
 # ─── Landing / Home ───────────────────────────────────────────────
@@ -157,25 +100,25 @@ async def home(
     if not current_user:
         return templates.TemplateResponse("landing.html", _ctx(request))
 
-    accessible_person_ids = await get_accessible_person_ids(db, current_user)
-
-    # Build moments feed
-    query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
-    if kind:
-        query = query.where(Moment.kind == kind)
-    if not current_user.is_admin:
-        query = query.where(Moment.visibility == "members")
-    query = query.order_by(Moment.occurred_at.desc()).limit(20)
-    result = await db.execute(query)
-    moments_orm = result.scalars().all()
-
-    moments = []
-    for m in moments_orm:
-        card = await _build_moment_card_simple(db, m, current_user.id)
-        moments.append(card)
+    moments_orm = await list_visible_moments(
+        db, current_user, kind=kind, limit=20
+    )
+    moments = await build_moment_cards(db, moments_orm, current_user)
+    moment_people = await _moment_people(db, current_user)
 
     return templates.TemplateResponse("home.html", _ctx(
-        request, current_user, active_page="home", moments=moments,
+        request,
+        current_user,
+        active_page="home",
+        moments=moments,
+        moment_people=moment_people,
+        moment_filter=kind,
+        load_more_url=build_moments_path(
+            "/partials/moments",
+            before=moments[-1]["id"] if moments else None,
+            kind=kind,
+            limit=20,
+        ),
     ))
 
 
@@ -370,11 +313,13 @@ async def person_detail_page(
         if sibling_access.can_view:
             visible_siblings.append(redact_person_summary(sibling, sibling_access))
     person_view = redact_person_detail(person, access)
+    moment_people = await _moment_people(db, current_user)
 
     return templates.TemplateResponse("person.html", _ctx(
         request, current_user, active_page="people",
         person=person_view, parents=visible_parents, children=visible_children,
         partners=visible_partners, siblings=visible_siblings, can_edit=can_edit,
+        moment_people=moment_people,
     ))
 
 
@@ -515,34 +460,24 @@ async def partial_moments(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: render moment cards for infinite scroll."""
-
-    accessible_person_ids = await get_accessible_person_ids(db, current_user)
-    query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
-    if before:
-        result = await db.execute(select(Moment.occurred_at).where(Moment.id == before))
-        cursor_time = result.scalar_one_or_none()
-        if cursor_time:
-            query = query.where(Moment.occurred_at < cursor_time)
     if person:
-        if person not in accessible_person_ids:
+        person_result = await db.execute(select(Person).where(Person.id == person))
+        target_person = person_result.scalar_one_or_none()
+        if not target_person:
             return HTMLResponse("")
-    if kind:
-        query = query.where(Moment.kind == kind)
-    if not current_user.is_admin:
-        query = query.where(Moment.visibility == "members")
-    query = query.order_by(Moment.occurred_at.desc())
-    if not person:
-        query = query.limit(limit)
-    result = await db.execute(query)
-    moments_orm = result.scalars().all()
-    if person:
-        moments_orm = [m for m in moments_orm if m.person_id == person or person in m.tagged_person_ids]
-        moments_orm = moments_orm[:limit]
+        access = await get_person_access(db, current_user, target_person)
+        if not access.can_view:
+            return HTMLResponse("")
 
-    moments = []
-    for m in moments_orm:
-        card = await _build_moment_card_simple(db, m, current_user.id)
-        moments.append(card)
+    moments_orm = await list_visible_moments(
+        db,
+        current_user,
+        before=before,
+        person_id=person,
+        kind=kind,
+        limit=limit,
+    )
+    moments = await build_moment_cards(db, moments_orm, current_user)
 
     # Build HTML from moment cards
     html_parts = []
@@ -556,8 +491,15 @@ async def partial_moments(
     # Add next load-more trigger if we got a full page
     if len(moments) >= limit:
         last_id = moments[-1]["id"]
+        load_more_url = build_moments_path(
+            "/partials/moments",
+            before=last_id,
+            person_id=person,
+            kind=kind,
+            limit=limit,
+        )
         html_parts.append(
-            f'<div hx-get="/partials/moments?before={last_id}" '
+            f'<div hx-get="{load_more_url}" '
             f'hx-trigger="revealed" hx-swap="afterend">'
             f'<div style="text-align:center;padding:20px;">'
             f'<div class="spinner" style="margin:0 auto;"></div></div></div>'

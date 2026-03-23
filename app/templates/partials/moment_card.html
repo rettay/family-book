@@ -10,6 +10,12 @@
     </a>
     <div class="moment__meta">
       <a href="/people/{{ m.poster.id }}" class="moment__author">{{ m.poster.display_name }}</a>
+      {% if m.about and m.about.id != m.poster.id %}
+      <div class="text-sm text-muted">
+        {{ t('moments.about') }}
+        <a href="/people/{{ m.about.id }}">{{ m.about.display_name }}</a>
+      </div>
+      {% endif %}
       <span class="moment__time">{{ m.occurred_at[:10] if m.occurred_at else '' }}
         {% if m.source and m.source != 'manual' %}
         <span class="moment__source">via {{ m.source | replace('_', ' ') | title }}</span>
@@ -66,6 +72,12 @@
       {% endfor %}
     </div>
     {% endif %}
+  </div>
+  {% endif %}
+
+  {% if m.title and not m.milestone_type %}
+  <div class="moment__body" style="padding-bottom:0;">
+    <p style="font-weight:600;">{{ m.title }}</p>
   </div>
   {% endif %}
 

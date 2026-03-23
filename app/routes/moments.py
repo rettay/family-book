@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select, func, extract
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import (
@@ -10,7 +10,6 @@ from app.access_control import (
     can_manage_moment,
     can_view_media,
     can_view_moment,
-    get_accessible_person_ids,
     get_person_access,
 )
 from app.auth import require_auth
@@ -18,6 +17,11 @@ from app.database import get_db
 from app.models.media import Media
 from app.models.moments import Moment, MomentComment, MomentReaction
 from app.models.person import Person
+from app.services.moment_service import (
+    build_moment_card,
+    build_moment_cards,
+    list_visible_moments,
+)
 
 router = APIRouter(prefix="/api/moments", tags=["moments"])
 
@@ -39,6 +43,11 @@ class MomentCreate(BaseModel):
 class MomentUpdate(BaseModel):
     body: str | None = Field(None, max_length=5000)
     title: str | None = Field(None, max_length=300)
+    person_id: str | None = None
+    tagged_person_ids: list[str] | None = None
+    media_ids: list[str] | None = None
+    milestone_type: str | None = None
+    occurred_at: datetime | None = None
     visibility: str | None = None
 
 
@@ -53,6 +62,8 @@ class MediaBrief(BaseModel):
     url: str
     width: int | None
     height: int | None
+    media_type: str | None = None
+    caption: str | None = None
 
 
 class MomentCard(BaseModel):
@@ -66,6 +77,7 @@ class MomentCard(BaseModel):
     media: list[MediaBrief]
     milestone_type: str | None
     occurred_at: str
+    source: str | None = None
     reactions: dict[str, int]
     my_reaction: str | None
     comment_count: int
@@ -89,103 +101,80 @@ class ReactionCreate(BaseModel):
     emoji: str = Field(max_length=10)
 
 
-# --- Helpers ---
+def _has_moment_content(
+    *,
+    title: str | None,
+    body: str | None,
+    media_ids: list[str],
+    milestone_type: str | None,
+) -> bool:
+    return any(
+        [
+            title and title.strip(),
+            body and body.strip(),
+            media_ids,
+            milestone_type,
+        ]
+    )
 
-async def _build_moment_card(
-    db: AsyncSession, moment: Moment, current_user_id: str
-) -> dict:
-    """Build a MomentCard response dict from a Moment ORM object."""
-    # Poster
-    poster = None
-    if moment.posted_by:
-        result = await db.execute(select(Person).where(Person.id == moment.posted_by))
-        poster_person = result.scalar_one_or_none()
-        if poster_person:
-            poster = {
-                "id": poster_person.id,
-                "display_name": poster_person.display_name,
-                "photo_url": poster_person.photo_url,
-            }
 
-    # About (the person the moment is about)
-    about = None
-    result = await db.execute(select(Person).where(Person.id == moment.person_id))
-    about_person = result.scalar_one_or_none()
-    if about_person:
-        about = {
-            "id": about_person.id,
-            "display_name": about_person.display_name,
-            "photo_url": about_person.photo_url,
-        }
+async def _validate_person(
+    db: AsyncSession,
+    current_user: Person,
+    person_id: str,
+    *,
+    require_manage: bool,
+) -> Person:
+    result = await db.execute(select(Person).where(Person.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person:
+        raise HTTPException(status_code=400, detail="Person not found")
 
-    tagged_people = []
-    for tagged_person_id in moment.tagged_person_ids:
-        result = await db.execute(select(Person).where(Person.id == tagged_person_id))
-        tagged_person = result.scalar_one_or_none()
-        if tagged_person:
-            tagged_people.append(
-                {
-                    "id": tagged_person.id,
-                    "display_name": tagged_person.display_name,
-                    "photo_url": tagged_person.photo_url,
-                }
+    if require_manage:
+        if not can_create_moment_for_person(current_user, person):
+            raise HTTPException(
+                status_code=403, detail="Not authorized to post for this profile"
+            )
+    else:
+        access = await get_person_access(db, current_user, person)
+        if not access.can_view:
+            raise HTTPException(
+                status_code=403, detail="Not authorized to tag this person"
             )
 
-    # Media
-    media_list = []
-    if moment.media_ids:
-        for mid in moment.media_ids:
-            result = await db.execute(select(Media).where(Media.id == mid))
-            m = result.scalar_one_or_none()
-            if m:
-                media_list.append({
-                    "id": m.id,
-                    "url": f"/api/media/{m.id}/file",
-                    "width": m.width,
-                    "height": m.height,
-                })
+    return person
 
-    # Reactions aggregation
-    result = await db.execute(
-        select(MomentReaction.emoji, func.count(MomentReaction.id))
-        .where(MomentReaction.moment_id == moment.id)
-        .group_by(MomentReaction.emoji)
-    )
-    reactions = {row[0]: row[1] for row in result.all()}
 
-    # My reaction
-    result = await db.execute(
-        select(MomentReaction.emoji).where(
-            MomentReaction.moment_id == moment.id,
-            MomentReaction.person_id == current_user_id,
+async def _approved_media_ids(
+    db: AsyncSession, current_user: Person, media_ids: list[str]
+) -> list[str]:
+    approved_media_ids: list[str] = []
+    for media_id in media_ids:
+        media_result = await db.execute(select(Media).where(Media.id == media_id))
+        media = media_result.scalar_one_or_none()
+        if not media:
+            continue
+        if not await can_view_media(db, current_user, media):
+            raise HTTPException(
+                status_code=403, detail="Not authorized to attach this media"
+            )
+        approved_media_ids.append(media.id)
+    return approved_media_ids
+
+
+async def _approved_tagged_person_ids(
+    db: AsyncSession, current_user: Person, tagged_person_ids: list[str]
+) -> list[str]:
+    approved_ids: list[str] = []
+    for tagged_person_id in tagged_person_ids:
+        person = await _validate_person(
+            db,
+            current_user,
+            tagged_person_id,
+            require_manage=False,
         )
-    )
-    my_reaction_row = result.scalar_one_or_none()
-
-    # Comment count
-    result = await db.execute(
-        select(func.count(MomentComment.id)).where(
-            MomentComment.moment_id == moment.id
-        )
-    )
-    comment_count = result.scalar()
-
-    return {
-        "id": moment.id,
-        "kind": moment.kind,
-        "poster": poster,
-        "about": about,
-        "tagged_people": tagged_people,
-        "title": moment.title,
-        "body": moment.body,
-        "media": media_list,
-        "milestone_type": moment.milestone_type,
-        "occurred_at": moment.occurred_at.isoformat() if moment.occurred_at else None,
-        "reactions": reactions,
-        "my_reaction": my_reaction_row,
-        "comment_count": comment_count or 0,
-        "created_at": moment.created_at.isoformat() if moment.created_at else None,
-    }
+        approved_ids.append(person.id)
+    return approved_ids
 
 
 # --- Routes ---
@@ -202,50 +191,25 @@ async def list_moments(
     db: AsyncSession = Depends(get_db),
 ):
     """List moments feed, reverse-chronological, paginated."""
-    accessible_person_ids = await get_accessible_person_ids(db, current_user)
-    query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
-
-    if before:
-        # Cursor-based: get the moment to use as cursor
-        result = await db.execute(select(Moment.occurred_at).where(Moment.id == before))
-        cursor_time = result.scalar_one_or_none()
-        if cursor_time:
-            query = query.where(Moment.occurred_at < cursor_time)
-
     if person:
-        if person not in accessible_person_ids:
-            raise HTTPException(status_code=403, detail="Not visible")
+        person_result = await db.execute(select(Person).where(Person.id == person))
+        target_person = person_result.scalar_one_or_none()
+        if target_person:
+            access = await get_person_access(db, current_user, target_person)
+            if not access.can_view:
+                raise HTTPException(status_code=403, detail="Not visible")
 
-    if branch:
-        query = query.join(Person, Moment.person_id == Person.id).where(
-            Person.branch == branch
-        )
-
-    if kind:
-        query = query.where(Moment.kind == kind)
-
-    if year:
-        query = query.where(extract("year", Moment.occurred_at) == year)
-
-    # Filter by visibility
-    if not current_user.is_admin:
-        query = query.where(Moment.visibility == "members")
-
-    query = query.order_by(Moment.occurred_at.desc())
-    if not person:
-        query = query.limit(limit)
-    result = await db.execute(query)
-    moments = result.scalars().all()
-    if person:
-        moments = [m for m in moments if m.person_id == person or person in m.tagged_person_ids]
-        moments = moments[:limit]
-
-    cards = []
-    for m in moments:
-        card = await _build_moment_card(db, m, current_user.id)
-        cards.append(card)
-
-    return cards
+    moments = await list_visible_moments(
+        db,
+        current_user,
+        before=before,
+        limit=limit,
+        person_id=person,
+        branch=branch,
+        kind=kind,
+        year=year,
+    )
+    return await build_moment_cards(db, moments, current_user)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -257,38 +221,22 @@ async def create_moment(
     """Create a new moment."""
     person_id = body.person_id or current_user.id
 
-    # Verify person exists
-    result = await db.execute(select(Person).where(Person.id == person_id))
-    person = result.scalar_one_or_none()
-    if not person:
-        raise HTTPException(status_code=400, detail="Person not found")
-    if not can_create_moment_for_person(current_user, person):
-        raise HTTPException(status_code=403, detail="Not authorized to post for this profile")
+    await _validate_person(db, current_user, person_id, require_manage=True)
     if body.visibility == "admins" and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin visibility is restricted")
     if body.visibility == "hidden" and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Hidden visibility is restricted")
-
-    approved_media_ids: list[str] = []
-    for media_id in body.media_ids:
-        media_result = await db.execute(select(Media).where(Media.id == media_id))
-        media = media_result.scalar_one_or_none()
-        if not media:
-            continue
-        if not await can_view_media(db, current_user, media):
-            raise HTTPException(status_code=403, detail="Not authorized to attach this media")
-        approved_media_ids.append(media.id)
-
-    approved_tagged_person_ids: list[str] = []
-    for tagged_person_id in body.tagged_person_ids:
-        tagged_person_result = await db.execute(select(Person).where(Person.id == tagged_person_id))
-        tagged_person = tagged_person_result.scalar_one_or_none()
-        if not tagged_person:
-            raise HTTPException(status_code=400, detail=f"Tagged person not found: {tagged_person_id}")
-        tagged_person_access = await get_person_access(db, current_user, tagged_person)
-        if not tagged_person_access.can_view:
-            raise HTTPException(status_code=403, detail="Not authorized to tag this person")
-        approved_tagged_person_ids.append(tagged_person.id)
+    approved_media_ids = await _approved_media_ids(db, current_user, body.media_ids)
+    approved_tagged_person_ids = await _approved_tagged_person_ids(
+        db, current_user, body.tagged_person_ids
+    )
+    if not _has_moment_content(
+        title=body.title,
+        body=body.body,
+        media_ids=approved_media_ids,
+        milestone_type=body.milestone_type,
+    ):
+        raise HTTPException(status_code=400, detail="Moment content is required")
 
     moment = Moment(
         person_id=person_id,
@@ -306,8 +254,7 @@ async def create_moment(
     db.add(moment)
     await db.flush()
 
-    card = await _build_moment_card(db, moment, current_user.id)
-    return card
+    return await build_moment_card(db, moment, current_user)
 
 
 @router.get("/{moment_id}")
@@ -324,7 +271,7 @@ async def get_moment(
     if not await can_view_moment(db, current_user, moment):
         raise HTTPException(status_code=403, detail="Not visible")
 
-    return await _build_moment_card(db, moment, current_user.id)
+    return await build_moment_card(db, moment, current_user)
 
 
 @router.put("/{moment_id}")
@@ -346,11 +293,30 @@ async def update_moment(
     update_data = body.model_dump(exclude_unset=True)
     if "visibility" in update_data and update_data["visibility"] in {"hidden", "admins"} and not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Restricted visibility")
+    if "person_id" in update_data and update_data["person_id"]:
+        await _validate_person(
+            db, current_user, update_data["person_id"], require_manage=True
+        )
+    if "tagged_person_ids" in update_data and update_data["tagged_person_ids"] is not None:
+        moment.tagged_person_ids = await _approved_tagged_person_ids(
+            db, current_user, update_data.pop("tagged_person_ids")
+        )
+    if "media_ids" in update_data and update_data["media_ids"] is not None:
+        moment.media_ids = await _approved_media_ids(
+            db, current_user, update_data.pop("media_ids")
+        )
     for field, value in update_data.items():
         setattr(moment, field, value)
+    if not _has_moment_content(
+        title=moment.title,
+        body=moment.body,
+        media_ids=moment.media_ids,
+        milestone_type=moment.milestone_type,
+    ):
+        raise HTTPException(status_code=400, detail="Moment content is required")
 
     await db.flush()
-    return await _build_moment_card(db, moment, current_user.id)
+    return await build_moment_card(db, moment, current_user)
 
 
 @router.delete("/{moment_id}", status_code=status.HTTP_204_NO_CONTENT)

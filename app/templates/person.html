@@ -133,7 +133,61 @@
 
   <!-- Moments by this person -->
   <div class="profile-section">
-    <h3 class="profile-section__title">{{ t('nav.moments') }}</h3>
+    <div class="flex-between" style="gap:12px; align-items:center;">
+      <h3 class="profile-section__title">{{ t('nav.moments') }}</h3>
+      <button class="btn btn--ghost btn--sm" type="button" onclick="togglePersonMomentComposer()">
+        {{ t('moments.add_for_person') }}
+      </button>
+    </div>
+    <form id="person-moment-composer" class="hidden" onsubmit="submitPersonMoment(event)" style="margin-bottom:16px;">
+      <div class="form-group">
+        <label class="form-label" for="person-moment-kind">{{ t('moments.type') }}</label>
+        <select class="form-select" id="person-moment-kind" onchange="togglePersonMilestoneFields()">
+          <option value="text">{{ t('moments.note') }}</option>
+          <option value="story">{{ t('moments.story') }}</option>
+          <option value="milestone">{{ t('moments.milestone') }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="person-moment-title">{{ t('moments.title') }}</label>
+        <input class="form-input" type="text" id="person-moment-title" maxlength="300">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="person-moment-date">{{ t('moments.date') }}</label>
+        <input class="form-input" type="date" id="person-moment-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="person-moment-tagged">{{ t('moments.tagged_people') }}</label>
+        <select class="form-select" id="person-moment-tagged" multiple size="4">
+          {% for related_person in moment_people %}
+          {% if related_person.id != person.id %}
+          <option value="{{ related_person.id }}">{{ related_person.display_name }}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group hidden" id="person-moment-milestone-group">
+        <label class="form-label" for="person-moment-milestone">{{ t('moments.milestone_type') }}</label>
+        <select class="form-select" id="person-moment-milestone">
+          <option value="">{{ t('moments.choose_milestone') }}</option>
+          <option value="birth">Birth</option>
+          <option value="birthday">Birthday</option>
+          <option value="graduation">Graduation</option>
+          <option value="marriage">Marriage</option>
+          <option value="travel">Travel</option>
+          <option value="death">Death</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="person-moment-body" rows="3"
+                  placeholder="{{ t('moments.story_prompt') }}"></textarea>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" class="btn btn--secondary" onclick="togglePersonMomentComposer(false)">{{ t('common.cancel') }}</button>
+        <button type="submit" class="btn btn--primary">{{ t('moments.share') }}</button>
+      </div>
+    </form>
     <div id="person-moments"
          hx-get="/partials/moments?person={{ person.id }}"
          hx-trigger="load"
@@ -144,4 +198,59 @@
 
   <div style="height:32px;"></div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePersonMomentComposer(forceOpen = null) {
+  const composer = document.getElementById('person-moment-composer');
+  const shouldOpen = forceOpen === null ? composer.classList.contains('hidden') : forceOpen;
+  composer.classList.toggle('hidden', !shouldOpen);
+  if (!shouldOpen) {
+    composer.reset();
+    togglePersonMilestoneFields();
+  }
+}
+
+function togglePersonMilestoneFields() {
+  const kind = document.getElementById('person-moment-kind').value;
+  document.getElementById('person-moment-milestone-group').classList.toggle('hidden', kind !== 'milestone');
+}
+
+async function submitPersonMoment(event) {
+  event.preventDefault();
+  const kind = document.getElementById('person-moment-kind').value;
+  const title = document.getElementById('person-moment-title').value.trim() || null;
+  const body = document.getElementById('person-moment-body').value.trim() || null;
+  const occurredAtValue = document.getElementById('person-moment-date').value;
+  const milestoneType = document.getElementById('person-moment-milestone').value || null;
+  const taggedPeople = Array.from(document.getElementById('person-moment-tagged').selectedOptions).map(
+    (option) => option.value
+  );
+
+  const resp = await fetch('/api/moments', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      kind,
+      person_id: '{{ person.id }}',
+      title,
+      body,
+      tagged_person_ids: taggedPeople,
+      milestone_type: kind === 'milestone' ? milestoneType : null,
+      occurred_at: occurredAtValue ? `${occurredAtValue}T12:00:00Z` : null,
+    }),
+  });
+
+  if (resp.ok) {
+    togglePersonMomentComposer(false);
+    const partialResp = await fetch('/partials/moments?person={{ person.id }}');
+    if (partialResp.ok) {
+      document.getElementById('person-moments').innerHTML = await partialResp.text();
+    }
+  }
+}
+
+togglePersonMilestoneFields();
+</script>
 {% endblock %}
