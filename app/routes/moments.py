@@ -15,12 +15,26 @@ from app.access_control import (
 from app.auth import require_auth
 from app.database import get_db
 from app.models.media import Media
-from app.models.moments import Moment, MomentComment, MomentReaction, MomentVisibility
+from app.models.moments import (
+    Moment,
+    MomentComment,
+    MomentLifecycleState,
+    MomentReaction,
+    MomentVisibility,
+)
 from app.models.person import Person
+from app.services.audit_service import log_audit
 from app.services.moment_service import (
     build_moment_card,
     build_moment_cards,
     list_visible_moments,
+)
+from app.services.revision_service import (
+    apply_moment_snapshot,
+    get_revision,
+    list_revisions,
+    record_revision,
+    serialize_moment_snapshot,
 )
 
 router = APIRouter(prefix="/api/moments", tags=["moments"])
@@ -99,6 +113,10 @@ class CommentResponse(BaseModel):
 
 class ReactionCreate(BaseModel):
     emoji: str = Field(max_length=10)
+
+
+class ModerateMomentRequest(BaseModel):
+    reason: str | None = Field(None, max_length=500)
 
 
 ALLOWED_MOMENT_VISIBILITIES = {
@@ -191,6 +209,41 @@ def _validated_visibility(value: str | None) -> str:
     return visibility
 
 
+async def _moment_history_entries(
+    db: AsyncSession,
+    *,
+    moment_id: str,
+    limit: int = 20,
+) -> list[dict]:
+    revisions = await list_revisions(db, entity_type="moment", entity_id=moment_id, limit=limit)
+    actor_ids = {revision.actor_id for revision in revisions if revision.actor_id}
+    actors_by_id: dict[str, Person] = {}
+    if actor_ids:
+        result = await db.execute(select(Person).where(Person.id.in_(actor_ids)))
+        actors_by_id = {actor.id: actor for actor in result.scalars().all()}
+
+    entries: list[dict] = []
+    for revision in revisions:
+        snapshot = revision.snapshot
+        actor = actors_by_id.get(revision.actor_id or "")
+        entries.append(
+            {
+                "id": revision.id,
+                "action": revision.action,
+                "actor_id": revision.actor_id,
+                "actor_name": actor.display_name if actor else "Unknown",
+                "created_at": revision.created_at.isoformat() if revision.created_at else None,
+                "snapshot": {
+                    "title": snapshot.get("title"),
+                    "body": snapshot.get("body"),
+                    "lifecycle_state": snapshot.get("lifecycle_state"),
+                    "moderation_reason": snapshot.get("moderation_reason"),
+                },
+            }
+        )
+    return entries
+
+
 # --- Routes ---
 
 @router.get("")
@@ -268,6 +321,22 @@ async def create_moment(
 
     db.add(moment)
     await db.flush()
+    await record_revision(
+        db,
+        entity_type="moment",
+        entity_id=moment.id,
+        actor_id=current_user.id,
+        action="create",
+        snapshot=serialize_moment_snapshot(moment),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "create",
+        "moment",
+        moment.id,
+        new_value={"kind": moment.kind, "person_id": moment.person_id},
+    )
 
     return await build_moment_card(db, moment, current_user)
 
@@ -281,7 +350,7 @@ async def get_moment(
     """Get a single moment detail."""
     result = await db.execute(select(Moment).where(Moment.id == moment_id))
     moment = result.scalar_one_or_none()
-    if not moment:
+    if not moment or moment.lifecycle_state == MomentLifecycleState.deleted.value:
         raise HTTPException(status_code=404, detail="Moment not found")
     if not await can_view_moment(db, current_user, moment):
         raise HTTPException(status_code=403, detail="Not visible")
@@ -299,12 +368,15 @@ async def update_moment(
     """Edit a moment (author only, or admin)."""
     result = await db.execute(select(Moment).where(Moment.id == moment_id))
     moment = result.scalar_one_or_none()
-    if not moment:
+    if not moment or moment.lifecycle_state == MomentLifecycleState.deleted.value:
         raise HTTPException(status_code=404, detail="Moment not found")
+    if moment.lifecycle_state != MomentLifecycleState.active.value:
+        raise HTTPException(status_code=400, detail="Moment is not editable")
 
     if not can_manage_moment(current_user, moment):
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    old_snapshot = serialize_moment_snapshot(moment)
     update_data = body.model_dump(exclude_unset=True)
     if "visibility" in update_data:
         update_data["visibility"] = _validated_visibility(update_data["visibility"])
@@ -336,6 +408,23 @@ async def update_moment(
         raise HTTPException(status_code=400, detail="Moment content is required")
 
     await db.flush()
+    await record_revision(
+        db,
+        entity_type="moment",
+        entity_id=moment.id,
+        actor_id=current_user.id,
+        action="update",
+        snapshot=serialize_moment_snapshot(moment),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "moment",
+        moment.id,
+        old_value=old_snapshot,
+        new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())},
+    )
     return await build_moment_card(db, moment, current_user)
 
 
@@ -350,12 +439,185 @@ async def delete_moment(
     moment = result.scalar_one_or_none()
     if not moment:
         raise HTTPException(status_code=404, detail="Moment not found")
+    if moment.lifecycle_state == MomentLifecycleState.deleted.value:
+        return
 
     if not can_manage_moment(current_user, moment):
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    await db.delete(moment)
+    moment.lifecycle_state = MomentLifecycleState.deleted.value
+    moment.deleted_at = datetime.now(timezone.utc)
+    moment.deleted_by = current_user.id
+    await record_revision(
+        db,
+        entity_type="moment",
+        entity_id=moment.id,
+        actor_id=current_user.id,
+        action="delete",
+        snapshot=serialize_moment_snapshot(moment),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "delete",
+        "moment",
+        moment.id,
+        old_value={"kind": moment.kind, "title": moment.title},
+    )
     await db.flush()
+
+
+@router.get("/{moment_id}/history")
+async def get_moment_history(
+    moment_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Moment).where(Moment.id == moment_id))
+    moment = result.scalar_one_or_none()
+    if not moment:
+        raise HTTPException(status_code=404, detail="Moment not found")
+    if moment.lifecycle_state == MomentLifecycleState.deleted.value and not current_user.is_admin:
+        raise HTTPException(status_code=404, detail="Moment not found")
+    if moment.lifecycle_state != MomentLifecycleState.deleted.value and not await can_view_moment(
+        db, current_user, moment
+    ):
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    return await _moment_history_entries(db, moment_id=moment_id)
+
+
+@router.post("/{moment_id}/history/{revision_id}/revert")
+async def revert_moment_revision(
+    moment_id: str,
+    revision_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    result = await db.execute(select(Moment).where(Moment.id == moment_id))
+    moment = result.scalar_one_or_none()
+    if not moment:
+        raise HTTPException(status_code=404, detail="Moment not found")
+
+    revision = await get_revision(
+        db, revision_id=revision_id, entity_type="moment", entity_id=moment_id
+    )
+    if not revision:
+        raise HTTPException(status_code=404, detail="Revision not found")
+
+    apply_moment_snapshot(moment, revision.snapshot)
+    await db.flush()
+    await record_revision(
+        db,
+        entity_type="moment",
+        entity_id=moment.id,
+        actor_id=current_user.id,
+        action="revert",
+        snapshot=serialize_moment_snapshot(moment),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "moment",
+        moment.id,
+        new_value={"reverted_to_revision_id": revision.id},
+    )
+    return {
+        "ok": True,
+        "lifecycle_state": moment.lifecycle_state,
+        "moment": await build_moment_card(db, moment, current_user),
+    }
+
+
+@router.post("/{moment_id}/moderate")
+async def moderate_moment(
+    moment_id: str,
+    body: ModerateMomentRequest,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    result = await db.execute(select(Moment).where(Moment.id == moment_id))
+    moment = result.scalar_one_or_none()
+    if not moment or moment.lifecycle_state == MomentLifecycleState.deleted.value:
+        raise HTTPException(status_code=404, detail="Moment not found")
+
+    moment.lifecycle_state = MomentLifecycleState.moderated.value
+    moment.moderated_at = datetime.now(timezone.utc)
+    moment.moderated_by = current_user.id
+    moment.moderation_reason = (body.reason or "").strip() or None
+    await db.flush()
+    await record_revision(
+        db,
+        entity_type="moment",
+        entity_id=moment.id,
+        actor_id=current_user.id,
+        action="moderate",
+        snapshot=serialize_moment_snapshot(moment),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "moment",
+        moment.id,
+        new_value={"moderated": True, "reason": moment.moderation_reason},
+    )
+    return {
+        "ok": True,
+        "lifecycle_state": moment.lifecycle_state,
+        "moderation_reason": moment.moderation_reason,
+    }
+
+
+@router.post("/{moment_id}/restore")
+async def restore_moment(
+    moment_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    result = await db.execute(select(Moment).where(Moment.id == moment_id))
+    moment = result.scalar_one_or_none()
+    if not moment:
+        raise HTTPException(status_code=404, detail="Moment not found")
+
+    moment.lifecycle_state = MomentLifecycleState.active.value
+    moment.moderated_at = None
+    moment.moderated_by = None
+    moment.moderation_reason = None
+    moment.deleted_at = None
+    moment.deleted_by = None
+    await db.flush()
+    await record_revision(
+        db,
+        entity_type="moment",
+        entity_id=moment.id,
+        actor_id=current_user.id,
+        action="restore",
+        snapshot=serialize_moment_snapshot(moment),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "moment",
+        moment.id,
+        new_value={"restored": True},
+    )
+    return {
+        "ok": True,
+        "lifecycle_state": moment.lifecycle_state,
+        "moment": await build_moment_card(db, moment, current_user),
+    }
 
 
 # --- Comments ---
@@ -374,6 +636,8 @@ async def list_comments(
         raise HTTPException(status_code=404, detail="Moment not found")
     if not await can_view_moment(db, current_user, moment):
         raise HTTPException(status_code=403, detail="Not visible")
+    if moment.lifecycle_state != MomentLifecycleState.active.value:
+        raise HTTPException(status_code=403, detail="Moment is not active")
 
     result = await db.execute(
         select(MomentComment)
@@ -412,6 +676,8 @@ async def create_comment(
         raise HTTPException(status_code=404, detail="Moment not found")
     if not await can_view_moment(db, current_user, moment):
         raise HTTPException(status_code=403, detail="Not visible")
+    if moment.lifecycle_state != MomentLifecycleState.active.value:
+        raise HTTPException(status_code=403, detail="Moment is not active")
 
     comment = MomentComment(
         moment_id=moment_id,
@@ -472,6 +738,8 @@ async def add_reaction(
         raise HTTPException(status_code=404, detail="Moment not found")
     if not await can_view_moment(db, current_user, moment):
         raise HTTPException(status_code=403, detail="Not visible")
+    if moment.lifecycle_state != MomentLifecycleState.active.value:
+        raise HTTPException(status_code=403, detail="Moment is not active")
 
     # Check for existing reaction
     result = await db.execute(

@@ -175,6 +175,110 @@ class TestMomentsCRUD:
         resp = await admin_client.delete("/api/moments/nonexistent")
         assert resp.status_code == 404
 
+    async def test_moment_history_visible_to_member(self, admin_client, member_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "Original story",
+            "person_id": TYLER_ID,
+        })
+        moment_id = create_resp.json()["id"]
+
+        update_resp = await admin_client.put(f"/api/moments/{moment_id}", json={
+            "body": "Edited story",
+        })
+        assert update_resp.status_code == 200
+
+        history_resp = await member_client.get(f"/api/moments/{moment_id}/history")
+        assert history_resp.status_code == 200
+        actions = [entry["action"] for entry in history_resp.json()]
+        assert "create" in actions
+        assert "update" in actions
+
+    async def test_admin_can_revert_moment_revision(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Original",
+        })
+        moment_id = create_resp.json()["id"]
+
+        update_resp = await admin_client.put(f"/api/moments/{moment_id}", json={
+            "body": "Edited",
+        })
+        assert update_resp.status_code == 200
+
+        history_resp = await admin_client.get(f"/api/moments/{moment_id}/history")
+        assert history_resp.status_code == 200
+        create_revision = next(entry for entry in history_resp.json() if entry["action"] == "create")
+
+        revert_resp = await admin_client.post(
+            f"/api/moments/{moment_id}/history/{create_revision['id']}/revert"
+        )
+        assert revert_resp.status_code == 200
+        assert revert_resp.json()["moment"]["body"] == "Original"
+
+        moment_resp = await admin_client.get(f"/api/moments/{moment_id}")
+        assert moment_resp.status_code == 200
+        assert moment_resp.json()["body"] == "Original"
+
+    async def test_delete_moment_is_recoverable_via_revision(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Delete and restore",
+        })
+        moment_id = create_resp.json()["id"]
+
+        delete_resp = await admin_client.delete(f"/api/moments/{moment_id}")
+        assert delete_resp.status_code == 204
+
+        missing_resp = await admin_client.get(f"/api/moments/{moment_id}")
+        assert missing_resp.status_code == 404
+
+        history_resp = await admin_client.get(f"/api/moments/{moment_id}/history")
+        assert history_resp.status_code == 200
+        create_revision = next(entry for entry in history_resp.json() if entry["action"] == "create")
+
+        revert_resp = await admin_client.post(
+            f"/api/moments/{moment_id}/history/{create_revision['id']}/revert"
+        )
+        assert revert_resp.status_code == 200
+        assert revert_resp.json()["lifecycle_state"] == "active"
+
+        restored_resp = await admin_client.get(f"/api/moments/{moment_id}")
+        assert restored_resp.status_code == 200
+        assert restored_resp.json()["body"] == "Delete and restore"
+
+    async def test_moderated_moment_is_hidden_from_member_and_restorable(self, admin_client, member_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "text",
+            "body": "Moderate me",
+            "person_id": TYLER_ID,
+        })
+        moment_id = create_resp.json()["id"]
+
+        moderate_resp = await admin_client.post(
+            f"/api/moments/{moment_id}/moderate",
+            json={"reason": "Incorrect content"},
+        )
+        assert moderate_resp.status_code == 200
+        assert moderate_resp.json()["lifecycle_state"] == "moderated"
+
+        member_feed = await member_client.get("/api/moments")
+        assert member_feed.status_code == 200
+        member_ids = {item["id"] for item in member_feed.json()}
+        assert moment_id not in member_ids
+
+        member_detail = await member_client.get(f"/api/moments/{moment_id}")
+        assert member_detail.status_code == 403
+
+        restore_resp = await admin_client.post(f"/api/moments/{moment_id}/restore")
+        assert restore_resp.status_code == 200
+        assert restore_resp.json()["lifecycle_state"] == "active"
+
+        member_feed_after = await member_client.get("/api/moments")
+        assert member_feed_after.status_code == 200
+        restored_ids = {item["id"] for item in member_feed_after.json()}
+        assert moment_id in restored_ids
+
 
 class TestMomentsFeed:
     """GET /api/moments — feed with filtering and pagination."""

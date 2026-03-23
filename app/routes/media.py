@@ -11,7 +11,7 @@ from app.auth import require_auth
 from app.config import get_settings
 from app.database import get_db
 from app.models.media import Media
-from app.models.person import Person
+from app.models.person import Person, PersonLifecycleState
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
 from app.services.media_service import (
     ALLOWED_MIME_TYPES,
@@ -66,7 +66,7 @@ async def upload_media(
     # Verify person exists
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         raise HTTPException(status_code=400, detail="Person not found")
     if not can_manage_person(current_user, person):
         raise HTTPException(status_code=403, detail="Not authorized to upload for this profile")
@@ -218,7 +218,7 @@ async def list_media_for_person(
     """List all media for a given person."""
     person_result = await db.execute(select(Person).where(Person.id == person_id))
     person = person_result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         raise HTTPException(status_code=404, detail="Person not found")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:

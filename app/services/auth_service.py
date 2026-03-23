@@ -6,7 +6,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.auth import UserSession, Invite, MagicLinkToken
-from app.models.person import Person, AccountState
+from app.models.person import Person, AccountState, PersonLifecycleState
 from app.config import get_settings
 
 SESSION_TOKEN_BYTES = 32
@@ -88,6 +88,7 @@ async def validate_session(db: AsyncSession, token: str) -> Person | None:
         select(Person).where(
             Person.id == session.person_id,
             Person.account_state == AccountState.active.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
         )
     )
     return result.scalar_one_or_none()
@@ -182,6 +183,7 @@ async def validate_magic_link(db: AsyncSession, token: str) -> Person | None:
         select(Person).where(
             Person.id == ml.person_id,
             Person.account_state == AccountState.active.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
         )
     )
     person = result.scalar_one_or_none()

@@ -3,9 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import require_admin, require_auth
+from app.auth import require_admin
 from app.database import get_db
-from app.models.person import Person
+from app.models.person import Person, PersonLifecycleState
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import (
     ParentChildCreate,
@@ -78,7 +78,8 @@ async def create_parent_child(
     # Verify both persons exist
     for pid in (body.parent_id, body.child_id):
         result = await db.execute(select(Person).where(Person.id == pid))
-        if not result.scalar_one_or_none():
+        person = result.scalar_one_or_none()
+        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
             raise HTTPException(status_code=404, detail=f"Person {pid} not found")
 
     if await _would_create_ancestry_cycle(db, body.parent_id, body.child_id):
@@ -147,7 +148,8 @@ async def create_partnership(
     # Verify both persons exist
     for pid in (a_id, b_id):
         result = await db.execute(select(Person).where(Person.id == pid))
-        if not result.scalar_one_or_none():
+        person = result.scalar_one_or_none()
+        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
             raise HTTPException(status_code=404, detail=f"Person {pid} not found")
 
     if await _partnership_exists(db, a_id, b_id, body.kind, body.start_date):

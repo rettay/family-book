@@ -37,6 +37,15 @@
     {% endif %}
   </div>
 
+  {% if m.lifecycle_state == 'moderated' %}
+  <div class="moment__body" style="padding-bottom:0;">
+    <p class="text-sm" style="color:#8a1f1f; font-weight:600;">Moderated content</p>
+    {% if m.moderation_reason %}
+    <p class="text-sm text-muted">{{ m.moderation_reason }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
   {% if m.milestone_type %}
   <div class="moment__milestone">
     <div class="moment__milestone-icon">
@@ -100,6 +109,7 @@
 
   <div class="moment__actions">
     <div class="reactions">
+      {% if m.lifecycle_state == 'active' %}
       {% for emoji, count in (m.reactions or {}).items() %}
       <button class="reaction-btn {% if m.my_reaction == emoji %}reaction-btn--active{% endif %}"
               hx-post="/api/moments/{{ m.id }}/reactions"
@@ -111,18 +121,33 @@
       </button>
       {% endfor %}
       <button class="reaction-btn" onclick="toggleReactionPicker('{{ m.id }}')">+</button>
+      {% endif %}
     </div>
 
-    <div style="margin-left:auto;">
+    <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+      {% if current_user and current_user.is_admin %}
+      {% if m.lifecycle_state == 'active' %}
+      <button class="btn btn--ghost btn--sm" type="button" onclick="moderateMoment('{{ m.id }}')">
+        Moderate
+      </button>
+      {% elif m.lifecycle_state == 'moderated' %}
+      <button class="btn btn--ghost btn--sm" type="button" onclick="restoreMoment('{{ m.id }}')">
+        Restore
+      </button>
+      {% endif %}
+      {% endif %}
+      {% if m.lifecycle_state == 'active' %}
       <button class="btn btn--ghost btn--sm"
               onclick="toggleComments('{{ m.id }}')"
               id="comment-toggle-{{ m.id }}">
         &#128172; {{ m.comment_count or 0 }}
       </button>
+      {% endif %}
     </div>
   </div>
 
   <!-- Reaction picker (hidden) -->
+  {% if m.lifecycle_state == 'active' %}
   <div class="reaction-picker hidden" id="reaction-picker-{{ m.id }}" style="margin:0 16px 12px;">
     {% for emoji in ['❤️', '😂', '😢', '🎉', '🙏', '😮'] %}
     <button hx-post="/api/moments/{{ m.id }}/reactions"
@@ -132,11 +157,14 @@
             hx-on::after-request="window.location.reload()">{{ emoji }}</button>
     {% endfor %}
   </div>
+  {% endif %}
 
   <!-- Comments (lazy loaded) -->
+  {% if m.lifecycle_state == 'active' %}
   <div class="comments hidden" id="comments-{{ m.id }}"
        hx-get="/partials/comments/{{ m.id }}"
        hx-trigger="toggle-comments-{{ m.id }}"
        hx-swap="innerHTML">
   </div>
+  {% endif %}
 </div>

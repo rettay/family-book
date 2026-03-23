@@ -56,6 +56,12 @@ class OccurredPrecision(str, enum.Enum):
     year = "year"
 
 
+class MomentLifecycleState(str, enum.Enum):
+    active = "active"
+    moderated = "moderated"
+    deleted = "deleted"
+
+
 class Moment(Base):
     __tablename__ = "moments"
 
@@ -76,6 +82,14 @@ class Moment(Base):
     source: Mapped[str] = mapped_column(String(30), default=MomentSource.manual.value)
     visibility: Mapped[str] = mapped_column(String(20), default=MomentVisibility.members.value)
     posted_by: Mapped[str | None] = mapped_column(String(36), default=None)
+    lifecycle_state: Mapped[str] = mapped_column(
+        String(20), default=MomentLifecycleState.active.value
+    )
+    moderated_at: Mapped[datetime | None] = mapped_column(default=None)
+    moderated_by: Mapped[str | None] = mapped_column(String(36), default=None)
+    moderation_reason: Mapped[str | None] = mapped_column(String(500), default=None)
+    deleted_at: Mapped[datetime | None] = mapped_column(default=None)
+    deleted_by: Mapped[str | None] = mapped_column(String(36), default=None)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
 
     @property

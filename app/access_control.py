@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.models.media import Media
-from app.models.moments import Moment
-from app.models.person import AccountState, Person, Visibility
+from app.models.moments import Moment, MomentLifecycleState
+from app.models.person import AccountState, Person, PersonLifecycleState, Visibility
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonDetail, PersonSummary
 
@@ -33,6 +33,8 @@ async def get_person_access(
     person: Person,
 ) -> PersonAccess:
     if not can_collaborate(current_user):
+        return PersonAccess(False, False, False, False)
+    if person.lifecycle_state != PersonLifecycleState.active.value:
         return PersonAccess(False, False, False, False)
 
     if current_user.is_admin:
@@ -74,16 +76,20 @@ async def get_accessible_person_ids(
         return set()
 
     if current_user.is_admin:
-        query = select(Person.id)
+        query = select(Person.id).where(
+            Person.lifecycle_state == PersonLifecycleState.active.value
+        )
         if not include_hidden:
             query = query.where(Person.visibility != Visibility.hidden.value)
         result = await db.execute(query)
         return set(result.scalars().all())
 
-    query = select(Person.id, Person.visibility)
+    query = select(Person.id, Person.visibility, Person.lifecycle_state)
     result = await db.execute(query)
     visible_ids: set[str] = set()
-    for person_id, visibility in result.all():
+    for person_id, visibility, lifecycle_state in result.all():
+        if lifecycle_state != PersonLifecycleState.active.value:
+            continue
         if include_hidden or visibility != Visibility.hidden.value:
             visible_ids.add(person_id)
     return visible_ids
@@ -91,6 +97,8 @@ async def get_accessible_person_ids(
 
 def can_manage_person(current_user: Person, person: Person) -> bool:
     if not can_collaborate(current_user):
+        return False
+    if person.lifecycle_state != PersonLifecycleState.active.value:
         return False
     if current_user.is_admin or current_user.id == person.id:
         return True
@@ -114,6 +122,10 @@ async def can_view_moment(
     current_user: Person,
     moment: Moment,
 ) -> bool:
+    if moment.lifecycle_state == MomentLifecycleState.deleted.value:
+        return False
+    if moment.lifecycle_state == MomentLifecycleState.moderated.value and not current_user.is_admin:
+        return False
     if not current_user.is_admin:
         if moment.visibility in {"hidden", "admins"}:
             return False
@@ -127,6 +139,8 @@ async def can_view_moment(
 
 
 def can_manage_moment(current_user: Person, moment: Moment) -> bool:
+    if moment.lifecycle_state != MomentLifecycleState.active.value:
+        return current_user.is_admin and moment.lifecycle_state == MomentLifecycleState.moderated.value
     return current_user.is_admin or moment.posted_by == current_user.id
 
 

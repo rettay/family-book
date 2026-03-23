@@ -131,6 +131,21 @@
     </div>
   </div>
 
+  <div class="profile-section">
+    <div class="flex-between" style="gap:12px; align-items:center;">
+      <h3 class="profile-section__title">Version History</h3>
+      {% if current_user.is_admin %}
+      <span class="text-sm text-muted">Admin revert enabled</span>
+      {% endif %}
+    </div>
+    <div id="person-history"
+         hx-get="/partials/person-history?person_id={{ person.id }}"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <div class="spinner" style="margin: 16px auto;"></div>
+    </div>
+  </div>
+
   <!-- Moments by this person -->
   <div class="profile-section">
     <div class="flex-between" style="gap:12px; align-items:center;">
@@ -215,6 +230,46 @@ function togglePersonMomentComposer(forceOpen = null) {
 function togglePersonMilestoneFields() {
   const kind = document.getElementById('person-moment-kind').value;
   document.getElementById('person-moment-milestone-group').classList.toggle('hidden', kind !== 'milestone');
+}
+
+async function revertPersonRevision(personId, revisionId) {
+  if (!confirm('Revert this person to the selected revision?')) return;
+  const resp = await fetch(`/api/persons/${personId}/history/${revisionId}/revert`, {
+    method: 'POST',
+  });
+  if (resp.ok) {
+    window.location.reload();
+    return;
+  }
+  const data = await resp.json().catch(() => ({}));
+  showToast(data.detail || 'Revert failed');
+}
+
+async function moderateMoment(momentId) {
+  const reason = window.prompt('Moderation reason (optional):', '') || '';
+  const resp = await fetch(`/api/moments/${momentId}/moderate`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({reason}),
+  });
+  if (resp.ok) {
+    window.location.reload();
+    return;
+  }
+  const data = await resp.json().catch(() => ({}));
+  showToast(data.detail || 'Moderation failed');
+}
+
+async function restoreMoment(momentId) {
+  const resp = await fetch(`/api/moments/${momentId}/restore`, {
+    method: 'POST',
+  });
+  if (resp.ok) {
+    window.location.reload();
+    return;
+  }
+  const data = await resp.json().catch(() => ({}));
+  showToast(data.detail || 'Restore failed');
 }
 
 async function submitPersonMoment(event) {

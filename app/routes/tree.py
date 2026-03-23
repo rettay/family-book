@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.access_control import get_accessible_person_ids, get_person_access, redact_person_summary
 from app.auth import require_auth
 from app.database import get_db
-from app.models.person import Person, Visibility
+from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.preferences import DEFAULT_TREE_PREFERENCES, TreePreference
 from app.models.relationships import ParentChild, Partnership
 from app.services.geo import country_centroid
@@ -69,6 +69,7 @@ async def _filtered_tree_people(
     accessible_person_ids = await get_accessible_person_ids(db, current_user)
     query = select(Person).where(
         Person.visibility != Visibility.hidden.value,
+        Person.lifecycle_state == PersonLifecycleState.active.value,
         Person.id.in_(accessible_person_ids),
     )
     if branch:
@@ -106,7 +107,12 @@ async def get_tree(
     visible_person_ids = {person.id for person in persons}
 
     # Get root person
-    result = await db.execute(select(Person).where(Person.is_root.is_(True)))
+    result = await db.execute(
+        select(Person).where(
+            Person.is_root.is_(True),
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+    )
     root = result.scalar_one_or_none()
     root_id = root.id if root and root.id in visible_person_ids else ""
     summaries = [

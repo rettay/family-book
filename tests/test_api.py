@@ -197,6 +197,85 @@ async def test_update_other_profile_as_member_forbidden(member_client: AsyncClie
 
 
 @pytest.mark.asyncio
+async def test_person_history_visible_to_member(admin_client: AsyncClient, member_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "History",
+        "last_name": "Target",
+        "bio": "First version",
+    })
+    person_id = create_resp.json()["id"]
+
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "bio": "Second version",
+    })
+    assert update_resp.status_code == 200
+
+    history_resp = await member_client.get(f"/api/persons/{person_id}/history")
+    assert history_resp.status_code == 200
+    actions = [entry["action"] for entry in history_resp.json()]
+    assert "create" in actions
+    assert "update" in actions
+
+
+@pytest.mark.asyncio
+async def test_admin_can_revert_person_revision(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Revert",
+        "last_name": "Person",
+        "bio": "Original bio",
+    })
+    person_id = create_resp.json()["id"]
+
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "bio": "Edited bio",
+    })
+    assert update_resp.status_code == 200
+
+    history_resp = await admin_client.get(f"/api/persons/{person_id}/history")
+    assert history_resp.status_code == 200
+    create_revision = next(entry for entry in history_resp.json() if entry["action"] == "create")
+
+    revert_resp = await admin_client.post(
+        f"/api/persons/{person_id}/history/{create_revision['id']}/revert"
+    )
+    assert revert_resp.status_code == 200
+    assert revert_resp.json()["person"]["bio"] == "Original bio"
+
+    person_resp = await admin_client.get(f"/api/persons/{person_id}")
+    assert person_resp.status_code == 200
+    assert person_resp.json()["bio"] == "Original bio"
+
+
+@pytest.mark.asyncio
+async def test_delete_person_is_soft_and_recoverable(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Recoverable",
+        "last_name": "Delete",
+    })
+    person_id = create_resp.json()["id"]
+
+    delete_resp = await admin_client.delete(f"/api/persons/{person_id}")
+    assert delete_resp.status_code == 204
+
+    missing_resp = await admin_client.get(f"/api/persons/{person_id}")
+    assert missing_resp.status_code == 404
+
+    history_resp = await admin_client.get(f"/api/persons/{person_id}/history")
+    assert history_resp.status_code == 200
+    create_revision = next(entry for entry in history_resp.json() if entry["action"] == "create")
+
+    revert_resp = await admin_client.post(
+        f"/api/persons/{person_id}/history/{create_revision['id']}/revert"
+    )
+    assert revert_resp.status_code == 200
+    assert revert_resp.json()["lifecycle_state"] == "active"
+
+    restored_resp = await admin_client.get(f"/api/persons/{person_id}")
+    assert restored_resp.status_code == 200
+    assert restored_resp.json()["display_name"] == "Recoverable Delete"
+
+
+@pytest.mark.asyncio
 async def test_delete_person_as_admin(admin_client: AsyncClient):
     # Create then delete
     create_resp = await admin_client.post("/api/persons", json={

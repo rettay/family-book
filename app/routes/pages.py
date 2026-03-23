@@ -24,8 +24,9 @@ from app.auth import get_current_user, require_admin, require_auth
 from app.database import get_db
 from app.i18n import t as translate
 from app.models.media import Media
-from app.models.moments import Moment, MomentComment
-from app.models.person import Person, AccountState, Visibility
+from app.models.moments import Moment, MomentComment, MomentLifecycleState
+from app.models.person import Person, AccountState, PersonLifecycleState, Visibility
+from app.models.revisions import EntityRevision
 from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonSummary
@@ -34,6 +35,7 @@ from app.services.moment_service import (
     build_moments_path,
     list_visible_moments,
 )
+from app.services.revision_service import list_revisions
 
 router = APIRouter(tags=["pages"])
 
@@ -75,6 +77,7 @@ async def _moment_people(
         select(Person)
         .where(
             Person.visibility != Visibility.hidden.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
             Person.id.in_(accessible_person_ids),
         )
         .order_by(Person.last_name, Person.first_name)
@@ -86,6 +89,17 @@ async def _moment_people(
         if access.can_view:
             people.append(redact_person_summary(person, access))
     return people
+
+
+async def _actor_names(
+    db: AsyncSession,
+    revisions: list[EntityRevision],
+) -> dict[str, str]:
+    actor_ids = {revision.actor_id for revision in revisions if revision.actor_id}
+    if not actor_ids:
+        return {}
+    result = await db.execute(select(Person).where(Person.id.in_(actor_ids)))
+    return {actor.id: actor.display_name for actor in result.scalars().all()}
 
 
 # ─── Landing / Home ───────────────────────────────────────────────
@@ -203,6 +217,7 @@ async def people_page(
     branch_filter = branch
     query = select(Person).where(
         Person.visibility != Visibility.hidden.value,
+        Person.lifecycle_state == PersonLifecycleState.active.value,
         Person.id.in_(accessible_person_ids),
     )
     if branch_filter:
@@ -240,7 +255,7 @@ async def person_detail_page(
 ):
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         return RedirectResponse("/people", status_code=302)
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
@@ -332,7 +347,7 @@ async def person_edit_page(
 ):
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         return RedirectResponse("/people", status_code=302)
     if not can_manage_person(current_user, person):
         return RedirectResponse("/people", status_code=302)
@@ -362,7 +377,7 @@ async def person_card(
     """Person card fragment for tree sidebar."""
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         return HTMLResponse("<p>Person not found</p>")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
@@ -382,8 +397,18 @@ async def admin_page(
     db: AsyncSession = Depends(get_db),
 ):
     # Stats
-    persons_count = (await db.execute(select(func.count(Person.id)))).scalar() or 0
-    moments_count = (await db.execute(select(func.count(Moment.id)))).scalar() or 0
+    persons_count = (
+        await db.execute(
+            select(func.count(Person.id)).where(
+                Person.lifecycle_state == PersonLifecycleState.active.value
+            )
+        )
+    ).scalar() or 0
+    moments_count = (
+        await db.execute(
+            select(func.count(Moment.id)).where(Moment.lifecycle_state != "deleted")
+        )
+    ).scalar() or 0
     media_count = (await db.execute(select(func.count(Media.id)))).scalar() or 0
     pending_count = (await db.execute(
         select(func.count(Person.id)).where(Person.account_state == AccountState.pending.value)
@@ -398,12 +423,20 @@ async def admin_page(
 
     # Pending persons
     result = await db.execute(
-        select(Person).where(Person.account_state == AccountState.pending.value)
+        select(Person).where(
+            Person.account_state == AccountState.pending.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
     )
     pending_persons = result.scalars().all()
 
     people_result = await db.execute(
-        select(Person).where(Person.is_root.is_(False)).order_by(Person.last_name, Person.first_name)
+        select(Person)
+        .where(
+            Person.is_root.is_(False),
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+        .order_by(Person.last_name, Person.first_name)
     )
     managed_people = people_result.scalars().all()
 
@@ -519,6 +552,7 @@ async def partial_people_grid(
     accessible_person_ids = await get_accessible_person_ids(db, current_user)
     query = select(Person).where(
         Person.visibility != Visibility.hidden.value,
+        Person.lifecycle_state == PersonLifecycleState.active.value,
         Person.id.in_(accessible_person_ids),
     )
     if search:
@@ -553,7 +587,7 @@ async def partial_media_gallery(
     """HTMX partial: media gallery for person page."""
     person_result = await db.execute(select(Person).where(Person.id == person_id))
     person = person_result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         return HTMLResponse("")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
@@ -641,3 +675,52 @@ async def partial_audit_log(
     return templates.TemplateResponse("partials/audit_log.html", _ctx(
         request, current_user, entries=entries,
     ))
+
+
+@router.get("/partials/person-history", response_class=HTMLResponse)
+async def partial_person_history(
+    request: Request,
+    person_id: str = Query(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Person).where(Person.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person:
+        return HTMLResponse("")
+
+    if person.lifecycle_state == PersonLifecycleState.deleted.value:
+        if not current_user.is_admin:
+            return HTMLResponse("")
+    else:
+        access = await get_person_access(db, current_user, person)
+        if not access.can_view:
+            return HTMLResponse("")
+
+    revisions = await list_revisions(db, entity_type="person", entity_id=person_id, limit=12)
+    actor_names = await _actor_names(db, revisions)
+    entries = []
+    for revision in revisions:
+        snapshot = revision.snapshot
+        entries.append(
+            {
+                "id": revision.id,
+                "action": revision.action,
+                "actor_name": actor_names.get(revision.actor_id or "", "Unknown"),
+                "created_at": revision.created_at.isoformat() if revision.created_at else None,
+                "display_name": f"{snapshot.get('first_name', '')} {snapshot.get('last_name', '')}".strip(),
+                "bio": snapshot.get("bio"),
+                "lifecycle_state": snapshot.get("lifecycle_state"),
+            }
+        )
+
+    return templates.TemplateResponse(
+        "partials/person_history.html",
+        _ctx(
+            request,
+            current_user,
+            entries=entries,
+            person_id=person_id,
+            can_revert=current_user.is_admin,
+        ),
+    )

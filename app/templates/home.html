@@ -214,6 +214,33 @@ async function cleanupUploadedMedia(mediaIds) {
   }
 }
 
+async function moderateMoment(momentId) {
+  const reason = window.prompt('Moderation reason (optional):', '') || '';
+  const resp = await fetch(`/api/moments/${momentId}/moderate`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({reason}),
+  });
+  if (resp.ok) {
+    window.location.reload();
+    return;
+  }
+  const data = await resp.json().catch(() => ({}));
+  showToast(data.detail || 'Moderation failed');
+}
+
+async function restoreMoment(momentId) {
+  const resp = await fetch(`/api/moments/${momentId}/restore`, {
+    method: 'POST',
+  });
+  if (resp.ok) {
+    window.location.reload();
+    return;
+  }
+  const data = await resp.json().catch(() => ({}));
+  showToast(data.detail || 'Restore failed');
+}
+
 async function submitMoment() {
   const input = document.getElementById('compose-input');
   const text = input.value.trim();

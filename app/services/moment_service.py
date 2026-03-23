@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import can_view_media, get_accessible_person_ids
 from app.models.media import Media
-from app.models.moments import Moment, MomentComment, MomentReaction
+from app.models.moments import Moment, MomentComment, MomentLifecycleState, MomentReaction
 from app.models.person import Person
 
 
@@ -35,6 +35,17 @@ async def list_visible_moments(
 ) -> list[Moment]:
     accessible_person_ids = await get_accessible_person_ids(db, current_user)
     query = select(Moment).where(Moment.person_id.in_(accessible_person_ids))
+    if current_user.is_admin:
+        query = query.where(
+            Moment.lifecycle_state.in_(
+                [
+                    MomentLifecycleState.active.value,
+                    MomentLifecycleState.moderated.value,
+                ]
+            )
+        )
+    else:
+        query = query.where(Moment.lifecycle_state == MomentLifecycleState.active.value)
 
     if person_id:
         if person_id not in accessible_person_ids:
@@ -187,6 +198,8 @@ async def build_moment_cards(
                 "milestone_type": moment.milestone_type,
                 "occurred_at": moment.occurred_at.isoformat() if moment.occurred_at else None,
                 "source": moment.source,
+                "lifecycle_state": moment.lifecycle_state,
+                "moderation_reason": moment.moderation_reason,
                 "reactions": reactions_by_moment.get(moment.id, {}),
                 "my_reaction": my_reactions.get(moment.id),
                 "comment_count": comment_counts.get(moment.id, 0),

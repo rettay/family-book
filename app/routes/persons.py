@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +13,7 @@ from app.access_control import (
 )
 from app.auth import require_admin, require_auth
 from app.database import get_db
-from app.models.person import Person, Visibility
+from app.models.person import Person, PersonLifecycleState, Visibility
 from app.schemas import (
     PersonCreate,
     PersonDetail,
@@ -20,8 +22,50 @@ from app.schemas import (
     person_to_detail,
 )
 from app.services.audit_service import log_audit
+from app.services.revision_service import (
+    apply_person_snapshot,
+    get_revision,
+    list_revisions,
+    record_revision,
+    serialize_person_snapshot,
+)
 
 router = APIRouter(prefix="/api/persons", tags=["persons"])
+
+
+async def _person_history_entries(
+    db: AsyncSession,
+    *,
+    person_id: str,
+    limit: int = 20,
+) -> list[dict]:
+    revisions = await list_revisions(db, entity_type="person", entity_id=person_id, limit=limit)
+    actor_ids = {revision.actor_id for revision in revisions if revision.actor_id}
+    actors_by_id: dict[str, Person] = {}
+    if actor_ids:
+        result = await db.execute(select(Person).where(Person.id.in_(actor_ids)))
+        actors_by_id = {actor.id: actor for actor in result.scalars().all()}
+
+    entries: list[dict] = []
+    for revision in revisions:
+        actor = actors_by_id.get(revision.actor_id or "")
+        snapshot = revision.snapshot
+        entries.append(
+            {
+                "id": revision.id,
+                "action": revision.action,
+                "actor_id": revision.actor_id,
+                "actor_name": actor.display_name if actor else "Unknown",
+                "created_at": revision.created_at.isoformat() if revision.created_at else None,
+                "snapshot": {
+                    "display_name": f"{snapshot.get('first_name', '')} {snapshot.get('last_name', '')}".strip(),
+                    "bio": snapshot.get("bio"),
+                    "branch": snapshot.get("branch"),
+                    "lifecycle_state": snapshot.get("lifecycle_state"),
+                },
+            }
+        )
+    return entries
 
 
 @router.get("", response_model=list[PersonSummary])
@@ -34,7 +78,10 @@ async def list_persons(
 ):
     country_filter = country
 
-    query = select(Person).where(Person.visibility != Visibility.hidden.value)
+    query = select(Person).where(
+        Person.visibility != Visibility.hidden.value,
+        Person.lifecycle_state == PersonLifecycleState.active.value,
+    )
 
     if search:
         query = query.where(Person.is_root.is_(False))
@@ -71,7 +118,7 @@ async def get_person(
 ):
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         raise HTTPException(status_code=404, detail="Person not found")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
@@ -122,6 +169,15 @@ async def create_person(
     db.add(person)
     await db.flush()
 
+    snapshot = serialize_person_snapshot(person)
+    await record_revision(
+        db,
+        entity_type="person",
+        entity_id=person.id,
+        actor_id=current_user.id,
+        action="create",
+        snapshot=snapshot,
+    )
     await log_audit(db, current_user.id, "create", "person", person.id, new_value={
         "first_name": person.first_name,
         "last_name": person.last_name,
@@ -139,12 +195,12 @@ async def update_person(
 ):
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
         raise HTTPException(status_code=404, detail="Person not found")
     if not can_manage_person(current_user, person):
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    old_data = {"first_name": person.first_name, "last_name": person.last_name}
+    old_snapshot = serialize_person_snapshot(person)
     update_data = body.model_dump(exclude_unset=True)
 
     # Handle languages separately
@@ -155,8 +211,16 @@ async def update_person(
         setattr(person, field, value)
 
     await db.flush()
+    await record_revision(
+        db,
+        entity_type="person",
+        entity_id=person.id,
+        actor_id=current_user.id,
+        action="update",
+        snapshot=serialize_person_snapshot(person),
+    )
     await log_audit(db, current_user.id, "update", "person", person.id,
-                    old_value=old_data,
+                    old_value=old_snapshot,
                     new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())})
 
     access = await get_person_access(db, current_user, person)
@@ -173,9 +237,89 @@ async def delete_person(
     person = result.scalar_one_or_none()
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if person.lifecycle_state == PersonLifecycleState.deleted.value:
+        return
 
+    person.lifecycle_state = PersonLifecycleState.deleted.value
+    person.deleted_at = datetime.now(timezone.utc).isoformat()
+    person.deleted_by = current_user.id
+    await record_revision(
+        db,
+        entity_type="person",
+        entity_id=person.id,
+        actor_id=current_user.id,
+        action="delete",
+        snapshot=serialize_person_snapshot(person),
+    )
     await log_audit(db, current_user.id, "delete", "person", person.id,
                     old_value={"first_name": person.first_name, "last_name": person.last_name})
-
-    await db.delete(person)
     await db.flush()
+
+
+@router.get("/{person_id}/history")
+async def get_person_history(
+    person_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Person).where(Person.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person:
+        raise HTTPException(status_code=404, detail="Person not found")
+    if person.lifecycle_state == PersonLifecycleState.deleted.value:
+        if not current_user.is_admin:
+            raise HTTPException(status_code=404, detail="Person not found")
+    else:
+        access = await get_person_access(db, current_user, person)
+        if not access.can_view:
+            raise HTTPException(status_code=403, detail="Not visible")
+
+    return await _person_history_entries(db, person_id=person_id)
+
+
+@router.post("/{person_id}/history/{revision_id}/revert")
+async def revert_person_revision(
+    person_id: str,
+    revision_id: str,
+    current_user: Person = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Person).where(Person.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person:
+        raise HTTPException(status_code=404, detail="Person not found")
+
+    revision = await get_revision(
+        db, revision_id=revision_id, entity_type="person", entity_id=person_id
+    )
+    if not revision:
+        raise HTTPException(status_code=404, detail="Revision not found")
+
+    apply_person_snapshot(person, revision.snapshot)
+    await db.flush()
+    await record_revision(
+        db,
+        entity_type="person",
+        entity_id=person.id,
+        actor_id=current_user.id,
+        action="revert",
+        snapshot=serialize_person_snapshot(person),
+    )
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "person",
+        person.id,
+        new_value={"reverted_to_revision_id": revision.id},
+    )
+
+    if person.lifecycle_state != PersonLifecycleState.active.value:
+        return {"ok": True, "lifecycle_state": person.lifecycle_state}
+
+    access = await get_person_access(db, current_user, person)
+    return {
+        "ok": True,
+        "lifecycle_state": person.lifecycle_state,
+        "person": redact_person_detail(person, access).model_dump(mode="json"),
+    }

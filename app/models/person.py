@@ -39,6 +39,11 @@ class AccountState(str, enum.Enum):
     suspended = "suspended"
 
 
+class PersonLifecycleState(str, enum.Enum):
+    active = "active"
+    deleted = "deleted"
+
+
 class PersonSource(str, enum.Enum):
     manual = "manual"
     facebook_oauth = "facebook_oauth"
@@ -96,6 +101,11 @@ class Person(Base, TimestampMixin):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     visibility: Mapped[str] = mapped_column(String(20), default=Visibility.visible.value)
     account_state: Mapped[str] = mapped_column(String(20), default=AccountState.active.value)
+    lifecycle_state: Mapped[str] = mapped_column(
+        String(20), default=PersonLifecycleState.active.value
+    )
+    deleted_at: Mapped[str | None] = mapped_column(String(40), default=None)
+    deleted_by: Mapped[str | None] = mapped_column(String(36), default=None)
 
     google_sub: Mapped[str | None] = mapped_column(String(255), unique=True, default=None)
     google_email: Mapped[str | None] = mapped_column(String(320), default=None)
