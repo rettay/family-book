@@ -62,13 +62,24 @@ Primary KPI:
 
 ## Acceptance Criteria
 
-- [ ] Members can create timeline entries that support richer story and note content.
-- [ ] Tagged multi-person moments appear in the right person timelines, not only for the posting owner.
-- [ ] The home feed and person timeline surfaces show consistent, correctly ordered results.
-- [ ] Focused tests prove timeline/tagged-person correctness and visibility for at least two users.
+- [x] Members can create timeline entries that support richer story and note content.
+- [x] Tagged multi-person moments appear in the right person timelines, not only for the posting owner.
+- [x] The home feed and person timeline surfaces show consistent, correctly ordered results.
+- [x] Focused tests prove timeline/tagged-person correctness and visibility for at least two users.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Validation evidence attached
-- [ ] Timeline query correctness verified for tagged people
+- [x] Acceptance criteria satisfied
+- [x] Validation evidence attached
+- [x] Timeline query correctness verified for tagged people
+
+## Closeout Evidence
+
+- `uv run pytest tests/test_moments.py tests/test_media.py tests/test_api.py -q`
+- Result: `92 passed`
+- `uv run pytest tests/test_phase1_edge_cases.py -q`
+- Result: `15 passed, 1 xfailed`
+- `uv run python -m compileall app`
+- Result: success
+- `make test-ui-playwright`
+- Result: success

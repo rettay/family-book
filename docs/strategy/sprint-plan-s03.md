@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S03 - Timeline and Family Moments Expansion`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-006 Timeline and Family Moments Expansion`
 
 ## Sprint Goal
@@ -23,11 +23,11 @@ Sprint 01 established collaboration. Sprint 02 established discovery. The next g
 
 ## Acceptance Criteria
 
-1. A logged-in member can create a richer story/note moment and see it persisted.
-2. A second logged-in member can see the shared moment in the expected timeline surface.
-3. A tagged person appears in person-specific timeline results even when they are not the posting owner.
-4. Home feed ordering and person timeline ordering are consistent for the same visible events.
-5. Focused tests prove tagged-person timeline correctness and shared visibility behavior.
+1. A logged-in member can create a richer story/note moment and see it persisted. `done`
+2. A second logged-in member can see the shared moment in the expected timeline surface. `done`
+3. A tagged person appears in person-specific timeline results even when they are not the posting owner. `done`
+4. Home feed ordering and person timeline ordering are consistent for the same visible events. `done`
+5. Focused tests prove tagged-person timeline correctness and shared visibility behavior. `done`
 
 ## In Scope
 
@@ -108,3 +108,20 @@ Sprint 01 established collaboration. Sprint 02 established discovery. The next g
 ## Exit Target
 
 Sprint 03 is complete when Family Book supports meaningful shared family-history entries that can be created, discovered, and revisited through timeline surfaces instead of existing only as isolated data records.
+
+## Closeout Result
+
+- Exit result: `pass`
+- Builder implementation landed on `codex/shared-collaboration-reset`
+- Auditor defects were fixed and follow-up validation completed
+- Focused verification at closeout:
+  - `uv run pytest tests/test_moments.py tests/test_media.py tests/test_api.py -q`
+  - result: `92 passed`
+  - `uv run pytest tests/test_phase1_edge_cases.py -q`
+  - result: `15 passed, 1 xfailed`
+  - `uv run python -m compileall app`
+  - result: success
+- Browser evidence at closeout:
+  - `make test-ui-playwright`
+  - result: success
+  - screenshots written to `/Users/cheech/code/family-book/output/playwright/family-book-flow`

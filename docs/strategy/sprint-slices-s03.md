@@ -4,6 +4,8 @@
 
 ### S03-1 Timeline Query and Ordering Hardening
 
+Status: `done`
+
 - Objective:
   make timeline retrieval correct and consistent across feed contexts
 - Scope:
@@ -15,6 +17,8 @@
 
 ### S03-2 Rich Moments Authoring and Tagged Events
 
+Status: `done`
+
 - Objective:
   make family moments expressive enough for real shared history
 - Scope:
@@ -25,6 +29,8 @@
   focused tests for create/read behavior and tagged event persistence
 
 ### S03-3 Home and Person Timeline Integration
+
+Status: `done`
 
 - Objective:
   make the richer timeline visible where members actually browse the app
@@ -51,3 +57,9 @@
 ## PM Note
 
 The sprint is about narrative product value. Keep it centered on trustworthy timeline behavior and visible family-history payoff, not infrastructure sprawl.
+
+## Closeout Note
+
+- Sprint 03 shipped all three slices.
+- Audit follow-up tightened moment visibility validation and repaired the richer home composer flow so uploads target the selected person and failed submissions clean up uploaded media.
+- Playwright flow evidence is now part of the repo-level UI evaluation layer via `make test-ui-playwright`.
