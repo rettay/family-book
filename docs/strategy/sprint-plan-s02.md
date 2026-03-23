@@ -52,12 +52,49 @@ Sprint 01 built the collaboration spine. The next highest-value gap is not permi
 
 ## Implementation Order
 
-1. Add a per-user preference model and persistence route.
-2. Wire tree API and tree page to consume saved preferences.
-3. Add server-backed filters for the supported person attributes.
-4. Add authenticated map data output using existing location fields.
-5. Add a simple map page that proves the route and visibility model work.
-6. Add focused tests and browser evidence.
+1. Execute Slice 1: tree preference persistence.
+2. Execute Slice 2: tree filters.
+3. Execute Slice 3: authenticated map foundation.
+4. Validate the combined sprint outcomes with focused tests and browser evidence.
+
+## Execution Slices
+
+### Slice 1 - Tree Preference Persistence
+
+- Goal:
+  persist per-user tree display preferences server-side
+- Scope:
+  preference model, route/API, tree page consumption, save/load behavior
+- Must prove:
+  one user can change tree settings without mutating another user's defaults
+- Suggested acceptance checks:
+  saved attributes survive refresh and new session
+  second user sees their own saved settings, not the first user's
+
+### Slice 2 - Tree Filters
+
+- Goal:
+  add supported server-backed filters for tree exploration
+- Scope:
+  living/deceased, branch, residence country, birth country
+- Must prove:
+  filters affect actual tree outputs, not just local UI state
+- Suggested acceptance checks:
+  filtered tree response excludes non-matching people
+  UI controls map to server-backed filter parameters
+
+### Slice 3 - Authenticated Map Foundation
+
+- Goal:
+  add the first private map experience for family discovery
+- Scope:
+  authenticated map data route, map page/template, residence and burial locations
+- Must prove:
+  only authenticated users can access map data and hidden/unauthorized records do not leak
+- Suggested acceptance checks:
+  burial locations appear when present
+  unauthenticated requests are rejected
+  map output stays inside the existing collaboration boundary
 
 ## Proof Obligations
 

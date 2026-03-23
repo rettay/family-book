@@ -44,8 +44,13 @@ Closeout:
 
 - `S02 - Tree and Discovery Foundation`
 - Recommended opening packet: `FB-005 Tree Preferences, Filters, and Map Foundation`
+- Execution slices:
+  - `S02-1 Tree Preference Persistence`
+  - `S02-2 Tree Filters`
+  - `S02-3 Authenticated Map Foundation`
 - Follow-on candidate after `FB-005`: `FB-006 Timeline and Family Moments Expansion`
 - Sprint plan: `docs/strategy/sprint-plan-s02.md`
+- Slice plan: `docs/strategy/sprint-slices-s02.md`
 
 ## Next-Likely Follow-Ups
 

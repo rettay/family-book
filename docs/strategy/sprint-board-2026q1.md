@@ -70,6 +70,7 @@ The sprint is successful when all are true:
 - Primary packet: `FB-005 Tree Preferences, Filters, and Map Foundation`
 - Rationale: the collaboration spine now exists, so the next highest-value user-facing work is making the shared family data easier to explore, filter, and visualize.
 - Planning artifact: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s02.md`
+- Execution slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s02.md`
 
 ## Proof Obligations for the Next Execution Cycle
 
