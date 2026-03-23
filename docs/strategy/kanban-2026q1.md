@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-009 | Encryption and Backup Hardening Pass | P1 | `task packet to be authored` |
+| FB-009 | Encryption and Backup Hardening Pass | P1 | `task_packets/FB-009_encryption_and_backup_hardening_pass.md` |
 | FB-008 | Theme Customization and Branding Controls | P2 | `task packet to be authored` |
 
 ## In Progress

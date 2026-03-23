@@ -1,7 +1,7 @@
 # Family Book Backlog
 
-Sprint: `S04 - Version History, Revert, and Moderation Controls`
-Status: Closed
+Sprint: `S05 - Encryption and Backup Hardening Pass`
+Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -31,10 +31,28 @@ Execution slices:
 | FB-006 | Timeline and Family Moments Expansion | P1 | done | `task_packets/FB-006_timeline_and_family_moments_expansion.md` |
 | FB-007 | Version History, Revert, and Moderation Controls | P1 | done | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
 
+## Planned Sprint `S05 - Encryption and Backup Hardening Pass`
+
+Sprint goal:
+- Make Family Book credible for sensitive family data by establishing a truthful protection contract, proving backup and restore behavior, and tightening launch-default runtime hardening.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-009 | Encryption and Backup Hardening Pass | P1 | planned | `task_packets/FB-009_encryption_and_backup_hardening_pass.md` |
+
+Execution slices:
+- `S05-1` Data Protection Contract
+- `S05-2` Backup and Restore Truthfulness
+- `S05-3` Operational Hardening
+
 ## Next Sprint
 
 - Recommended next sprint: `S05 - Encryption and Backup Hardening Pass`
 - Primary packet: `FB-009 Encryption and Backup Hardening Pass`
+- Sprint plan: `docs/strategy/sprint-plan-s05.md`
+- Slice plan: `docs/strategy/sprint-slices-s05.md`
 - Follow-on candidate after `FB-009`:
   - `FB-008 Theme Customization and Branding Controls`
 
@@ -43,4 +61,3 @@ Execution slices:
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
 | FB-008 | Theme Customization and Branding Controls | P2 | todo | Admin-configurable color system and surface branding |
-| FB-009 | Encryption and Backup Hardening Pass | P1 | todo | Clarify runtime guarantees and protect sensitive content |

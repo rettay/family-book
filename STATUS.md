@@ -70,6 +70,8 @@ Sprint 01, Sprint 02, Sprint 03, and Sprint 04 are closed.
   - `S03 - Timeline and Family Moments Expansion`
 - `S04 - Version History, Revert, and Moderation Controls`
 - Next recommended sprint: `S05 - Encryption and Backup Hardening Pass`
+- Sprint 05 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s05.md`
+- Sprint 05 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s05.md`
 - Sprint 04 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
 - Sprint 04 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
 - Sprint 04 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s04.md`
