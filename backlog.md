@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S01 - Shared Collaboration Reset`
-Status: Active
+Status: Closed
 
 ## Current Sprint `S01 - Shared Collaboration Reset`
 
@@ -26,11 +26,25 @@ Execution order:
 - `FB-002` -> `FB-003` -> `FB-004`
 - `FB-005` only after the collaboration spine is stable
 
+Closeout:
+- Sprint 01 is complete.
+- Implementation and audit both landed on `codex/shared-collaboration-reset`.
+- Verified builder/auditor baseline: `117 passed, 1 xfailed` on the focused Sprint 01 suite.
+
 ## Recently Completed
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
 | FB-001 | Product Contract and Operating System Bootstrap | P0 | done | `task_packets/FB-001_product_contract_and_operating_system_bootstrap.md` |
+| FB-002 | Account, Invite, and Admin Foundation | P0 | done | `task_packets/FB-002_account_invite_and_admin_foundation.md` |
+| FB-003 | Flat Family Access and Shared Visibility Reset | P0 | done | `task_packets/FB-003_flat_family_access_and_shared_visibility_reset.md` |
+| FB-004 | Rich Person Record and Tagged Family Content Foundation | P1 | done | `task_packets/FB-004_rich_person_record_and_tagged_family_content_foundation.md` |
+
+## Next Sprint Candidate
+
+- `S02 - Tree and Discovery Foundation`
+- Recommended opening packet: `FB-005 Tree Preferences, Filters, and Map Foundation`
+- Follow-on candidate after `FB-005`: `FB-006 Timeline and Family Moments Expansion`
 
 ## Next-Likely Follow-Ups
 

@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Active Sprint
+## Closed Sprint
 
 ### `S01 - Shared Collaboration Reset`
 
-Status: Implemented, ready for audit
+Status: Closed
 
 ### Sprint Goal
 
@@ -54,6 +54,21 @@ The sprint is successful when all are true:
 - Canonical product and execution docs exist and are the active source of truth
 - The next packet is clearly selected and executable
 - The build sequence is scoped tightly enough that Builder and Auditor can work without product ambiguity
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implementation completed on `codex/shared-collaboration-reset`
+- Auditor follow-up defects were fixed and re-audited
+- Focused verification baseline at closeout:
+  - `uv run pytest tests/test_models.py tests/test_api.py tests/test_auth.py tests/test_media.py tests/test_moments.py tests/test_phase1_edge_cases.py -q`
+  - result: `117 passed, 1 xfailed`
+
+## Recommended Next Sprint
+
+- `S02 - Tree and Discovery Foundation`
+- Primary packet: `FB-005 Tree Preferences, Filters, and Map Foundation`
+- Rationale: the collaboration spine now exists, so the next highest-value user-facing work is making the shared family data easier to explore, filter, and visualize.
 
 ## Proof Obligations for the Next Execution Cycle
 
