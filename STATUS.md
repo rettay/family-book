@@ -61,5 +61,7 @@ Sprint 01, Sprint 02, and Sprint 03 are closed.
   - `S02 - Tree and Discovery Foundation`
   - `S03 - Timeline and Family Moments Expansion`
 - Next recommended sprint: `S04 - Version History, Revert, and Moderation Controls`
+- Sprint 04 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
+- Sprint 04 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
 - Sprint 03 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s03.md`
 - See `/Users/cheech/code/family-book/backlog.md` and `/Users/cheech/code/family-book/docs/strategy/kanban-2026q1.md`.

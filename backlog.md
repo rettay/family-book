@@ -1,23 +1,23 @@
 # Family Book Backlog
 
-Sprint: `S03 - Timeline and Family Moments Expansion`
-Status: Closed
+Sprint: `S04 - Version History, Revert, and Moderation Controls`
+Status: Planned
 
-## Closed Sprint `S03 - Timeline and Family Moments Expansion`
+## Planned Sprint `S04 - Version History, Revert, and Moderation Controls`
 
 Sprint goal:
-- Make Family Book feel like a living family archive by improving stories, notes, and multi-person moments across the home feed and person timelines.
+- Make broad family collaboration trustworthy through edit history, revert, recoverability, and light admin moderation.
 
 Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-006 | Timeline and Family Moments Expansion | P1 | done | `task_packets/FB-006_timeline_and_family_moments_expansion.md` |
+| FB-007 | Version History, Revert, and Moderation Controls | P1 | planned | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
 
 Execution slices:
-- `S03-1` Timeline Query and Ordering Hardening
-- `S03-2` Rich Moments Authoring and Tagged Events
-- `S03-3` Home and Person Timeline Integration
+- `S04-1` Revision Capture and History Retrieval
+- `S04-2` Revert and Recoverable Delete
+- `S04-3` Moderation Controls for Shared Content
 
 ## Recently Completed
 
@@ -33,7 +33,8 @@ Execution slices:
 ## Next Sprint
 
 - `S04 - Version History, Revert, and Moderation Controls`
-- Recommended primary packet: `FB-007 Version History, Revert, and Moderation Controls`
+- Sprint plan: `docs/strategy/sprint-plan-s04.md`
+- Slice plan: `docs/strategy/sprint-slices-s04.md`
 - Follow-on candidates after `FB-007`:
   - `FB-009 Encryption and Backup Hardening Pass`
   - `FB-008 Theme Customization and Branding Controls`
@@ -42,6 +43,6 @@ Execution slices:
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-007 | Version History, Revert, and Moderation Controls | P1 | todo | Needed once collaborative editing becomes broad |
+| FB-007 | Version History, Revert, and Moderation Controls | P1 | planned | Needed once collaborative editing becomes broad |
 | FB-008 | Theme Customization and Branding Controls | P2 | todo | Admin-configurable color system and surface branding |
 | FB-009 | Encryption and Backup Hardening Pass | P1 | todo | Clarify runtime guarantees and protect sensitive content |

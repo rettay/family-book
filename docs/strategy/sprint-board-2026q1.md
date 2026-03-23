@@ -169,6 +169,40 @@ Make Family Book feel like a living family archive by improving stories, notes, 
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s03.md`
 - Task packet to author next: `FB-007 Version History, Revert, and Moderation Controls`
 
+## Planned Sprint
+
+### `S04 - Version History, Revert, and Moderation Controls`
+
+Status: Planned
+
+### Sprint Goal
+
+Make broad family collaboration trustworthy by adding inspectable edit history, reversible recovery for core shared records, and narrow admin moderation controls for problematic content.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 6 | FB-007 | Version History, Revert, and Moderation Controls | P1 | planned |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S04-1 | Revision Capture and History Retrieval | planned |
+| S04-2 | Revert and Recoverable Delete | planned |
+| S04-3 | Moderation Controls for Shared Content | planned |
+
+### Why This Sprint Next
+
+Family Book now supports real shared editing across people, media, tree, and timeline surfaces. That increases the blast radius of ordinary mistakes. Sprint 04 closes the trust gap by turning edit history and recovery into supported product behavior instead of implicit admin repair work.
+
+### Planning Artifacts
+
+- Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
+- Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
+- Task packet: `/Users/cheech/code/family-book/task_packets/FB-007_version_history_revert_and_moderation_controls.md`
+
 ## Proof Obligations for the Next Execution Cycle
 
 ### FB-002

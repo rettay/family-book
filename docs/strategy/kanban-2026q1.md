@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-007 | Version History, Revert, and Moderation Controls | P1 | `task packet to be authored` |
+| FB-007 | Version History, Revert, and Moderation Controls | P1 | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
 | FB-009 | Encryption and Backup Hardening Pass | P1 | `task packet to be authored` |
 | FB-008 | Theme Customization and Branding Controls | P2 | `task packet to be authored` |
 
