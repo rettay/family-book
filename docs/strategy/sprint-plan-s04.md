@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S04 - Version History, Revert, and Moderation Controls`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-007 Version History, Revert, and Moderation Controls`
 
 ## Sprint Goal
@@ -109,3 +109,14 @@ Family Book now has working shared editing, discovery, and timeline authoring. T
 ## Exit Target
 
 Sprint 04 is complete when Family Book supports core collaborative editing with a credible safety net: members can inspect what changed, admins can recover from mistakes, and problematic shared content can be suppressed and restored without database surgery.
+
+## Exit Result
+
+- Exit result: `pass`
+- Delivery status: implementation complete, audit follow-up complete, PM closeout complete
+- Verification baseline:
+  - `uv run pytest tests/test_api.py tests/test_moments.py tests/test_auth.py -q` -> `98 passed`
+  - `uv run pytest tests/test_media.py -q` -> `18 passed`
+  - `uv run python -m compileall app` -> success
+  - `make test-ui-playwright` -> success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json` -> `17 PASS`, `0 FAIL`, `8 WARN`

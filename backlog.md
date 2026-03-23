@@ -1,9 +1,9 @@
 # Family Book Backlog
 
 Sprint: `S04 - Version History, Revert, and Moderation Controls`
-Status: Planned
+Status: Closed
 
-## Planned Sprint `S04 - Version History, Revert, and Moderation Controls`
+## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
 Sprint goal:
 - Make broad family collaboration trustworthy through edit history, revert, recoverability, and light admin moderation.
@@ -12,7 +12,7 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-007 | Version History, Revert, and Moderation Controls | P1 | planned | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
+| FB-007 | Version History, Revert, and Moderation Controls | P1 | done | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
 
 Execution slices:
 - `S04-1` Revision Capture and History Retrieval
@@ -29,20 +29,18 @@ Execution slices:
 | FB-004 | Rich Person Record and Tagged Family Content Foundation | P1 | done | `task_packets/FB-004_rich_person_record_and_tagged_family_content_foundation.md` |
 | FB-005 | Tree Preferences, Filters, and Map Foundation | P2 | done | `task_packets/FB-005_tree_preferences_filters_and_map_foundation.md` |
 | FB-006 | Timeline and Family Moments Expansion | P1 | done | `task_packets/FB-006_timeline_and_family_moments_expansion.md` |
+| FB-007 | Version History, Revert, and Moderation Controls | P1 | done | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
 
 ## Next Sprint
 
-- `S04 - Version History, Revert, and Moderation Controls`
-- Sprint plan: `docs/strategy/sprint-plan-s04.md`
-- Slice plan: `docs/strategy/sprint-slices-s04.md`
-- Follow-on candidates after `FB-007`:
-  - `FB-009 Encryption and Backup Hardening Pass`
+- Recommended next sprint: `S05 - Encryption and Backup Hardening Pass`
+- Primary packet: `FB-009 Encryption and Backup Hardening Pass`
+- Follow-on candidate after `FB-009`:
   - `FB-008 Theme Customization and Branding Controls`
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-007 | Version History, Revert, and Moderation Controls | P1 | planned | Needed once collaborative editing becomes broad |
 | FB-008 | Theme Customization and Branding Controls | P2 | todo | Admin-configurable color system and surface branding |
 | FB-009 | Encryption and Backup Hardening Pass | P1 | todo | Clarify runtime guarantees and protect sensitive content |

@@ -169,11 +169,11 @@ Make Family Book feel like a living family archive by improving stories, notes, 
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s03.md`
 - Task packet to author next: `FB-007 Version History, Revert, and Moderation Controls`
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S04 - Version History, Revert, and Moderation Controls`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -183,25 +183,43 @@ Make broad family collaboration trustworthy by adding inspectable edit history, 
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 6 | FB-007 | Version History, Revert, and Moderation Controls | P1 | planned |
+| 6 | FB-007 | Version History, Revert, and Moderation Controls | P1 | done |
 
-### Planned Slices
+### Delivered Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S04-1 | Revision Capture and History Retrieval | planned |
-| S04-2 | Revert and Recoverable Delete | planned |
-| S04-3 | Moderation Controls for Shared Content | planned |
+| S04-1 | Revision Capture and History Retrieval | done |
+| S04-2 | Revert and Recoverable Delete | done |
+| S04-3 | Moderation Controls for Shared Content | done |
 
-### Why This Sprint Next
+### Exit Result
 
-Family Book now supports real shared editing across people, media, tree, and timeline surfaces. That increases the blast radius of ordinary mistakes. Sprint 04 closes the trust gap by turning edit history and recovery into supported product behavior instead of implicit admin repair work.
+- Exit result: `pass`
+- Builder implementation completed on `codex/shared-collaboration-reset`
+- Auditor follow-up defects were fixed
+- Focused verification at closeout:
+  - `uv run pytest tests/test_api.py tests/test_moments.py tests/test_auth.py -q`
+  - result: `98 passed`
+  - `uv run pytest tests/test_media.py -q`
+  - result: `18 passed`
+  - `uv run python -m compileall app`
+  - result: success
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
+
+### Recommended Next Sprint
+
+- `S05 - Encryption and Backup Hardening Pass`
+- Primary packet: `FB-009 Encryption and Backup Hardening Pass`
+- Rationale: Family Book now has broad shared editing plus recovery controls, so the next highest-risk product gap is protecting sensitive data and making backup/restore guarantees explicit.
 
 ### Planning Artifacts
 
-- Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
-- Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
-- Task packet: `/Users/cheech/code/family-book/task_packets/FB-007_version_history_revert_and_moderation_controls.md`
+- Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s04.md`
+- Task packet to author next: `FB-009 Encryption and Backup Hardening Pass`
 
 ## Proof Obligations for the Next Execution Cycle
 

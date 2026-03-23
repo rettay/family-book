@@ -4,7 +4,7 @@
 
 ### S04-1 Revision Capture and History Retrieval
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make core collaborative edits traceable through persisted revision history
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S04-2 Revert and Recoverable Delete
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make supported mistakes recoverable through the app
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S04-3 Moderation Controls for Shared Content
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   let admins suppress and restore problematic shared content without redesigning the access model
@@ -57,3 +57,7 @@ Status: `planned`
 ## PM Note
 
 This sprint is about product trust. Prefer narrow, real recoverability on the highest-value entities over broad fake support across every model.
+
+## Closeout Note
+
+Sprint 04 closed with all three slices delivered, focused verification passing, Playwright flow checks passing, and a clean CodeMap governance pass for fail-level findings.

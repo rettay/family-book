@@ -4,9 +4,9 @@
 
 Family Book is in **shared-collaboration rebuild**.
 
-The product contract reset is complete, and the first three implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, and a usable shared timeline layer.
+The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01, Sprint 02, and Sprint 03 are closed.
+Sprint 01, Sprint 02, Sprint 03, and Sprint 04 are closed.
 
 ## North Star
 
@@ -30,6 +30,11 @@ Sprint 01, Sprint 02, and Sprint 03 are closed.
   - Result at closeout: `92 passed`
   - `uv run pytest tests/test_phase1_edge_cases.py -q`
   - Result at closeout: `15 passed, 1 xfailed`
+- Focused Sprint 04 verification:
+  - `uv run pytest tests/test_api.py tests/test_moments.py tests/test_auth.py -q`
+  - Result at closeout: `98 passed`
+  - `uv run pytest tests/test_media.py -q`
+  - Result at closeout: `18 passed`
 - Browser flow baseline:
   - `make test-ui-playwright`
   - Result at closeout: success
@@ -37,20 +42,23 @@ Sprint 01, Sprint 02, and Sprint 03 are closed.
 - Syntax smoke check:
   - `uv run python -m compileall app`
   - Result: success
+- CodeMap governance baseline:
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - Result: `17 PASS`, `0 FAIL`, `8 WARN`
 - Known repo-wide baseline before this sprint work:
   - `uv run pytest -q`
   - Result observed earlier: `143 passed, 2 failed, 1 xfailed`
 
 ## Current Risks
 
-- Broad collaborative editing still lacks version history and revert controls
 - Sensitive-data handling needs explicit policy, not implicit behavior
 - Browser-flow evaluation exists now, but it is still a focused smoke layer rather than full cross-browser coverage
+- Revision and media-control plumbing now exists, but critical security-sensitive modules still need broader test coverage and instrumentation
 
 ## Current Priority Order
 
-1. Open Sprint 04 around version history, revert, and moderation controls
-2. Clarify and harden sensitive-data policy and encryption guarantees
+1. Open Sprint 05 around encryption and backup hardening
+2. Clarify and harden sensitive-data policy and runtime guarantees
 3. Return to admin-facing theme customization and branding controls
 4. Expand browser-based regression coverage beyond the current core flow set
 
@@ -60,8 +68,10 @@ Sprint 01, Sprint 02, and Sprint 03 are closed.
   - `S01 - Shared Collaboration Reset`
   - `S02 - Tree and Discovery Foundation`
   - `S03 - Timeline and Family Moments Expansion`
-- Next recommended sprint: `S04 - Version History, Revert, and Moderation Controls`
+- `S04 - Version History, Revert, and Moderation Controls`
+- Next recommended sprint: `S05 - Encryption and Backup Hardening Pass`
 - Sprint 04 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
 - Sprint 04 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
+- Sprint 04 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s04.md`
 - Sprint 03 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s03.md`
 - See `/Users/cheech/code/family-book/backlog.md` and `/Users/cheech/code/family-book/docs/strategy/kanban-2026q1.md`.

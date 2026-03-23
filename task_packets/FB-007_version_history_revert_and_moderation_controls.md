@@ -112,20 +112,20 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] Supported person and moment edits create persisted, inspectable history entries with actor and timestamp context.
-- [ ] An authorized user can retrieve and view recent revision history for supported entities through a supported API or UI surface.
-- [ ] An admin can revert at least one supported person change and one supported moment change without direct database manipulation.
-- [ ] A destructive mistake in launch scope becomes recoverable through supported app behavior rather than irreversible delete semantics.
-- [ ] Admin moderation controls can suppress problematic shared content in supported scope and restore it when appropriate.
-- [ ] Focused tests and browser evidence prove the history and recovery behavior works across at least two authenticated users.
+- [x] Supported person and moment edits create persisted, inspectable history entries with actor and timestamp context.
+- [x] An authorized user can retrieve and view recent revision history for supported entities through a supported API or UI surface.
+- [x] An admin can revert at least one supported person change and one supported moment change without direct database manipulation.
+- [x] A destructive mistake in launch scope becomes recoverable through supported app behavior rather than irreversible delete semantics.
+- [x] Admin moderation controls can suppress problematic shared content in supported scope and restore it when appropriate.
+- [x] Focused tests and browser evidence prove the history and recovery behavior works across at least two authenticated users.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Validation evidence attached
-- [ ] Revert behavior verified against at least one wrong-variant or negative-case path
-- [ ] Recoverability behavior does not require manual database edits
-- [ ] Moderation behavior is reflected in both API and rendered surfaces for supported entities
+- [x] Acceptance criteria satisfied
+- [x] Validation evidence attached
+- [x] Revert behavior verified against at least one wrong-variant or negative-case path
+- [x] Recoverability behavior does not require manual database edits
+- [x] Moderation behavior is reflected in both API and rendered surfaces for supported entities
 
 ## Risk and Verification Notes
 
@@ -163,3 +163,17 @@ Secondary KPI:
   - revision data is persisted, not merely derived
   - revert changes live product state in a user-visible way
   - supported destructive actions are recoverable through the app
+
+## Closeout Evidence
+
+- Focused verification:
+  - `uv run pytest tests/test_api.py tests/test_moments.py tests/test_auth.py -q` -> `98 passed`
+  - `uv run pytest tests/test_media.py -q` -> `18 passed`
+  - `uv run python -m compileall app` -> success
+  - `make test-ui-playwright` -> success
+- Audit follow-up:
+  - person reverts no longer mutate account login state
+  - deleted people no longer leak through moment cards or tagged-media metadata
+  - deleted people cannot be invited or state-toggled through admin account flows
+- Governance evidence:
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json` -> `17 PASS`, `0 FAIL`, `8 WARN`
