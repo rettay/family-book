@@ -322,3 +322,37 @@ class TestMediaMetadata:
             and item["tagged_person_ids"] == ["member-00-0000-0000-000000000005"]
             for item in resp.json()
         )
+
+    async def test_hidden_owner_tagged_media_is_not_listed_for_visible_person(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+
+        create_resp = await admin_client.post(
+            "/api/persons",
+            json={"first_name": "Hidden", "last_name": "Owner"},
+        )
+        hidden_id = create_resp.json()["id"]
+        update_resp = await admin_client.put(
+            f"/api/persons/{hidden_id}",
+            json={"visibility": "hidden"},
+        )
+        assert update_resp.status_code == 200
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": hidden_id,
+                "tagged_person_ids": '["member-00-0000-0000-000000000005"]',
+            },
+            files={"file": ("hidden.jpg", image_data, "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+
+        resp = await member_client.get("/api/media?person_id=member-00-0000-0000-000000000005")
+        assert resp.status_code == 200
+        assert all(item["id"] != upload_resp.json()["id"] for item in resp.json())

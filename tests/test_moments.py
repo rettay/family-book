@@ -207,6 +207,26 @@ class TestMomentsFeed:
         assert resp.status_code == 200
         assert any(item["id"] == moment_id for item in resp.json())
 
+    async def test_feed_filter_by_tagged_person_finds_older_matching_moment(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "Older tagged story",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+        })
+        moment_id = create_resp.json()["id"]
+
+        for i in range(20):
+            await admin_client.post("/api/moments", json={
+                "kind": "text",
+                "body": f"Recent unrelated moment {i}",
+                "person_id": TYLER_ID,
+            })
+
+        resp = await admin_client.get(f"/api/moments?person={MEMBER_ID}&limit=20")
+        assert resp.status_code == 200
+        assert any(item["id"] == moment_id for item in resp.json())
+
 
 class TestMomentsPermissions:
     """Permission checks for moment operations."""

@@ -232,6 +232,26 @@ async def test_admin_can_create_and_revoke_invite(
 
 
 @pytest.mark.asyncio
+async def test_admin_reinvite_does_not_downgrade_active_member(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
+    member.account_state = AccountState.active.value
+    await seeded_db.commit()
+
+    create_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert create_resp.status_code == 201
+
+    await seeded_db.refresh(member)
+    refreshed = await seeded_db.get(Person, member.id)
+    assert refreshed is not None
+    assert refreshed.account_state == AccountState.active.value
+
+
+@pytest.mark.asyncio
 async def test_admin_can_suspend_and_activate_person(
     admin_client: AsyncClient,
     seeded_db: AsyncSession,

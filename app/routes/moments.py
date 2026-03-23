@@ -231,11 +231,14 @@ async def list_moments(
     if not current_user.is_admin:
         query = query.where(Moment.visibility == "members")
 
-    query = query.order_by(Moment.occurred_at.desc()).limit(limit)
+    query = query.order_by(Moment.occurred_at.desc())
+    if not person:
+        query = query.limit(limit)
     result = await db.execute(query)
     moments = result.scalars().all()
     if person:
         moments = [m for m in moments if m.person_id == person or person in m.tagged_person_ids]
+        moments = moments[:limit]
 
     cards = []
     for m in moments:

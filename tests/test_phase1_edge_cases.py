@@ -255,3 +255,23 @@ async def test_suspended_user_google_login_is_rejected(
     resp = await client.post("/auth/google", json={"credential": "signed-google-jwt"})
     assert resp.status_code == 403
     assert "set-cookie" not in resp.headers
+
+
+@pytest.mark.asyncio
+async def test_hidden_person_edit_page_is_not_accessible_to_member(
+    member_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    hidden_person = Person(
+        id="hidden-edit-0000-0000-0000-000000000010",
+        first_name="Hidden",
+        last_name="Editor",
+        visibility=Visibility.hidden.value,
+        account_state=AccountState.active.value,
+    )
+    seeded_db.add(hidden_person)
+    await seeded_db.commit()
+
+    resp = await member_client.get(f"/people/{hidden_person.id}/edit", follow_redirects=False)
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/people"

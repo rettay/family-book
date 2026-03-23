@@ -223,8 +223,13 @@ async def list_media_for_person(
     result = await db.execute(
         select(Media).order_by(Media.created_at.desc())
     )
-    media_list = result.scalars().all()
-    visible_media = [m for m in media_list if m.person_id == person_id or person_id in m.tagged_person_ids]
+    visible_media = []
+    for media in result.scalars().all():
+        if media.person_id != person_id and person_id not in media.tagged_person_ids:
+            continue
+        if not await can_view_media(db, current_user, media):
+            continue
+        visible_media.append(media)
     response = []
     for media in visible_media:
         response.append(

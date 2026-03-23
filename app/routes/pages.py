@@ -379,6 +379,8 @@ async def person_edit_page(
     person = result.scalar_one_or_none()
     if not person:
         return RedirectResponse("/people", status_code=302)
+    if not can_manage_person(current_user, person):
+        return RedirectResponse("/people", status_code=302)
 
     return templates.TemplateResponse("person_edit.html", _ctx(
         request, current_user, active_page="people", person=person,
@@ -518,11 +520,14 @@ async def partial_moments(
         query = query.where(Moment.kind == kind)
     if not current_user.is_admin:
         query = query.where(Moment.visibility == "members")
-    query = query.order_by(Moment.occurred_at.desc()).limit(limit)
+    query = query.order_by(Moment.occurred_at.desc())
+    if not person:
+        query = query.limit(limit)
     result = await db.execute(query)
     moments_orm = result.scalars().all()
     if person:
         moments_orm = [m for m in moments_orm if m.person_id == person or person in m.tagged_person_ids]
+        moments_orm = moments_orm[:limit]
 
     moments = []
     for m in moments_orm:
@@ -605,11 +610,13 @@ async def partial_media_gallery(
     result = await db.execute(
         select(Media).order_by(Media.created_at.desc())
     )
-    media_list = [
-        media
-        for media in result.scalars().all()
-        if media.person_id == person_id or person_id in media.tagged_person_ids
-    ]
+    media_list = []
+    for media in result.scalars().all():
+        if media.person_id != person_id and person_id not in media.tagged_person_ids:
+            continue
+        if not await can_view_media(db, current_user, media):
+            continue
+        media_list.append(media)
     can_upload = can_manage_person(current_user, person)
 
     return templates.TemplateResponse("partials/media_gallery.html", _ctx(

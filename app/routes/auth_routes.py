@@ -122,7 +122,8 @@ async def create_person_invite(
         raise HTTPException(status_code=400, detail="Suspended accounts cannot be invited")
 
     invite = await create_invite(db, person_id=person.id, created_by=current_user.id)
-    person.account_state = AccountState.pending.value
+    if person.account_state != AccountState.active.value:
+        person.account_state = AccountState.pending.value
     await db.commit()
 
     settings = get_settings()
