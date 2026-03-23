@@ -1,5 +1,8 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.person import AccountState, Person
 from app.routes import auth_routes
 
 
@@ -244,6 +247,41 @@ async def test_admin_can_revert_person_revision(admin_client: AsyncClient):
     person_resp = await admin_client.get(f"/api/persons/{person_id}")
     assert person_resp.status_code == 200
     assert person_resp.json()["bio"] == "Original bio"
+
+
+@pytest.mark.asyncio
+async def test_person_revert_does_not_change_account_state(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Stable",
+        "last_name": "Account",
+        "bio": "Original bio",
+        "contact_email": "stable@example.com",
+    })
+    person_id = create_resp.json()["id"]
+
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "bio": "Edited bio",
+    })
+    assert update_resp.status_code == 200
+
+    suspend_resp = await admin_client.post(f"/api/admin/persons/{person_id}/suspend")
+    assert suspend_resp.status_code == 200
+
+    history_resp = await admin_client.get(f"/api/persons/{person_id}/history")
+    assert history_resp.status_code == 200
+    create_revision = next(entry for entry in history_resp.json() if entry["action"] == "create")
+
+    revert_resp = await admin_client.post(
+        f"/api/persons/{person_id}/history/{create_revision['id']}/revert"
+    )
+    assert revert_resp.status_code == 200
+
+    refreshed = await seeded_db.get(Person, person_id)
+    assert refreshed is not None
+    assert refreshed.account_state == AccountState.suspended.value
 
 
 @pytest.mark.asyncio

@@ -38,7 +38,7 @@ async def _build_tagged_people(db: AsyncSession, tagged_person_ids: list[str]) -
     tagged_people: list[dict[str, str | None]] = []
     for tagged_person_id in tagged_person_ids:
         person = await db.get(Person, tagged_person_id)
-        if not person:
+        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
             continue
         tagged_people.append(
             {

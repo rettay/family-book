@@ -4,7 +4,7 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.person import Person, AccountState
+from app.models.person import Person, AccountState, PersonLifecycleState
 from app.models.auth import Invite, UserSession
 from app.services.auth_service import (
     authenticate_google_identity,
@@ -274,3 +274,27 @@ async def test_admin_can_suspend_and_activate_person(
     activated = await seeded_db.get(Person, member.id)
     assert activated is not None
     assert activated.account_state == AccountState.active.value
+
+
+@pytest.mark.asyncio
+async def test_deleted_person_cannot_be_invited_or_state_toggled(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
+    member.lifecycle_state = PersonLifecycleState.deleted.value
+    await seeded_db.commit()
+
+    invite_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert invite_resp.status_code == 400
+
+    approve_resp = await admin_client.post(f"/api/admin/persons/{member.id}/approve")
+    assert approve_resp.status_code == 400
+
+    suspend_resp = await admin_client.post(f"/api/admin/persons/{member.id}/suspend")
+    assert suspend_resp.status_code == 400
+
+    activate_resp = await admin_client.post(f"/api/admin/persons/{member.id}/activate")
+    assert activate_resp.status_code == 400

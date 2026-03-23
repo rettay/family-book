@@ -42,7 +42,6 @@ PERSON_MUTABLE_FIELDS = [
     "photo_url",
     "branch",
     "visibility",
-    "account_state",
     "lifecycle_state",
     "deleted_at",
     "deleted_by",

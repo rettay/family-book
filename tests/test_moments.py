@@ -279,6 +279,24 @@ class TestMomentsCRUD:
         restored_ids = {item["id"] for item in member_feed_after.json()}
         assert moment_id in restored_ids
 
+    async def test_deleted_tagged_person_is_not_rendered_in_moment_card(self, admin_client):
+        create_resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "Story with tagged person",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+        })
+        assert create_resp.status_code == 201
+        moment_id = create_resp.json()["id"]
+        assert create_resp.json()["tagged_people"][0]["id"] == MEMBER_ID
+
+        delete_person_resp = await admin_client.delete(f"/api/persons/{MEMBER_ID}")
+        assert delete_person_resp.status_code == 204
+
+        detail_resp = await admin_client.get(f"/api/moments/{moment_id}")
+        assert detail_resp.status_code == 200
+        assert detail_resp.json()["tagged_people"] == []
+
 
 class TestMomentsFeed:
     """GET /api/moments — feed with filtering and pagination."""

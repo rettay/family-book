@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.access_control import can_view_media, get_accessible_person_ids
 from app.models.media import Media
 from app.models.moments import Moment, MomentComment, MomentLifecycleState, MomentReaction
-from app.models.person import Person
+from app.models.person import Person, PersonLifecycleState
 
 
 def _moment_order(query):
@@ -106,7 +106,12 @@ async def build_moment_cards(
     }
     persons_by_id: dict[str, Person] = {}
     if person_ids:
-        person_result = await db.execute(select(Person).where(Person.id.in_(person_ids)))
+        person_result = await db.execute(
+            select(Person).where(
+                Person.id.in_(person_ids),
+                Person.lifecycle_state == PersonLifecycleState.active.value,
+            )
+        )
         persons_by_id = {person.id: person for person in person_result.scalars().all()}
 
     media_ids = {

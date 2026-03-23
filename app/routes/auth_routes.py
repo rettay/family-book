@@ -7,7 +7,7 @@ from app.auth import SESSION_COOKIE_NAME, require_admin, require_auth
 from app.config import get_settings
 from app.database import get_db
 from app.models.auth import AuthMethod, Invite
-from app.models.person import AccountState, Person
+from app.models.person import AccountState, Person, PersonLifecycleState
 from app.services.google_auth import GoogleAuthError, verify_google_credential
 from app.services.auth_service import (
     authenticate_google_identity,
@@ -116,6 +116,8 @@ async def create_person_invite(
     person = await db.get(Person, person_id)
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if person.lifecycle_state != PersonLifecycleState.active.value:
+        raise HTTPException(status_code=400, detail="Deleted people cannot be invited")
     if not person.contact_email:
         raise HTTPException(status_code=400, detail="Person must have a contact email before inviting")
     if person.account_state == AccountState.suspended.value:
@@ -161,6 +163,8 @@ async def approve_person(
     person = await db.get(Person, person_id)
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if person.lifecycle_state != PersonLifecycleState.active.value:
+        raise HTTPException(status_code=400, detail="Deleted people cannot be approved")
     person.account_state = AccountState.active.value
     await db.commit()
     return {"status": "ok", "person_id": person.id}
@@ -175,6 +179,8 @@ async def suspend_person(
     person = await db.get(Person, person_id)
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if person.lifecycle_state != PersonLifecycleState.active.value:
+        raise HTTPException(status_code=400, detail="Deleted people cannot be suspended")
     person.account_state = AccountState.suspended.value
     await db.commit()
     return {"status": "ok", "person_id": person.id}
@@ -189,6 +195,8 @@ async def activate_person(
     person = await db.get(Person, person_id)
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if person.lifecycle_state != PersonLifecycleState.active.value:
+        raise HTTPException(status_code=400, detail="Deleted people cannot be activated")
     person.account_state = AccountState.active.value
     await db.commit()
     return {"status": "ok", "person_id": person.id}
