@@ -2,10 +2,10 @@
 {% block title %}{{ t('nav.people') }} — {{ brand_display_name }}{% endblock %}
 
 {% block content %}
-<div class="container" style="padding-top: 16px;">
+<div class="container" id="people-page" style="padding-top: 16px;">
   <div class="flex-between mb-16">
     <h1 style="font-family: var(--font-serif); font-size: 1.3rem;">{{ t('nav.people') }}</h1>
-    <a href="/people/new" class="btn btn--primary btn--sm">+ {{ t('person.add') }}</a>
+    <a href="/people/new" class="btn btn--primary btn--sm" id="add-person-button">+ {{ t('person.add') }}</a>
   </div>
 
   <div class="search-bar">

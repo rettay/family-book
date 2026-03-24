@@ -66,9 +66,14 @@ Recommended PM workflow:
 2. Auditor and CodeMap run on that branch.
 3. Merge to `codex/staging`.
 4. Railway `staging` auto-deploys.
-5. Manually verify the sprint on `family-book-staging.up.railway.app`.
-6. Merge `codex/staging` to `main`.
-7. Railway `production` auto-deploys.
+5. Run the staging acceptance checklist and inspect Playwright artifacts.
+6. Record a short staging acceptance note.
+7. Merge `codex/staging` to `main`.
+8. Railway `production` auto-deploys.
+
+Related docs:
+- [Staging Acceptance Checklist](/Users/cheech/code/family-book/docs/ops/staging-acceptance-checklist.md)
+- [Release Promotion Gate](/Users/cheech/code/family-book/docs/ops/release-promotion-gate.md)
 
 ## One-Time Dashboard Checks
 
@@ -92,13 +97,17 @@ The GitHub Actions workflow handles deployment directly, but these Railway setti
 
 ## Manual Smoke Checklist
 
+This is the minimum smoke layer. For sprint acceptance and production promotion, also use the dedicated staging and promotion docs above.
+
 After any staging deploy:
 
 1. Open `/health` and confirm it returns `200`.
 2. Log in with an admin account.
 3. Confirm tree, person page, home feed, and map render.
-4. Add or edit one record and verify it persists after refresh.
-5. Confirm backup status renders on the admin page.
+4. Inspect the uploaded Playwright artifacts for the branch run.
+5. Add or edit one record and verify it persists after refresh.
+6. Confirm backup status renders on the admin page.
+7. Record a short acceptance note before production promotion.
 
 After any production deploy:
 
