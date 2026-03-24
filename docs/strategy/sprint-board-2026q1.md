@@ -1,5 +1,44 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Planned Sprint
+
+### `S10 - Readability and Responsive Polish`
+
+Status: Planned
+
+### Sprint Goal
+
+Improve readability, scanability, and narrow-screen usability across the main Family Book surfaces so the product feels calmer and easier to use after the critical accessibility work from Sprint 09.
+
+### Why This Sprint Exists
+
+The next highest-value UX work is the lower-severity but still meaningful polish from the UI/UX review: small and muted metadata, cramped admin and control rows on smaller screens, and feed/media presentation that still feels denser and jumpier than it should.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 12 | FB-013 | Readability and Responsive Polish | P2 | planned |
+
+## Packet Sequence Rationale
+
+### FB-013 now
+
+The severe operability bugs are closed, which makes this the right point to improve legibility, spacing, and visual stability without competing with more urgent accessibility work.
+
+### FB-014 after UX polish
+
+Maintainability debt still matters, but the next most user-visible payoff is readability and responsive comfort on the main Family Book surfaces.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- metadata and helper text are easier to read
+- known cramped admin/action rows behave acceptably on narrow screens
+- feed media causes less visible layout jump
+- the browser regression lane stays green and Sprint 09 accessibility behaviors remain intact
+
 ## Closed Sprint
 
 ### `S09 - Accessibility and Interaction Hardening`

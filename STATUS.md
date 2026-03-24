@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 09 are closed. The current runtime now has a materially stronger browser accessibility baseline across overlays, keyboard interaction, dynamic updates, and core forms.
+Sprint 01 through Sprint 09 are closed. Sprint 10 is now planned around readability, responsive layout polish, and scanability improvements on the main Family Book surfaces.
 
 ## North Star
 
@@ -72,14 +72,14 @@ Sprint 01 through Sprint 09 are closed. The current runtime now has a materially
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- Secondary readability and responsive polish from the UI/UX review is still open, especially around typography sizing, cramped admin layouts, and scanability on smaller screens
+- Secondary readability and responsive polish from the UI/UX review is now the active product-quality sprint, especially around typography sizing, cramped admin layouts, and scanability on smaller screens
 
 ## Current Priority Order
 
-1. Decide Sprint 10 sequencing between readability/responsive polish and structural maintainability debt
-2. Preserve the improved browser and accessibility baseline while expanding confidence in the main flows
-3. Use staging review to validate the next layer of UI quality improvements before production promotion
-4. Continue reducing non-blocking CodeMap warnings without reopening core product behavior
+1. Execute Sprint 10 around readability, metadata legibility, and narrow-screen polish
+2. Preserve the improved browser and accessibility baseline while improving scanability on the main flows
+3. Use staging review to validate typography, spacing, and responsive changes before production promotion
+4. Sequence structural maintainability debt after this UX polish layer unless a new reliability blocker appears
 
 ## Sprint State
 
@@ -93,12 +93,14 @@ Sprint 01 through Sprint 09 are closed. The current runtime now has a materially
 - `S07 - Observability and Coverage Hardening`
 - `S08 - Browser Regression Expansion and Release Confidence`
 - `S09 - Accessibility and Interaction Hardening`
-- No active planned sprint yet
+- Planned sprint:
+  - `S10 - Readability and Responsive Polish`
+- Sprint 10 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s10.md`
+- Sprint 10 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s10.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-013_readability_and_responsive_polish.md`
 - Sprint 09 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s09.md`
 - Sprint 09 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s09.md`
 - Sprint 09 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s09.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-012_accessibility_and_interaction_hardening.md`
-- Follow-on packet candidate: `/Users/cheech/code/family-book/task_packets/FB-013_readability_and_responsive_polish.md`
 - Sprint 08 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
 - Sprint 08 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
 - Sprint 08 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s08.md`

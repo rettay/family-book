@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |
+None.
 
 ## In Progress
 
@@ -13,6 +13,12 @@ None.
 ## In Review
 
 None.
+
+## Planned
+
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |
 
 ## Done
 

@@ -1,7 +1,7 @@
 # Family Book Backlog
 
-Sprint: `S09 - Accessibility and Interaction Hardening`
-Status: Closed
+Sprint: `S10 - Readability and Responsive Polish`
+Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -111,9 +111,24 @@ Execution slices:
 - `S09-2` Keyboard and Semantic Interaction Hardening
 - `S09-3` Dynamic Feedback and Form Usability
 
+## Planned Sprint `S10 - Readability and Responsive Polish`
+
+Sprint goal:
+- Improve readability, scanability, and narrow-screen usability across the main Family Book surfaces without reopening the critical accessibility work closed in Sprint 09.
+
+Committed packet:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-013 | Readability and Responsive Polish | P2 | planned | `task_packets/FB-013_readability_and_responsive_polish.md` |
+
+Execution slices:
+- `S10-1` Typography and Metadata Legibility
+- `S10-2` Mobile and Admin Responsiveness
+- `S10-3` Feed Media Stability and Scanability Polish
+
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-013 | Readability and Responsive Polish | P2 | candidate | Follow-on packet for typography legibility, mobile admin/action-row wrapping, feed media aspect reservation, and minor scanability improvements from the UI/UX review |
 | FB-014 | Architecture and Maintainability Hardening | P1 | candidate | Reduce remaining CodeMap structural warnings, remove the settings/theme cycle, and improve maintainability in central modules without reopening core product scope |
