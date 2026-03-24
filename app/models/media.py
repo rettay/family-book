@@ -1,9 +1,10 @@
 import enum
+import json
 
 from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base, TimestampMixin, generate_uuid
+from app.models.base import Base, generate_uuid
 from datetime import datetime
 
 
@@ -50,6 +51,7 @@ class Media(Base):
     embed_html: Mapped[str | None] = mapped_column(Text, default=None)
     caption: Mapped[str | None] = mapped_column(String(1000), default=None)
     taken_date: Mapped[str | None] = mapped_column(String(10), default=None)
+    _tagged_person_ids: Mapped[str | None] = mapped_column("tagged_person_ids", Text, default="[]")
     source: Mapped[str] = mapped_column(String(30), default=MediaSource.manual.value)
     is_profile: Mapped[bool] = mapped_column(Boolean, default=False)
     uploaded_by: Mapped[str | None] = mapped_column(String(36), default=None)
@@ -59,3 +61,13 @@ class Media(Base):
 
     def __repr__(self) -> str:
         return f"<Media id={self.id[:8]} type={self.media_type}>"
+
+    @property
+    def tagged_person_ids(self) -> list[str]:
+        if self._tagged_person_ids:
+            return json.loads(self._tagged_person_ids)
+        return []
+
+    @tagged_person_ids.setter
+    def tagged_person_ids(self, value: list[str]) -> None:
+        self._tagged_person_ids = json.dumps(value)

@@ -5,7 +5,9 @@ from app.models.media import Media
 from app.models.moments import Moment, MomentReaction, MomentComment
 from app.models.auth import UserSession, Invite, MagicLinkToken
 from app.models.audit import AuditLog
+from app.models.revisions import EntityRevision
 from app.models.notifications import Notification, NotificationDelivery, NotificationPreference
+from app.models.preferences import TreePreference
 from app.models.governance import ApprovalRequest, ApprovalVote
 from app.models.imports import (
     WhatsappImportBatch,
@@ -28,9 +30,11 @@ __all__ = [
     "Invite",
     "MagicLinkToken",
     "AuditLog",
+    "EntityRevision",
     "Notification",
     "NotificationDelivery",
     "NotificationPreference",
+    "TreePreference",
     "ApprovalRequest",
     "ApprovalVote",
     "WhatsappImportBatch",

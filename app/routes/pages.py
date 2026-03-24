@@ -4,24 +4,43 @@ HTML page routes — serves Jinja2 templates for the HTMX frontend.
 All data fetching happens server-side. Templates use HTMX for dynamic interactions.
 """
 
+import logging
 import os
 
-from fastapi import APIRouter, Depends, Query, Request, Response
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access_control import (
+    can_manage_person,
+    can_view_moment,
+    get_accessible_person_ids,
+    get_person_access,
+    redact_person_detail,
+    redact_person_summary,
+)
 from app.auth import get_current_user, require_admin, require_auth
 from app.database import get_db
 from app.i18n import t as translate
 from app.models.media import Media
-from app.models.moments import Moment, MomentComment
-from app.models.person import Person, AccountState, Visibility
+from app.models.moments import Moment, MomentComment, MomentLifecycleState
+from app.models.person import Person, AccountState, PersonLifecycleState, Visibility
+from app.models.revisions import EntityRevision
+from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
-from app.services.auth_service import get_valid_invite
+from app.schemas import PersonSummary
+from app.backup.service import get_backup_health
+from app.services.moment_service import (
+    build_moment_cards,
+    build_moments_path,
+    list_visible_moments,
+)
+from app.services.revision_service import list_revisions
 
 router = APIRouter(tags=["pages"])
+logger = logging.getLogger(__name__)
 
 _template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 templates = Jinja2Templates(directory=_template_dir)
@@ -46,8 +65,6 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
     return {
         "request": request,
         "current_user": current_user,
-        "demo_mode": False,
-        "url_prefix": "",
         "locale": locale,
         "t": lambda key: translate(key, locale),
         "country_flag": _country_flag,
@@ -55,77 +72,37 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
     }
 
 
-async def _build_moment_card_simple(db: AsyncSession, moment: Moment, current_user_id: str) -> dict:
-    """Lightweight moment card builder for template rendering."""
-    from app.models.moments import MomentReaction
-
-    # Poster
-    poster = None
-    if moment.posted_by:
-        result = await db.execute(select(Person).where(Person.id == moment.posted_by))
-        p = result.scalar_one_or_none()
-        if p:
-            poster = {"id": p.id, "display_name": p.display_name, "photo_url": p.photo_url}
-
-    # About person
-    about = None
-    result = await db.execute(select(Person).where(Person.id == moment.person_id))
-    p = result.scalar_one_or_none()
-    if p:
-        about = {"id": p.id, "display_name": p.display_name, "photo_url": p.photo_url}
-
-    # Media
-    media_list = []
-    if moment.media_ids:
-        for mid in moment.media_ids:
-            # Support static demo photos referenced by path
-            if mid.startswith("/static/"):
-                media_list.append({"id": mid, "url": mid, "width": 800, "height": 600})
-            else:
-                result = await db.execute(select(Media).where(Media.id == mid))
-                m = result.scalar_one_or_none()
-                if m:
-                    media_list.append({"id": m.id, "url": f"/api/media/{m.id}/file", "width": m.width, "height": m.height})
-
-    # Reactions
+async def _moment_people(
+    db: AsyncSession, current_user: Person
+) -> list[PersonSummary]:
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
     result = await db.execute(
-        select(MomentReaction.emoji, func.count(MomentReaction.id))
-        .where(MomentReaction.moment_id == moment.id)
-        .group_by(MomentReaction.emoji)
-    )
-    reactions = {row[0]: row[1] for row in result.all()}
-
-    # My reaction
-    result = await db.execute(
-        select(MomentReaction.emoji).where(
-            MomentReaction.moment_id == moment.id,
-            MomentReaction.person_id == current_user_id,
+        select(Person)
+        .where(
+            Person.visibility != Visibility.hidden.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+            Person.id.in_(accessible_person_ids),
         )
+        .order_by(Person.last_name, Person.first_name)
     )
-    my_reaction = result.scalar_one_or_none()
 
-    # Comment count
-    result = await db.execute(
-        select(func.count(MomentComment.id)).where(MomentComment.moment_id == moment.id)
-    )
-    comment_count = result.scalar() or 0
+    people: list[PersonSummary] = []
+    for person in result.scalars().all():
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            people.append(redact_person_summary(person, access))
+    return people
 
-    return {
-        "id": moment.id,
-        "kind": moment.kind,
-        "poster": poster,
-        "about": about,
-        "title": moment.title,
-        "body": moment.body,
-        "media": media_list,
-        "milestone_type": moment.milestone_type,
-        "occurred_at": moment.occurred_at.isoformat() if moment.occurred_at else None,
-        "source": moment.source if hasattr(moment, "source") else None,
-        "reactions": reactions,
-        "my_reaction": my_reaction,
-        "comment_count": comment_count,
-        "created_at": moment.created_at.isoformat() if moment.created_at else None,
-    }
+
+async def _actor_names(
+    db: AsyncSession,
+    revisions: list[EntityRevision],
+) -> dict[str, str]:
+    actor_ids = {revision.actor_id for revision in revisions if revision.actor_id}
+    if not actor_ids:
+        return {}
+    result = await db.execute(select(Person).where(Person.id.in_(actor_ids)))
+    return {actor.id: actor.display_name for actor in result.scalars().all()}
 
 
 # ─── Landing / Home ───────────────────────────────────────────────
@@ -138,25 +115,28 @@ async def home(
     db: AsyncSession = Depends(get_db),
 ):
     if not current_user:
+        logger.debug("Anonymous landing page rendered")
         return templates.TemplateResponse("landing.html", _ctx(request))
 
-    # Build moments feed
-    query = select(Moment)
-    if kind:
-        query = query.where(Moment.kind == kind)
-    if not current_user.is_admin:
-        query = query.where(Moment.visibility != "hidden")
-    query = query.order_by(Moment.occurred_at.desc()).limit(20)
-    result = await db.execute(query)
-    moments_orm = result.scalars().all()
-
-    moments = []
-    for m in moments_orm:
-        card = await _build_moment_card_simple(db, m, current_user.id)
-        moments.append(card)
+    moments_orm = await list_visible_moments(
+        db, current_user, kind=kind, limit=20
+    )
+    moments = await build_moment_cards(db, moments_orm, current_user)
+    moment_people = await _moment_people(db, current_user)
 
     return templates.TemplateResponse("home.html", _ctx(
-        request, current_user, active_page="home", moments=moments,
+        request,
+        current_user,
+        active_page="home",
+        moments=moments,
+        moment_people=moment_people,
+        moment_filter=kind,
+        load_more_url=build_moments_path(
+            "/partials/moments",
+            before=moments[-1]["id"] if moments else None,
+            kind=kind,
+            limit=20,
+        ),
     ))
 
 
@@ -169,30 +149,40 @@ async def login_page(request: Request, current_user: Person | None = Depends(get
     from app.config import get_settings
     settings = get_settings()
     return templates.TemplateResponse("login.html", _ctx(
-        request, fb_enabled=settings.FB_ENABLED,
+        request, google_client_id=settings.GOOGLE_CLIENT_ID,
     ))
 
 
 @router.get("/invite/{token}", response_class=HTMLResponse)
-async def invite_page(token: str, request: Request, db: AsyncSession = Depends(get_db)):
+async def invite_page(
+    token: str,
+    request: Request,
+    current_user: Person | None = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user:
+        return RedirectResponse("/", status_code=302)
+
+    from app.services.auth_service import get_valid_invite
+
     invite = await get_valid_invite(db, token)
     if not invite:
         return templates.TemplateResponse("invite.html", _ctx(
-            request, error="Invalid or expired invite link.", token=token,
-            person_name="", branch="",
+            request, error="This invite is invalid, expired, or already claimed.", token=token
         ))
 
-    result = await db.execute(select(Person).where(Person.id == invite.person_id))
-    person = result.scalar_one_or_none()
+    person = await db.get(Person, invite.person_id)
     if not person:
         return templates.TemplateResponse("invite.html", _ctx(
-            request, error="Person not found.", token=token,
-            person_name="", branch="",
+            request, error="This invite no longer points to a valid family member.", token=token
         ))
 
     return templates.TemplateResponse("invite.html", _ctx(
-        request, token=token, person_name=person.display_name,
-        branch=person.branch, error=None,
+        request,
+        person_name=person.display_name,
+        branch=person.branch,
+        token=token,
+        error=None,
     ))
 
 
@@ -208,6 +198,16 @@ async def tree_page(
     ))
 
 
+@router.get("/map", response_class=HTMLResponse)
+async def map_page(
+    request: Request,
+    current_user: Person = Depends(require_auth),
+):
+    return templates.TemplateResponse("map.html", _ctx(
+        request, current_user, active_page="map",
+    ))
+
+
 # ─── People ───────────────────────────────────────────────────────
 
 @router.get("/people", response_class=HTMLResponse)
@@ -217,22 +217,36 @@ async def people_page(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Person).where(Person.visibility != Visibility.hidden.value)
-    if branch:
-        query = query.where(Person.branch == branch)
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    branch_filter = branch
+    query = select(Person).where(
+        Person.visibility != Visibility.hidden.value,
+        Person.lifecycle_state == PersonLifecycleState.active.value,
+        Person.id.in_(accessible_person_ids),
+    )
+    if branch_filter:
+        query = query.where(Person.branch == branch_filter)
     query = query.order_by(Person.last_name, Person.first_name)
     result = await db.execute(query)
     persons = result.scalars().all()
 
-    # Get distinct branches
     branch_result = await db.execute(
-        select(Person.branch).where(Person.branch.isnot(None)).distinct()
+        select(Person.branch)
+        .where(Person.branch.isnot(None), Person.id.in_(accessible_person_ids))
+        .distinct()
     )
     branches = sorted([row[0] for row in branch_result.all() if row[0]])
 
+    summaries: list[PersonSummary] = []
+    for person in persons:
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            summaries.append(redact_person_summary(person, access))
+
     return templates.TemplateResponse("people.html", _ctx(
         request, current_user, active_page="people",
-        persons=persons, branches=branches, branch_filter=branch,
+        persons=summaries,
+        branches=branches, branch_filter=branch_filter,
     ))
 
 
@@ -245,7 +259,10 @@ async def person_detail_page(
 ):
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+        return RedirectResponse("/people", status_code=302)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
         return RedirectResponse("/people", status_code=302)
 
     # Parents
@@ -253,14 +270,14 @@ async def person_detail_page(
         select(Person).join(ParentChild, ParentChild.parent_id == Person.id)
         .where(ParentChild.child_id == person_id)
     )
-    parents = result.scalars().all()
+    parent_people = result.scalars().all()
 
     # Children
     result = await db.execute(
         select(Person).join(ParentChild, ParentChild.child_id == Person.id)
         .where(ParentChild.parent_id == person_id)
     )
-    children = result.scalars().all()
+    child_people = result.scalars().all()
 
     # Partners
     result = await db.execute(
@@ -281,7 +298,7 @@ async def person_detail_page(
             partners.append(partner)
 
     # Siblings (share a parent)
-    parent_ids = [p.id for p in parents]
+    parent_ids = [p.id for p in parent_people]
     siblings = []
     if parent_ids:
         result = await db.execute(
@@ -290,12 +307,38 @@ async def person_detail_page(
         )
         siblings = list({s.id: s for s in result.scalars().all()}.values())
 
-    can_edit = person.id == current_user.id or current_user.is_admin
+    can_edit = can_manage_person(current_user, person)
+    visible_parents = []
+    for parent in parent_people:
+        parent_access = await get_person_access(db, current_user, parent)
+        if parent_access.can_view:
+            visible_parents.append(redact_person_summary(parent, parent_access))
+
+    visible_children = []
+    for child in child_people:
+        child_access = await get_person_access(db, current_user, child)
+        if child_access.can_view:
+            visible_children.append(redact_person_summary(child, child_access))
+
+    visible_partners = []
+    for partner in partners:
+        partner_access = await get_person_access(db, current_user, partner)
+        if partner_access.can_view:
+            visible_partners.append(redact_person_summary(partner, partner_access))
+
+    visible_siblings = []
+    for sibling in siblings:
+        sibling_access = await get_person_access(db, current_user, sibling)
+        if sibling_access.can_view:
+            visible_siblings.append(redact_person_summary(sibling, sibling_access))
+    person_view = redact_person_detail(person, access)
+    moment_people = await _moment_people(db, current_user)
 
     return templates.TemplateResponse("person.html", _ctx(
         request, current_user, active_page="people",
-        person=person, parents=parents, children=children,
-        partners=partners, siblings=siblings, can_edit=can_edit,
+        person=person_view, parents=visible_parents, children=visible_children,
+        partners=visible_partners, siblings=visible_siblings, can_edit=can_edit,
+        moment_people=moment_people,
     ))
 
 
@@ -306,16 +349,25 @@ async def person_edit_page(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    if person_id != current_user.id and not current_user.is_admin:
-        return RedirectResponse(f"/people/{person_id}", status_code=302)
-
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+        return RedirectResponse("/people", status_code=302)
+    if not can_manage_person(current_user, person):
         return RedirectResponse("/people", status_code=302)
 
     return templates.TemplateResponse("person_edit.html", _ctx(
         request, current_user, active_page="people", person=person,
+    ))
+
+
+@router.get("/people/new", response_class=HTMLResponse)
+async def new_person_page(
+    request: Request,
+    current_user: Person = Depends(require_auth),
+):
+    return templates.TemplateResponse("person_new.html", _ctx(
+        request, current_user, active_page="people",
     ))
 
 
@@ -329,11 +381,14 @@ async def person_card(
     """Person card fragment for tree sidebar."""
     result = await db.execute(select(Person).where(Person.id == person_id))
     person = result.scalar_one_or_none()
-    if not person:
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+        return HTMLResponse("<p>Person not found</p>")
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
         return HTMLResponse("<p>Person not found</p>")
 
     return templates.TemplateResponse("partials/person_sidebar.html", _ctx(
-        request, current_user, person=person,
+        request, current_user, person=redact_person_detail(person, access),
     ))
 
 
@@ -345,9 +400,20 @@ async def admin_page(
     current_user: Person = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    logger.debug("Admin dashboard requested by %s", current_user.id)
     # Stats
-    persons_count = (await db.execute(select(func.count(Person.id)))).scalar() or 0
-    moments_count = (await db.execute(select(func.count(Moment.id)))).scalar() or 0
+    persons_count = (
+        await db.execute(
+            select(func.count(Person.id)).where(
+                Person.lifecycle_state == PersonLifecycleState.active.value
+            )
+        )
+    ).scalar() or 0
+    moments_count = (
+        await db.execute(
+            select(func.count(Moment.id)).where(Moment.lifecycle_state != "deleted")
+        )
+    ).scalar() or 0
     media_count = (await db.execute(select(func.count(Media.id)))).scalar() or 0
     pending_count = (await db.execute(
         select(func.count(Person.id)).where(Person.account_state == AccountState.pending.value)
@@ -362,19 +428,39 @@ async def admin_page(
 
     # Pending persons
     result = await db.execute(
-        select(Person).where(Person.account_state == AccountState.pending.value)
+        select(Person).where(
+            Person.account_state == AccountState.pending.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
     )
     pending_persons = result.scalars().all()
 
-    # All persons for invite select
-    result = await db.execute(
-        select(Person).order_by(Person.last_name, Person.first_name)
+    people_result = await db.execute(
+        select(Person)
+        .where(
+            Person.is_root.is_(False),
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+        .order_by(Person.last_name, Person.first_name)
     )
-    all_persons = result.scalars().all()
+    managed_people = people_result.scalars().all()
+
+    invite_result = await db.execute(select(Invite).order_by(Invite.created_at.desc()).limit(20))
+    invites = invite_result.scalars().all()
+
+    invite_people: dict[str, Person] = {}
+    for invite in invites:
+        person = await db.get(Person, invite.person_id)
+        if person:
+            invite_people[invite.id] = person
 
     return templates.TemplateResponse("admin.html", _ctx(
         request, current_user, active_page="admin",
-        stats=stats, pending_persons=pending_persons, all_persons=all_persons,
+        stats=stats, pending_persons=pending_persons,
+        managed_people=managed_people,
+        invites=invites,
+        invite_people=invite_people,
+        backup_health=get_backup_health(),
     ))
 
 
@@ -413,28 +499,24 @@ async def partial_moments(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: render moment cards for infinite scroll."""
-    from sqlalchemy import extract
-
-    query = select(Moment)
-    if before:
-        result = await db.execute(select(Moment.occurred_at).where(Moment.id == before))
-        cursor_time = result.scalar_one_or_none()
-        if cursor_time:
-            query = query.where(Moment.occurred_at < cursor_time)
     if person:
-        query = query.where(Moment.person_id == person)
-    if kind:
-        query = query.where(Moment.kind == kind)
-    if not current_user.is_admin:
-        query = query.where(Moment.visibility != "hidden")
-    query = query.order_by(Moment.occurred_at.desc()).limit(limit)
-    result = await db.execute(query)
-    moments_orm = result.scalars().all()
+        person_result = await db.execute(select(Person).where(Person.id == person))
+        target_person = person_result.scalar_one_or_none()
+        if not target_person:
+            return HTMLResponse("")
+        access = await get_person_access(db, current_user, target_person)
+        if not access.can_view:
+            return HTMLResponse("")
 
-    moments = []
-    for m in moments_orm:
-        card = await _build_moment_card_simple(db, m, current_user.id)
-        moments.append(card)
+    moments_orm = await list_visible_moments(
+        db,
+        current_user,
+        before=before,
+        person_id=person,
+        kind=kind,
+        limit=limit,
+    )
+    moments = await build_moment_cards(db, moments_orm, current_user)
 
     # Build HTML from moment cards
     html_parts = []
@@ -448,8 +530,15 @@ async def partial_moments(
     # Add next load-more trigger if we got a full page
     if len(moments) >= limit:
         last_id = moments[-1]["id"]
+        load_more_url = build_moments_path(
+            "/partials/moments",
+            before=last_id,
+            person_id=person,
+            kind=kind,
+            limit=limit,
+        )
         html_parts.append(
-            f'<div hx-get="/partials/moments?before={last_id}" '
+            f'<div hx-get="{load_more_url}" '
             f'hx-trigger="revealed" hx-swap="afterend">'
             f'<div style="text-align:center;padding:20px;">'
             f'<div class="spinner" style="margin:0 auto;"></div></div></div>'
@@ -466,7 +555,12 @@ async def partial_people_grid(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: people grid for live search."""
-    query = select(Person).where(Person.visibility != Visibility.hidden.value)
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    query = select(Person).where(
+        Person.visibility != Visibility.hidden.value,
+        Person.lifecycle_state == PersonLifecycleState.active.value,
+        Person.id.in_(accessible_person_ids),
+    )
     if search:
         like = f"%{search}%"
         query = query.where(
@@ -478,8 +572,14 @@ async def partial_people_grid(
     result = await db.execute(query)
     persons = result.scalars().all()
 
+    summaries: list[PersonSummary] = []
+    for person in persons:
+        access = await get_person_access(db, current_user, person)
+        if access.can_view:
+            summaries.append(redact_person_summary(person, access))
+
     return templates.TemplateResponse("partials/people_grid.html", _ctx(
-        request, current_user, persons=persons,
+        request, current_user, persons=summaries,
     ))
 
 
@@ -491,11 +591,25 @@ async def partial_media_gallery(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: media gallery for person page."""
+    person_result = await db.execute(select(Person).where(Person.id == person_id))
+    person = person_result.scalar_one_or_none()
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+        return HTMLResponse("")
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        return HTMLResponse("")
+
     result = await db.execute(
-        select(Media).where(Media.person_id == person_id).order_by(Media.created_at.desc())
+        select(Media).order_by(Media.created_at.desc())
     )
-    media_list = result.scalars().all()
-    can_upload = person_id == current_user.id or current_user.is_admin
+    media_list = []
+    for media in result.scalars().all():
+        if media.person_id != person_id and person_id not in media.tagged_person_ids:
+            continue
+        if not await can_view_media(db, current_user, media):
+            continue
+        media_list.append(media)
+    can_upload = can_manage_person(current_user, person)
 
     return templates.TemplateResponse("partials/media_gallery.html", _ctx(
         request, current_user, media_list=media_list,
@@ -511,6 +625,11 @@ async def partial_comments(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: comment thread for a moment."""
+    moment_result = await db.execute(select(Moment).where(Moment.id == moment_id))
+    moment = moment_result.scalar_one_or_none()
+    if not moment or not await can_view_moment(db, current_user, moment):
+        return HTMLResponse("")
+
     result = await db.execute(
         select(MomentComment)
         .where(MomentComment.moment_id == moment_id)
@@ -562,3 +681,52 @@ async def partial_audit_log(
     return templates.TemplateResponse("partials/audit_log.html", _ctx(
         request, current_user, entries=entries,
     ))
+
+
+@router.get("/partials/person-history", response_class=HTMLResponse)
+async def partial_person_history(
+    request: Request,
+    person_id: str = Query(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Person).where(Person.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person:
+        return HTMLResponse("")
+
+    if person.lifecycle_state == PersonLifecycleState.deleted.value:
+        if not current_user.is_admin:
+            return HTMLResponse("")
+    else:
+        access = await get_person_access(db, current_user, person)
+        if not access.can_view:
+            return HTMLResponse("")
+
+    revisions = await list_revisions(db, entity_type="person", entity_id=person_id, limit=12)
+    actor_names = await _actor_names(db, revisions)
+    entries = []
+    for revision in revisions:
+        snapshot = revision.snapshot
+        entries.append(
+            {
+                "id": revision.id,
+                "action": revision.action,
+                "actor_name": actor_names.get(revision.actor_id or "", "Unknown"),
+                "created_at": revision.created_at.isoformat() if revision.created_at else None,
+                "display_name": f"{snapshot.get('first_name', '')} {snapshot.get('last_name', '')}".strip(),
+                "bio": snapshot.get("bio"),
+                "lifecycle_state": snapshot.get("lifecycle_state"),
+            }
+        )
+
+    return templates.TemplateResponse(
+        "partials/person_history.html",
+        _ctx(
+            request,
+            current_user,
+            entries=entries,
+            person_id=person_id,
+            can_revert=current_user.is_admin,
+        ),
+    )

@@ -2,11 +2,8 @@
 {% block title %}{{ t('admin.dashboard') }} — {{ t('app.name') }}{% endblock %}
 
 {% block content %}
-<div class="container-wide" style="padding-top: 20px;">
-  <div class="page-header mb-24">
-    <h1 class="page-header__title">{{ t('admin.dashboard') }}</h1>
-    <p class="page-header__subtitle">Manage your family archive</p>
-  </div>
+<div class="container-wide" style="padding-top: 16px;">
+  <h1 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 16px;">{{ t('admin.dashboard') }}</h1>
 
   <!-- Stats -->
   <div class="admin-grid mb-24">
@@ -31,20 +28,80 @@
   <!-- Quick Actions -->
   <div class="card mb-16">
     <div class="card__body">
-      <h2 style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; color: var(--brown-dark);">Quick Actions</h2>
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Quick Actions</h2>
       <div class="flex gap-8" style="flex-wrap:wrap;">
-        <a href="/admin/people/new" class="btn btn--primary btn--sm">+ Add Person</a>
+        <a href="/people/new" class="btn btn--primary btn--sm">+ Add Person</a>
         <button class="btn btn--secondary btn--sm" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
         <button class="btn btn--secondary btn--sm" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
+        <button class="btn btn--secondary btn--sm" onclick="verifyBackupRestore()">Verify Restore</button>
       </div>
     </div>
   </div>
+
+  <div class="card mb-16">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Protection &amp; Backup Status</h2>
+      <div id="backup-status">
+        <p class="text-sm text-muted">Backups: {% if backup_health.fresh %}fresh{% else %}stale or missing{% endif %}</p>
+        <p class="text-sm text-muted">Latest file: {{ backup_health.latest_file or 'none' }}</p>
+        <p class="text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
+        <p class="text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
+        <p class="text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-16">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Accounts &amp; Invites</h2>
+      {% for p in managed_people %}
+      <div class="invite-row">
+        <span class="invite-row__name">{{ p.display_name }}{% if p.contact_email %} · {{ p.contact_email }}{% endif %}</span>
+        <span class="invite-row__status {% if p.account_state == 'active' %}invite-row__status--active{% elif p.account_state == 'pending' %}invite-row__status--active{% else %}invite-row__status--expired{% endif %}">
+          {{ p.account_state }}
+        </span>
+        {% if p.contact_email %}
+        <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">Create Invite</button>
+        {% endif %}
+        {% if p.account_state != 'active' %}
+        <button class="btn btn--primary btn--sm" onclick="activatePerson('{{ p.id }}')">Activate</button>
+        {% endif %}
+        {% if p.account_state != 'suspended' %}
+        <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if invites %}
+  <div class="card mb-16">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Recent Invites</h2>
+      {% for invite in invites %}
+      {% set invited_person = invite_people.get(invite.id) %}
+      <div class="invite-row">
+        <span class="invite-row__name">
+          {{ invited_person.display_name if invited_person else invite.person_id }}
+          {% if invited_person and invited_person.contact_email %} · {{ invited_person.contact_email }}{% endif %}
+        </span>
+        <span class="invite-row__status {% if invite.revoked %}invite-row__status--expired{% elif invite.claimed_at %}invite-row__status--claimed{% else %}invite-row__status--active{% endif %}">
+          {% if invite.revoked %}Revoked{% elif invite.claimed_at %}Claimed{% else %}Open{% endif %}
+        </span>
+        {% if not invite.revoked and not invite.claimed_at %}
+        <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Pending Approvals -->
   {% if pending_persons %}
   <div class="card mb-16">
     <div class="card__body">
-      <h2 style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; color: var(--brown-dark);">{{ t('admin.pending_approvals') }}</h2>
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">{{ t('admin.pending_approvals') }}</h2>
       {% for p in pending_persons %}
       <div class="invite-row">
         <span class="invite-row__name">{{ p.display_name }}</span>
@@ -57,28 +114,10 @@
   </div>
   {% endif %}
 
-  <!-- Invite Management -->
-  <div class="card mb-16">
-    <div class="card__body">
-      <h2 style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; color: var(--brown-dark);">{{ t('admin.invite') }}</h2>
-      <div class="form-group">
-        <label>Person to invite</label>
-        <select class="form-select" id="invite-person-select">
-          <option value="">Select a person...</option>
-          {% for p in all_persons %}
-          <option value="{{ p.id }}">{{ p.display_name }} {% if p.branch %}({{ p.branch }}){% endif %}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <button class="btn btn--primary btn--sm" onclick="createInvite()">Generate Invite Link</button>
-      <div id="invite-result" class="mt-8"></div>
-    </div>
-  </div>
-
   <!-- Audit Log -->
   <div class="card mb-16">
     <div class="card__body">
-      <h2 style="font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; color: var(--brown-dark);">{{ t('admin.audit_log') }}</h2>
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">{{ t('admin.audit_log') }}</h2>
       <div id="audit-log"
            hx-get="/partials/audit-log"
            hx-trigger="load"
@@ -102,6 +141,16 @@ function downloadBackup() {
   window.location.href = '/api/admin/backup/download';
 }
 
+async function verifyBackupRestore() {
+  const resp = await fetch('/api/admin/backup/verify', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Restore verification failed');
+    return;
+  }
+  showToast(`Restore verified (${data.table_count} tables, ${data.person_count ?? 0} people)`);
+}
+
 async function approvePerson(id) {
   const resp = await fetch('/api/admin/persons/' + id + '/approve', {method: 'POST'});
   if (resp.ok) window.location.reload();
@@ -113,32 +162,30 @@ async function suspendPerson(id) {
   if (resp.ok) window.location.reload();
 }
 
-async function createInvite() {
-  const personId = document.getElementById('invite-person-select').value;
-  if (!personId) return showToast('Select a person first');
-  const resp = await fetch('/api/invites', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({person_id: personId})
-  });
-  const result = document.getElementById('invite-result');
-  if (resp.ok) {
-    const data = await resp.json();
-    const url = data.url || (window.location.origin + '/invite/' + data.token);
-    result.textContent = '';
-    const link = document.createElement('a');
-    link.href = url;
-    link.textContent = url;
-    link.style.cssText = 'word-break:break-all; color:var(--green-deep); font-weight:500;';
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'padding:12px 16px; background:var(--green-pale); border-radius:12px; margin-top:8px; border:1px solid var(--border-light);';
-    wrapper.appendChild(link);
-    result.appendChild(wrapper);
-  } else {
-    const err = await resp.json();
-    result.textContent = err.detail || 'Error';
-    result.style.color = 'var(--danger)';
+async function activatePerson(id) {
+  const resp = await fetch('/api/admin/persons/' + id + '/activate', {method: 'POST'});
+  if (resp.ok) window.location.reload();
+}
+
+async function createInvite(id) {
+  const resp = await fetch('/api/admin/persons/' + id + '/invite', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Invite creation failed');
+    return;
   }
+  try {
+    await navigator.clipboard.writeText(data.invite_url);
+    showToast('Invite link copied');
+  } catch (err) {
+    showToast(data.invite_url);
+  }
+  window.location.reload();
+}
+
+async function revokeInvite(id) {
+  const resp = await fetch('/api/admin/invites/' + id + '/revoke', {method: 'POST'});
+  if (resp.ok) window.location.reload();
 }
 </script>
 {% endblock %}

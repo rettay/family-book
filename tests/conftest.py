@@ -9,9 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Set env vars before any app imports
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production-use-1234567890")
-os.environ.setdefault("FERNET_KEY", "dGVzdC1mZXJuZXQta2V5LW5vdC1mb3ItcHJvZHVjdGlvbg==")
+os.environ.setdefault("FERNET_KEY", "REMOVED_FERNET_KEY_LITERAL=")
 os.environ.setdefault("BASE_URL", "http://localhost:8000")
 os.environ.setdefault("DATABASE_URL", "sqlite:///data/family.db")
+os.environ.setdefault("GOOGLE_CLIENT_ID", "test-google-client-id.apps.googleusercontent.com")
 
 from app.database import get_db
 from app.models.base import Base
@@ -65,7 +66,7 @@ async def db(session_factory):
 
 @pytest_asyncio.fixture
 async def seeded_db(db: AsyncSession):
-    """Database with root person, Alex (admin), and Maria (admin)."""
+    """Database with root person, Tyler (admin), and Yuliya (admin)."""
     root = Person(
         id="root-0000-0000-0000-000000000001",
         first_name="Our",
@@ -75,26 +76,26 @@ async def seeded_db(db: AsyncSession):
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
     )
-    alex = Person(
-        id="alex-000-0000-0000-000000000002",
-        first_name="Alex",
-        last_name="Rivera",
+    tyler = Person(
+        id="tyler-000-0000-0000-000000000002",
+        first_name="Tyler",
+        last_name="Martin",
         gender="male",
         residence_country_code="ES",
-        branch="rivera",
+        branch="martin",
         is_admin=True,
         is_root=False,
-        contact_email="alex@example.com",
+        contact_email="tyler@example.com",
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
     )
-    maria = Person(
-        id="maria-00-0000-0000-000000000003",
-        first_name="Maria",
-        last_name="Santos",
+    yuliya = Person(
+        id="yuliya-00-0000-0000-000000000003",
+        first_name="Yuliya",
+        last_name="Semesock",
         gender="female",
         residence_country_code="ES",
-        branch="maria",
+        branch="yuliya",
         is_admin=True,
         is_root=False,
         source=PersonSource.manual.value,
@@ -102,11 +103,11 @@ async def seeded_db(db: AsyncSession):
     )
     grandpa = Person(
         id="grndpa-00-0000-0000-000000000004",
-        first_name="James",
-        last_name="Rivera",
+        first_name="Robert",
+        last_name="Martin",
         gender="male",
         residence_country_code="CA",
-        branch="rivera",
+        branch="martin",
         is_admin=False,
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
@@ -114,26 +115,27 @@ async def seeded_db(db: AsyncSession):
     member = Person(
         id="member-00-0000-0000-000000000005",
         first_name="Jane",
-        last_name="Rivera",
+        last_name="Martin",
         gender="female",
         residence_country_code="CA",
-        branch="rivera",
+        branch="martin",
         is_admin=False,
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
     )
-    db.add_all([root, alex, maria, grandpa, member])
+    db.add_all([root, tyler, yuliya, grandpa, member])
     await db.flush()
 
-    # Alex and Maria are parents of root (Mia)
-    pc1 = ParentChild(parent_id=alex.id, child_id=root.id, kind="biological")
-    pc2 = ParentChild(parent_id=maria.id, child_id=root.id, kind="biological")
-    # Grandpa is Alex's parent
-    pc3 = ParentChild(parent_id=grandpa.id, child_id=alex.id, kind="biological")
-    db.add_all([pc1, pc2, pc3])
+    # Tyler and Yuliya are parents of root (Luna)
+    pc1 = ParentChild(parent_id=tyler.id, child_id=root.id, kind="biological")
+    pc2 = ParentChild(parent_id=yuliya.id, child_id=root.id, kind="biological")
+    # Grandpa is Tyler's parent and Jane's parent so member fixtures remain in-family.
+    pc3 = ParentChild(parent_id=grandpa.id, child_id=tyler.id, kind="biological")
+    pc4 = ParentChild(parent_id=grandpa.id, child_id=member.id, kind="biological")
+    db.add_all([pc1, pc2, pc3, pc4])
 
-    # Alex + Maria partnership (canonical ordering)
-    a_id, b_id = sorted([alex.id, maria.id])
+    # Tyler + Yuliya partnership (canonical ordering)
+    a_id, b_id = sorted([tyler.id, yuliya.id])
     p1 = Partnership(person_a_id=a_id, person_b_id=b_id, kind="married", status="active")
     db.add(p1)
 
@@ -197,11 +199,11 @@ async def client(seeded_db: AsyncSession, session_factory, app_under_test: FastA
 
 @pytest_asyncio.fixture
 async def admin_client(seeded_db: AsyncSession, client: AsyncClient):
-    """Test client authenticated as Alex (admin)."""
+    """Test client authenticated as Tyler (admin)."""
     token = await create_session(
         seeded_db,
-        person_id="alex-000-0000-0000-000000000002",
-        auth_method="magic_link",
+        person_id="tyler-000-0000-0000-000000000002",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
     client.cookies.set("session", token)
@@ -227,7 +229,7 @@ async def member_client(seeded_db: AsyncSession, session_factory, app_under_test
     token = await create_session(
         seeded_db,
         person_id="member-00-0000-0000-000000000005",
-        auth_method="magic_link",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
 

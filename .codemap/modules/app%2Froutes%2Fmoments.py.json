@@ -1,0 +1,1663 @@
+{
+  "id": "app/routes/moments.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "e2fc3896",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 87,
+    "lines": 811,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/access_control.py",
+      "app/auth.py",
+      "app/database.py",
+      "app/models/media.py",
+      "app/models/moments.py",
+      "app/models/person.py",
+      "app/services/audit_service.py",
+      "app/services/moment_service.py",
+      "app/services/revision_service.py"
+    ],
+    "imported_by": [
+      "app/main.py",
+      "tests/conftest.py"
+    ],
+    "tested_by": [
+      "tests/conftest.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "MomentCreate",
+      "type": "class",
+      "summary": null,
+      "line": 47,
+      "signature": null
+    },
+    {
+      "name": "MomentUpdate",
+      "type": "class",
+      "summary": null,
+      "line": 59,
+      "signature": null
+    },
+    {
+      "name": "PersonBrief",
+      "type": "class",
+      "summary": null,
+      "line": 70,
+      "signature": null
+    },
+    {
+      "name": "MediaBrief",
+      "type": "class",
+      "summary": null,
+      "line": 76,
+      "signature": null
+    },
+    {
+      "name": "MomentCard",
+      "type": "class",
+      "summary": null,
+      "line": 85,
+      "signature": null
+    },
+    {
+      "name": "CommentCreate",
+      "type": "class",
+      "summary": null,
+      "line": 103,
+      "signature": null
+    },
+    {
+      "name": "CommentResponse",
+      "type": "class",
+      "summary": null,
+      "line": 107,
+      "signature": null
+    },
+    {
+      "name": "ReactionCreate",
+      "type": "class",
+      "summary": null,
+      "line": 116,
+      "signature": null
+    },
+    {
+      "name": "ModerateMomentRequest",
+      "type": "class",
+      "summary": null,
+      "line": 120,
+      "signature": null
+    },
+    {
+      "name": "_has_moment_content",
+      "type": "function",
+      "summary": null,
+      "line": 131,
+      "signature": "( *, title: str | None, body: str | None, media_ids: list[str], milestone_type: str | None, ) -> bool"
+    },
+    {
+      "name": "_validate_person",
+      "type": "function",
+      "summary": null,
+      "line": 148,
+      "signature": "( db: AsyncSession, current_user: Person, person_id: str, *, require_manage: bool, ) -> Person"
+    },
+    {
+      "name": "_approved_media_ids",
+      "type": "function",
+      "summary": null,
+      "line": 175,
+      "signature": "( db: AsyncSession, current_user: Person, media_ids: list[str] ) -> list[str]"
+    },
+    {
+      "name": "_approved_tagged_person_ids",
+      "type": "function",
+      "summary": null,
+      "line": 192,
+      "signature": "( db: AsyncSession, current_user: Person, tagged_person_ids: list[str] ) -> list[str]"
+    },
+    {
+      "name": "_validated_visibility",
+      "type": "function",
+      "summary": null,
+      "line": 207,
+      "signature": "(value: str | None) -> str"
+    },
+    {
+      "name": "_moment_history_entries",
+      "type": "function",
+      "summary": null,
+      "line": 214,
+      "signature": "( db: AsyncSession, *, moment_id: str, limit: int = 20, ) -> list[dict]"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "MomentCreate",
+      "kind": "class",
+      "line": 47,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "MomentUpdate",
+      "kind": "class",
+      "line": 59,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PersonBrief",
+      "kind": "class",
+      "line": 70,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "MediaBrief",
+      "kind": "class",
+      "line": 76,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "MomentCard",
+      "kind": "class",
+      "line": 85,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "CommentCreate",
+      "kind": "class",
+      "line": 103,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "CommentResponse",
+      "kind": "class",
+      "line": 107,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "ReactionCreate",
+      "kind": "class",
+      "line": 116,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "ModerateMomentRequest",
+      "kind": "class",
+      "line": 120,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "_has_moment_content",
+      "kind": "function",
+      "line": 131,
+      "signature": "( *, title: str | None, body: str | None, media_ids: list[str], milestone_type: str | None, ) -> bool",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "any",
+          "line": 138,
+          "module_hint": null
+        },
+        {
+          "name": "title.strip",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "body.strip",
+          "line": 141,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_validate_person",
+      "kind": "function",
+      "line": 148,
+      "signature": "( db: AsyncSession, current_user: Person, person_id: str, *, require_manage: bool, ) -> Person",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 155,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 156,
+          "module_hint": null
+        },
+        {
+          "name": "HTTPException",
+          "line": 158,
+          "module_hint": "fastapi"
+        },
+        {
+          "name": "can_create_moment_for_person",
+          "line": 161,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "HTTPException",
+          "line": 162,
+          "module_hint": "fastapi"
+        },
+        {
+          "name": "get_person_access",
+          "line": 166,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "HTTPException",
+          "line": 168,
+          "module_hint": "fastapi"
+        }
+      ]
+    },
+    {
+      "name": "_approved_media_ids",
+      "kind": "function",
+      "line": 175,
+      "signature": "( db: AsyncSession, current_user: Person, media_ids: list[str] ) -> list[str]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 180,
+          "module_hint": null
+        },
+        {
+          "name": "select(Media).where",
+          "line": 180,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 180,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "media_result.scalar_one_or_none",
+          "line": 181,
+          "module_hint": null
+        },
+        {
+          "name": "can_view_media",
+          "line": 184,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "HTTPException",
+          "line": 185,
+          "module_hint": "fastapi"
+        },
+        {
+          "name": "approved_media_ids.append",
+          "line": 188,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_approved_tagged_person_ids",
+      "kind": "function",
+      "line": 192,
+      "signature": "( db: AsyncSession, current_user: Person, tagged_person_ids: list[str] ) -> list[str]",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "_validate_person",
+          "line": 197,
+          "module_hint": null
+        },
+        {
+          "name": "approved_ids.append",
+          "line": 203,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_validated_visibility",
+      "kind": "function",
+      "line": 207,
+      "signature": "(value: str | None) -> str",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "HTTPException",
+          "line": 210,
+          "module_hint": "fastapi"
+        }
+      ]
+    },
+    {
+      "name": "_moment_history_entries",
+      "kind": "function",
+      "line": 214,
+      "signature": "( db: AsyncSession, *, moment_id: str, limit: int = 20, ) -> list[dict]",
+      "complexity": 6,
+      "calls": [
+        {
+          "name": "list_revisions",
+          "line": 220,
+          "module_hint": "app.services.revision_service"
+        },
+        {
+          "name": "db.execute",
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 224,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Person.id.in_",
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "actors_by_id.get",
+          "line": 230,
+          "module_hint": null
+        },
+        {
+          "name": "entries.append",
+          "line": 231,
+          "module_hint": null
+        },
+        {
+          "name": "revision.created_at.isoformat",
+          "line": 237,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 239,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 240,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 241,
+          "module_hint": null
+        },
+        {
+          "name": "snapshot.get",
+          "line": 242,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_has_moment_content",
+      "line": 131,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 0,
+        "size": 8,
+        "nesting": 0,
+        "token_count": 22
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_validate_person",
+      "line": 148,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 6,
+        "size": 18,
+        "nesting": 2,
+        "token_count": 105
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 158,
+              "line_end": 158
+            },
+            {
+              "line_start": 162,
+              "line_end": 164
+            },
+            {
+              "line_start": 168,
+              "line_end": 170
+            },
+            {
+              "line_start": 158,
+              "line_end": 158
+            },
+            {
+              "line_start": 162,
+              "line_end": 164
+            },
+            {
+              "line_start": 168,
+              "line_end": 170
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_approved_media_ids",
+      "line": 175,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 5,
+        "size": 12,
+        "nesting": 2,
+        "token_count": 84
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_approved_tagged_person_ids",
+      "line": 192,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 10,
+        "nesting": 1,
+        "token_count": 39
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_validated_visibility",
+      "line": 207,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 4,
+        "nesting": 1,
+        "token_count": 31
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_moment_history_entries",
+      "line": 214,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 6,
+        "size": 27,
+        "nesting": 2,
+        "token_count": 256
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 233,
+              "line_end": 233
+            },
+            {
+              "line_start": 234,
+              "line_end": 234
+            },
+            {
+              "line_start": 235,
+              "line_end": 235
+            },
+            {
+              "line_start": 239,
+              "line_end": 239
+            },
+            {
+              "line_start": 240,
+              "line_end": 240
+            },
+            {
+              "line_start": 241,
+              "line_end": 241
+            },
+            {
+              "line_start": 239,
+              "line_end": 239
+            },
+            {
+              "line_start": 240,
+              "line_end": 240
+            },
+            {
+              "line_start": 241,
+              "line_end": 241
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "list_moments",
+      "line": 252,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 6,
+        "size": 21,
+        "nesting": 3,
+        "token_count": 119
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "create_moment",
+      "line": 286,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 3,
+        "size": 55,
+        "nesting": 1,
+        "token_count": 325
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 341,
+              "line_end": 341
+            },
+            {
+              "line_start": 341,
+              "line_end": 341
+            },
+            {
+              "line_start": 300,
+              "line_end": 300
+            },
+            {
+              "line_start": 301,
+              "line_end": 303
+            },
+            {
+              "line_start": 297,
+              "line_end": 297
+            },
+            {
+              "line_start": 299,
+              "line_end": 299
+            },
+            {
+              "line_start": 310,
+              "line_end": 310
+            },
+            {
+              "line_start": 296,
+              "line_end": 296
+            },
+            {
+              "line_start": 298,
+              "line_end": 298
+            },
+            {
+              "line_start": 300,
+              "line_end": 300
+            },
+            {
+              "line_start": 301,
+              "line_end": 303
+            },
+            {
+              "line_start": 296,
+              "line_end": 297
+            },
+            {
+              "line_start": 298,
+              "line_end": 299
+            },
+            {
+              "line_start": 297,
+              "line_end": 297
+            },
+            {
+              "line_start": 299,
+              "line_end": 299
+            },
+            {
+              "line_start": 310,
+              "line_end": 310
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_moment",
+      "line": 349,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 2,
+        "size": 9,
+        "nesting": 1,
+        "token_count": 94
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 358,
+              "line_end": 358
+            },
+            {
+              "line_start": 360,
+              "line_end": 360
+            },
+            {
+              "line_start": 358,
+              "line_end": 358
+            },
+            {
+              "line_start": 360,
+              "line_end": 360
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "update_moment",
+      "line": 366,
+      "metrics": {
+        "cyclomatic": 16,
+        "cognitive": 11,
+        "size": 62,
+        "nesting": 2,
+        "token_count": 462
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 397,
+              "line_end": 399
+            },
+            {
+              "line_start": 401,
+              "line_end": 403
+            },
+            {
+              "line_start": 397,
+              "line_end": 399
+            },
+            {
+              "line_start": 401,
+              "line_end": 403
+            },
+            {
+              "line_start": 396,
+              "line_end": 396
+            },
+            {
+              "line_start": 400,
+              "line_end": 400
+            },
+            {
+              "line_start": 376,
+              "line_end": 376
+            },
+            {
+              "line_start": 378,
+              "line_end": 378
+            },
+            {
+              "line_start": 381,
+              "line_end": 381
+            },
+            {
+              "line_start": 396,
+              "line_end": 396
+            },
+            {
+              "line_start": 400,
+              "line_end": 400
+            },
+            {
+              "line_start": 384,
+              "line_end": 384
+            },
+            {
+              "line_start": 430,
+              "line_end": 430
+            },
+            {
+              "line_start": 396,
+              "line_end": 399
+            },
+            {
+              "line_start": 400,
+              "line_end": 403
+            },
+            {
+              "line_start": 376,
+              "line_end": 376
+            },
+            {
+              "line_start": 378,
+              "line_end": 378
+            },
+            {
+              "line_start": 381,
+              "line_end": 381
+            },
+            {
+              "line_start": 375,
+              "line_end": 375
+            },
+            {
+              "line_start": 377,
+              "line_end": 377
+            },
+            {
+              "line_start": 397,
+              "line_end": 399
+            },
+            {
+              "line_start": 401,
+              "line_end": 403
+            },
+            {
+              "line_start": 398,
+              "line_end": 398
+            },
+            {
+              "line_start": 402,
+              "line_end": 402
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "delete_moment",
+      "line": 437,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 32,
+        "nesting": 1,
+        "token_count": 213
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 470,
+              "line_end": 470
+            },
+            {
+              "line_start": 470,
+              "line_end": 470
+            },
+            {
+              "line_start": 446,
+              "line_end": 446
+            },
+            {
+              "line_start": 451,
+              "line_end": 451
+            },
+            {
+              "line_start": 446,
+              "line_end": 446
+            },
+            {
+              "line_start": 451,
+              "line_end": 451
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_moment_history",
+      "line": 477,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 3,
+        "size": 12,
+        "nesting": 1,
+        "token_count": 119
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 486,
+              "line_end": 486
+            },
+            {
+              "line_start": 488,
+              "line_end": 488
+            },
+            {
+              "line_start": 485,
+              "line_end": 485
+            },
+            {
+              "line_start": 487,
+              "line_end": 487
+            },
+            {
+              "line_start": 491,
+              "line_end": 491
+            },
+            {
+              "line_start": 485,
+              "line_end": 485
+            },
+            {
+              "line_start": 487,
+              "line_end": 487
+            },
+            {
+              "line_start": 491,
+              "line_end": 491
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "revert_moment_revision",
+      "line": 497,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 38,
+        "nesting": 1,
+        "token_count": 231
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 508,
+              "line_end": 509
+            },
+            {
+              "line_start": 514,
+              "line_end": 515
+            },
+            {
+              "line_start": 504,
+              "line_end": 504
+            },
+            {
+              "line_start": 509,
+              "line_end": 509
+            },
+            {
+              "line_start": 515,
+              "line_end": 515
+            },
+            {
+              "line_start": 504,
+              "line_end": 504
+            },
+            {
+              "line_start": 509,
+              "line_end": 509
+            },
+            {
+              "line_start": 515,
+              "line_end": 515
+            },
+            {
+              "line_start": 533,
+              "line_end": 533
+            },
+            {
+              "line_start": 538,
+              "line_end": 538
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "moderate_moment",
+      "line": 544,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 2,
+        "size": 35,
+        "nesting": 1,
+        "token_count": 245
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 577,
+              "line_end": 577
+            },
+            {
+              "line_start": 582,
+              "line_end": 582
+            },
+            {
+              "line_start": 583,
+              "line_end": 583
+            },
+            {
+              "line_start": 551,
+              "line_end": 551
+            },
+            {
+              "line_start": 556,
+              "line_end": 556
+            },
+            {
+              "line_start": 551,
+              "line_end": 551
+            },
+            {
+              "line_start": 556,
+              "line_end": 556
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "restore_moment",
+      "line": 588,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 37,
+        "nesting": 1,
+        "token_count": 221
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 594,
+              "line_end": 594
+            },
+            {
+              "line_start": 599,
+              "line_end": 599
+            },
+            {
+              "line_start": 594,
+              "line_end": 594
+            },
+            {
+              "line_start": 599,
+              "line_end": 599
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "list_comments",
+      "line": 635,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 8,
+        "size": 31,
+        "nesting": 2,
+        "token_count": 262
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 642,
+              "line_end": 642
+            },
+            {
+              "line_start": 652,
+              "line_end": 653
+            },
+            {
+              "line_start": 645,
+              "line_end": 645
+            },
+            {
+              "line_start": 647,
+              "line_end": 647
+            },
+            {
+              "line_start": 649,
+              "line_end": 649
+            },
+            {
+              "line_start": 645,
+              "line_end": 645
+            },
+            {
+              "line_start": 647,
+              "line_end": 647
+            },
+            {
+              "line_start": 649,
+              "line_end": 649
+            },
+            {
+              "line_start": 664,
+              "line_end": 664
+            },
+            {
+              "line_start": 665,
+              "line_end": 665
+            },
+            {
+              "line_start": 666,
+              "line_end": 666
+            },
+            {
+              "line_start": 642,
+              "line_end": 642
+            },
+            {
+              "line_start": 661,
+              "line_end": 661
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "create_comment",
+      "line": 675,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 26,
+        "nesting": 1,
+        "token_count": 192
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 685,
+              "line_end": 685
+            },
+            {
+              "line_start": 687,
+              "line_end": 687
+            },
+            {
+              "line_start": 689,
+              "line_end": 689
+            },
+            {
+              "line_start": 685,
+              "line_end": 685
+            },
+            {
+              "line_start": 687,
+              "line_end": 687
+            },
+            {
+              "line_start": 689,
+              "line_end": 689
+            },
+            {
+              "line_start": 700,
+              "line_end": 700
+            },
+            {
+              "line_start": 701,
+              "line_end": 701
+            },
+            {
+              "line_start": 702,
+              "line_end": 702
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "delete_comment",
+      "line": 710,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 3,
+        "size": 17,
+        "nesting": 1,
+        "token_count": 157
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 721,
+              "line_end": 721
+            },
+            {
+              "line_start": 725,
+              "line_end": 725
+            },
+            {
+              "line_start": 728,
+              "line_end": 728
+            },
+            {
+              "line_start": 716,
+              "line_end": 718
+            },
+            {
+              "line_start": 722,
+              "line_end": 722
+            },
+            {
+              "line_start": 721,
+              "line_end": 721
+            },
+            {
+              "line_start": 725,
+              "line_end": 725
+            },
+            {
+              "line_start": 728,
+              "line_end": 728
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "add_reaction",
+      "line": 737,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 41,
+        "nesting": 1,
+        "token_count": 252
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 747,
+              "line_end": 747
+            },
+            {
+              "line_start": 749,
+              "line_end": 749
+            },
+            {
+              "line_start": 751,
+              "line_end": 751
+            },
+            {
+              "line_start": 755,
+              "line_end": 758
+            },
+            {
+              "line_start": 776,
+              "line_end": 779
+            },
+            {
+              "line_start": 754,
+              "line_end": 759
+            },
+            {
+              "line_start": 775,
+              "line_end": 780
+            },
+            {
+              "line_start": 747,
+              "line_end": 747
+            },
+            {
+              "line_start": 749,
+              "line_end": 749
+            },
+            {
+              "line_start": 751,
+              "line_end": 751
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "remove_reaction",
+      "line": 787,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 20,
+        "nesting": 1,
+        "token_count": 145
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 796,
+              "line_end": 796
+            },
+            {
+              "line_start": 798,
+              "line_end": 798
+            },
+            {
+              "line_start": 808,
+              "line_end": 808
+            },
+            {
+              "line_start": 796,
+              "line_end": 796
+            },
+            {
+              "line_start": 798,
+              "line_end": 798
+            },
+            {
+              "line_start": 808,
+              "line_end": 808
+            },
+            {
+              "line_start": 795,
+              "line_end": 796
+            },
+            {
+              "line_start": 807,
+              "line_end": 808
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 6,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.debug() at line 263",
+      "logging: logger.info() at line 343",
+      "logging: logger.info() at line 432",
+      "logging: logger.info() at line 472",
+      "logging: logger.info() at line 535",
+      "logging: logger.info() at line 579",
+      "logging: logger.info() at line 624"
+    ],
+    "endpoints": [
+      "endpoint:fastapi: @router.get() at line 251",
+      "endpoint:fastapi: @router.post() at line 285",
+      "endpoint:fastapi: @router.get() at line 348",
+      "endpoint:fastapi: @router.put() at line 365",
+      "endpoint:fastapi: @router.delete() at line 436",
+      "endpoint:fastapi: @router.get() at line 476",
+      "endpoint:fastapi: @router.post() at line 496",
+      "endpoint:fastapi: @router.post() at line 543",
+      "endpoint:fastapi: @router.post() at line 587",
+      "endpoint:fastapi: @router.get() at line 634",
+      "endpoint:fastapi: @router.post() at line 674",
+      "endpoint:fastapi: @router.delete() at line 709",
+      "endpoint:fastapi: @router.post() at line 736",
+      "endpoint:fastapi: @router.delete() at line 786"
+    ],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "CommentCreate",
+      "CommentResponse",
+      "MediaBrief",
+      "ModerateMomentRequest",
+      "MomentCard",
+      "MomentCreate",
+      "MomentUpdate",
+      "PersonBrief",
+      "ReactionCreate",
+      "_approved_media_ids",
+      "_approved_tagged_person_ids",
+      "_has_moment_content",
+      "_moment_history_entries",
+      "_validate_person",
+      "_validated_visibility"
+    ],
+    "package": null,
+    "change_velocity": 5.0,
+    "bus_factor": 1,
+    "author_count": 2,
+    "last_modified": "2026-03-23T16:57:43-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [
+      "tests/test_moments.py"
+    ],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.37,
+  "centrality_score": 0.0,
+  "quality_radar": {
+    "understandability": 0.3,
+    "changeability": 0.97,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.4
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

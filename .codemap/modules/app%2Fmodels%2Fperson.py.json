@@ -1,0 +1,424 @@
+{
+  "id": "app/models/person.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "4b7e1fcc",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 6,
+    "lines": 173,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/base.py",
+      "app/services/field_protection.py"
+    ],
+    "imported_by": [
+      "app/access_control.py",
+      "app/auth.py",
+      "app/backup/routes.py",
+      "app/models/__init__.py",
+      "app/pwa/routes.py",
+      "app/routes/auth_routes.py",
+      "app/routes/media.py",
+      "app/routes/moments.py",
+      "app/routes/pages.py",
+      "app/routes/persons.py",
+      "app/routes/relationships.py",
+      "app/routes/tree.py",
+      "app/seed.py",
+      "app/services/auth_service.py",
+      "app/services/bootstrap_service.py",
+      "app/services/moment_service.py",
+      "app/services/revision_service.py",
+      "tests/conftest.py",
+      "tests/test_access_control.py",
+      "tests/test_api.py",
+      "tests/test_auth.py",
+      "tests/test_models.py",
+      "tests/test_phase1_edge_cases.py",
+      "tests/test_protection_service.py",
+      "tests/test_revision_service.py",
+      "tests/test_schema_models.py"
+    ],
+    "tested_by": [
+      "tests/conftest.py",
+      "tests/test_access_control.py",
+      "tests/test_protection_service.py",
+      "tests/test_revision_service.py",
+      "tests/test_schema_models.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "EncryptedText",
+      "type": "class",
+      "summary": null,
+      "line": 17,
+      "signature": null
+    },
+    {
+      "name": "NameDisplayOrder",
+      "type": "class",
+      "summary": null,
+      "line": 28,
+      "signature": null
+    },
+    {
+      "name": "Gender",
+      "type": "class",
+      "summary": null,
+      "line": 34,
+      "signature": null
+    },
+    {
+      "name": "DatePrecision",
+      "type": "class",
+      "summary": null,
+      "line": 40,
+      "signature": null
+    },
+    {
+      "name": "Visibility",
+      "type": "class",
+      "summary": null,
+      "line": 48,
+      "signature": null
+    },
+    {
+      "name": "AccountState",
+      "type": "class",
+      "summary": null,
+      "line": 54,
+      "signature": null
+    },
+    {
+      "name": "PersonLifecycleState",
+      "type": "class",
+      "summary": null,
+      "line": 60,
+      "signature": null
+    },
+    {
+      "name": "PersonSource",
+      "type": "class",
+      "summary": null,
+      "line": 65,
+      "signature": null
+    },
+    {
+      "name": "Person",
+      "type": "class",
+      "summary": null,
+      "line": 75,
+      "signature": null
+    }
+  ],
+  "constructs": [
+    {
+      "name": "EncryptedText",
+      "kind": "class",
+      "line": 17,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "NameDisplayOrder",
+      "kind": "class",
+      "line": 28,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "Gender",
+      "kind": "class",
+      "line": 34,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "DatePrecision",
+      "kind": "class",
+      "line": 40,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "Visibility",
+      "kind": "class",
+      "line": 48,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "AccountState",
+      "kind": "class",
+      "line": 54,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PersonLifecycleState",
+      "kind": "class",
+      "line": 60,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "PersonSource",
+      "kind": "class",
+      "line": 65,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "Person",
+      "kind": "class",
+      "line": 75,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "process_bind_param",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 6
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "process_result_value",
+      "line": 24,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 6
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "languages",
+      "line": 147,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "languages",
+      "line": 153,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "display_name",
+      "line": 157,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 3,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 81
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 161,
+              "line_end": 161
+            },
+            {
+              "line_start": 164,
+              "line_end": 164
+            },
+            {
+              "line_start": 160,
+              "line_end": 160
+            },
+            {
+              "line_start": 162,
+              "line_end": 162
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "__repr__",
+      "line": 166,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 20
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_validate_contact_email",
+      "line": 170,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 3,
+        "nesting": 0,
+        "token_count": 19
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 5,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "AccountState",
+      "DatePrecision",
+      "EncryptedText",
+      "Gender",
+      "NameDisplayOrder",
+      "Person",
+      "PersonLifecycleState",
+      "PersonSource",
+      "Visibility"
+    ],
+    "package": null,
+    "change_velocity": 4.0,
+    "bus_factor": 1,
+    "author_count": 2,
+    "last_modified": "2026-03-23T19:38:18-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 1.0,
+  "attention_score": 0.33,
+  "centrality_score": 0.8,
+  "quality_radar": {
+    "understandability": 0.93,
+    "changeability": 0.6,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.37
+  },
+  "domain_role": "core",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

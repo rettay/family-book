@@ -1,0 +1,280 @@
+{
+  "id": "app/services/bootstrap_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "c6451302",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 11,
+    "lines": 60,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py",
+      "app/database.py",
+      "app/models/person.py",
+      "app/services/field_protection.py"
+    ],
+    "imported_by": [
+      "app/main.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "ensure_bootstrap_admin",
+      "type": "function",
+      "summary": null,
+      "line": 16,
+      "signature": "( session_factory: async_sessionmaker | None = None, ) -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "ensure_bootstrap_admin",
+      "kind": "function",
+      "line": 16,
+      "signature": "( session_factory: async_sessionmaker | None = None, ) -> None",
+      "complexity": 11,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 19,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "normalize_email_for_lookup",
+          "line": 20,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "factory",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "session.execute",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "select(func.count()).select_from",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "func.count",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "int",
+          "line": 27,
+          "module_hint": null
+        },
+        {
+          "name": "count_result.scalar",
+          "line": 27,
+          "module_hint": null
+        },
+        {
+          "name": "session.execute",
+          "line": 29,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 30,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "contact_email_lookup_hash",
+          "line": 30,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "existing_result.scalar_one_or_none",
+          "line": 32,
+          "module_hint": null
+        },
+        {
+          "name": "session.commit",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 43,
+          "module_hint": null
+        },
+        {
+          "name": "Person",
+          "line": 49,
+          "module_hint": "app.models.person"
+        },
+        {
+          "name": "settings.BOOTSTRAP_ADMIN_FIRST_NAME.strip",
+          "line": 50,
+          "module_hint": null
+        },
+        {
+          "name": "settings.BOOTSTRAP_ADMIN_LAST_NAME.strip",
+          "line": 51,
+          "module_hint": null
+        },
+        {
+          "name": "session.add",
+          "line": 58,
+          "module_hint": null
+        },
+        {
+          "name": "session.commit",
+          "line": 59,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 60,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "ensure_bootstrap_admin",
+      "line": 16,
+      "metrics": {
+        "cyclomatic": 11,
+        "cognitive": 5,
+        "size": 42,
+        "nesting": 2,
+        "token_count": 258
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 50,
+              "line_end": 50
+            },
+            {
+              "line_start": 51,
+              "line_end": 51
+            },
+            {
+              "line_start": 50,
+              "line_end": 50
+            },
+            {
+              "line_start": 51,
+              "line_end": 51
+            },
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 43,
+              "line_end": 46
+            },
+            {
+              "line_start": 60,
+              "line_end": 60
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 2,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 39",
+      "logging: logger.warning() at line 43",
+      "logging: logger.info() at line 60"
+    ],
+    "endpoints": [],
+    "databases": [
+      "database:sqlalchemy: session.execute() at line 26",
+      "database:sqlalchemy: session.execute() at line 29",
+      "database:sqlalchemy: session.commit() at line 38",
+      "database:sqlalchemy: session.add() at line 58",
+      "database:sqlalchemy: session.commit() at line 59"
+    ],
+    "services": [],
+    "unused_exports": [
+      "ensure_bootstrap_admin"
+    ],
+    "package": null,
+    "change_velocity": 1.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T19:38:18-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.55,
+  "attention_score": 0.24,
+  "centrality_score": 0.0,
+  "quality_radar": {
+    "understandability": 0.72,
+    "changeability": 0.68,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.67
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

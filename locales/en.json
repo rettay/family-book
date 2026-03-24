@@ -1,10 +1,11 @@
 {
   "app": {
-    "name": "Family Book",
-    "tagline": "Our living room, not the mall"
+    "name": "Family Tree",
+    "tagline": ""
   },
   "nav": {
     "tree": "Family Tree",
+    "map": "Map",
     "people": "People",
     "moments": "Moments",
     "admin": "Admin",
@@ -47,12 +48,26 @@
     "add_partner": "Add Partner"
   },
   "moments": {
+    "all": "All moments",
+    "about": "About",
+    "about_person": "About person",
+    "add_for_person": "Add a moment",
+    "choose_milestone": "Choose a milestone",
+    "date": "Date",
+    "details": "Details",
     "feed": "Family Feed",
     "new": "New Moment",
+    "note": "Note",
     "photo": "Photo",
+    "story": "Story",
+    "story_prompt": "Capture the story, note, or context behind this moment...",
+    "tagged_people": "Tagged people",
+    "title": "Title",
+    "type": "Type",
     "video": "Video",
     "text": "Text",
     "milestone": "Milestone",
+    "milestone_type": "Milestone type",
     "share": "Share",
     "react": "React",
     "comment": "Comment",
@@ -71,11 +86,10 @@
   },
   "auth": {
     "login": "Log In",
-    "login_with_facebook": "Log In with Facebook",
-    "magic_link": "Send Magic Link",
-    "email_placeholder": "your@email.com",
-    "check_email": "Check your email for the login link",
-    "invite_welcome": "Welcome to Family Book",
+    "login_with_google": "Continue with Google",
+    "google_help": "Sign in with the Google account that matches the email on your family profile.",
+    "google_not_configured": "Google Sign-In is not configured on this server yet.",
+    "invite_welcome": "Welcome to Family Tree",
     "claim_invite": "Join Family"
   },
   "common": {
@@ -95,6 +109,34 @@
     "zoom_in": "Zoom In",
     "zoom_out": "Zoom Out",
     "reset_view": "Reset View",
-    "our_family": "Our Family"
+    "our_family": "Our Family",
+    "display_preferences": "Display Preferences",
+    "show_names": "Show names",
+    "show_birth_dates": "Show birth dates",
+    "show_country_flags": "Show country flags",
+    "show_photos": "Show photos",
+    "save_preferences": "Save Display Settings",
+    "preferences_hint": "These settings are saved to your account and do not affect other family members.",
+    "filters": "Filters",
+    "filter_living": "Living status",
+    "filter_all": "All people",
+    "filter_living_only": "Living only",
+    "filter_deceased_only": "Deceased only",
+    "filter_branch": "Branch",
+    "filter_branch_placeholder": "martin",
+    "filter_residence_country": "Residence country",
+    "filter_birth_country": "Birth country",
+    "apply_filters": "Apply Filters",
+    "reset_filters": "Reset Filters",
+    "empty": "No family members match these filters yet.",
+    "load_error": "Failed to load tree data.",
+    "status": "{count} people shown"
+  },
+  "map": {
+    "title": "Family Map",
+    "description": "See family residences and memorial locations in one private view.",
+    "apply_filters": "Apply Filters",
+    "legend": "Blue markers show residences. Gold markers show burial or memorial locations.",
+    "empty": "No mapped people match these filters yet."
   }
 }

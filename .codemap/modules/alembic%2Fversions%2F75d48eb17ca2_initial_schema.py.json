@@ -1,0 +1,3355 @@
+{
+  "id": "alembic/versions/75d48eb17ca2_initial_schema.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "805b8321",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 5,
+    "lines": 399,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "upgrade",
+      "type": "function",
+      "summary": null,
+      "line": 21,
+      "signature": "() -> None"
+    },
+    {
+      "name": "downgrade",
+      "type": "function",
+      "summary": null,
+      "line": 366,
+      "signature": "() -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "upgrade",
+      "kind": "function",
+      "line": 21,
+      "signature": "() -> None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "op.create_table",
+          "line": 24,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 27,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 27,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 28,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 28,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 30,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 30,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 31,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 31,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 32,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 32,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 33,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 35,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 36,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 36,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 37,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 37,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 38,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 38,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 39,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 39,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 40,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 40,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 41,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 41,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 42,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 42,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 43,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 43,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 44,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 44,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 45,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 45,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 46,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 48,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 49,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 49,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 50,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 50,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 51,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 51,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 52,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 52,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 53,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 53,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 54,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 54,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 55,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 55,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 56,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 56,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 57,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 57,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 58,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 58,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 59,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 59,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 60,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 60,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 61,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 61,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 62,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 62,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 63,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 63,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 64,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 64,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 65,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 65,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 66,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 66,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 67,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 67,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 68,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 68,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 69,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 69,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 70,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 70,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 71,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 71,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 72,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 72,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 73,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 73,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 74,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 74,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 75,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 75,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 76,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 76,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 77,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 77,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 78,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 78,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 79,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 79,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 80,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 80,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 81,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 81,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 82,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.LargeBinary",
+          "line": 82,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 83,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 83,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 84,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 84,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 85,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 85,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 86,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 86,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 87,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 87,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 88,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 89,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.batch_alter_table",
+          "line": 91,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.create_index",
+          "line": 92,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.create_index",
+          "line": 93,
+          "module_hint": null
+        },
+        {
+          "name": "sa.text",
+          "line": 93,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.create_index",
+          "line": 94,
+          "module_hint": null
+        },
+        {
+          "name": "sa.text",
+          "line": 94,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 96,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 97,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 97,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 98,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 98,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 99,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 99,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 100,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 100,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 101,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 101,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 102,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 102,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 103,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 103,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 104,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 104,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 105,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 105,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 106,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 106,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 107,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 107,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 108,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 110,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 111,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 111,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 112,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 112,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 113,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 113,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 114,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 114,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 115,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 115,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 116,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 116,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 117,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 117,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 118,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 118,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 119,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 119,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 120,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 120,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 121,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 121,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 122,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 123,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 125,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 126,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 126,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 127,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 127,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 128,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 128,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 129,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 129,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 130,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 130,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 131,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 131,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 132,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 132,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 133,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 133,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 134,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 134,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 135,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 135,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 136,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 136,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 137,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 137,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 138,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 139,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 140,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 142,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 143,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 143,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 144,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 144,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 145,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 145,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 146,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 146,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 147,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 147,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 148,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 148,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 149,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 150,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 151,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 153,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 154,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 154,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 155,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 155,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 156,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 156,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 157,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 157,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 158,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 158,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 159,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 159,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 160,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 160,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 161,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 161,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 162,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 163,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 164,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 166,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 167,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 167,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 168,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 168,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 169,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 169,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 170,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 170,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 171,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 171,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 172,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 172,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 173,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 174,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 176,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 177,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 177,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 178,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 178,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 179,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 179,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 180,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 180,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 181,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 181,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 182,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 182,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 183,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Integer",
+          "line": 183,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 184,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Integer",
+          "line": 184,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 185,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Float",
+          "line": 185,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 186,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Integer",
+          "line": 186,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 187,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 187,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 188,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 188,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 189,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 189,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 190,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 190,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 191,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 191,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 192,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 192,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 193,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 193,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 194,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 194,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 195,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 195,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 196,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 196,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 197,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 198,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 200,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 201,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 201,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 202,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 202,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 203,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 203,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 204,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 204,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 205,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 205,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 206,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 206,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 207,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 207,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 208,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 208,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 209,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 209,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 210,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 210,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 211,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 212,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 213,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 215,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 216,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 216,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 217,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 217,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 218,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 218,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 219,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 219,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 220,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 220,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 221,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 221,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 222,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 222,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 223,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 223,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 224,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 224,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 225,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 225,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 226,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 226,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 227,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 227,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 228,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 228,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 229,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 230,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 232,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 233,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 233,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 234,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 234,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 235,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 235,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 236,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 236,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 237,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 237,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 238,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 238,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 239,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 239,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 240,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Boolean",
+          "line": 240,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 241,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 241,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 242,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 242,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 243,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 244,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 245,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 247,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 248,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 248,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 249,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 249,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 250,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 250,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 251,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 251,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 252,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 252,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 253,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 253,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 254,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 254,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 255,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 255,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 256,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 256,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 257,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 258,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 260,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 261,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 261,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 262,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 262,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 263,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 263,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 264,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 264,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 265,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 265,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 266,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 266,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 267,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 267,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 268,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 268,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 269,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 269,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 270,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 270,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 271,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 271,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 272,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 272,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.CheckConstraint",
+          "line": 273,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 274,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 275,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 276,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 277,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 279,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 280,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 280,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 281,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 281,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 282,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 282,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 283,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 283,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 284,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 284,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 285,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 285,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 286,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 286,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 287,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 287,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 288,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 288,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 289,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 289,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 290,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 290,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 291,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 291,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 292,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 292,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.CheckConstraint",
+          "line": 293,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.CheckConstraint",
+          "line": 294,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 295,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 296,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 297,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 298,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 300,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 301,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 301,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 302,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 302,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 303,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 303,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 304,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 304,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 305,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 305,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 306,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 306,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 307,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 307,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 308,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 308,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 309,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 309,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 310,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 311,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.batch_alter_table",
+          "line": 313,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.create_index",
+          "line": 314,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.create_index",
+          "line": 315,
+          "module_hint": null
+        },
+        {
+          "name": "op.create_table",
+          "line": 317,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 318,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 318,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 319,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 319,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 320,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 320,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 321,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 321,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 322,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 322,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 323,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 324,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 325,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 326,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 328,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 329,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 329,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 330,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 330,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 331,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 331,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 332,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 332,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 333,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 333,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 334,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 335,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 336,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 338,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 339,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 339,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 340,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 340,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 341,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 341,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 342,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 342,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 343,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 343,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 344,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 345,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 346,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.UniqueConstraint",
+          "line": 347,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.create_table",
+          "line": 349,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 350,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 350,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 351,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 351,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 352,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 352,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 353,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 353,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 354,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 354,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 355,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 355,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 356,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 356,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 357,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 357,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 358,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Integer",
+          "line": 358,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 359,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 359,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 360,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 361,
+          "module_hint": "sqlalchemy"
+        }
+      ]
+    },
+    {
+      "name": "downgrade",
+      "kind": "function",
+      "line": 366,
+      "signature": "() -> None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "op.drop_table",
+          "line": 369,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 370,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 371,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 372,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.batch_alter_table",
+          "line": 373,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.drop_index",
+          "line": 374,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.drop_index",
+          "line": 375,
+          "module_hint": null
+        },
+        {
+          "name": "op.drop_table",
+          "line": 377,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 378,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 379,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 380,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 381,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 382,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 383,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 384,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 385,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 386,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 387,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 388,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 389,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 390,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.batch_alter_table",
+          "line": 391,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.drop_index",
+          "line": 392,
+          "module_hint": null
+        },
+        {
+          "name": "sa.text",
+          "line": 392,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.drop_index",
+          "line": 393,
+          "module_hint": null
+        },
+        {
+          "name": "sa.text",
+          "line": 393,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.drop_index",
+          "line": 394,
+          "module_hint": null
+        },
+        {
+          "name": "op.drop_table",
+          "line": 396,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 397,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "op.drop_table",
+          "line": 398,
+          "module_hint": "alembic"
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "upgrade",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 0,
+        "size": 342,
+        "nesting": 0,
+        "token_count": 5664
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 122,
+              "line_end": 122
+            },
+            {
+              "line_start": 138,
+              "line_end": 138
+            },
+            {
+              "line_start": 139,
+              "line_end": 139
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 32,
+              "line_end": 32
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 313,
+              "line_end": 313
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 32,
+              "line_end": 32
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 314,
+              "line_end": 314
+            },
+            {
+              "line_start": 315,
+              "line_end": 315
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 151,
+              "line_end": 151
+            },
+            {
+              "line_start": 326,
+              "line_end": 326
+            },
+            {
+              "line_start": 347,
+              "line_end": 347
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 314,
+              "line_end": 314
+            },
+            {
+              "line_start": 315,
+              "line_end": 315
+            },
+            {
+              "line_start": 151,
+              "line_end": 151
+            },
+            {
+              "line_start": 326,
+              "line_end": 326
+            },
+            {
+              "line_start": 347,
+              "line_end": 347
+            },
+            {
+              "line_start": 33,
+              "line_end": 33
+            },
+            {
+              "line_start": 46,
+              "line_end": 46
+            },
+            {
+              "line_start": 88,
+              "line_end": 88
+            },
+            {
+              "line_start": 122,
+              "line_end": 122
+            },
+            {
+              "line_start": 138,
+              "line_end": 138
+            },
+            {
+              "line_start": 139,
+              "line_end": 139
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 313,
+              "line_end": 313
+            },
+            {
+              "line_start": 317,
+              "line_end": 327
+            },
+            {
+              "line_start": 338,
+              "line_end": 348
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 313,
+              "line_end": 313
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 273,
+              "line_end": 273
+            },
+            {
+              "line_start": 293,
+              "line_end": 293
+            },
+            {
+              "line_start": 294,
+              "line_end": 294
+            },
+            {
+              "line_start": 273,
+              "line_end": 273
+            },
+            {
+              "line_start": 293,
+              "line_end": 293
+            },
+            {
+              "line_start": 294,
+              "line_end": 294
+            },
+            {
+              "line_start": 317,
+              "line_end": 327
+            },
+            {
+              "line_start": 338,
+              "line_end": 348
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "downgrade",
+      "line": 366,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 0,
+        "size": 33,
+        "nesting": 0,
+        "token_count": 328
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 373,
+              "line_end": 373
+            },
+            {
+              "line_start": 391,
+              "line_end": 391
+            },
+            {
+              "line_start": 392,
+              "line_end": 392
+            },
+            {
+              "line_start": 393,
+              "line_end": 393
+            },
+            {
+              "line_start": 369,
+              "line_end": 369
+            },
+            {
+              "line_start": 370,
+              "line_end": 370
+            },
+            {
+              "line_start": 371,
+              "line_end": 371
+            },
+            {
+              "line_start": 392,
+              "line_end": 392
+            },
+            {
+              "line_start": 393,
+              "line_end": 393
+            },
+            {
+              "line_start": 392,
+              "line_end": 392
+            },
+            {
+              "line_start": 393,
+              "line_end": 393
+            },
+            {
+              "line_start": 373,
+              "line_end": 373
+            },
+            {
+              "line_start": 391,
+              "line_end": 391
+            },
+            {
+              "line_start": 373,
+              "line_end": 373
+            },
+            {
+              "line_start": 391,
+              "line_end": 391
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": true,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T18:59:37+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 0.6667,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "mixed",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": {
+    "understandability": 0.8,
+    "changeability": 0.7,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.65
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

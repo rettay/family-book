@@ -1,10 +1,11 @@
 {
   "app": {
-    "name": "Libro Familiar",
-    "tagline": "Nuestro salón, no el centro comercial"
+    "name": "Árbol Familiar",
+    "tagline": ""
   },
   "nav": {
     "tree": "Árbol Familiar",
+    "map": "Mapa",
     "people": "Personas",
     "moments": "Momentos",
     "admin": "Administrar",
@@ -47,12 +48,26 @@
     "add_partner": "Agregar Pareja"
   },
   "moments": {
+    "all": "Todos los momentos",
+    "about": "Sobre",
+    "about_person": "Persona principal",
+    "add_for_person": "Agregar momento",
+    "choose_milestone": "Elige un hito",
+    "date": "Fecha",
+    "details": "Detalles",
     "feed": "Novedades Familiares",
     "new": "Nuevo Momento",
+    "note": "Nota",
     "photo": "Foto",
+    "story": "Historia",
+    "story_prompt": "Captura la historia, la nota o el contexto de este momento...",
+    "tagged_people": "Personas etiquetadas",
+    "title": "Título",
+    "type": "Tipo",
     "video": "Video",
     "text": "Texto",
     "milestone": "Hito",
+    "milestone_type": "Tipo de hito",
     "share": "Compartir",
     "react": "Reaccionar",
     "comment": "Comentar",
@@ -71,11 +86,10 @@
   },
   "auth": {
     "login": "Iniciar Sesión",
-    "login_with_facebook": "Iniciar Sesión con Facebook",
-    "magic_link": "Enviar Enlace Mágico",
-    "email_placeholder": "tu@email.com",
-    "check_email": "Revisa tu correo para el enlace de inicio de sesión",
-    "invite_welcome": "Bienvenido/a al Libro Familiar",
+    "login_with_google": "Continuar con Google",
+    "google_help": "Inicia sesión con la cuenta de Google que coincide con el correo de tu perfil familiar.",
+    "google_not_configured": "Google Sign-In todavía no está configurado en este servidor.",
+    "invite_welcome": "Bienvenido/a al Árbol Familiar",
     "claim_invite": "Unirse a la Familia"
   },
   "common": {
@@ -95,6 +109,34 @@
     "zoom_in": "Acercar",
     "zoom_out": "Alejar",
     "reset_view": "Restablecer Vista",
-    "our_family": "Nuestra Familia"
+    "our_family": "Nuestra Familia",
+    "display_preferences": "Preferencias de Vista",
+    "show_names": "Mostrar nombres",
+    "show_birth_dates": "Mostrar fechas de nacimiento",
+    "show_country_flags": "Mostrar banderas",
+    "show_photos": "Mostrar fotos",
+    "save_preferences": "Guardar Vista",
+    "preferences_hint": "Estas opciones se guardan en tu cuenta y no cambian la vista de otros familiares.",
+    "filters": "Filtros",
+    "filter_living": "Estado de vida",
+    "filter_all": "Todas las personas",
+    "filter_living_only": "Solo vivos/as",
+    "filter_deceased_only": "Solo fallecidos/as",
+    "filter_branch": "Rama",
+    "filter_branch_placeholder": "martin",
+    "filter_residence_country": "País de residencia",
+    "filter_birth_country": "País de nacimiento",
+    "apply_filters": "Aplicar Filtros",
+    "reset_filters": "Restablecer Filtros",
+    "empty": "Ningún familiar coincide con estos filtros todavía.",
+    "load_error": "No se pudieron cargar los datos del árbol.",
+    "status": "{count} personas mostradas"
+  },
+  "map": {
+    "title": "Mapa Familiar",
+    "description": "Consulta residencias y lugares memoriales de la familia en una vista privada.",
+    "apply_filters": "Aplicar Filtros",
+    "legend": "Los marcadores azules muestran residencias. Los dorados muestran entierros o memoriales.",
+    "empty": "No hay personas con ubicación para estos filtros."
   }
 }

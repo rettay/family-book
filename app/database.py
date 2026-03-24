@@ -1,4 +1,3 @@
-import os
 from collections.abc import AsyncGenerator
 
 from sqlalchemy import event
@@ -24,7 +23,7 @@ def _set_sqlite_pragmas(dbapi_conn, connection_record):
 
 settings = get_settings()
 engine = create_async_engine(
-    _build_url(settings.DATABASE_URL),
+    _build_url(settings.normalized_database_url),
     echo=False,
 )
 event.listens_for(engine.sync_engine, "connect")(_set_sqlite_pragmas)

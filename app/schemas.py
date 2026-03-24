@@ -24,8 +24,12 @@ class PersonCreate(BaseModel):
     residence_place: str | None = Field(None, max_length=300)
     residence_country_code: str | None = Field(None, max_length=2)
     burial_place: str | None = Field(None, max_length=300)
+    burial_country_code: str | None = Field(None, max_length=2)
+    burial_cemetery_name: str | None = Field(None, max_length=300)
+    burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] = []
     bio: str | None = Field(None, max_length=2000)
+    medical_history: str | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -54,8 +58,12 @@ class PersonUpdate(BaseModel):
     residence_place: str | None = Field(None, max_length=300)
     residence_country_code: str | None = Field(None, max_length=2)
     burial_place: str | None = Field(None, max_length=300)
+    burial_country_code: str | None = Field(None, max_length=2)
+    burial_cemetery_name: str | None = Field(None, max_length=300)
+    burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] | None = None
     bio: str | None = Field(None, max_length=2000)
+    medical_history: str | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -69,6 +77,7 @@ class PersonSummary(BaseModel):
     display_name: str
     nickname: str | None
     photo_url: str | None
+    birth_date_raw: str | None = None
     residence_country_code: str | None
     branch: str | None
     is_living: bool
@@ -93,8 +102,12 @@ class PersonDetail(PersonSummary):
     birth_country_code: str | None = None
     residence_place: str | None = None
     burial_place: str | None = None
+    burial_country_code: str | None = None
+    burial_cemetery_name: str | None = None
+    burial_plot_number: str | None = None
     languages: list[str] = []
     bio: str | None = None
+    medical_history: str | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -112,6 +125,7 @@ def person_to_summary(person) -> PersonSummary:
         display_name=person.display_name,
         nickname=person.nickname if not person.is_root else None,
         photo_url=person.photo_url,
+        birth_date_raw=person.birth_date_raw,
         residence_country_code=person.residence_country_code,
         branch=person.branch,
         is_living=person.is_living,
@@ -161,8 +175,12 @@ def person_to_detail(person) -> PersonDetail:
         birth_country_code=person.birth_country_code,
         residence_place=person.residence_place,
         burial_place=person.burial_place,
+        burial_country_code=person.burial_country_code,
+        burial_cemetery_name=person.burial_cemetery_name,
+        burial_plot_number=person.burial_plot_number,
         languages=person.languages,
         bio=person.bio,
+        medical_history=person.medical_history,
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,

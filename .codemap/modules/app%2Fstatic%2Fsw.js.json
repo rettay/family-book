@@ -1,0 +1,71 @@
+{
+  "id": "app/static/sw.js",
+  "language": "javascript",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "7f939382",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 7,
+    "lines": 68,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [],
+  "constructs": [],
+  "function_audits": [],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "network: fetch() at line 57"
+    ],
+    "purity": "network",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [
+      "service:fetch-api: fetch() at line 57"
+    ],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T20:24:52+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 0.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.5,
+  "attention_score": 0.2,
+  "centrality_score": 0.0,
+  "quality_radar": {
+    "understandability": 0.78,
+    "changeability": 0.7,
+    "correctness": 0.5,
+    "security": 0.88,
+    "stability": 0.65
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

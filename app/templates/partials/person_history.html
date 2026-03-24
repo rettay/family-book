@@ -1,0 +1,33 @@
+{% if entries %}
+<div class="stack gap-8">
+  {% for entry in entries %}
+  <div class="card" style="margin-bottom:10px;">
+    <div class="card__body" style="padding:12px 14px;">
+      <div class="flex-between" style="gap:12px; align-items:flex-start;">
+        <div>
+          <div style="font-weight:600; text-transform:capitalize;">{{ entry.action }}</div>
+          <div class="text-sm text-muted">{{ entry.actor_name }} · {{ entry.created_at[:16] if entry.created_at else '' }}</div>
+          {% if entry.display_name %}
+          <div class="text-sm" style="margin-top:6px;">{{ entry.display_name }}</div>
+          {% endif %}
+          {% if entry.bio %}
+          <div class="text-sm text-muted" style="margin-top:4px;">{{ entry.bio[:120] }}{% if entry.bio|length > 120 %}...{% endif %}</div>
+          {% endif %}
+          {% if entry.lifecycle_state and entry.lifecycle_state != 'active' %}
+          <div class="text-sm" style="margin-top:4px; color:#8a1f1f;">State: {{ entry.lifecycle_state }}</div>
+          {% endif %}
+        </div>
+        {% if can_revert %}
+        <button class="btn btn--ghost btn--sm" type="button"
+                onclick="revertPersonRevision('{{ person_id }}', '{{ entry.id }}')">
+          Revert
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-sm text-muted">No history yet.</p>
+{% endif %}

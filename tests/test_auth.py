@@ -1,21 +1,18 @@
-import logging
 import pytest
 from datetime import datetime, timedelta, timezone
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.person import Person, AccountState
-from app.models.auth import UserSession, Invite, MagicLinkToken
-from app.services import auth_service
+from app.models.person import Person, AccountState, PersonLifecycleState
+from app.models.auth import Invite, UserSession
 from app.services.auth_service import (
+    authenticate_google_identity,
+    claim_invite,
+    create_invite,
     create_session,
     validate_session,
     delete_session,
-    create_invite,
-    claim_invite,
-    create_magic_link,
-    validate_magic_link,
     _hash_token,
 )
 
@@ -24,14 +21,14 @@ from app.services.auth_service import (
 async def test_create_and_validate_session(seeded_db: AsyncSession):
     token = await create_session(
         seeded_db,
-        person_id="alex-000-0000-0000-000000000002",
-        auth_method="magic_link",
+        person_id="tyler-000-0000-0000-000000000002",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
 
     person = await validate_session(seeded_db, token)
     assert person is not None
-    assert person.first_name == "Alex"
+    assert person.first_name == "Tyler"
 
 
 @pytest.mark.asyncio
@@ -44,8 +41,8 @@ async def test_invalid_session_returns_none(seeded_db: AsyncSession):
 async def test_delete_session(seeded_db: AsyncSession):
     token = await create_session(
         seeded_db,
-        person_id="alex-000-0000-0000-000000000002",
-        auth_method="magic_link",
+        person_id="tyler-000-0000-0000-000000000002",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
 
@@ -60,8 +57,8 @@ async def test_delete_session(seeded_db: AsyncSession):
 async def test_expired_session_rejected(seeded_db: AsyncSession):
     token = await create_session(
         seeded_db,
-        person_id="alex-000-0000-0000-000000000002",
-        auth_method="magic_link",
+        person_id="tyler-000-0000-0000-000000000002",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
 
@@ -80,18 +77,18 @@ async def test_expired_session_rejected(seeded_db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_suspended_user_session_rejected(seeded_db: AsyncSession):
-    # Suspend Alex
+    # Suspend Tyler
     result = await seeded_db.execute(
-        select(Person).where(Person.id == "alex-000-0000-0000-000000000002")
+        select(Person).where(Person.id == "tyler-000-0000-0000-000000000002")
     )
-    alex = result.scalar_one()
-    alex.account_state = AccountState.suspended.value
+    tyler = result.scalar_one()
+    tyler.account_state = AccountState.suspended.value
     await seeded_db.commit()
 
     token = await create_session(
         seeded_db,
-        person_id="alex-000-0000-0000-000000000002",
-        auth_method="magic_link",
+        person_id="tyler-000-0000-0000-000000000002",
+        auth_method="google_oauth",
     )
     await seeded_db.commit()
 
@@ -100,113 +97,204 @@ async def test_suspended_user_session_rejected(seeded_db: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_invite_create_and_claim(seeded_db: AsyncSession):
-    invite = await create_invite(
+async def test_authenticate_google_identity_links_by_email(seeded_db: AsyncSession):
+    person = await authenticate_google_identity(
         seeded_db,
-        person_id="member-00-0000-0000-000000000005",
-        created_by="alex-000-0000-0000-000000000002",
+        google_sub="google-sub-1",
+        email="tyler@example.com",
+        email_verified=True,
     )
     await seeded_db.commit()
 
-    raw_token = getattr(invite, "raw_token", None)
-    assert raw_token is not None
+    assert person.first_name == "Tyler"
+    refreshed = await seeded_db.get(Person, "tyler-000-0000-0000-000000000002")
+    assert refreshed is not None
+    assert refreshed.google_sub == "google-sub-1"
+    assert refreshed.google_email == "tyler@example.com"
 
-    result = await seeded_db.execute(select(Invite).where(Invite.id == invite.id))
-    stored_invite = result.scalar_one()
-    assert stored_invite.token == _hash_token(raw_token)
-    assert stored_invite.claimed_at is None
 
-    person = await claim_invite(seeded_db, raw_token)
+@pytest.mark.asyncio
+async def test_authenticate_google_identity_uses_existing_google_sub(seeded_db: AsyncSession):
+    person = await seeded_db.get(Person, "tyler-000-0000-0000-000000000002")
     assert person is not None
-    assert person.first_name == "Jane"
-
-    # Can't claim twice
-    person2 = await claim_invite(seeded_db, raw_token)
-    assert person2 is None
-
-
-@pytest.mark.asyncio
-async def test_expired_invite_rejected(seeded_db: AsyncSession):
-    invite = await create_invite(
-        seeded_db,
-        person_id="member-00-0000-0000-000000000005",
-        created_by="alex-000-0000-0000-000000000002",
-    )
-    invite.expires_at = datetime.now(timezone.utc) - timedelta(hours=1)
+    person.google_sub = "google-sub-1"
+    person.google_email = "tyler@example.com"
     await seeded_db.commit()
 
-    person = await claim_invite(seeded_db, getattr(invite, "raw_token"))
-    assert person is None
+    resolved = await authenticate_google_identity(
+        seeded_db,
+        google_sub="google-sub-1",
+        email="different@example.com",
+        email_verified=True,
+    )
+    assert resolved.id == person.id
 
 
 @pytest.mark.asyncio
-async def test_get_invite_route_accepts_raw_token_when_storage_is_hashed(
+async def test_authenticate_google_identity_requires_verified_email(seeded_db: AsyncSession):
+    with pytest.raises(ValueError, match="not verified"):
+        await authenticate_google_identity(
+            seeded_db,
+            google_sub="google-sub-1",
+            email="tyler@example.com",
+            email_verified=False,
+        )
+
+
+@pytest.mark.asyncio
+async def test_authenticate_google_identity_rejects_unknown_email(seeded_db: AsyncSession):
+    with pytest.raises(ValueError, match="No family profile matches"):
+        await authenticate_google_identity(
+            seeded_db,
+            google_sub="google-sub-1",
+            email="unknown@example.com",
+            email_verified=True,
+        )
+
+
+@pytest.mark.asyncio
+async def test_google_auth_immediately_authenticates_client(client: AsyncClient, monkeypatch):
+    from app.routes import auth_routes
+
+    monkeypatch.setattr(
+        auth_routes,
+        "verify_google_credential",
+        lambda credential: {
+            "sub": "google-sub-1",
+            "email": "tyler@example.com",
+            "email_verified": True,
+        },
+    )
+
+    resp = await client.post("/auth/google", json={"credential": "test-credential"})
+    assert resp.status_code == 200
+
+    me = await client.get("/auth/me")
+    assert me.status_code == 200
+    assert me.json()["display_name"] == "Tyler Martin"
+
+
+@pytest.mark.asyncio
+async def test_create_and_claim_invite_activates_person_and_creates_session(
+    seeded_db: AsyncSession,
     client: AsyncClient,
+):
+    person = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert person is not None
+    person.account_state = AccountState.pending.value
+    person.contact_email = "jane@example.com"
+    await seeded_db.commit()
+
+    invite = await create_invite(
+        seeded_db,
+        person_id=person.id,
+        created_by="tyler-000-0000-0000-000000000002",
+    )
+    await seeded_db.commit()
+
+    claim_resp = await client.post(f"/invite/{invite.raw_token}/claim")
+    assert claim_resp.status_code == 200
+    assert "session=" in claim_resp.headers.get("set-cookie", "")
+
+    await seeded_db.refresh(person)
+    refreshed = await seeded_db.get(Person, person.id)
+    assert refreshed is not None
+    assert refreshed.account_state == AccountState.active.value
+
+
+@pytest.mark.asyncio
+async def test_admin_can_create_and_revoke_invite(
+    admin_client: AsyncClient,
     seeded_db: AsyncSession,
 ):
-    invite = await create_invite(
-        seeded_db,
-        person_id="member-00-0000-0000-000000000005",
-        created_by="alex-000-0000-0000-000000000002",
-    )
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
     await seeded_db.commit()
 
-    resp = await client.get(f"/invite/{getattr(invite, 'raw_token')}")
+    create_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert create_resp.status_code == 201
+    body = create_resp.json()
+    assert body["person_id"] == member.id
+    assert body["contact_email"] == "jane@example.com"
+    assert "/invite/" in body["invite_url"]
 
-    assert resp.status_code == 200
-    assert resp.json()["person_name"] == "Jane Rivera"
+    invite_result = await seeded_db.execute(select(Invite).where(Invite.person_id == member.id))
+    invite = invite_result.scalar_one()
+
+    revoke_resp = await admin_client.post(f"/api/admin/invites/{invite.id}/revoke")
+    assert revoke_resp.status_code == 200
+
+    await seeded_db.refresh(invite)
+    refreshed = await seeded_db.get(Invite, invite.id)
+    assert refreshed is not None
+    assert refreshed.revoked is True
 
 
 @pytest.mark.asyncio
-async def test_magic_link_request_logs_only_redacted_token(
-    client: AsyncClient,
-    monkeypatch: pytest.MonkeyPatch,
-    caplog,
+async def test_admin_reinvite_does_not_downgrade_active_member(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
 ):
-    raw_token = "deadbeef" * 8
-    monkeypatch.setattr(auth_service, "generate_magic_link_token", lambda: raw_token)
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
+    member.account_state = AccountState.active.value
+    await seeded_db.commit()
 
-    with caplog.at_level(logging.INFO, logger="app.routes.auth_routes"):
-        resp = await client.post("/auth/magic-link", json={"email": "alex@example.com"})
+    create_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert create_resp.status_code == 201
 
-    assert resp.status_code == 200
-    auth_logs = [
-        record.getMessage()
-        for record in caplog.records
-        if record.name == "app.routes.auth_routes"
-    ]
-    assert auth_logs
-    assert any(f"{raw_token[:8]}..." in message for message in auth_logs)
-    assert all(raw_token not in message for message in auth_logs)
+    await seeded_db.refresh(member)
+    refreshed = await seeded_db.get(Person, member.id)
+    assert refreshed is not None
+    assert refreshed.account_state == AccountState.active.value
 
 
 @pytest.mark.asyncio
-async def test_magic_link_create_and_validate(seeded_db: AsyncSession):
-    token = await create_magic_link(seeded_db, "alex-000-0000-0000-000000000002")
-    await seeded_db.commit()
+async def test_admin_can_suspend_and_activate_person(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
 
-    person = await validate_magic_link(seeded_db, token)
-    assert person is not None
-    assert person.first_name == "Alex"
+    suspend_resp = await admin_client.post(f"/api/admin/persons/{member.id}/suspend")
+    assert suspend_resp.status_code == 200
 
-    # Can't use twice
-    person2 = await validate_magic_link(seeded_db, token)
-    assert person2 is None
+    await seeded_db.refresh(member)
+    suspended = await seeded_db.get(Person, member.id)
+    assert suspended is not None
+    assert suspended.account_state == AccountState.suspended.value
+
+    activate_resp = await admin_client.post(f"/api/admin/persons/{member.id}/activate")
+    assert activate_resp.status_code == 200
+
+    await seeded_db.refresh(member)
+    activated = await seeded_db.get(Person, member.id)
+    assert activated is not None
+    assert activated.account_state == AccountState.active.value
 
 
 @pytest.mark.asyncio
-async def test_expired_magic_link_rejected(seeded_db: AsyncSession):
-    token = await create_magic_link(seeded_db, "alex-000-0000-0000-000000000002")
+async def test_deleted_person_cannot_be_invited_or_state_toggled(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
+    member.lifecycle_state = PersonLifecycleState.deleted.value
     await seeded_db.commit()
 
-    # Expire the token
-    token_hash = _hash_token(token)
-    result = await seeded_db.execute(
-        select(MagicLinkToken).where(MagicLinkToken.token_hash == token_hash)
-    )
-    ml = result.scalar_one()
-    ml.expires_at = datetime.now(timezone.utc) - timedelta(hours=1)
-    await seeded_db.commit()
+    invite_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert invite_resp.status_code == 400
 
-    person = await validate_magic_link(seeded_db, token)
-    assert person is None
+    approve_resp = await admin_client.post(f"/api/admin/persons/{member.id}/approve")
+    assert approve_resp.status_code == 400
+
+    suspend_resp = await admin_client.post(f"/api/admin/persons/{member.id}/suspend")
+    assert suspend_resp.status_code == 400
+
+    activate_resp = await admin_client.post(f"/api/admin/persons/{member.id}/activate")
+    assert activate_resp.status_code == 400

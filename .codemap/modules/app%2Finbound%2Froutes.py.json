@@ -1,0 +1,399 @@
+{
+  "id": "app/inbound/routes.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "0e87bf10",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 29,
+    "lines": 188,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py",
+      "app/services/io_limits.py"
+    ],
+    "imported_by": [
+      "app/main.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "EnvelopeAttachment",
+      "type": "class",
+      "summary": null,
+      "line": 32,
+      "signature": null
+    },
+    {
+      "name": "EnvelopePayload",
+      "type": "class",
+      "summary": null,
+      "line": 38,
+      "signature": null
+    },
+    {
+      "name": "_ext_from_mime",
+      "type": "function",
+      "summary": null,
+      "line": 149,
+      "signature": "(content_type: str) -> str"
+    },
+    {
+      "name": "_is_allowed_attachment_url",
+      "type": "function",
+      "summary": null,
+      "line": 160,
+      "signature": "(url: str, allowed_hosts: list[str]) -> bool"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "EnvelopeAttachment",
+      "kind": "class",
+      "line": 32,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "EnvelopePayload",
+      "kind": "class",
+      "line": 38,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "_ext_from_mime",
+      "kind": "function",
+      "line": 149,
+      "signature": "(content_type: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "{\n        \"image/jpeg\": \".jpg\",\n        \"image/png\": \".png\",\n        \"image/webp\": \".webp\",\n        \"image/gif\": \".gif\",\n        \"video/mp4\": \".mp4\",\n        \"video/webm\": \".webm\",\n    }.get",
+          "line": 150,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_is_allowed_attachment_url",
+      "kind": "function",
+      "line": 160,
+      "signature": "(url: str, allowed_hosts: list[str]) -> bool",
+      "complexity": 13,
+      "calls": [
+        {
+          "name": "urlparse",
+          "line": 161,
+          "module_hint": "urllib.parse"
+        },
+        {
+          "name": "parsed.hostname.lower",
+          "line": 167,
+          "module_hint": null
+        },
+        {
+          "name": "any",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "hostname.endswith",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "socket.getaddrinfo",
+          "line": 172,
+          "module_hint": "socket"
+        },
+        {
+          "name": "ipaddress.ip_address",
+          "line": 177,
+          "module_hint": "ipaddress"
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "envelope_webhook",
+      "line": 52,
+      "metrics": {
+        "cyclomatic": 17,
+        "cognitive": 16,
+        "size": 94,
+        "nesting": 2,
+        "token_count": 611
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 133,
+              "line_end": 133
+            },
+            {
+              "line_start": 135,
+              "line_end": 135
+            },
+            {
+              "line_start": 70,
+              "line_end": 70
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
+            },
+            {
+              "line_start": 97,
+              "line_end": 97
+            },
+            {
+              "line_start": 101,
+              "line_end": 101
+            },
+            {
+              "line_start": 129,
+              "line_end": 129
+            },
+            {
+              "line_start": 144,
+              "line_end": 144
+            },
+            {
+              "line_start": 58,
+              "line_end": 58
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 80,
+              "line_end": 83
+            },
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 70,
+              "line_end": 70
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 58,
+              "line_end": 58
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 80,
+              "line_end": 83
+            },
+            {
+              "line_start": 133,
+              "line_end": 133
+            },
+            {
+              "line_start": 135,
+              "line_end": 135
+            },
+            {
+              "line_start": 133,
+              "line_end": 133
+            },
+            {
+              "line_start": 135,
+              "line_end": 135
+            },
+            {
+              "line_start": 61,
+              "line_end": 61
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 132,
+              "line_end": 133
+            },
+            {
+              "line_start": 134,
+              "line_end": 135
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_ext_from_mime",
+      "line": 149,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 8,
+        "nesting": 0,
+        "token_count": 66
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 151,
+              "line_end": 151
+            },
+            {
+              "line_start": 152,
+              "line_end": 152
+            },
+            {
+              "line_start": 153,
+              "line_end": 153
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_is_allowed_attachment_url",
+      "line": 160,
+      "metrics": {
+        "cyclomatic": 13,
+        "cognitive": 7,
+        "size": 28,
+        "nesting": 2,
+        "token_count": 136
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "filesystem: os.makedirs() at line 119",
+      "filesystem: open() at line 122"
+    ],
+    "purity": "filesystem",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 74",
+      "logging: logger.warning() at line 97",
+      "logging: logger.info() at line 131",
+      "logging: logger.warning() at line 133"
+    ],
+    "endpoints": [
+      "endpoint:fastapi: @router.post() at line 51"
+    ],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "EnvelopeAttachment",
+      "EnvelopePayload",
+      "_ext_from_mime",
+      "_is_allowed_attachment_url"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T20:24:52+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.2,
+  "attention_score": 0.41,
+  "centrality_score": 0.03,
+  "quality_radar": {
+    "understandability": 0.18,
+    "changeability": 0.68,
+    "correctness": 0.5,
+    "security": 0.88,
+    "stability": 0.6
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

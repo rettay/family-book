@@ -1,6 +1,7 @@
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException
@@ -22,9 +23,24 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    data_dir = settings.DATA_DIR
+    data_dir = settings.resolved_data_dir
     os.makedirs(os.path.join(data_dir, "media"), exist_ok=True)
     os.makedirs(os.path.join(data_dir, "backups"), exist_ok=True)
+
+    if settings.sqlite_database_path:
+        db_parent = Path(settings.sqlite_database_path).resolve().parent
+        data_root = Path(data_dir).resolve()
+        if db_parent != data_root:
+            logger.warning(
+                "SQLite database path %s is outside DATA_DIR %s; verify Railway volume mounts",
+                settings.sqlite_database_path,
+                data_dir,
+            )
+
+    from app.services.bootstrap_service import ensure_bootstrap_admin
+    from app.services.protection_service import ensure_sensitive_person_fields_protected
+    await ensure_bootstrap_admin()
+    await ensure_sensitive_person_fields_protected()
 
     # Start Matrix bot if configured
     from app.matrix.startup import start_matrix_bot, stop_matrix_bot
@@ -44,10 +60,13 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
-        title="Family Book",
+        title="Family Tree",
         description="Private, self-hosted family tree and archive",
         version="0.1.0",
         lifespan=lifespan,
+        docs_url="/docs" if settings.ENABLE_API_DOCS else None,
+        redoc_url="/redoc" if settings.ENABLE_API_DOCS else None,
+        openapi_url="/openapi.json" if settings.ENABLE_API_DOCS else None,
     )
 
     # Phase 1 routes
@@ -76,7 +95,7 @@ def create_app() -> FastAPI:
     application.include_router(demo_router)
 
     # 401 handler: redirect to /login for page routes, JSON for API routes
-    _API_PREFIXES = ("/api/", "/auth/", "/health", "/invite/")
+    _API_PREFIXES = ("/api/", "/auth/", "/health")
 
     @application.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):

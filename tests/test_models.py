@@ -1,8 +1,11 @@
 import pytest
+from sqlalchemy import text
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.media import Media, MediaType
+from app.models.moments import Moment, MomentKind
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
 
@@ -50,6 +53,101 @@ async def test_person_languages_property(db: AsyncSession):
     result = await db.execute(select(Person).where(Person.id == person.id))
     fetched = result.scalar_one()
     assert fetched.languages == ["en", "ru", "es"]
+
+
+@pytest.mark.asyncio
+async def test_person_rich_fields_round_trip(db: AsyncSession):
+    person = Person(
+        first_name="Rich",
+        last_name="Profile",
+        medical_history="Family history of hypertension",
+        burial_place="Springfield",
+        burial_country_code="US",
+        burial_cemetery_name="Maple Grove",
+        burial_plot_number="A-42",
+    )
+    db.add(person)
+    await db.flush()
+
+    result = await db.execute(select(Person).where(Person.id == person.id))
+    fetched = result.scalar_one()
+    assert fetched.medical_history == "Family history of hypertension"
+    assert fetched.burial_place == "Springfield"
+    assert fetched.burial_country_code == "US"
+    assert fetched.burial_cemetery_name == "Maple Grove"
+    assert fetched.burial_plot_number == "A-42"
+
+
+@pytest.mark.asyncio
+async def test_sensitive_person_fields_persist_encrypted(db: AsyncSession):
+    person = Person(
+        first_name="Protected",
+        last_name="Person",
+        medical_history="High blood pressure notes",
+        contact_email="protected@example.com",
+        contact_signal="+15551234567",
+    )
+    db.add(person)
+    await db.flush()
+
+    row = (
+        await db.execute(
+            text(
+                """
+                SELECT medical_history, contact_email, contact_signal, contact_email_hash
+                FROM persons
+                WHERE id = :person_id
+                """
+            ),
+            {"person_id": person.id},
+        )
+    ).one()
+
+    assert row.medical_history != "High blood pressure notes"
+    assert row.contact_email != "protected@example.com"
+    assert row.contact_signal != "+15551234567"
+    assert row.contact_email_hash is not None
+
+    fetched = (
+        await db.execute(select(Person).where(Person.id == person.id))
+    ).scalar_one()
+    assert fetched.medical_history == "High blood pressure notes"
+    assert fetched.contact_email == "protected@example.com"
+    assert fetched.contact_signal == "+15551234567"
+
+
+@pytest.mark.asyncio
+async def test_media_tagged_person_ids_property_round_trip(db: AsyncSession):
+    owner = Person(first_name="Media", last_name="Owner")
+    tagged = Person(first_name="Tagged", last_name="Person")
+    db.add_all([owner, tagged])
+    await db.flush()
+
+    media = Media(person_id=owner.id, media_type=MediaType.image.value)
+    media.tagged_person_ids = [owner.id, tagged.id]
+    db.add(media)
+    await db.flush()
+
+    result = await db.execute(select(Media).where(Media.id == media.id))
+    fetched = result.scalar_one()
+    assert fetched.tagged_person_ids == [owner.id, tagged.id]
+
+
+@pytest.mark.asyncio
+async def test_moment_tagged_person_ids_property_round_trip(db: AsyncSession):
+    owner = Person(first_name="Moment", last_name="Owner")
+    tagged = Person(first_name="Tagged", last_name="Moment")
+    db.add_all([owner, tagged])
+    await db.flush()
+
+    moment = Moment(person_id=owner.id, kind=MomentKind.story.value, posted_by=owner.id)
+    moment.tagged_person_ids = [owner.id, tagged.id]
+    db.add(moment)
+    await db.flush()
+
+    result = await db.execute(select(Moment).where(Moment.id == moment.id))
+    fetched = result.scalar_one()
+    assert fetched.tagged_person_ids == [owner.id, tagged.id]
 
 
 @pytest.mark.asyncio

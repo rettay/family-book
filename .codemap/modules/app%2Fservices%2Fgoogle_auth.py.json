@@ -1,0 +1,355 @@
+{
+  "id": "app/services/google_auth.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "0e9034a1",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 11,
+    "lines": 52,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py"
+    ],
+    "imported_by": [
+      "app/routes/auth_routes.py",
+      "tests/test_phase1_edge_cases.py"
+    ],
+    "tested_by": [
+      "tests/test_phase1_edge_cases.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "GoogleAuthError",
+      "type": "class",
+      "summary": null,
+      "line": 9,
+      "signature": null
+    },
+    {
+      "name": "verify_google_credential",
+      "type": "function",
+      "summary": null,
+      "line": 13,
+      "signature": "(credential: str) -> dict[str, str | bool | None]"
+    },
+    {
+      "name": "_optional_str",
+      "type": "function",
+      "summary": null,
+      "line": 48,
+      "signature": "(payload: Mapping[str, object], key: str) -> str | None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "GoogleAuthError",
+      "kind": "class",
+      "line": 9,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "verify_google_credential",
+      "kind": "function",
+      "line": 13,
+      "signature": "(credential: str) -> dict[str, str | bool | None]",
+      "complexity": 10,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 14,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "settings.GOOGLE_CLIENT_ID.strip",
+          "line": 15,
+          "module_hint": null
+        },
+        {
+          "name": "GoogleAuthError",
+          "line": 17,
+          "module_hint": null
+        },
+        {
+          "name": "GoogleAuthError",
+          "line": 19,
+          "module_hint": null
+        },
+        {
+          "name": "id_token.verify_oauth2_token",
+          "line": 22,
+          "module_hint": "google.oauth2"
+        },
+        {
+          "name": "Request",
+          "line": 22,
+          "module_hint": "google.auth.transport.requests"
+        },
+        {
+          "name": "GoogleAuthError",
+          "line": 24,
+          "module_hint": null
+        },
+        {
+          "name": "payload.get",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "GoogleAuthError",
+          "line": 27,
+          "module_hint": null
+        },
+        {
+          "name": "settings.GOOGLE_HOSTED_DOMAIN.strip().lower",
+          "line": 29,
+          "module_hint": null
+        },
+        {
+          "name": "settings.GOOGLE_HOSTED_DOMAIN.strip",
+          "line": 29,
+          "module_hint": null
+        },
+        {
+          "name": "str(payload.get(\"hd\") or \"\").lower",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "payload.get",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "GoogleAuthError",
+          "line": 32,
+          "module_hint": null
+        },
+        {
+          "name": "payload.get",
+          "line": 34,
+          "module_hint": null
+        },
+        {
+          "name": "GoogleAuthError",
+          "line": 36,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "_optional_str",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "bool",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "payload.get",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "_optional_str",
+          "line": 42,
+          "module_hint": null
+        },
+        {
+          "name": "_optional_str",
+          "line": 43,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_optional_str",
+      "kind": "function",
+      "line": 48,
+      "signature": "(payload: Mapping[str, object], key: str) -> str | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "payload.get",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 52,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "verify_google_credential",
+      "line": 13,
+      "metrics": {
+        "cyclomatic": 10,
+        "cognitive": 6,
+        "size": 32,
+        "nesting": 1,
+        "token_count": 252
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 43
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 43
+            },
+            {
+              "line_start": 16,
+              "line_end": 17
+            },
+            {
+              "line_start": 18,
+              "line_end": 19
+            },
+            {
+              "line_start": 35,
+              "line_end": 36
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_optional_str",
+      "line": 48,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 4,
+        "nesting": 1,
+        "token_count": 22
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "GoogleAuthError",
+      "_optional_str",
+      "verify_google_credential"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-22T23:40:48-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.1,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.68,
+    "changeability": 0.96,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.5
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

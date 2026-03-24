@@ -5,69 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ t('auth.login') }} — {{ t('app.name') }}</title>
   <link rel="stylesheet" href="/static/css/main.css">
-  <meta name="theme-color" content="#faf8f5">
+  <meta name="theme-color" content="#2d5016">
 </head>
 <body>
   <div class="auth-page">
     <div class="auth-card">
-      <div style="text-align:center; margin-bottom: 8px; font-size: 2.5rem;">🌳</div>
       <h1 class="auth-card__title">{{ t('app.name') }}</h1>
-      <p class="auth-card__subtitle">{{ t('app.tagline') }}</p>
 
-      <form id="magic-link-form" onsubmit="requestMagicLink(event)">
-        <div class="form-group">
-          <label for="email">{{ t('auth.magic_link') }}</label>
-          <input type="email" id="email" name="email" class="form-input"
-                 placeholder="{{ t('auth.email_placeholder') }}" required autocomplete="email">
-        </div>
-        <button type="submit" class="btn btn--primary btn--block btn--lg" id="magic-link-btn">
-          {{ t('auth.magic_link') }}
-        </button>
-      </form>
-
-      <div id="magic-link-success" class="hidden" style="text-align:center; padding: 24px 0;">
-        <p style="font-size: 2rem; margin-bottom: 12px;">✉️</p>
-        <p style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--brown-dark);">Check your email</p>
-        <p class="text-sm text-muted mt-8">{{ t('auth.check_email') }}</p>
-      </div>
-
-      {% if fb_enabled %}
-      <div class="auth-card__divider">or</div>
-      <a href="/auth/facebook" class="btn btn--secondary btn--block btn--lg">
-        {{ t('auth.login_with_facebook') }}
-      </a>
+      {% if google_client_id %}
+      <p style="margin-bottom: 16px; text-align: center; color: var(--text-muted);">
+        {{ t('auth.google_help') }}
+      </p>
+      <div id="google-signin" style="display:flex; justify-content:center;"></div>
+      <p id="google-auth-error" class="hidden" style="margin-top:16px; color:var(--danger); text-align:center;"></p>
+      {% else %}
+      <p style="text-align:center; color:var(--text-muted);">
+        {{ t('auth.google_not_configured') }}
+      </p>
+      <p style="text-align:center; color:var(--text-muted); margin-top:8px;">
+        Set <code>GOOGLE_CLIENT_ID</code> in the server environment, then reload this page.
+      </p>
       {% endif %}
-
-      <div style="margin-top: 28px; text-align: center;">
-        <a href="/demo" style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500;">
-          ✨ Explore the demo family
-        </a>
-      </div>
     </div>
   </div>
 
+  {% if google_client_id %}
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-    async function requestMagicLink(e) {
-      e.preventDefault();
-      const btn = document.getElementById('magic-link-btn');
-      const email = document.getElementById('email').value;
-      btn.disabled = true;
-      btn.textContent = '{{ t("common.loading") }}';
+    function setGoogleAuthError(message) {
+      const el = document.getElementById('google-auth-error');
+      if (!el) return;
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+
+    async function handleGoogleCredential(response) {
       try {
-        const resp = await fetch('/auth/magic-link', {
+        const resp = await fetch('/auth/google', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({email})
+          credentials: 'same-origin',
+          body: JSON.stringify({credential: response.credential})
         });
-        if (resp.ok) {
-          document.getElementById('magic-link-form').classList.add('hidden');
-          document.getElementById('magic-link-success').classList.remove('hidden');
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          throw new Error(data.detail || '{{ t("common.error") }}');
         }
-      } catch(err) {
-        btn.disabled = false;
-        btn.textContent = '{{ t("auth.magic_link") }}';
+        window.location.href = '/';
+      } catch (err) {
+        setGoogleAuthError(err.message || '{{ t("common.error") }}');
       }
     }
+
+    window.onGoogleLibraryLoad = function() {
+      google.accounts.id.initialize({
+        client_id: '{{ google_client_id }}',
+        callback: handleGoogleCredential,
+        ux_mode: 'popup'
+      });
+      google.accounts.id.renderButton(document.getElementById('google-signin'), {
+        theme: 'outline',
+        size: 'large',
+        type: 'standard',
+        shape: 'pill',
+        text: 'signin_with',
+        width: 280
+      });
+    };
   </script>
+  {% endif %}
 </body>
 </html>

@@ -3,7 +3,6 @@
 
 const CACHE_NAME = 'family-book-v1';
 const PRECACHE_URLS = [
-  '/',
   '/static/css/main.css',
   '/static/js/main.js',
   '/static/manifest.json',
@@ -33,53 +32,25 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for static assets
+// Fetch: only cache static assets. Authenticated API/page responses stay network-only.
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Never cache API mutations
   if (request.method !== 'GET') return;
 
-  // API routes: network-first with cache fallback
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
     return;
   }
 
-  // Static assets & pages: cache-first with network fallback
+  if (request.mode === 'navigate') {
+    return;
+  }
+
+  // Static assets only: cache-first with network fallback
   if (
-    url.pathname.startsWith('/static/') ||
-    url.pathname === '/' ||
-    url.pathname.endsWith('.html')
+    url.pathname.startsWith('/static/')
   ) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // Media files: cache on first view for offline access
-  if (url.pathname.startsWith('/media/')) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;

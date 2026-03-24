@@ -1,0 +1,584 @@
+{
+  "id": "app/services/protection_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "77508ed3",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 16,
+    "lines": 166,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/database.py",
+      "app/services/field_protection.py"
+    ],
+    "imported_by": [
+      "app/main.py",
+      "tests/test_protection_service.py"
+    ],
+    "tested_by": [
+      "tests/test_protection_service.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "_protect_person_rows",
+      "type": "function",
+      "summary": null,
+      "line": 24,
+      "signature": "(session: AsyncSession) -> int"
+    },
+    {
+      "name": "_protect_revision_rows",
+      "type": "function",
+      "summary": null,
+      "line": 78,
+      "signature": "(session: AsyncSession) -> int"
+    },
+    {
+      "name": "_assert_readable_protected_data",
+      "type": "function",
+      "summary": null,
+      "line": 103,
+      "signature": "(session: AsyncSession) -> None"
+    },
+    {
+      "name": "ensure_sensitive_person_fields_protected",
+      "type": "function",
+      "summary": null,
+      "line": 149,
+      "signature": "( session_factory: async_sessionmaker | None = None, ) -> int"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_protect_person_rows",
+      "kind": "function",
+      "line": 24,
+      "signature": "(session: AsyncSession) -> int",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "session.execute",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.mappings().all",
+          "line": 47,
+          "module_hint": null
+        },
+        {
+          "name": "result.mappings",
+          "line": 47,
+          "module_hint": null
+        },
+        {
+          "name": "decrypt_string",
+          "line": 50,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "session.execute",
+          "line": 51,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 52,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "encrypt_string",
+          "line": 67,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "encrypt_string",
+          "line": 68,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "encrypt_string",
+          "line": 69,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "encrypt_string",
+          "line": 70,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "encrypt_string",
+          "line": 71,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "contact_email_lookup_hash",
+          "line": 72,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "len",
+          "line": 75,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_protect_revision_rows",
+      "kind": "function",
+      "line": 78,
+      "signature": "(session: AsyncSession) -> int",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "session.execute",
+          "line": 79,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 80,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.mappings().all",
+          "line": 88,
+          "module_hint": null
+        },
+        {
+          "name": "result.mappings",
+          "line": 88,
+          "module_hint": null
+        },
+        {
+          "name": "json.loads",
+          "line": 91,
+          "module_hint": "json"
+        },
+        {
+          "name": "encrypt_mapping_fields",
+          "line": 92,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "session.execute",
+          "line": 95,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 96,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "json.dumps",
+          "line": 97,
+          "module_hint": "json"
+        }
+      ]
+    },
+    {
+      "name": "_assert_readable_protected_data",
+      "kind": "function",
+      "line": 103,
+      "signature": "(session: AsyncSession) -> None",
+      "complexity": 9,
+      "calls": [
+        {
+          "name": "session.execute",
+          "line": 104,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 105,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "person_result.mappings().first",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "person_result.mappings",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "str(value).startswith",
+          "line": 128,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 128,
+          "module_hint": null
+        },
+        {
+          "name": "decrypt_string",
+          "line": 129,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "session.execute",
+          "line": 131,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 132,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "revision_result.mappings().all",
+          "line": 141,
+          "module_hint": null
+        },
+        {
+          "name": "revision_result.mappings",
+          "line": 141,
+          "module_hint": null
+        },
+        {
+          "name": "json.loads",
+          "line": 142,
+          "module_hint": "json"
+        },
+        {
+          "name": "snapshot.get",
+          "line": 144,
+          "module_hint": null
+        },
+        {
+          "name": "str(value).startswith",
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "decrypt_string",
+          "line": 146,
+          "module_hint": "app.services.field_protection"
+        }
+      ]
+    },
+    {
+      "name": "ensure_sensitive_person_fields_protected",
+      "kind": "function",
+      "line": 149,
+      "signature": "( session_factory: async_sessionmaker | None = None, ) -> int",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "get_fernet",
+          "line": 152,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "factory",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "_protect_person_rows",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "_protect_revision_rows",
+          "line": 156,
+          "module_hint": null
+        },
+        {
+          "name": "session.commit",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "_assert_readable_protected_data",
+          "line": 158,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 161,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_protect_person_rows",
+      "line": 24,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 51,
+        "nesting": 2,
+        "token_count": 157
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 68,
+              "line_end": 68
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 68,
+              "line_end": 68
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 72,
+              "line_end": 72
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_protect_revision_rows",
+      "line": 78,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 22,
+        "nesting": 2,
+        "token_count": 108
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 99,
+              "line_end": 99
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "_assert_readable_protected_data",
+      "line": 103,
+      "metrics": {
+        "cyclomatic": 9,
+        "cognitive": 12,
+        "size": 43,
+        "nesting": 3,
+        "token_count": 133
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 128,
+              "line_end": 129
+            },
+            {
+              "line_start": 145,
+              "line_end": 146
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            },
+            {
+              "line_start": 141,
+              "line_end": 141
+            },
+            {
+              "line_start": 104,
+              "line_end": 123
+            },
+            {
+              "line_start": 131,
+              "line_end": 140
+            },
+            {
+              "line_start": 128,
+              "line_end": 128
+            },
+            {
+              "line_start": 145,
+              "line_end": 145
+            },
+            {
+              "line_start": 128,
+              "line_end": 128
+            },
+            {
+              "line_start": 145,
+              "line_end": 145
+            },
+            {
+              "line_start": 104,
+              "line_end": 123
+            },
+            {
+              "line_start": 131,
+              "line_end": 140
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "ensure_sensitive_person_fields_protected",
+      "line": 149,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 1,
+        "size": 15,
+        "nesting": 1,
+        "token_count": 73
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 161"
+    ],
+    "endpoints": [],
+    "databases": [
+      "database:sqlalchemy: session.execute() at line 25",
+      "database:sqlalchemy: session.execute() at line 51",
+      "database:sqlalchemy: session.execute() at line 79",
+      "database:sqlalchemy: session.execute() at line 95",
+      "database:sqlalchemy: session.execute() at line 104",
+      "database:sqlalchemy: session.execute() at line 131",
+      "database:sqlalchemy: session.commit() at line 157"
+    ],
+    "services": [],
+    "unused_exports": [
+      "_assert_readable_protected_data",
+      "_protect_person_rows",
+      "_protect_revision_rows",
+      "ensure_sensitive_person_fields_protected"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T19:38:18-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.04,
+  "centrality_score": 0.0,
+  "quality_radar": {
+    "understandability": 0.68,
+    "changeability": 0.97,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.73
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

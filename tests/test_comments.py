@@ -116,3 +116,16 @@ class TestComments:
 
         resp = await admin_client.get(f"/api/moments/{moment_id}")
         assert resp.json()["comment_count"] == 2
+
+    async def test_member_cannot_comment_on_admin_only_moment(self, admin_client, member_client):
+        create_resp = await admin_client.post(
+            "/api/moments",
+            json={"kind": "text", "body": "Admins only", "visibility": "admins"},
+        )
+        moment_id = create_resp.json()["id"]
+
+        resp = await member_client.post(
+            f"/api/moments/{moment_id}/comments",
+            json={"body": "No access"},
+        )
+        assert resp.status_code == 403

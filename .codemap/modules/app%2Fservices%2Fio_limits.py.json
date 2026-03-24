@@ -1,0 +1,365 @@
+{
+  "id": "app/services/io_limits.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "4b423bfd",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 12,
+    "lines": 80,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/inbound/routes.py",
+      "app/pwa/routes.py",
+      "app/routes/media.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "SizeLimitExceeded",
+      "type": "class",
+      "summary": null,
+      "line": 14,
+      "signature": null
+    },
+    {
+      "name": "read_upload_limited",
+      "type": "function",
+      "summary": null,
+      "line": 25,
+      "signature": "(upload, max_bytes: int) -> bytes"
+    },
+    {
+      "name": "stream_upload_to_temp",
+      "type": "function",
+      "summary": null,
+      "line": 41,
+      "signature": "(upload, max_bytes: int) -> StreamedTempFile"
+    },
+    {
+      "name": "read_response_limited",
+      "type": "function",
+      "summary": null,
+      "line": 70,
+      "signature": "(response: Response, max_bytes: int) -> bytes"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "SizeLimitExceeded",
+      "kind": "class",
+      "line": 14,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "read_upload_limited",
+      "kind": "function",
+      "line": 25,
+      "signature": "(upload, max_bytes: int) -> bytes",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "upload.read",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 33,
+          "module_hint": null
+        },
+        {
+          "name": "SizeLimitExceeded",
+          "line": 35,
+          "module_hint": null
+        },
+        {
+          "name": "chunks.append",
+          "line": 36,
+          "module_hint": null
+        },
+        {
+          "name": "b\"\".join",
+          "line": 38,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "stream_upload_to_temp",
+      "kind": "function",
+      "line": 41,
+      "signature": "(upload, max_bytes: int) -> StreamedTempFile",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "hashlib.sha256",
+          "line": 43,
+          "module_hint": "hashlib"
+        },
+        {
+          "name": "tempfile.mkstemp",
+          "line": 44,
+          "module_hint": "tempfile"
+        },
+        {
+          "name": "os.close",
+          "line": 45,
+          "module_hint": "os"
+        },
+        {
+          "name": "open",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "upload.read",
+          "line": 50,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 53,
+          "module_hint": null
+        },
+        {
+          "name": "SizeLimitExceeded",
+          "line": 55,
+          "module_hint": null
+        },
+        {
+          "name": "digest.update",
+          "line": 56,
+          "module_hint": null
+        },
+        {
+          "name": "temp_file.write",
+          "line": 57,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.exists",
+          "line": 59,
+          "module_hint": null
+        },
+        {
+          "name": "os.unlink",
+          "line": 60,
+          "module_hint": "os"
+        },
+        {
+          "name": "StreamedTempFile",
+          "line": 63,
+          "module_hint": null
+        },
+        {
+          "name": "digest.hexdigest",
+          "line": 66,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "read_response_limited",
+      "kind": "function",
+      "line": 70,
+      "signature": "(response: Response, max_bytes: int) -> bytes",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "response.aiter_bytes",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "SizeLimitExceeded",
+          "line": 77,
+          "module_hint": null
+        },
+        {
+          "name": "chunks.append",
+          "line": 78,
+          "module_hint": null
+        },
+        {
+          "name": "b\"\".join",
+          "line": 80,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "read_upload_limited",
+      "line": 25,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 5,
+        "size": 13,
+        "nesting": 2,
+        "token_count": 72
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 33,
+              "line_end": 33
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "stream_upload_to_temp",
+      "line": 41,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 8,
+        "size": 26,
+        "nesting": 2,
+        "token_count": 146
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 53,
+              "line_end": 53
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "read_response_limited",
+      "line": 70,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 10,
+        "nesting": 2,
+        "token_count": 63
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 75,
+              "line_end": 75
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "filesystem: open() at line 48",
+      "filesystem: os.unlink() at line 60"
+    ],
+    "purity": "filesystem",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "SizeLimitExceeded",
+      "read_response_limited",
+      "read_upload_limited",
+      "stream_upload_to_temp"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-22T23:40:48-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.35,
+  "attention_score": 0.33,
+  "centrality_score": 0.14,
+  "quality_radar": {
+    "understandability": 0.52,
+    "changeability": 0.64,
+    "correctness": 0.5,
+    "security": 0.88,
+    "stability": 0.5
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

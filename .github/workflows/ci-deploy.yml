@@ -1,0 +1,101 @@
+name: CI and Railway Deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+      - codex/staging
+  push:
+    branches:
+      - main
+      - codex/staging
+
+concurrency:
+  group: family-book-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Compile app and tests
+        run: uv run python -m compileall app tests
+
+      - name: Run focused verification suite
+        run: |
+          uv run pytest \
+            tests/test_protection_service.py \
+            tests/test_revision_service.py \
+            tests/test_security_guardrails.py \
+            tests/test_schema_models.py \
+            tests/test_phase3.py \
+            tests/test_auth.py \
+            -q
+
+      - name: Build Docker image
+        run: docker build -t family-book-ci .
+
+  deploy:
+    if: github.event_name == 'push'
+    needs:
+      - quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set Railway target
+        id: target
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "environment_id=${{ vars.RAILWAY_PRODUCTION_ENV_ID }}" >> "$GITHUB_OUTPUT"
+            echo "environment_name=production" >> "$GITHUB_OUTPUT"
+          elif [ "${GITHUB_REF_NAME}" = "codex/staging" ]; then
+            echo "environment_id=${{ vars.RAILWAY_STAGING_ENV_ID }}" >> "$GITHUB_OUTPUT"
+            echo "environment_name=staging" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unsupported branch ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+        run: |
+          railway up \
+            --ci \
+            --detach \
+            --project "${{ vars.RAILWAY_PROJECT_ID }}" \
+            --environment "${{ steps.target.outputs.environment_id }}" \
+            --service "${{ vars.RAILWAY_SERVICE_ID }}" \
+            --message "github:${GITHUB_SHA} ${GITHUB_REF_NAME}"

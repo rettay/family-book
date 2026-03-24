@@ -1,0 +1,221 @@
+{
+  "id": "app/auth.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "072e0b8d",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 4,
+    "lines": 34,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/database.py",
+      "app/models/person.py",
+      "app/services/auth_service.py"
+    ],
+    "imported_by": [
+      "app/backup/routes.py",
+      "app/pwa/routes.py",
+      "app/routes/auth_routes.py",
+      "app/routes/media.py",
+      "app/routes/moments.py",
+      "app/routes/pages.py",
+      "app/routes/persons.py",
+      "app/routes/relationships.py",
+      "app/routes/tree.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "get_current_user",
+      "type": "function",
+      "summary": null,
+      "line": 11,
+      "signature": "( request: Request, db: AsyncSession = Depends(get_db), ) -> Person | None"
+    },
+    {
+      "name": "require_auth",
+      "type": "function",
+      "summary": null,
+      "line": 21,
+      "signature": "( current_user: Person | None = Depends(get_current_user), ) -> Person"
+    },
+    {
+      "name": "require_admin",
+      "type": "function",
+      "summary": null,
+      "line": 29,
+      "signature": "( current_user: Person = Depends(require_auth), ) -> Person"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "get_current_user",
+      "kind": "function",
+      "line": 11,
+      "signature": "( request: Request, db: AsyncSession = Depends(get_db), ) -> Person | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "request.cookies.get",
+          "line": 15,
+          "module_hint": null
+        },
+        {
+          "name": "validate_session",
+          "line": 18,
+          "module_hint": "app.services.auth_service"
+        }
+      ]
+    },
+    {
+      "name": "require_auth",
+      "kind": "function",
+      "line": 21,
+      "signature": "( current_user: Person | None = Depends(get_current_user), ) -> Person",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "HTTPException",
+          "line": 25,
+          "module_hint": "fastapi"
+        }
+      ]
+    },
+    {
+      "name": "require_admin",
+      "kind": "function",
+      "line": 29,
+      "signature": "( current_user: Person = Depends(require_auth), ) -> Person",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "HTTPException",
+          "line": 33,
+          "module_hint": "fastapi"
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "get_current_user",
+      "line": 11,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 4,
+        "nesting": 1,
+        "token_count": 25
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "require_auth",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 23
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "require_admin",
+      "line": 29,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 24
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 2,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "get_current_user",
+      "require_admin",
+      "require_auth"
+    ],
+    "package": null,
+    "change_velocity": 1.0,
+    "bus_factor": 2,
+    "author_count": 2,
+    "last_modified": "2026-03-22T23:40:48-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.33,
+  "centrality_score": 0.34,
+  "quality_radar": {
+    "understandability": 0.95,
+    "changeability": 0.51,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.45
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

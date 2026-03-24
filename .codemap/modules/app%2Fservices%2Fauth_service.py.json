@@ -1,0 +1,1169 @@
+{
+  "id": "app/services/auth_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "f2b4a53c",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 15,
+    "lines": 243,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py",
+      "app/models/auth.py",
+      "app/models/person.py",
+      "app/services/field_protection.py"
+    ],
+    "imported_by": [
+      "app/auth.py",
+      "app/routes/auth_routes.py",
+      "app/routes/pages.py",
+      "tests/conftest.py",
+      "tests/test_auth.py",
+      "tests/test_phase1_edge_cases.py"
+    ],
+    "tested_by": [
+      "tests/conftest.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "_hash_token",
+      "type": "function",
+      "summary": null,
+      "line": 20,
+      "signature": "(token: str) -> str"
+    },
+    {
+      "name": "generate_session_token",
+      "type": "function",
+      "summary": null,
+      "line": 24,
+      "signature": "() -> str"
+    },
+    {
+      "name": "generate_invite_token",
+      "type": "function",
+      "summary": null,
+      "line": 28,
+      "signature": "() -> str"
+    },
+    {
+      "name": "generate_magic_link_token",
+      "type": "function",
+      "summary": null,
+      "line": 32,
+      "signature": "() -> str"
+    },
+    {
+      "name": "create_session",
+      "type": "function",
+      "summary": null,
+      "line": 36,
+      "signature": "( db: AsyncSession, person_id: str, auth_method: str, ip_address: str | None = None, user_agent: str | None = None, ) -> str"
+    },
+    {
+      "name": "validate_session",
+      "type": "function",
+      "summary": null,
+      "line": 71,
+      "signature": "(db: AsyncSession, token: str) -> Person | None"
+    },
+    {
+      "name": "delete_session",
+      "type": "function",
+      "summary": null,
+      "line": 98,
+      "signature": "(db: AsyncSession, token: str) -> None"
+    },
+    {
+      "name": "create_invite",
+      "type": "function",
+      "summary": null,
+      "line": 105,
+      "signature": "( db: AsyncSession, person_id: str, created_by: str, ) -> Invite"
+    },
+    {
+      "name": "get_valid_invite",
+      "type": "function",
+      "summary": null,
+      "line": 125,
+      "signature": "(db: AsyncSession, token: str) -> Invite | None"
+    },
+    {
+      "name": "claim_invite",
+      "type": "function",
+      "summary": null,
+      "line": 139,
+      "signature": "(db: AsyncSession, token: str) -> Person | None"
+    },
+    {
+      "name": "create_magic_link",
+      "type": "function",
+      "summary": null,
+      "line": 154,
+      "signature": "(db: AsyncSession, person_id: str) -> str"
+    },
+    {
+      "name": "validate_magic_link",
+      "type": "function",
+      "summary": null,
+      "line": 168,
+      "signature": "(db: AsyncSession, token: str) -> Person | None"
+    },
+    {
+      "name": "authenticate_google_identity",
+      "type": "function",
+      "summary": null,
+      "line": 198,
+      "signature": "( db: AsyncSession, *, google_sub: str, email: str | None, email_verified: bool, ) -> Person"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_hash_token",
+      "kind": "function",
+      "line": 20,
+      "signature": "(token: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "hashlib.sha256(token.encode()).hexdigest",
+          "line": 21,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256",
+          "line": 21,
+          "module_hint": "hashlib"
+        },
+        {
+          "name": "token.encode",
+          "line": 21,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "generate_session_token",
+      "kind": "function",
+      "line": 24,
+      "signature": "() -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "secrets.token_hex",
+          "line": 25,
+          "module_hint": "secrets"
+        }
+      ]
+    },
+    {
+      "name": "generate_invite_token",
+      "kind": "function",
+      "line": 28,
+      "signature": "() -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "secrets.token_hex",
+          "line": 29,
+          "module_hint": "secrets"
+        }
+      ]
+    },
+    {
+      "name": "generate_magic_link_token",
+      "kind": "function",
+      "line": 32,
+      "signature": "() -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "secrets.token_hex",
+          "line": 33,
+          "module_hint": "secrets"
+        }
+      ]
+    },
+    {
+      "name": "create_session",
+      "kind": "function",
+      "line": 36,
+      "signature": "( db: AsyncSession, person_id: str, auth_method: str, ip_address: str | None = None, user_agent: str | None = None, ) -> str",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "generate_session_token",
+          "line": 44,
+          "module_hint": null
+        },
+        {
+          "name": "_hash_token",
+          "line": 45,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "select(UserSession)\n        .where(UserSession.person_id == person_id).order_by",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "select(UserSession).where",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 49,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "UserSession.created_at.desc",
+          "line": 51,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 53,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 53,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 54,
+          "module_hint": null
+        },
+        {
+          "name": "db.delete",
+          "line": 56,
+          "module_hint": null
+        },
+        {
+          "name": "UserSession",
+          "line": 58,
+          "module_hint": "app.models.auth"
+        },
+        {
+          "name": "datetime.now",
+          "line": 62,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "timedelta",
+          "line": 62,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.add",
+          "line": 66,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 67,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "validate_session",
+      "kind": "function",
+      "line": 71,
+      "signature": "(db: AsyncSession, token: str) -> Person | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "_hash_token",
+          "line": 73,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "select(UserSession).where",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 75,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "datetime.now",
+          "line": 77,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 80,
+          "module_hint": null
+        },
+        {
+          "name": "datetime.now",
+          "line": 85,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "datetime.now",
+          "line": 86,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "timedelta",
+          "line": 86,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.execute",
+          "line": 88,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 89,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 89,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 95,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "delete_session",
+      "kind": "function",
+      "line": 98,
+      "signature": "(db: AsyncSession, token: str) -> None",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_hash_token",
+          "line": 99,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 100,
+          "module_hint": null
+        },
+        {
+          "name": "delete(UserSession).where",
+          "line": 101,
+          "module_hint": null
+        },
+        {
+          "name": "delete",
+          "line": 101,
+          "module_hint": "sqlalchemy"
+        }
+      ]
+    },
+    {
+      "name": "create_invite",
+      "kind": "function",
+      "line": 105,
+      "signature": "( db: AsyncSession, person_id: str, created_by: str, ) -> Invite",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "generate_invite_token",
+          "line": 111,
+          "module_hint": null
+        },
+        {
+          "name": "_hash_token",
+          "line": 112,
+          "module_hint": null
+        },
+        {
+          "name": "Invite",
+          "line": 113,
+          "module_hint": "app.models.auth"
+        },
+        {
+          "name": "datetime.now",
+          "line": 117,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "timedelta",
+          "line": 117,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.add",
+          "line": 119,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 120,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_valid_invite",
+      "kind": "function",
+      "line": 125,
+      "signature": "(db: AsyncSession, token: str) -> Invite | None",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_hash_token",
+          "line": 126,
+          "module_hint": null
+        },
+        {
+          "name": "datetime.now",
+          "line": 127,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.execute",
+          "line": 128,
+          "module_hint": null
+        },
+        {
+          "name": "select(Invite).where",
+          "line": 129,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 129,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Invite.claimed_at.is_",
+          "line": 131,
+          "module_hint": null
+        },
+        {
+          "name": "Invite.revoked.is_",
+          "line": 132,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 136,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "claim_invite",
+      "kind": "function",
+      "line": 139,
+      "signature": "(db: AsyncSession, token: str) -> Person | None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "get_valid_invite",
+          "line": 141,
+          "module_hint": null
+        },
+        {
+          "name": "datetime.now",
+          "line": 145,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.execute",
+          "line": 147,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 147,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 147,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 148,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "create_magic_link",
+      "kind": "function",
+      "line": 154,
+      "signature": "(db: AsyncSession, person_id: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "generate_magic_link_token",
+          "line": 156,
+          "module_hint": null
+        },
+        {
+          "name": "_hash_token",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "MagicLinkToken",
+          "line": 158,
+          "module_hint": "app.models.auth"
+        },
+        {
+          "name": "datetime.now",
+          "line": 161,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "timedelta",
+          "line": 161,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.add",
+          "line": 163,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 164,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "validate_magic_link",
+      "kind": "function",
+      "line": 168,
+      "signature": "(db: AsyncSession, token: str) -> Person | None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "_hash_token",
+          "line": 170,
+          "module_hint": null
+        },
+        {
+          "name": "datetime.now",
+          "line": 171,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "db.execute",
+          "line": 172,
+          "module_hint": null
+        },
+        {
+          "name": "select(MagicLinkToken).where",
+          "line": 173,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 173,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "MagicLinkToken.used_at.is_",
+          "line": 175,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 179,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 183,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 184,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 184,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 190,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "authenticate_google_identity",
+      "kind": "function",
+      "line": 198,
+      "signature": "( db: AsyncSession, *, google_sub: str, email: str | None, email_verified: bool, ) -> Person",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "ValueError",
+          "line": 206,
+          "module_hint": null
+        },
+        {
+          "name": "normalize_email_for_lookup",
+          "line": 208,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "get_settings",
+          "line": 209,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "db.execute",
+          "line": 211,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 212,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 212,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "ValueError",
+          "line": 218,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 220,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 221,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 221,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "contact_email_lookup_hash",
+          "line": 221,
+          "module_hint": "app.services.field_protection"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 223,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 223,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "ValueError",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "ValueError",
+          "line": 235,
+          "module_hint": null
+        },
+        {
+          "name": "ValueError",
+          "line": 239,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_hash_token",
+      "line": 20,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 16
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "generate_session_token",
+      "line": 24,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "generate_invite_token",
+      "line": 28,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "generate_magic_link_token",
+      "line": 32,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "create_session",
+      "line": 36,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 26,
+        "nesting": 2,
+        "token_count": 144
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "validate_session",
+      "line": 71,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 24,
+        "nesting": 1,
+        "token_count": 143
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 77,
+              "line_end": 77
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 86,
+              "line_end": 86
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "delete_session",
+      "line": 98,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 4,
+        "nesting": 0,
+        "token_count": 28
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "create_invite",
+      "line": 105,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 13,
+        "nesting": 0,
+        "token_count": 73
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_valid_invite",
+      "line": 125,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 11,
+        "nesting": 0,
+        "token_count": 68
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 131,
+              "line_end": 131
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "claim_invite",
+      "line": 139,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 12,
+        "nesting": 1,
+        "token_count": 81
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "create_magic_link",
+      "line": 154,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 11,
+        "nesting": 0,
+        "token_count": 64
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "validate_magic_link",
+      "line": 168,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 27,
+        "nesting": 1,
+        "token_count": 137
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 186,
+              "line_end": 186
+            },
+            {
+              "line_start": 187,
+              "line_end": 187
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "authenticate_google_identity",
+      "line": 198,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 10,
+        "size": 39,
+        "nesting": 2,
+        "token_count": 204
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 211,
+              "line_end": 213
+            },
+            {
+              "line_start": 220,
+              "line_end": 222
+            },
+            {
+              "line_start": 205,
+              "line_end": 206
+            },
+            {
+              "line_start": 217,
+              "line_end": 218
+            },
+            {
+              "line_start": 234,
+              "line_end": 234
+            },
+            {
+              "line_start": 237,
+              "line_end": 237
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 5,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_hash_token",
+      "authenticate_google_identity",
+      "claim_invite",
+      "create_invite",
+      "create_magic_link",
+      "create_session",
+      "delete_session",
+      "generate_invite_token",
+      "generate_magic_link_token",
+      "generate_session_token",
+      "get_valid_invite",
+      "validate_magic_link",
+      "validate_session"
+    ],
+    "package": null,
+    "change_velocity": 1.5,
+    "bus_factor": 1,
+    "author_count": 2,
+    "last_modified": "2026-03-23T19:38:18-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.22,
+  "centrality_score": 0.13,
+  "quality_radar": {
+    "understandability": 0.65,
+    "changeability": 0.91,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.37
+  },
+  "domain_role": "utility",
+  "detected_patterns": [
+    {
+      "pattern_name": "factory",
+      "confidence": "high",
+      "tier": 1,
+      "evidence": [
+        "create_session() at line 36",
+        "create_invite() at line 105",
+        "create_magic_link() at line 154"
+      ],
+      "notes": ""
+    }
+  ],
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

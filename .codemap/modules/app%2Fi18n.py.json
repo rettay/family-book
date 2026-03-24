@@ -1,0 +1,565 @@
+{
+  "id": "app/i18n.py",
+  "language": "python",
+  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "source_hash": "f2c6594f",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 14,
+    "lines": 88,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/main.py",
+      "app/routes/pages.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "load_translations",
+      "type": "function",
+      "summary": null,
+      "line": 23,
+      "signature": "() -> None"
+    },
+    {
+      "name": "get_translations",
+      "type": "function",
+      "summary": null,
+      "line": 42,
+      "signature": "(locale: str = DEFAULT_LOCALE) -> dict"
+    },
+    {
+      "name": "get_relationship_terms",
+      "type": "function",
+      "summary": null,
+      "line": 47,
+      "signature": "(locale: str = DEFAULT_LOCALE) -> dict"
+    },
+    {
+      "name": "t",
+      "type": "function",
+      "summary": null,
+      "line": 52,
+      "signature": "(key: str, locale: str = DEFAULT_LOCALE) -> str"
+    },
+    {
+      "name": "rel_term",
+      "type": "function",
+      "summary": null,
+      "line": 63,
+      "signature": "(key: str, locale: str = DEFAULT_LOCALE) -> str"
+    },
+    {
+      "name": "_resolve_dotted",
+      "type": "function",
+      "summary": null,
+      "line": 69,
+      "signature": "(d: dict, key: str) -> str | None"
+    },
+    {
+      "name": "_count_keys",
+      "type": "function",
+      "summary": null,
+      "line": 81,
+      "signature": "(d: dict, prefix: str = \"\") -> int"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "load_translations",
+      "kind": "function",
+      "line": 23,
+      "signature": "() -> None",
+      "complexity": 6,
+      "calls": [
+        {
+          "name": "os.path.join",
+          "line": 29,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.exists",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "open",
+          "line": 31,
+          "module_hint": null
+        },
+        {
+          "name": "json.load",
+          "line": 32,
+          "module_hint": "json"
+        },
+        {
+          "name": "logger.info",
+          "line": 33,
+          "module_hint": null
+        },
+        {
+          "name": "_count_keys",
+          "line": 33,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 36,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.exists",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "open",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "json.load",
+          "line": 39,
+          "module_hint": "json"
+        }
+      ]
+    },
+    {
+      "name": "get_translations",
+      "kind": "function",
+      "line": 42,
+      "signature": "(locale: str = DEFAULT_LOCALE) -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_translations.get",
+          "line": 44,
+          "module_hint": null
+        },
+        {
+          "name": "_translations.get",
+          "line": 44,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_relationship_terms",
+      "kind": "function",
+      "line": 47,
+      "signature": "(locale: str = DEFAULT_LOCALE) -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_relationship_terms.get",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "_relationship_terms.get",
+          "line": 49,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "t",
+      "kind": "function",
+      "line": 52,
+      "signature": "(key: str, locale: str = DEFAULT_LOCALE) -> str",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "get_translations",
+          "line": 57,
+          "module_hint": null
+        },
+        {
+          "name": "_resolve_dotted",
+          "line": 58,
+          "module_hint": null
+        },
+        {
+          "name": "_resolve_dotted",
+          "line": 58,
+          "module_hint": null
+        },
+        {
+          "name": "_translations.get",
+          "line": 59,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "rel_term",
+      "kind": "function",
+      "line": 63,
+      "signature": "(key: str, locale: str = DEFAULT_LOCALE) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "get_relationship_terms",
+          "line": 65,
+          "module_hint": null
+        },
+        {
+          "name": "terms.get",
+          "line": 66,
+          "module_hint": null
+        },
+        {
+          "name": "get_relationship_terms(DEFAULT_LOCALE).get",
+          "line": 66,
+          "module_hint": null
+        },
+        {
+          "name": "get_relationship_terms",
+          "line": 66,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_resolve_dotted",
+      "kind": "function",
+      "line": 69,
+      "signature": "(d: dict, key: str) -> str | None",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "key.split",
+          "line": 71,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 78,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_count_keys",
+      "kind": "function",
+      "line": 81,
+      "signature": "(d: dict, prefix: str = \"\") -> int",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "d.items",
+          "line": 83,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 84,
+          "module_hint": null
+        },
+        {
+          "name": "_count_keys",
+          "line": 85,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "load_translations",
+      "line": 23,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 5,
+        "size": 16,
+        "nesting": 2,
+        "token_count": 146
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 32,
+              "line_end": 32
+            },
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 38,
+              "line_end": 38
+            },
+            {
+              "line_start": 31,
+              "line_end": 32
+            },
+            {
+              "line_start": 38,
+              "line_end": 39
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 38,
+              "line_end": 38
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 38,
+              "line_end": 38
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 37,
+              "line_end": 37
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_translations",
+      "line": 42,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 20
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_relationship_terms",
+      "line": 47,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 20
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "t",
+      "line": 52,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 0,
+        "size": 8,
+        "nesting": 0,
+        "token_count": 33
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "rel_term",
+      "line": 63,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 3,
+        "nesting": 0,
+        "token_count": 30
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_resolve_dotted",
+      "line": 69,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 9,
+        "nesting": 2,
+        "token_count": 56
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_count_keys",
+      "line": 81,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 4,
+        "size": 7,
+        "nesting": 2,
+        "token_count": 45
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [
+      "filesystem: open() at line 31",
+      "filesystem: open() at line 38"
+    ],
+    "purity": "filesystem",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 33"
+    ],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_count_keys",
+      "_resolve_dotted",
+      "get_relationship_terms",
+      "get_translations",
+      "load_translations",
+      "rel_term",
+      "t"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-16T20:24:52+01:00",
+    "recency_score": 0.96,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 0.8333,
+    "convention_consistency": 0.8857,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": [
+      "t",
+      "d",
+      "d"
+    ]
+  },
+  "testability_score": 0.35,
+  "attention_score": 0.32,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.51,
+    "changeability": 0.66,
+    "correctness": 0.5,
+    "security": 0.88,
+    "stability": 0.6
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

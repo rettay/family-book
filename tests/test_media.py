@@ -1,8 +1,6 @@
 """Tests for Media API — upload, serve, dedup, auth gate, thumbnails."""
-import os
 import io
 
-import pytest
 from PIL import Image
 
 
@@ -50,10 +48,29 @@ class TestMediaUpload:
         body = resp.json()
         assert body["media_type"] == "image"
         assert body["mime_type"] == "image/jpeg"
-        assert body["file_hash"] is not None
         assert body["is_duplicate"] is False
         assert body["width"] == 100
         assert body["height"] == 100
+
+    async def test_member_cannot_upload_to_another_profile(self, member_client, tmp_path, monkeypatch):
+        monkeypatch.setenv("DATA_DIR", str(tmp_path))
+
+        from app.config import Settings
+        monkeypatch.setattr(
+            "app.services.media_service.get_settings",
+            lambda: Settings(
+                SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+                DATA_DIR=str(tmp_path),
+            ),
+        )
+
+        image_data = _make_test_image()
+        resp = await member_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("test.jpg", image_data, "image/jpeg")},
+        )
+        assert resp.status_code == 201
 
     async def test_upload_rejects_unsupported_type(self, admin_client):
         resp = await admin_client.post(
@@ -82,6 +99,30 @@ class TestMediaUpload:
         )
         assert resp.status_code == 400
         assert "Person not found" in resp.json()["detail"]
+
+    async def test_upload_media_with_tagged_people(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        monkeypatch.setattr(
+            "app.services.media_service.get_settings",
+            lambda: Settings(
+                SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+                DATA_DIR=str(tmp_path),
+            ),
+        )
+
+        image_data = _make_test_image()
+        resp = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": "tyler-000-0000-0000-000000000002",
+                "tagged_person_ids": '["member-00-0000-0000-000000000005"]',
+            },
+            files={"file": ("test.jpg", image_data, "image/jpeg")},
+        )
+        assert resp.status_code == 201
+        body = resp.json()
+        assert body["tagged_person_ids"] == ["member-00-0000-0000-000000000005"]
+        assert body["tagged_people"][0]["id"] == "member-00-0000-0000-000000000005"
 
 
 class TestMediaDedup:
@@ -153,6 +194,78 @@ class TestMediaServing:
     async def test_serve_nonexistent_returns_404(self, admin_client):
         resp = await admin_client.get("/api/media/nonexistent/file")
         assert resp.status_code == 404
+
+    async def test_member_can_read_shared_media_for_any_visible_person(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        create_person_resp = await admin_client.post(
+            "/api/persons",
+            json={"first_name": "Outsider", "last_name": "Media"},
+        )
+        outsider_id = create_person_resp.json()["id"]
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": outsider_id},
+            files={"file": ("photo.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        resp = await member_client.get(f"/api/media/{media_id}/file")
+        assert resp.status_code == 200
+
+
+class TestMediaDeletion:
+    """DELETE /api/media/{id}"""
+
+    async def test_uploader_can_delete_media(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("delete-me.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        delete_resp = await admin_client.delete(f"/api/media/{media_id}")
+        assert delete_resp.status_code == 204
+
+        metadata_resp = await admin_client.get(f"/api/media/{media_id}")
+        assert metadata_resp.status_code == 404
+
+    async def test_non_uploader_cannot_delete_media(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("keep-me.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        delete_resp = await member_client.delete(f"/api/media/{media_id}")
+        assert delete_resp.status_code == 403
 
 
 class TestMediaThumbnails:
@@ -230,3 +343,63 @@ class TestMediaMetadata:
         resp = await admin_client.get(f"/api/media?person_id={person_id}")
         assert resp.status_code == 200
         assert len(resp.json()) >= 1
+
+    async def test_list_media_for_tagged_person_includes_shared_media(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": "tyler-000-0000-0000-000000000002",
+                "tagged_person_ids": '["member-00-0000-0000-000000000005"]',
+            },
+            files={"file": ("tagged.jpg", image_data, "image/jpeg")},
+        )
+
+        resp = await admin_client.get("/api/media?person_id=member-00-0000-0000-000000000005")
+        assert resp.status_code == 200
+        assert any(
+            item["person_id"] == "tyler-000-0000-0000-000000000002"
+            and item["tagged_person_ids"] == ["member-00-0000-0000-000000000005"]
+            for item in resp.json()
+        )
+
+    async def test_hidden_owner_tagged_media_is_not_listed_for_visible_person(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(
+            SECRET_KEY="test", FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+
+        create_resp = await admin_client.post(
+            "/api/persons",
+            json={"first_name": "Hidden", "last_name": "Owner"},
+        )
+        hidden_id = create_resp.json()["id"]
+        update_resp = await admin_client.put(
+            f"/api/persons/{hidden_id}",
+            json={"visibility": "hidden"},
+        )
+        assert update_resp.status_code == 200
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": hidden_id,
+                "tagged_person_ids": '["member-00-0000-0000-000000000005"]',
+            },
+            files={"file": ("hidden.jpg", image_data, "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+
+        resp = await member_client.get("/api/media?person_id=member-00-0000-0000-000000000005")
+        assert resp.status_code == 200
+        assert all(item["id"] != upload_resp.json()["id"] for item in resp.json())

@@ -11,14 +11,17 @@ import hmac
 import json
 import os
 import tempfile
+from types import SimpleNamespace
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import select
 from sqlalchemy import event as sa_event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.models.base import Base
+from app.models.person import Person
 
 
 @pytest_asyncio.fixture
@@ -69,7 +72,7 @@ class TestI18n:
 
         en = get_translations("en")
         assert en["nav"]["tree"] == "Family Tree"
-        assert en["app"]["name"] == "Family Book"
+        assert en["app"]["name"] == "Family Tree"
 
         ru = get_translations("ru")
         assert ru["nav"]["tree"] == "Семейное Древо"
@@ -140,6 +143,7 @@ class TestBackup:
         class MockSettings:
             DATA_DIR = str(tmp_path)
             DATABASE_URL = f"sqlite:///{db_path}"
+            BACKUP_RETENTION_DAYS = 30
 
         with patch("app.backup.service.get_settings", return_value=MockSettings()):
             from app.backup.service import run_backup, get_backup_health
@@ -155,6 +159,109 @@ class TestBackup:
             health = get_backup_health()
             assert health["backup_count"] >= 1
             assert health["fresh"] is True
+            assert health["restore_supported"] is False
+            assert health["restore_verification"] is None
+            assert health["retention_days"] == 30
+
+    def test_restore_backup_archive(self, tmp_path):
+        from unittest.mock import patch
+        import sqlite3
+
+        db_path = tmp_path / "family.db"
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("CREATE TABLE persons (id INTEGER PRIMARY KEY, first_name TEXT)")
+        conn.execute("INSERT INTO persons (id, first_name) VALUES (1, 'Tyler')")
+        conn.commit()
+        conn.close()
+
+        (tmp_path / "backups").mkdir()
+        media_dir = tmp_path / "media"
+        media_dir.mkdir()
+        (media_dir / "photo.jpg").write_bytes(b"jpg")
+
+        class MockSettings:
+            DATA_DIR = str(tmp_path)
+            resolved_data_dir = str(tmp_path)
+            DATABASE_URL = f"sqlite:///{db_path}"
+            sqlite_database_path = str(db_path)
+            BACKUP_RETENTION_DAYS = 30
+            FERNET_KEY = "test"
+
+        with patch("app.backup.service.get_settings", return_value=MockSettings()):
+            from app.backup.service import (
+                create_download_zip,
+                get_backup_health,
+                restore_backup_archive,
+                verify_backup_restore,
+            )
+
+            archive_path = create_download_zip()
+            restore_target = tmp_path / "restored"
+            restored = restore_backup_archive(
+                archive_path,
+                target_data_dir=str(restore_target),
+                target_db_filename="family.db",
+            )
+
+            assert os.path.exists(restored["restored_db_path"])
+            assert restored["table_count"] >= 1
+            assert restored["person_count"] == 1
+            assert (restore_target / "media" / "photo.jpg").exists()
+
+            verification = verify_backup_restore()
+            assert verification["status"] == "ok"
+            assert verification["person_count"] == 1
+            health = get_backup_health()
+            assert health["restore_supported"] is True
+            assert health["restore_verification"]["status"] == "ok"
+            assert health["restore_verification"]["source_backup"] == health["latest_file"]
+
+
+class TestBootstrapAdmin:
+    @pytest.mark.asyncio
+    async def test_creates_bootstrap_admin_once_on_empty_database(self, monkeypatch):
+        engine = create_async_engine("sqlite+aiosqlite://", echo=False)
+        sa_event.listens_for(engine.sync_engine, "connect")(
+            lambda dbapi_conn, connection_record: None
+        )
+
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+        monkeypatch.setenv("BOOTSTRAP_ADMIN_EMAIL", "tjmaglio@gmail.com")
+        monkeypatch.setenv("BOOTSTRAP_ADMIN_FIRST_NAME", "TJ")
+        monkeypatch.setenv("BOOTSTRAP_ADMIN_LAST_NAME", "Maglio")
+
+        from app.services.bootstrap_service import ensure_bootstrap_admin
+
+        await ensure_bootstrap_admin(session_factory)
+        await ensure_bootstrap_admin(session_factory)
+
+        async with session_factory() as session:
+            result = await session.execute(select(Person))
+            people = result.scalars().all()
+
+        assert len(people) == 1
+        assert people[0].contact_email == "tjmaglio@gmail.com"
+        assert people[0].is_admin is True
+        assert people[0].first_name == "TJ"
+        assert people[0].last_name == "Maglio"
+
+        await engine.dispose()
+
+
+class TestProtection:
+    @pytest.mark.asyncio
+    async def test_backup_status_reports_protection_contract(self, admin_client: AsyncClient):
+        resp = await admin_client.get("/api/admin/backup/status")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "restore_supported" in body
+        assert "restore_verification" in body
+        assert body["protection"]["field_encryption_enabled"] is True
+        assert "contact_email" in body["protection"]["protected_person_fields"]
 
 
 # ─── Security headers ────────────────────────────────────────────────────
@@ -188,8 +295,8 @@ class TestRateLimit:
     async def test_backup_rate_limit(self, fresh_client: AsyncClient):
         """Backup endpoint rate limited to 2/hour. All return 401 (no auth)
         but the third should return 429 before auth check."""
-        r1 = await fresh_client.post("/api/admin/backup")
-        r2 = await fresh_client.post("/api/admin/backup")
+        await fresh_client.post("/api/admin/backup")
+        await fresh_client.post("/api/admin/backup")
         r3 = await fresh_client.post("/api/admin/backup")
         assert r3.status_code == 429
 
@@ -251,6 +358,49 @@ class TestEnvelopeWebhook:
             assert data["status"] == "ok"
             assert data["attachments_saved"] == 0
 
+    @pytest.mark.asyncio
+    async def test_private_attachment_url_rejected(self, fresh_client: AsyncClient):
+        from unittest.mock import patch
+
+        secret = "test-webhook-secret"
+
+        class MockSettings:
+            ENVELOPE_WEBHOOK_SECRET = secret
+            ENVELOPE_ALLOWED_HOSTS = "example.com"
+            ENVELOPE_API_URL = "https://example.com"
+            ENVELOPE_MAX_ATTACHMENT_BYTES = 1024
+            DATA_DIR = tempfile.mkdtemp()
+            resolved_data_dir = DATA_DIR
+            SECRET_KEY = "test"
+            FERNET_KEY = "test"
+            BASE_URL = "http://localhost:8000"
+
+            @property
+            def envelope_allowed_host_list(self):
+                return ["example.com"]
+
+        body = json.dumps({
+            "from": "test@example.com",
+            "subject": "Family photos",
+            "attachments": [
+                {"filename": "secret.jpg", "content_type": "image/jpeg", "url": "https://127.0.0.1/private"},
+            ],
+        }).encode()
+
+        sig = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
+
+        with patch("app.inbound.routes.get_settings", return_value=MockSettings()):
+            resp = await fresh_client.post(
+                "/api/inbound/envelope",
+                content=body,
+                headers={
+                    "X-Envelope-Signature": sig,
+                    "Content-Type": "application/json",
+                },
+            )
+            assert resp.status_code == 200
+            assert resp.json()["attachments_saved"] == 0
+
 
 # ─── PWA / Share target ─────────────────────────────────────────────────
 
@@ -261,7 +411,7 @@ class TestPWA:
         resp = await fresh_client.get("/static/manifest.json")
         assert resp.status_code == 200
         data = resp.json()
-        assert data["name"] == "Family Book"
+        assert data["name"] == "Family Tree"
         assert "share_target" in data
 
     @pytest.mark.asyncio
@@ -269,12 +419,59 @@ class TestPWA:
         resp = await fresh_client.get("/static/sw.js")
         assert resp.status_code == 200
         assert "family-book-v1" in resp.text
+        assert "url.pathname.startsWith('/api/')" in resp.text
+        assert "cache.put(request" in resp.text
+        assert "request.mode === 'navigate'" in resp.text
+
+    @pytest.mark.asyncio
+    async def test_docs_disabled_by_default(self, fresh_client: AsyncClient):
+        resp = await fresh_client.get("/docs")
+        assert resp.status_code == 404
 
     @pytest.mark.asyncio
     async def test_share_unauthenticated_redirects(self, fresh_client: AsyncClient):
         resp = await fresh_client.post("/api/share", follow_redirects=False)
         assert resp.status_code == 302
         assert "/login" in resp.headers.get("location", "")
+
+    @pytest.mark.asyncio
+    async def test_share_body_limit_rejected_before_handler(self, fresh_client: AsyncClient):
+        resp = await fresh_client.post(
+            "/api/share",
+            content=b"x",
+            headers={"Content-Length": str(12 * 1024 * 1024)},
+            follow_redirects=False,
+        )
+        assert resp.status_code == 413
+
+
+class TestIOLimits:
+    @pytest.mark.asyncio
+    async def test_stream_upload_to_temp_writes_file_without_joining_chunks(self):
+        from app.services.io_limits import stream_upload_to_temp
+
+        payload = (b"abc123" * 1024) + b"tail"
+        upload = SimpleNamespace()
+        remaining = bytearray(payload)
+
+        async def read(size):
+            if not remaining:
+                return b""
+            chunk = bytes(remaining[:size])
+            del remaining[:size]
+            return chunk
+
+        upload.read = read
+
+        streamed = await stream_upload_to_temp(upload, len(payload))
+        try:
+            with open(streamed.path, "rb") as handle:
+                assert handle.read() == payload
+            assert streamed.size == len(payload)
+            assert streamed.sha256 == hashlib.sha256(payload).hexdigest()
+        finally:
+            if os.path.exists(streamed.path):
+                os.unlink(streamed.path)
 
 
 # ─── Matrix client unit tests ───────────────────────────────────────────
