@@ -299,6 +299,40 @@ Family Book now has collaboration, discovery, recovery, protection, and a workin
 - Prove the remaining critical central modules have explicit coverage
 - Prove the next hardening sprint improves CodeMap warning count rather than only moving work around
 
+## Planned Sprint
+
+### `S07 - Observability and Coverage Hardening`
+
+Status: Planned
+
+### Sprint Goal
+
+Raise the reliability floor of Family Book by adding direct tests for risky runtime plumbing, improving coverage in central modules, and reducing the remaining high-signal CodeMap warnings.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 9 | FB-010 | Observability and Coverage Hardening | P1 | planned |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S07-1 | Attack-Surface Test Hardening | planned |
+| S07-2 | Critical-Module Coverage Expansion | planned |
+| S07-3 | Observability and Complexity Hardening | planned |
+
+### Why This Sprint Next
+
+Family Book’s product surface is now broad enough that the highest-value remaining work is runtime trust. The current CodeMap warnings are concentrated in security-sensitive helpers, central config/schema paths, and a few runtime hotspots that deserve direct tests and modest observability improvements before the next broad feature sprint.
+
+### Planning Artifacts
+
+- Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s07.md`
+- Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s07.md`
+- Task packet: `/Users/cheech/code/family-book/task_packets/FB-010_observability_and_coverage_hardening.md`
+
 ## Open Policy Questions to Watch
 
 - Whether medical history should remain shared to all active family members long-term

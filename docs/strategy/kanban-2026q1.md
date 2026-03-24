@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-010 | Observability and Coverage Hardening | P1 | `task packet to be authored` |
+| FB-010 | Observability and Coverage Hardening | P1 | `task_packets/FB-010_observability_and_coverage_hardening.md` |
 
 ## In Progress
 

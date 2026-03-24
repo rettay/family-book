@@ -62,7 +62,7 @@ Sprint 01 through Sprint 06 are closed.
 
 ## Current Priority Order
 
-1. Plan Sprint 07 around observability and coverage hardening
+1. Execute Sprint 07 around observability and coverage hardening
 2. Pay down remaining CodeMap observability/test warnings in core modules
 3. Expand browser-based regression coverage beyond the current core flow set
 4. Reassess where to add richer visual regression evidence beyond the current smoke flows
@@ -77,6 +77,8 @@ Sprint 01 through Sprint 06 are closed.
 - `S05 - Encryption and Backup Hardening Pass`
 - `S06 - Theme Customization and Branding Controls`
 - Next recommended sprint: `S07 - Observability and Coverage Hardening`
+- Sprint 07 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s07.md`
+- Sprint 07 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s07.md`
 - Sprint 06 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s06.md`
 - Sprint 06 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s06.md`
 - Sprint 06 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s06.md`

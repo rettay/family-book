@@ -1,7 +1,7 @@
 # Family Book Backlog
 
-Sprint: `S06 - Theme Customization and Branding Controls`
-Status: Closed
+Sprint: `S07 - Observability and Coverage Hardening`
+Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -63,17 +63,34 @@ Execution slices:
 - `S06-2` Admin Theme Controls
 - `S06-3` Surface Rollout and Staging Acceptance
 
+## Planned Sprint `S07 - Observability and Coverage Hardening`
+
+Sprint goal:
+- Raise the reliability floor of Family Book by adding direct tests for risky runtime plumbing, improving coverage in central modules, and reducing the remaining high-signal CodeMap warnings.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-010 | Observability and Coverage Hardening | P1 | planned | `task_packets/FB-010_observability_and_coverage_hardening.md` |
+
+Execution slices:
+- `S07-1` Attack-Surface Test Hardening
+- `S07-2` Critical-Module Coverage Expansion
+- `S07-3` Observability and Complexity Hardening
+
 ## Next Sprint
 
 - Recommended next sprint: `S07 - Observability and Coverage Hardening`
-- Primary packet: `TBD`
-- Follow-on candidate after Sprint 06:
-  - backup/observability cleanup from remaining CodeMap warnings
-  - attack-surface tests for `app/middleware/security.py` and `app/services/io_limits.py`
-  - critical-module coverage for `app/config.py`, `app/models/moments.py`, and `app/schemas.py`
+- Primary packet: `FB-010 Observability and Coverage Hardening`
+- Sprint plan: `docs/strategy/sprint-plan-s07.md`
+- Slice plan: `docs/strategy/sprint-slices-s07.md`
+- Follow-on candidate after Sprint 07:
+  - broader browser regression expansion
+  - additional complexity cleanup where it improves maintainability without feature risk
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-010 | Observability and Coverage Hardening | P1 | todo | CodeMap warning cleanup, attack-surface tests, and core runtime observability |
+| FB-010 | Observability and Coverage Hardening | P1 | planned | CodeMap warning cleanup, attack-surface tests, and core runtime observability |
