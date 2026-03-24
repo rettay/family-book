@@ -152,17 +152,19 @@
   <div class="tree-canvas">
     <div class="tree-page" id="tree-page">
       <div class="tree-controls">
-        <button onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}">+</button>
-        <button onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}">&minus;</button>
-        <button onclick="treeReset()" title="{{ t('tree.reset_view') }}">&#8634;</button>
+        <button type="button" onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}" aria-label="{{ t('tree.zoom_in') }}">+</button>
+        <button type="button" onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}" aria-label="{{ t('tree.zoom_out') }}">&minus;</button>
+        <button type="button" onclick="treeReset()" title="{{ t('tree.reset_view') }}" aria-label="{{ t('tree.reset_view') }}">&#8634;</button>
       </div>
 
-      <svg id="tree-svg"></svg>
-      <div class="tree-status" id="tree-status">{{ t('common.loading') }}</div>
+      <svg id="tree-svg" aria-label="{{ t('tree.title') }}"></svg>
+      <div class="tree-status" id="tree-status" role="status" aria-live="polite">{{ t('common.loading') }}</div>
 
-      <div class="person-sidebar" id="person-sidebar">
-        <button class="person-sidebar__close" onclick="closeSidebar()">&times;</button>
-        <div id="sidebar-content"></div>
+      <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
+        <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">
+          <button class="person-sidebar__close" type="button" aria-label="{{ t('common.cancel') }}" onclick="closeSidebar()">&times;</button>
+          <div id="sidebar-content" aria-live="polite" aria-busy="false"></div>
+        </div>
       </div>
     </div>
   </div>

@@ -126,7 +126,9 @@
     <div id="person-media"
          hx-get="/partials/media-gallery?person_id={{ person.id }}"
          hx-trigger="load"
-         hx-swap="innerHTML">
+         hx-swap="innerHTML"
+         aria-live="polite"
+         aria-busy="false">
       <div class="spinner" style="margin: 16px auto;"></div>
     </div>
   </div>
@@ -141,7 +143,9 @@
     <div id="person-history"
          hx-get="/partials/person-history?person_id={{ person.id }}"
          hx-trigger="load"
-         hx-swap="innerHTML">
+         hx-swap="innerHTML"
+         aria-live="polite"
+         aria-busy="false">
       <div class="spinner" style="margin: 16px auto;"></div>
     </div>
   </div>
@@ -150,11 +154,12 @@
   <div class="profile-section">
     <div class="flex-between" style="gap:12px; align-items:center;">
       <h3 class="profile-section__title">{{ t('nav.moments') }}</h3>
-      <button class="btn btn--ghost btn--sm" type="button" onclick="togglePersonMomentComposer()">
+      <button class="btn btn--ghost btn--sm" type="button" onclick="togglePersonMomentComposer()" id="person-moment-toggle" aria-expanded="false" aria-controls="person-moment-composer">
         {{ t('moments.add_for_person') }}
       </button>
     </div>
     <form id="person-moment-composer" class="hidden" onsubmit="submitPersonMoment(event)" style="margin-bottom:16px;">
+      <div id="person-moment-error" class="form-error hidden" role="status" aria-live="polite"></div>
       <div class="form-group">
         <label class="form-label" for="person-moment-kind">{{ t('moments.type') }}</label>
         <select class="form-select" id="person-moment-kind" onchange="togglePersonMilestoneFields()">
@@ -206,7 +211,9 @@
     <div id="person-moments"
          hx-get="/partials/moments?person={{ person.id }}"
          hx-trigger="load"
-         hx-swap="innerHTML">
+         hx-swap="innerHTML"
+         aria-live="polite"
+         aria-busy="false">
       <div class="spinner" style="margin: 16px auto;"></div>
     </div>
   </div>
@@ -219,11 +226,16 @@
 <script>
 function togglePersonMomentComposer(forceOpen = null) {
   const composer = document.getElementById('person-moment-composer');
+  const toggle = document.getElementById('person-moment-toggle');
   const shouldOpen = forceOpen === null ? composer.classList.contains('hidden') : forceOpen;
   composer.classList.toggle('hidden', !shouldOpen);
+  toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
   if (!shouldOpen) {
     composer.reset();
     togglePersonMilestoneFields();
+    document.getElementById('person-moment-error').classList.add('hidden');
+  } else {
+    document.getElementById('person-moment-kind').focus();
   }
 }
 
@@ -282,6 +294,9 @@ async function submitPersonMoment(event) {
   const taggedPeople = Array.from(document.getElementById('person-moment-tagged').selectedOptions).map(
     (option) => option.value
   );
+  const errorBox = document.getElementById('person-moment-error');
+  errorBox.textContent = '';
+  errorBox.classList.add('hidden');
 
   const resp = await fetch('/api/moments', {
     method: 'POST',
@@ -302,7 +317,12 @@ async function submitPersonMoment(event) {
     const partialResp = await fetch('/partials/moments?person={{ person.id }}');
     if (partialResp.ok) {
       document.getElementById('person-moments').innerHTML = await partialResp.text();
+      showToast('Moment shared');
     }
+  } else {
+    const data = await resp.json().catch(() => ({}));
+    errorBox.textContent = data.detail || 'Could not create moment';
+    errorBox.classList.remove('hidden');
   }
 }
 

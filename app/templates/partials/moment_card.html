@@ -3,7 +3,7 @@
     {% if m.poster %}
     <a href="/people/{{ m.poster.id }}" class="avatar">
       {% if m.poster.photo_url %}
-      <img src="/api/media/{{ m.poster.photo_url }}/file" alt="">
+      <img src="/api/media/{{ m.poster.photo_url }}/file" alt="{{ m.poster.display_name }}">
       {% else %}
       {{ m.poster.display_name[:2] }}
       {% endif %}
@@ -25,7 +25,7 @@
     {% elif m.about %}
     <a href="/people/{{ m.about.id }}" class="avatar">
       {% if m.about.photo_url %}
-      <img src="/api/media/{{ m.about.photo_url }}/file" alt="">
+      <img src="/api/media/{{ m.about.photo_url }}/file" alt="{{ m.about.display_name }}">
       {% else %}
       {{ m.about.display_name[:2] }}
       {% endif %}
@@ -58,20 +58,24 @@
   {% if m.media and m.media | length > 0 %}
   <div class="moment__media">
     {% if m.media | length == 1 %}
-    <img src="{{ m.media[0].url }}" alt="" loading="lazy" onclick="openLightbox('{{ m.media[0].url }}')">
+    <button type="button" class="media-trigger" onclick='openLightbox({{ m.media[0].url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
+      <img src="{{ m.media[0].url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy">
+    </button>
     {% elif m.media | length <= 4 %}
     <div class="moment__media-grid moment__media-grid--{{ m.media | length }}">
       {% for media in m.media %}
-      <img src="{{ media.url }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"
-           onclick="openLightbox('{{ media.url }}')">
+      <button type="button" class="media-trigger" onclick='openLightbox({{ media.url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
+        <img src="{{ media.url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      </button>
       {% endfor %}
     </div>
     {% else %}
     <div class="moment__media-grid moment__media-grid--4">
       {% for media in m.media[:4] %}
       <div style="position:relative;">
-        <img src="{{ media.url }}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;"
-             onclick="openLightbox('{{ media.url }}')">
+        <button type="button" class="media-trigger" onclick='openLightbox({{ media.url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
+          <img src="{{ media.url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+        </button>
         {% if loop.index == 4 and m.media | length > 4 %}
         <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:600;">
           +{{ m.media | length - 4 }}
@@ -120,7 +124,7 @@
         {{ emoji }} <span class="reaction-btn__count">{{ count }}</span>
       </button>
       {% endfor %}
-      <button class="reaction-btn" onclick="toggleReactionPicker('{{ m.id }}')">+</button>
+      <button class="reaction-btn" type="button" onclick="toggleReactionPicker('{{ m.id }}', this)" id="reaction-toggle-{{ m.id }}" aria-expanded="false" aria-controls="reaction-picker-{{ m.id }}" aria-label="Add reaction">+</button>
       {% endif %}
     </div>
 
@@ -137,9 +141,11 @@
       {% endif %}
       {% endif %}
       {% if m.lifecycle_state == 'active' %}
-      <button class="btn btn--ghost btn--sm"
-              onclick="toggleComments('{{ m.id }}')"
-              id="comment-toggle-{{ m.id }}">
+      <button class="btn btn--ghost btn--sm" type="button"
+              onclick="toggleComments('{{ m.id }}', this)"
+              id="comment-toggle-{{ m.id }}"
+              aria-expanded="false"
+              aria-controls="comments-{{ m.id }}">
         &#128172; {{ m.comment_count or 0 }}
       </button>
       {% endif %}
@@ -148,7 +154,7 @@
 
   <!-- Reaction picker (hidden) -->
   {% if m.lifecycle_state == 'active' %}
-  <div class="reaction-picker hidden" id="reaction-picker-{{ m.id }}" style="margin:0 16px 12px;">
+  <div class="reaction-picker hidden" id="reaction-picker-{{ m.id }}" style="margin:0 16px 12px;" hidden>
     {% for emoji in ['❤️', '😂', '😢', '🎉', '🙏', '😮'] %}
     <button hx-post="/api/moments/{{ m.id }}/reactions"
             hx-vals='{"emoji": "{{ emoji }}"}'
@@ -164,7 +170,10 @@
   <div class="comments hidden" id="comments-{{ m.id }}"
        hx-get="/partials/comments/{{ m.id }}"
        hx-trigger="toggle-comments-{{ m.id }}"
-       hx-swap="innerHTML">
+       hx-swap="innerHTML"
+       aria-live="polite"
+       aria-busy="false"
+       hidden>
   </div>
   {% endif %}
 </div>

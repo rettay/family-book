@@ -95,10 +95,22 @@
 
       var point = project(latitude, longitude);
       var group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      var labelText = safeText(marker.person.display_name, 'Family member');
+      var sublabelText = safeText(marker.place, safeText(marker.country_code, ''));
       group.setAttribute('transform', 'translate(' + point.x + ',' + point.y + ')');
+      group.setAttribute('class', 'map-marker');
+      group.setAttribute('tabindex', '0');
+      group.setAttribute('role', 'link');
+      group.setAttribute('aria-label', labelText + (sublabelText ? ', ' + sublabelText : ''));
       group.style.cursor = 'pointer';
       group.addEventListener('click', function() {
         window.location.assign('/people/' + encodeURIComponent(marker.person.id));
+      });
+      group.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          window.location.assign('/people/' + encodeURIComponent(marker.person.id));
+        }
       });
 
       var halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -119,7 +131,7 @@
       label.setAttribute('fill', '#29403a');
       label.setAttribute('font-size', '13');
       label.setAttribute('font-weight', '600');
-      label.textContent = safeText(marker.person.display_name, 'Family member');
+      label.textContent = labelText;
       group.appendChild(label);
 
       var sublabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -127,7 +139,7 @@
       sublabel.setAttribute('y', '8');
       sublabel.setAttribute('fill', '#54665c');
       sublabel.setAttribute('font-size', '11');
-      sublabel.textContent = safeText(marker.place, safeText(marker.country_code, ''));
+      sublabel.textContent = sublabelText;
       group.appendChild(sublabel);
 
       svg.appendChild(group);
@@ -145,6 +157,13 @@
   }
 
   document.getElementById('apply-map-filters').addEventListener('click', loadMap);
+  document.getElementById('reset-map-filters').addEventListener('click', function() {
+    document.getElementById('map-filter-living').value = 'all';
+    document.getElementById('map-filter-branch').value = '';
+    document.getElementById('map-filter-residence-country').value = '';
+    document.getElementById('map-filter-birth-country').value = '';
+    loadMap();
+  });
   drawBackdrop();
   loadMap();
 })();

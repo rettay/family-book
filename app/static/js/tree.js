@@ -7,6 +7,7 @@
   var g;
   var zoom;
   var treeData;
+  var sidebarTrigger = null;
   var preferences = {
     show_names: true,
     show_birth_dates: false,
@@ -243,6 +244,9 @@
       .attr('class', 'person-node' + (person.branch ? ' person-node--branch-' + person.branch : ''))
       .attr('data-id', person.id)
       .attr('transform', 'translate(' + node.x + ',' + node.y + ')')
+      .attr('tabindex', '0')
+      .attr('role', 'button')
+      .attr('aria-label', 'Open details for ' + person.display_name)
       .style('cursor', 'pointer');
 
     var showPhoto = preferences.show_photos && person.photo_url;
@@ -309,11 +313,18 @@
     }
 
     nodeGroup.on('click', function() {
-      openPersonSidebar(person.id);
+      openPersonSidebar(person.id, this);
     });
 
     nodeGroup.on('dblclick', function() {
       window.location.href = '/people/' + person.id;
+    });
+
+    nodeGroup.on('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openPersonSidebar(person.id, this);
+      }
     });
   }
 
@@ -387,9 +398,13 @@
     setStatus(root.dataset.statusTemplate.replace('{count}', String(treeData.persons.length)));
   }
 
-  function openPersonSidebar(personId) {
+  function openPersonSidebar(personId, triggerNode) {
     var sidebar = document.getElementById('person-sidebar');
+    var content = document.getElementById('sidebar-content');
+    sidebarTrigger = triggerNode || document.activeElement;
     sidebar.classList.add('person-sidebar--open');
+    content.setAttribute('aria-busy', 'true');
+    window.openAccessibleOverlay(sidebar, {initialFocus: '.person-sidebar__close'});
     htmx.ajax('GET', '/people/' + personId + '/card', {target: '#sidebar-content', swap: 'innerHTML'});
   }
 
@@ -417,8 +432,19 @@
     }
   };
   window.closeSidebar = function() {
-    document.getElementById('person-sidebar').classList.remove('person-sidebar--open');
+    var sidebar = document.getElementById('person-sidebar');
+    sidebar.classList.remove('person-sidebar--open');
+    window.closeAccessibleOverlay(sidebar);
+    if (sidebarTrigger && typeof sidebarTrigger.focus === 'function') {
+      sidebarTrigger.focus();
+    }
   };
+
+  document.body.addEventListener('htmx:afterSwap', function(event) {
+    if (event.target && event.target.id === 'sidebar-content') {
+      event.target.setAttribute('aria-busy', 'false');
+    }
+  });
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
   document.getElementById('apply-tree-filters').addEventListener('click', loadTree);

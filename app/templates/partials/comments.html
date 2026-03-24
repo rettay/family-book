@@ -12,7 +12,9 @@
 <p class="text-sm text-muted" style="padding:4px 0; font-style:italic;">No comments yet</p>
 {% endif %}
 
+<p class="form-error hidden" id="comment-status-{{ moment_id }}" role="status" aria-live="polite"></p>
 <form class="comment-form" onsubmit="postComment(event, '{{ moment_id }}')">
-  <input type="text" name="body" placeholder="Add a comment..." required autocomplete="off">
+  <label class="sr-only" for="comment-input-{{ moment_id }}">Add a comment</label>
+  <input type="text" id="comment-input-{{ moment_id }}" name="body" placeholder="Add a comment..." required autocomplete="off">
   <button type="submit">Send</button>
 </form>

@@ -20,7 +20,7 @@
       <a href="/demo/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>
       <a href="/login" class="nav__link">{{ t('nav.login') }}</a>
     </div>
-    <button class="nav__hamburger" onclick="toggleNav()" aria-label="Menu">&#9776;</button>
+    <button class="nav__hamburger" type="button" onclick="toggleNav()" aria-label="Menu" aria-controls="nav-links" aria-expanded="false">&#9776;</button>
   </nav>
 
   {# Demo banner — warm amber, subtle #}
@@ -41,9 +41,9 @@
       <a href="/admin" class="nav__link {% if active_page == 'admin' %}nav__link--active{% endif %}">{{ t('nav.admin') }}</a>
       {% endif %}
       <a href="/settings" class="nav__link {% if active_page == 'settings' %}nav__link--active{% endif %}">{{ t('nav.settings') }}</a>
-      <a href="#" class="nav__link" onclick="logout(); return false;">{{ t('nav.logout') }}</a>
+      <button type="button" class="nav__link nav__link--button" onclick="logout()">{{ t('nav.logout') }}</button>
     </div>
-    <button class="nav__hamburger" onclick="toggleNav()" aria-label="Menu">&#9776;</button>
+    <button class="nav__hamburger" type="button" onclick="toggleNav()" aria-label="Menu" aria-controls="nav-links" aria-expanded="false">&#9776;</button>
   </nav>
   {% endif %}
 
@@ -51,7 +51,7 @@
     {% block content %}{% endblock %}
   </main>
 
-  <div class="toast-container" id="toast-container"></div>
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
   <script src="/static/js/main.js"></script>

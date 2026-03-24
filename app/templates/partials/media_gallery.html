@@ -1,10 +1,10 @@
 {% if media_list %}
 <div class="media-gallery">
   {% for m in media_list %}
-  <div class="media-gallery__item" onclick="openLightbox('/api/media/{{ m.id }}/file')">
-    <img src="/api/media/{{ m.id }}/thumbnail" alt="{{ m.caption or '' }}" loading="lazy"
+  <button type="button" class="media-gallery__item" onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or "Family media")|tojson }})'>
+    <img src="/api/media/{{ m.id }}/thumbnail" alt="{{ m.caption or 'Family media' }}" loading="lazy"
          onerror="this.src='/api/media/{{ m.id }}/file'">
-  </div>
+  </button>
   {% endfor %}
 </div>
 

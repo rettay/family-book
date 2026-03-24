@@ -10,7 +10,9 @@
 
   <div class="search-bar">
     <span class="search-bar__icon">&#128269;</span>
+    <label class="sr-only" for="people-search-input">{{ t('common.search') }}</label>
     <input type="search" placeholder="{{ t('common.search') }}..."
+           id="people-search-input"
            hx-get="/partials/people-grid"
            hx-trigger="keyup changed delay:300ms"
            hx-target="#people-results"
@@ -27,7 +29,7 @@
     {% endif %}
   </div>
 
-  <div id="people-results">
+  <div id="people-results" aria-live="polite" aria-busy="false">
     {% include "partials/people_grid.html" %}
   </div>
 </div>

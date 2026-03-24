@@ -98,13 +98,16 @@
       {{ t('tree.filter_birth_country') }}
       <input type="text" id="map-filter-birth-country" maxlength="2" placeholder="MX">
     </label>
-    <button class="btn btn--primary" id="apply-map-filters">{{ t('map.apply_filters') }}</button>
+    <div class="tree-panel__actions">
+      <button class="btn btn--primary" type="button" id="apply-map-filters">{{ t('map.apply_filters') }}</button>
+      <button class="btn btn--secondary" type="button" id="reset-map-filters">{{ t('tree.reset_filters') }}</button>
+    </div>
   </aside>
 
   <section class="map-board">
-    <svg id="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" aria-label="{{ t('map.title') }}"></svg>
+    <svg id="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="{{ t('map.title') }}"></svg>
     <div class="map-legend">{{ t('map.legend') }}</div>
-    <div class="map-empty" id="map-empty" hidden>{{ t('map.empty') }}</div>
+    <div class="map-empty" id="map-empty" hidden role="status" aria-live="polite">{{ t('map.empty') }}</div>
   </section>
 </div>
 {% endblock %}
