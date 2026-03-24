@@ -1,5 +1,45 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Planned Sprint
+
+### `S11 - Tree as Primary Workspace`
+
+Status: Planned
+
+### Sprint Goal
+
+Make the family tree the main Family Book workspace so members can browse, recognize, edit, and grow the family graph directly from the tree.
+
+### Why This Sprint Exists
+
+The tree is the product’s strongest conceptual surface, but it is still too passive in day-to-day use. Users want the tree to feel personal, editable, and operational: profile photos on nodes, richer context, direct edits, relationship creation, and a tree-first landing experience. This sprint captures that product direction while deliberately keeping Google Maps and Resend out of scope.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 13 | FB-015 | Tree as Primary Workspace | P1 | planned |
+
+## Packet Sequence Rationale
+
+### FB-015 now
+
+The highest-value next product move is to make the existing tree surface the primary workspace instead of adding unrelated integrations or returning immediately to maintainability work.
+
+### External integrations later
+
+Google Maps and real email delivery matter, but they introduce external dependencies and operational scope that would dilute the tree-workspace sprint.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- tree nodes feel more personal and informative
+- common person edits can be made directly from the tree context
+- core relationship creation can be initiated from the tree
+- authenticated users land on the tree first
+- browser and accessibility baselines remain intact
+
 ## Closed Sprint
 
 ### `S10 - Readability and Responsive Polish`

@@ -1,7 +1,7 @@
 # Family Book Backlog
 
-Sprint: `S10 - Readability and Responsive Polish`
-Status: Closed
+Sprint: `S11 - Tree as Primary Workspace`
+Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -132,3 +132,20 @@ Execution slices:
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
 | FB-014 | Architecture and Maintainability Hardening | P1 | candidate | Reduce remaining CodeMap structural warnings, remove the settings/theme cycle, and improve maintainability in central modules without reopening core product scope |
+| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | candidate | Move Google Maps into the map view and wire invites/notifications to real email delivery without bloating the tree-workspace sprint |
+
+## Planned Sprint `S11 - Tree as Primary Workspace`
+
+Sprint goal:
+- Make the family tree the main workspace for Family Book by improving node identity, in-context editing, relationship creation, and default landing behavior.
+
+Committed packet:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-015 | Tree as Primary Workspace | P1 | planned | `task_packets/FB-015_tree_as_primary_workspace.md` |
+
+Execution slices:
+- `S11-1` Tree Identity and Richness
+- `S11-2` Inline Tree Editing
+- `S11-3` Relationship Workflows and Tree-First Landing

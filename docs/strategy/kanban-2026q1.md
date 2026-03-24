@@ -18,7 +18,7 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-None.
+| FB-015 | Tree as Primary Workspace | P1 | `task_packets/FB-015_tree_as_primary_workspace.md` |
 
 ## Done
 

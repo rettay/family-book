@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 10 are closed. Sprint 10 delivered readability, responsive layout polish, and scanability improvements on the main Family Book surfaces without reopening the Sprint 09 accessibility contract.
+Sprint 01 through Sprint 10 are closed. Sprint 11 is now planned around making the family tree the product’s primary browsing and editing workspace.
 
 ## North Star
 
@@ -79,14 +79,15 @@ Sprint 01 through Sprint 10 are closed. Sprint 10 delivered readability, respons
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- Remaining product-quality work is now past the immediate UI polish layer and back in structural maintainability, browser depth, and CodeMap warning reduction
+- The next major product risk is that the tree remains the strongest concept in the app but not yet the strongest daily workspace
+- External integrations like Google Maps and real email delivery are intentionally deferred so they do not sprawl the next sprint
 
 ## Current Priority Order
 
-1. Plan the next sprint around the highest-value remaining product or engineering debt
-2. Preserve the improved browser, accessibility, and responsive baseline as new work lands
+1. Execute Sprint 11 to make the tree the default browsing and editing workspace
+2. Preserve the improved browser, accessibility, and responsive baseline as tree behavior becomes richer
 3. Continue using staging review for manual acceptance before production promotion
-4. Reduce remaining structural and governance warnings without reopening closed UX regressions
+4. Sequence Google Maps and email delivery into a later integration sprint instead of bloating the tree sprint
 
 ## Sprint State
 
@@ -101,12 +102,14 @@ Sprint 01 through Sprint 10 are closed. Sprint 10 delivered readability, respons
 - `S08 - Browser Regression Expansion and Release Confidence`
 - `S09 - Accessibility and Interaction Hardening`
 - `S10 - Readability and Responsive Polish`
-- Current sprint planning:
-  - next sprint to be selected
+- Planned sprint:
+  - `S11 - Tree as Primary Workspace`
+- Sprint 11 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s11.md`
+- Sprint 11 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s11.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-015_tree_as_primary_workspace.md`
 - Sprint 10 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s10.md`
 - Sprint 10 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s10.md`
 - Sprint 10 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s10.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-013_readability_and_responsive_polish.md`
 - Sprint 09 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s09.md`
 - Sprint 09 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s09.md`
 - Sprint 09 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s09.md`
