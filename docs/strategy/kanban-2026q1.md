@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-008 | Theme Customization and Branding Controls | P2 | `task packet to be authored` |
+| FB-008 | Theme Customization and Branding Controls | P2 | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
 
 ## In Progress
 

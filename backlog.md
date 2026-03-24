@@ -1,7 +1,7 @@
 # Family Book Backlog
 
-Sprint: `S05 - Encryption and Backup Hardening Pass`
-Status: Closed
+Sprint: `S06 - Theme Customization and Branding Controls`
+Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -47,10 +47,28 @@ Execution slices:
 - `S05-2` Backup and Restore Truthfulness
 - `S05-3` Operational Hardening
 
+## Planned Sprint `S06 - Theme Customization and Branding Controls`
+
+Sprint goal:
+- Make Family Book feel owner-operated through admin-managed theme tokens, minimal branding controls, and staging-based visual acceptance.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-008 | Theme Customization and Branding Controls | P2 | planned | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
+
+Execution slices:
+- `S06-1` Theme Token Contract and Persistence
+- `S06-2` Admin Theme Controls
+- `S06-3` Surface Rollout and Staging Acceptance
+
 ## Next Sprint
 
 - Recommended next sprint: `S06 - Theme Customization and Branding Controls`
 - Primary packet: `FB-008 Theme Customization and Branding Controls`
+- Sprint plan: `docs/strategy/sprint-plan-s06.md`
+- Slice plan: `docs/strategy/sprint-slices-s06.md`
 - Follow-on candidate after `FB-008`:
   - backup/observability cleanup from remaining CodeMap warnings
 
@@ -58,4 +76,4 @@ Execution slices:
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-008 | Theme Customization and Branding Controls | P2 | todo | Admin-configurable color system and surface branding |
+| FB-008 | Theme Customization and Branding Controls | P2 | planned | Admin-configurable color system and surface branding |

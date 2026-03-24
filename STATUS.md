@@ -59,10 +59,10 @@ Sprint 01 through Sprint 05 are closed.
 
 ## Current Priority Order
 
-1. Open Sprint 06 around theme customization and branding controls
-2. Expand browser-based regression coverage beyond the current core flow set
-3. Pay down remaining CodeMap observability/test warnings in core modules
-4. Reassess field-level privacy policy for medical/contact data after broader family usage
+1. Execute Sprint 06 around theme customization and branding controls
+2. Use staging as the manual visual acceptance lane for each theme slice
+3. Expand browser-based regression coverage beyond the current core flow set
+4. Pay down remaining CodeMap observability/test warnings in core modules
 
 ## Sprint State
 
@@ -73,6 +73,8 @@ Sprint 01 through Sprint 05 are closed.
 - `S04 - Version History, Revert, and Moderation Controls`
 - `S05 - Encryption and Backup Hardening Pass`
 - Next recommended sprint: `S06 - Theme Customization and Branding Controls`
+- Sprint 06 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s06.md`
+- Sprint 06 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s06.md`
 - Sprint 05 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s05.md`
 - Sprint 05 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s05.md`
 - Sprint 05 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`
