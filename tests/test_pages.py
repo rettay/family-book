@@ -24,6 +24,7 @@ async def test_admin_dashboard_renders_release_confidence_sections(admin_client:
     assert 'id="backup-status"' in resp.text
     assert 'id="theme-settings-form"' in resp.text
     assert 'id="admin-accounts-card"' in resp.text
+    assert 'class="flex gap-8 admin-action-row admin-action-row--wrap"' in resp.text
 
 
 @pytest.mark.asyncio
@@ -35,6 +36,7 @@ async def test_home_page_renders_accessible_compose_and_live_regions(admin_clien
     assert 'role="dialog"' in resp.text
     assert 'aria-live="polite"' in resp.text
     assert 'id="moments-feed"' in resp.text
+    assert 'class="form-select feed-filter-select"' in resp.text
 
 
 @pytest.mark.asyncio
@@ -44,6 +46,7 @@ async def test_people_page_renders_search_label_and_live_results(member_client: 
     assert resp.status_code == 200
     assert 'for="people-search-input"' in resp.text
     assert 'id="people-results" aria-live="polite" aria-busy="false"' in resp.text
+    assert 'class="page-header page-header--split mb-16"' in resp.text
 
 
 @pytest.mark.asyncio
@@ -75,6 +78,16 @@ async def test_person_edit_page_renders_labeled_fields_and_inline_error_containe
     assert 'id="person-edit-error"' in resp.text
     assert 'for="edit-first-name"' in resp.text
     assert 'id="edit-first-name"' in resp.text
+    assert 'class="form-section-title"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_settings_page_renders_wrapped_language_picker_and_page_header(member_client: AsyncClient):
+    resp = await member_client.get("/settings")
+
+    assert resp.status_code == 200
+    assert 'class="lang-picker lang-picker--wrap"' in resp.text
+    assert 'class="page-header__subtitle"' in resp.text
 
 
 def test_pages_router_exports_routes():

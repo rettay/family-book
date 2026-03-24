@@ -3,12 +3,12 @@
 
 {% block content %}
 <div class="container" style="padding-top: 20px;">
-  <div class="flex-between mb-16">
-    <div class="page-header">
+  <div class="page-header page-header--split mb-16">
+    <div>
       <h1 class="page-header__title">{{ t('person.add') }}</h1>
-      <p class="page-header__subtitle">Add a new family member</p>
+      <p class="page-header__subtitle">{{ t('person.add_subtitle') }}</p>
     </div>
-    <a href="/people" class="btn btn--ghost btn--sm">{{ t('common.cancel') }}</a>
+    <a href="/people" class="btn btn--ghost btn--sm page-header__actions">{{ t('common.cancel') }}</a>
   </div>
 
   <form class="card" id="create-person-form" onsubmit="createPerson(event)">
@@ -101,7 +101,7 @@
       </div>
     </div>
 
-    <div class="card__footer" style="justify-content:flex-end;">
+    <div class="card__footer card__footer--actions">
       <a href="/people" class="btn btn--secondary">{{ t('common.cancel') }}</a>
       <button type="submit" class="btn btn--primary" id="create-btn">{{ t('person.add') }}</button>
     </div>

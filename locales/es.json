@@ -13,6 +13,9 @@
     "logout": "Cerrar Sesión",
     "login": "Iniciar Sesión"
   },
+  "people": {
+    "subtitle": "Explora familiares, busca ramas y entra rápidamente en los perfiles."
+  },
   "person": {
     "birthday": "Cumpleaños",
     "contact": "Contacto",
@@ -34,6 +37,8 @@
     "birth_place": "Lugar de Nacimiento",
     "residence": "Residencia Actual",
     "languages": "Idiomas",
+    "add_subtitle": "Agrega un nuevo familiar al archivo compartido.",
+    "edit_subtitle": "Actualiza detalles del perfil, notas familiares, información de contacto y registros conmemorativos.",
     "living": "Vivo/a",
     "deceased": "Fallecido/a",
     "memorial": "Memorial"
@@ -56,6 +61,7 @@
     "date": "Fecha",
     "details": "Detalles",
     "feed": "Novedades Familiares",
+    "feed_subtitle": "Historias, notas e hitos de todo el archivo familiar.",
     "new": "Nuevo Momento",
     "note": "Nota",
     "photo": "Foto",
@@ -75,6 +81,7 @@
   },
   "admin": {
     "dashboard": "Panel de Administración",
+    "subtitle": "Gestiona invitaciones, revisa el estado de protección y mantén funcionando el archivo familiar.",
     "invite": "Enviar Invitación",
     "approve": "Aprobar",
     "suspend": "Suspender",
@@ -83,6 +90,9 @@
     "download_backup": "Descargar Copia",
     "audit_log": "Registro de Auditoría",
     "pending_approvals": "Aprobaciones Pendientes"
+  },
+  "settings": {
+    "subtitle": "Ajusta el idioma, los accesos al perfil y las preferencias de instalación para tu archivo familiar."
   },
   "auth": {
     "login": "Iniciar Sesión",

@@ -1,8 +1,8 @@
 {
   "id": "app/templates/person.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "835ef322",
+  "analyzed_at": "2026-03-24T19:24:57.364436+00:00",
+  "source_hash": "c2cfe98d",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -55,14 +55,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.24,
+  "attention_score": 0.19,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.8,
+    "understandability": 0.88,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.57
   },
   "domain_role": "utility",
   "detected_patterns": null,

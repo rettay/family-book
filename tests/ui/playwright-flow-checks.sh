@@ -189,6 +189,28 @@ assert_run "admin can create a new person from the browser flow" \
 assert_run "admin dashboard exposes backup status and theme controls" \
   "${PWCLI}" run-code "async page => { const text = await page.locator('#backup-status').textContent(); if (!text || !text.includes('Protected fields')) throw new Error('backup status missing'); if (!await page.locator('#theme-settings-form').count()) throw new Error('theme form missing'); }"
 
+"${PWCLI}" resize 390 844
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/admin-mobile.png" --full-page true >/dev/null
+
+assert_run "admin dashboard avoids horizontal overflow on mobile" \
+  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('admin page overflows horizontally on mobile'); }"
+
+"${PWCLI}" goto "${BASE_URL}/"
+"${PWCLI}" run-code "async page => { await page.locator('#moments-feed').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-mobile.png" --full-page true >/dev/null
+
+assert_run "home feed avoids horizontal overflow on mobile" \
+  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('home page overflows horizontally on mobile'); }"
+
+"${PWCLI}" goto "${BASE_URL}/people/new"
+"${PWCLI}" run-code "async page => { await page.locator('#create-person-form').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-new-mobile.png" --full-page true >/dev/null
+
+assert_run "person create form stacks and avoids horizontal overflow on mobile" \
+  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('person create form overflows horizontally on mobile'); const place = await page.locator('#person-burial-place').boundingBox(); const cemetery = await page.locator('#person-burial-cemetery').boundingBox(); if (!place || !cemetery) throw new Error('missing burial fields'); if (Math.abs(place.y - cemetery.y) < 20) throw new Error('burial fields did not stack on mobile'); }"
+
+"${PWCLI}" resize 1440 960
+
 "${PWCLI}" cookie-set session "${MEMBER_SESSION}" --domain 127.0.0.1 --path / --httpOnly true --sameSite Lax >/dev/null
 "${PWCLI}" goto "${BASE_URL}/"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Playwright shared story').waitFor(); }"

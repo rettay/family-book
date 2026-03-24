@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S10 - Readability and Responsive Polish`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,7 +18,7 @@ The next highest-value UX work is the lower-severity but still meaningful polish
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 12 | FB-013 | Readability and Responsive Polish | P2 | planned |
+| 12 | FB-013 | Readability and Responsive Polish | P2 | done |
 
 ## Packet Sequence Rationale
 
@@ -38,6 +38,24 @@ The sprint is successful when all are true:
 - known cramped admin/action rows behave acceptably on narrow screens
 - feed media causes less visible layout jump
 - the browser regression lane stays green and Sprint 09 accessibility behaviors remain intact
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented the readability, responsive, and scanability polish across the main Family Book surfaces on `main`
+- Auditor initially flagged localization regression and remaining mobile form compression, and Builder corrected both before final closeout
+- Focused closeout baseline:
+  - `uv run pytest tests/test_pages.py tests/test_theme.py -q`
+  - result: `15 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `19 PASS`, `0 FAIL`, `6 WARN`
+
+## Recommended Next Sprint
+
+- next sprint to be selected
+- likely direction: continue from `FB-014` maintainability work or pick the next highest-value product surface based on manual staging review
 
 ## Closed Sprint
 

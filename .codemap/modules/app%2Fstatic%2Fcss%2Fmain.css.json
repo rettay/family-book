@@ -1,13 +1,13 @@
 {
   "id": "app/static/css/main.css",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "10e07a02",
+  "analyzed_at": "2026-03-24T19:38:32.300070+00:00",
+  "source_hash": "c9ea358b",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 1190,
+    "lines": 1347,
     "rating": "green"
   },
   "dependencies": {
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.22,
+  "attention_score": 0.14,
   "centrality_score": 0.0,
   "quality_radar": {
     "understandability": 0.8,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.65
   },
   "domain_role": "utility",
   "detected_patterns": null,

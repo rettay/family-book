@@ -3,7 +3,10 @@
 
 {% block content %}
 <div class="container-wide" id="admin-page" style="padding-top: 16px;">
-  <h1 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 16px;">{{ t('admin.dashboard') }}</h1>
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">{{ t('admin.dashboard') }}</h1>
+    <p class="page-header__subtitle">{{ t('admin.subtitle') }}</p>
+  </div>
 
   <!-- Stats -->
   <div class="admin-grid mb-24">
@@ -29,7 +32,7 @@
   <div class="card mb-16">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Quick Actions</h2>
-      <div class="flex gap-8" style="flex-wrap:wrap;">
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap">
         <a href="/people/new" class="btn btn--primary btn--sm" id="admin-add-person-button">+ Add Person</a>
         <button class="btn btn--secondary btn--sm" id="admin-backup-button" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
         <button class="btn btn--secondary btn--sm" id="admin-download-backup-button" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
@@ -41,19 +44,19 @@
   <div class="card mb-16" id="admin-theme-card">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Protection &amp; Backup Status</h2>
-      <div id="backup-status">
-        <p class="text-sm text-muted">Backups: {% if backup_health.fresh %}fresh{% else %}stale or missing{% endif %}</p>
-        <p class="text-sm text-muted">Latest file: {{ backup_health.latest_file or 'none' }}</p>
-        <p class="text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
-        <p class="text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
-        <p class="text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
+      <div id="backup-status" class="status-list">
+        <p class="status-list__item text-sm text-muted">Backups: {% if backup_health.fresh %}fresh{% else %}stale or missing{% endif %}</p>
+        <p class="status-list__item text-sm text-muted">Latest file: {{ backup_health.latest_file or 'none' }}</p>
+        <p class="status-list__item text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
+        <p class="status-list__item text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
+        <p class="status-list__item text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
       </div>
     </div>
   </div>
 
   <div class="card mb-16" id="admin-accounts-card">
     <div class="card__body">
-      <div class="flex-between mb-16" style="gap: 16px; flex-wrap: wrap;">
+      <div class="flex-between mb-16 admin-panel-header">
         <div>
           <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 6px;">Theme &amp; Branding</h2>
           <p class="text-sm text-muted">Update the core palette and family-facing brand text without editing code.</p>
@@ -113,7 +116,7 @@
           </div>
         </div>
 
-        <div class="flex gap-8" style="flex-wrap: wrap;">
+        <div class="flex gap-8 admin-action-row admin-action-row--wrap">
           <button type="submit" class="btn btn--primary btn--sm">Save Theme</button>
           <button type="button" class="btn btn--secondary btn--sm" onclick="resetThemeSettings()">Reset Default Theme</button>
           {% if staging_review_url %}
@@ -129,19 +132,23 @@
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Accounts &amp; Invites</h2>
       {% for p in managed_people %}
       <div class="invite-row">
-        <span class="invite-row__name">{{ p.display_name }}{% if p.contact_email %} · {{ p.contact_email }}{% endif %}</span>
-        <span class="invite-row__status {% if p.account_state == 'active' %}invite-row__status--active{% elif p.account_state == 'pending' %}invite-row__status--active{% else %}invite-row__status--expired{% endif %}">
-          {{ p.account_state }}
-        </span>
-        {% if p.contact_email %}
-        <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">Create Invite</button>
-        {% endif %}
-        {% if p.account_state != 'active' %}
-        <button class="btn btn--primary btn--sm" onclick="activatePerson('{{ p.id }}')">Activate</button>
-        {% endif %}
-        {% if p.account_state != 'suspended' %}
-        <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
-        {% endif %}
+        <div class="invite-row__identity">
+          <span class="invite-row__name">{{ p.display_name }}{% if p.contact_email %} · {{ p.contact_email }}{% endif %}</span>
+          <span class="invite-row__status {% if p.account_state == 'active' %}invite-row__status--active{% elif p.account_state == 'pending' %}invite-row__status--active{% else %}invite-row__status--expired{% endif %}">
+            {{ p.account_state }}
+          </span>
+        </div>
+        <div class="invite-row__actions">
+          {% if p.contact_email %}
+          <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">Create Invite</button>
+          {% endif %}
+          {% if p.account_state != 'active' %}
+          <button class="btn btn--primary btn--sm" onclick="activatePerson('{{ p.id }}')">Activate</button>
+          {% endif %}
+          {% if p.account_state != 'suspended' %}
+          <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -154,16 +161,20 @@
       {% for invite in invites %}
       {% set invited_person = invite_people.get(invite.id) %}
       <div class="invite-row">
-        <span class="invite-row__name">
-          {{ invited_person.display_name if invited_person else invite.person_id }}
-          {% if invited_person and invited_person.contact_email %} · {{ invited_person.contact_email }}{% endif %}
-        </span>
-        <span class="invite-row__status {% if invite.revoked %}invite-row__status--expired{% elif invite.claimed_at %}invite-row__status--claimed{% else %}invite-row__status--active{% endif %}">
-          {% if invite.revoked %}Revoked{% elif invite.claimed_at %}Claimed{% else %}Open{% endif %}
-        </span>
-        {% if not invite.revoked and not invite.claimed_at %}
-        <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
-        {% endif %}
+        <div class="invite-row__identity">
+          <span class="invite-row__name">
+            {{ invited_person.display_name if invited_person else invite.person_id }}
+            {% if invited_person and invited_person.contact_email %} · {{ invited_person.contact_email }}{% endif %}
+          </span>
+          <span class="invite-row__status {% if invite.revoked %}invite-row__status--expired{% elif invite.claimed_at %}invite-row__status--claimed{% else %}invite-row__status--active{% endif %}">
+            {% if invite.revoked %}Revoked{% elif invite.claimed_at %}Claimed{% else %}Open{% endif %}
+          </span>
+        </div>
+        <div class="invite-row__actions">
+          {% if not invite.revoked and not invite.claimed_at %}
+          <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -177,10 +188,14 @@
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">{{ t('admin.pending_approvals') }}</h2>
       {% for p in pending_persons %}
       <div class="invite-row">
-        <span class="invite-row__name">{{ p.display_name }}</span>
-        <span class="invite-row__status invite-row__status--active">Pending</span>
-        <button class="btn btn--primary btn--sm" onclick="approvePerson('{{ p.id }}')">{{ t('admin.approve') }}</button>
-        <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+        <div class="invite-row__identity">
+          <span class="invite-row__name">{{ p.display_name }}</span>
+          <span class="invite-row__status invite-row__status--active">Pending</span>
+        </div>
+        <div class="invite-row__actions">
+          <button class="btn btn--primary btn--sm" onclick="approvePerson('{{ p.id }}')">{{ t('admin.approve') }}</button>
+          <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+        </div>
       </div>
       {% endfor %}
     </div>

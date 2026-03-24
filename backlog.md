@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S10 - Readability and Responsive Polish`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -111,7 +111,7 @@ Execution slices:
 - `S09-2` Keyboard and Semantic Interaction Hardening
 - `S09-3` Dynamic Feedback and Form Usability
 
-## Planned Sprint `S10 - Readability and Responsive Polish`
+## Closed Sprint `S10 - Readability and Responsive Polish`
 
 Sprint goal:
 - Improve readability, scanability, and narrow-screen usability across the main Family Book surfaces without reopening the critical accessibility work closed in Sprint 09.
@@ -120,7 +120,7 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-013 | Readability and Responsive Polish | P2 | planned | `task_packets/FB-013_readability_and_responsive_polish.md` |
+| FB-013 | Readability and Responsive Polish | P2 | done | `task_packets/FB-013_readability_and_responsive_polish.md` |
 
 Execution slices:
 - `S10-1` Typography and Metadata Legibility

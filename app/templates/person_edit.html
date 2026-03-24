@@ -3,9 +3,12 @@
 
 {% block content %}
 <div class="container" style="padding-top: 16px;">
-  <div class="flex-between mb-16">
-    <h1 style="font-family: var(--font-serif); font-size: 1.3rem;">{{ t('person.edit') }}: {{ person.display_name }}</h1>
-    <a href="/people/{{ person.id }}" class="btn btn--ghost btn--sm">{{ t('common.cancel') }}</a>
+  <div class="page-header page-header--split mb-16">
+    <div>
+      <h1 class="page-header__title">{{ t('person.edit') }}: {{ person.display_name }}</h1>
+      <p class="page-header__subtitle">{{ t('person.edit_subtitle') }}</p>
+    </div>
+    <a href="/people/{{ person.id }}" class="btn btn--ghost btn--sm page-header__actions">{{ t('common.cancel') }}</a>
   </div>
 
   <form class="card" id="person-edit-form" onsubmit="savePerson(event)">
@@ -114,7 +117,7 @@
         <input type="text" class="form-input" id="edit-languages" name="languages" value="{{ person.languages | join(', ') }}">
       </div>
 
-      <h3 style="font-size:0.9rem; font-weight:600; margin: 16px 0 8px; color:var(--text-muted);">{{ t('person.contact') }}</h3>
+      <h3 class="form-section-title">{{ t('person.contact') }}</h3>
 
       <div class="form-row">
         <div class="form-group">
@@ -137,7 +140,7 @@
         </div>
       </div>
 
-      <h3 style="font-size:0.9rem; font-weight:600; margin: 16px 0 8px; color:var(--text-muted);">Burial Details</h3>
+      <h3 class="form-section-title">Burial Details</h3>
 
       <div class="form-row">
         <div class="form-group">
@@ -183,7 +186,7 @@
       {% endif %}
     </div>
 
-    <div class="card__footer" style="justify-content:flex-end;">
+    <div class="card__footer card__footer--actions">
       <a href="/people/{{ person.id }}" class="btn btn--secondary">{{ t('common.cancel') }}</a>
       <button type="submit" class="btn btn--primary" id="save-btn">{{ t('common.save') }}</button>
     </div>

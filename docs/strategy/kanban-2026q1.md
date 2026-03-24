@@ -18,7 +18,7 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |
+None.
 
 ## Done
 
@@ -36,3 +36,4 @@ None.
 | FB-010 | Observability and Coverage Hardening | P1 | `task_packets/FB-010_observability_and_coverage_hardening.md` |
 | FB-011 | Browser Regression Expansion and Release Confidence | P1 | `task_packets/FB-011_browser_regression_expansion_and_release_confidence.md` |
 | FB-012 | Accessibility and Interaction Hardening | P1 | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |
+| FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |

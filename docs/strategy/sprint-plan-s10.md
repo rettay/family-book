@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S10 - Readability and Responsive Polish`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-013 Readability and Responsive Polish`
 - Follow-on packet candidate: `FB-014 Architecture and Maintainability Hardening`
 
@@ -101,3 +101,11 @@ The critical operability failures are now closed. The next highest-value UX work
 ## Exit Target
 
 Sprint 10 is complete when Family Book is materially easier to read and use on smaller screens, especially on metadata-heavy and admin-heavy surfaces, while the Sprint 09 accessibility baseline remains intact.
+
+## Exit Result
+
+- Result: `pass`
+- Typography and metadata legibility were raised across moments, comments, person views, admin status blocks, and settings text
+- Narrow-screen layouts now wrap or stack acceptably across key admin and create/edit form flows, with browser checks covering mobile overflow and form stacking
+- Feed media and card spacing are calmer and more stable during normal browsing
+- The sprint preserved the Sprint 09 accessibility and browser-confidence baseline

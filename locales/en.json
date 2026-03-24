@@ -13,6 +13,9 @@
     "logout": "Log Out",
     "login": "Log In"
   },
+  "people": {
+    "subtitle": "Browse relatives, search branches, and jump into person records quickly."
+  },
   "person": {
     "birthday": "Birthday",
     "contact": "Contact",
@@ -34,6 +37,8 @@
     "birth_place": "Place of Birth",
     "residence": "Current Residence",
     "languages": "Languages",
+    "add_subtitle": "Add a new family member to the shared archive.",
+    "edit_subtitle": "Update profile details, family notes, contact information, and memorial records.",
     "living": "Living",
     "deceased": "Deceased",
     "memorial": "Memorial"
@@ -56,6 +61,7 @@
     "date": "Date",
     "details": "Details",
     "feed": "Family Feed",
+    "feed_subtitle": "Stories, notes, and milestones from across the family archive.",
     "new": "New Moment",
     "note": "Note",
     "photo": "Photo",
@@ -75,6 +81,7 @@
   },
   "admin": {
     "dashboard": "Admin Dashboard",
+    "subtitle": "Manage invites, review protection status, and keep the family archive running smoothly.",
     "invite": "Send Invite",
     "approve": "Approve",
     "suspend": "Suspend",
@@ -83,6 +90,9 @@
     "download_backup": "Download Backup",
     "audit_log": "Audit Log",
     "pending_approvals": "Pending Approvals"
+  },
+  "settings": {
+    "subtitle": "Adjust language, profile shortcuts, and install preferences for your family archive."
   },
   "auth": {
     "login": "Log In",

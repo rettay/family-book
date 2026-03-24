@@ -3,12 +3,15 @@
 
 {% block content %}
 <div class="container" style="padding-top: 16px;">
-  <h1 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 16px;">{{ t('nav.settings') }}</h1>
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">{{ t('nav.settings') }}</h1>
+    <p class="page-header__subtitle">{{ t('settings.subtitle') }}</p>
+  </div>
 
   <!-- Language -->
   <div class="settings-section">
     <h2 class="settings-section__title">Language</h2>
-    <div class="lang-picker">
+    <div class="lang-picker lang-picker--wrap">
       <button class="lang-btn {% if locale == 'en' %}lang-btn--active{% endif %}"
               onclick="setLocale('en')">English</button>
       <button class="lang-btn {% if locale == 'es' %}lang-btn--active{% endif %}"

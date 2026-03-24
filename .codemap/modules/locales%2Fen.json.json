@@ -1,13 +1,13 @@
 {
   "id": "locales/en.json",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "0862f92c",
+  "analyzed_at": "2026-03-24T19:38:32.300070+00:00",
+  "source_hash": "63fe9664",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 142,
+    "lines": 152,
     "rating": "green"
   },
   "dependencies": {
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.3,
+  "attention_score": 0.2,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.89,
+    "understandability": 0.9,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.3
+    "stability": 0.57
   },
   "domain_role": "utility",
   "detected_patterns": null,

@@ -4,7 +4,7 @@
 
 ### S10-1 Typography and Metadata Legibility
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   improve the readability of the smallest and most muted text across the main Family Book surfaces
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S10-2 Mobile and Admin Responsiveness
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   reduce cramped layouts and improve touch comfort on narrow screens
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S10-3 Feed Media Stability and Scanability Polish
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make content-heavy surfaces feel calmer and easier to scan during normal browsing

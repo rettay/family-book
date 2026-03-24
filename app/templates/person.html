@@ -36,31 +36,31 @@
   {% if person.bio %}
   <div class="profile-section">
     <h3 class="profile-section__title">{{ t('person.bio') }}</h3>
-    <p>{{ person.bio }}</p>
+    <p class="profile-section__copy">{{ person.bio }}</p>
   </div>
   {% endif %}
 
   {% if person.languages %}
   <div class="profile-section">
     <h3 class="profile-section__title">{{ t('person.languages') }}</h3>
-    <p>{{ person.languages | join(', ') }}</p>
+    <p class="profile-section__copy">{{ person.languages | join(', ') }}</p>
   </div>
   {% endif %}
 
   {% if person.medical_history %}
   <div class="profile-section">
     <h3 class="profile-section__title">Medical History</h3>
-    <p>{{ person.medical_history }}</p>
+    <p class="profile-section__copy">{{ person.medical_history }}</p>
   </div>
   {% endif %}
 
   {% if person.burial_place or person.burial_country_code or person.burial_cemetery_name or person.burial_plot_number %}
   <div class="profile-section">
     <h3 class="profile-section__title">Burial Details</h3>
-    {% if person.burial_place %}<p><strong>Place:</strong> {{ person.burial_place }}</p>{% endif %}
-    {% if person.burial_country_code %}<p><strong>Country:</strong> {{ country_flag(person.burial_country_code) }} {{ person.burial_country_code }}</p>{% endif %}
-    {% if person.burial_cemetery_name %}<p><strong>Cemetery:</strong> {{ person.burial_cemetery_name }}</p>{% endif %}
-    {% if person.burial_plot_number %}<p><strong>Plot:</strong> {{ person.burial_plot_number }}</p>{% endif %}
+    {% if person.burial_place %}<p class="profile-section__copy"><strong>Place:</strong> {{ person.burial_place }}</p>{% endif %}
+    {% if person.burial_country_code %}<p class="profile-section__copy"><strong>Country:</strong> {{ country_flag(person.burial_country_code) }} {{ person.burial_country_code }}</p>{% endif %}
+    {% if person.burial_cemetery_name %}<p class="profile-section__copy"><strong>Cemetery:</strong> {{ person.burial_cemetery_name }}</p>{% endif %}
+    {% if person.burial_plot_number %}<p class="profile-section__copy"><strong>Plot:</strong> {{ person.burial_plot_number }}</p>{% endif %}
   </div>
   {% endif %}
 
@@ -134,7 +134,7 @@
   </div>
 
   <div class="profile-section">
-    <div class="flex-between" style="gap:12px; align-items:center;">
+    <div class="flex-between section-header" style="gap:12px; align-items:center;">
       <h3 class="profile-section__title">Version History</h3>
       {% if current_user.is_admin %}
       <span class="text-sm text-muted">Admin revert enabled</span>
@@ -152,7 +152,7 @@
 
   <!-- Moments by this person -->
   <div class="profile-section">
-    <div class="flex-between" style="gap:12px; align-items:center;">
+    <div class="flex-between section-header" style="gap:12px; align-items:center;">
       <h3 class="profile-section__title">{{ t('nav.moments') }}</h3>
       <button class="btn btn--ghost btn--sm" type="button" onclick="togglePersonMomentComposer()" id="person-moment-toggle" aria-expanded="false" aria-controls="person-moment-composer">
         {{ t('moments.add_for_person') }}
@@ -203,7 +203,7 @@
         <textarea class="form-textarea" id="person-moment-body" rows="3"
                   placeholder="{{ t('moments.story_prompt') }}"></textarea>
       </div>
-      <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <div class="person-moment-actions">
         <button type="button" class="btn btn--secondary" onclick="togglePersonMomentComposer(false)">{{ t('common.cancel') }}</button>
         <button type="submit" class="btn btn--primary">{{ t('moments.share') }}</button>
       </div>

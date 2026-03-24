@@ -3,9 +3,12 @@
 
 {% block content %}
 <div class="container" id="people-page" style="padding-top: 16px;">
-  <div class="flex-between mb-16">
-    <h1 style="font-family: var(--font-serif); font-size: 1.3rem;">{{ t('nav.people') }}</h1>
-    <a href="/people/new" class="btn btn--primary btn--sm" id="add-person-button">+ {{ t('person.add') }}</a>
+  <div class="page-header page-header--split mb-16">
+    <div>
+      <h1 class="page-header__title">{{ t('nav.people') }}</h1>
+      <p class="page-header__subtitle">{{ t('people.subtitle') }}</p>
+    </div>
+    <a href="/people/new" class="btn btn--primary btn--sm page-header__actions" id="add-person-button">+ {{ t('person.add') }}</a>
   </div>
 
   <div class="search-bar">

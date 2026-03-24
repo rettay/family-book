@@ -1,13 +1,13 @@
 {
   "id": "app/templates/person_edit.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "6f384c42",
+  "analyzed_at": "2026-03-24T19:38:32.300070+00:00",
+  "source_hash": "415c1896",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 251,
+    "lines": 254,
     "rating": "green"
   },
   "dependencies": {
@@ -53,14 +53,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.23,
+  "attention_score": 0.18,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.81,
+    "understandability": 0.83,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.58
   },
   "domain_role": "utility",
   "detected_patterns": null,
