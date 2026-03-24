@@ -1,8 +1,8 @@
 {
   "id": "app/routes/pages.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
-  "source_hash": "781869a2",
+  "analyzed_at": "2026-03-24T03:05:13.376981+00:00",
+  "source_hash": "3af5b0a4",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -473,19 +473,19 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 174,
-              "line_end": 177
-            },
-            {
-              "line_start": 180,
-              "line_end": 183
-            },
-            {
               "line_start": 175,
               "line_end": 177
             },
             {
               "line_start": 181,
+              "line_end": 183
+            },
+            {
+              "line_start": 174,
+              "line_end": 177
+            },
+            {
+              "line_start": 180,
               "line_end": 183
             },
             {
@@ -585,20 +585,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 230,
-              "line_end": 230
-            },
-            {
-              "line_start": 240,
-              "line_end": 240
-            },
-            {
               "line_start": 228,
               "line_end": 228
             },
             {
               "line_start": 229,
               "line_end": 229
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 240,
+              "line_end": 240
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -631,40 +631,24 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 265,
-              "line_end": 265
-            },
-            {
-              "line_start": 300,
-              "line_end": 300
-            },
-            {
-              "line_start": 275,
-              "line_end": 275
-            },
-            {
-              "line_start": 282,
-              "line_end": 282
-            },
-            {
-              "line_start": 310,
-              "line_end": 310
-            },
-            {
-              "line_start": 275,
-              "line_end": 276
-            },
-            {
-              "line_start": 282,
-              "line_end": 283
-            },
-            {
               "line_start": 268,
               "line_end": 268
             },
             {
               "line_start": 271,
               "line_end": 271
+            },
+            {
+              "line_start": 265,
+              "line_end": 265
+            },
+            {
+              "line_start": 274,
+              "line_end": 277
+            },
+            {
+              "line_start": 281,
+              "line_end": 284
             },
             {
               "line_start": 278,
@@ -677,46 +661,6 @@
             {
               "line_start": 293,
               "line_end": 293
-            },
-            {
-              "line_start": 265,
-              "line_end": 265
-            },
-            {
-              "line_start": 300,
-              "line_end": 300
-            },
-            {
-              "line_start": 318,
-              "line_end": 320
-            },
-            {
-              "line_start": 324,
-              "line_end": 326
-            },
-            {
-              "line_start": 330,
-              "line_end": 332
-            },
-            {
-              "line_start": 265,
-              "line_end": 265
-            },
-            {
-              "line_start": 274,
-              "line_end": 277
-            },
-            {
-              "line_start": 281,
-              "line_end": 284
-            },
-            {
-              "line_start": 274,
-              "line_end": 277
-            },
-            {
-              "line_start": 281,
-              "line_end": 284
             },
             {
               "line_start": 317,
@@ -731,6 +675,18 @@
               "line_end": 332
             },
             {
+              "line_start": 318,
+              "line_end": 320
+            },
+            {
+              "line_start": 324,
+              "line_end": 326
+            },
+            {
+              "line_start": 330,
+              "line_end": 332
+            },
+            {
               "line_start": 275,
               "line_end": 275
             },
@@ -741,6 +697,46 @@
             {
               "line_start": 310,
               "line_end": 310
+            },
+            {
+              "line_start": 265,
+              "line_end": 265
+            },
+            {
+              "line_start": 300,
+              "line_end": 300
+            },
+            {
+              "line_start": 268,
+              "line_end": 268
+            },
+            {
+              "line_start": 271,
+              "line_end": 271
+            },
+            {
+              "line_start": 320,
+              "line_end": 320
+            },
+            {
+              "line_start": 326,
+              "line_end": 326
+            },
+            {
+              "line_start": 332,
+              "line_end": 332
+            },
+            {
+              "line_start": 269,
+              "line_end": 269
+            },
+            {
+              "line_start": 318,
+              "line_end": 318
+            },
+            {
+              "line_start": 324,
+              "line_end": 324
             },
             {
               "line_start": 319,
@@ -755,16 +751,32 @@
               "line_end": 332
             },
             {
-              "line_start": 320,
-              "line_end": 320
+              "line_start": 265,
+              "line_end": 265
             },
             {
-              "line_start": 326,
-              "line_end": 326
+              "line_start": 300,
+              "line_end": 300
             },
             {
-              "line_start": 332,
-              "line_end": 332
+              "line_start": 274,
+              "line_end": 277
+            },
+            {
+              "line_start": 281,
+              "line_end": 284
+            },
+            {
+              "line_start": 275,
+              "line_end": 275
+            },
+            {
+              "line_start": 282,
+              "line_end": 282
+            },
+            {
+              "line_start": 310,
+              "line_end": 310
             },
             {
               "line_start": 278,
@@ -787,28 +799,16 @@
               "line_end": 283
             },
             {
+              "line_start": 275,
+              "line_end": 276
+            },
+            {
+              "line_start": 282,
+              "line_end": 283
+            },
+            {
               "line_start": 310,
               "line_end": 311
-            },
-            {
-              "line_start": 268,
-              "line_end": 268
-            },
-            {
-              "line_start": 271,
-              "line_end": 271
-            },
-            {
-              "line_start": 269,
-              "line_end": 269
-            },
-            {
-              "line_start": 318,
-              "line_end": 318
-            },
-            {
-              "line_start": 324,
-              "line_end": 324
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -929,6 +929,118 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 444,
+              "line_end": 444
+            },
+            {
+              "line_start": 454,
+              "line_end": 454
+            },
+            {
+              "line_start": 457,
+              "line_end": 457
+            },
+            {
+              "line_start": 415,
+              "line_end": 415
+            },
+            {
+              "line_start": 422,
+              "line_end": 422
+            },
+            {
+              "line_start": 425,
+              "line_end": 425
+            },
+            {
+              "line_start": 413,
+              "line_end": 419
+            },
+            {
+              "line_start": 420,
+              "line_end": 424
+            },
+            {
+              "line_start": 425,
+              "line_end": 425
+            },
+            {
+              "line_start": 413,
+              "line_end": 419
+            },
+            {
+              "line_start": 420,
+              "line_end": 424
+            },
+            {
+              "line_start": 426,
+              "line_end": 428
+            },
+            {
+              "line_start": 414,
+              "line_end": 418
+            },
+            {
+              "line_start": 426,
+              "line_end": 428
+            },
+            {
+              "line_start": 415,
+              "line_end": 415
+            },
+            {
+              "line_start": 422,
+              "line_end": 422
+            },
+            {
+              "line_start": 427,
+              "line_end": 427
+            },
+            {
+              "line_start": 415,
+              "line_end": 417
+            },
+            {
+              "line_start": 427,
+              "line_end": 427
+            },
+            {
+              "line_start": 415,
+              "line_end": 415
+            },
+            {
+              "line_start": 422,
+              "line_end": 422
+            },
+            {
+              "line_start": 425,
+              "line_end": 425
+            },
+            {
+              "line_start": 413,
+              "line_end": 419
+            },
+            {
+              "line_start": 420,
+              "line_end": 424
+            },
+            {
+              "line_start": 425,
+              "line_end": 425
+            },
+            {
+              "line_start": 444,
+              "line_end": 444
+            },
+            {
+              "line_start": 454,
+              "line_end": 454
+            },
+            {
+              "line_start": 457,
+              "line_end": 457
+            },
+            {
               "line_start": 416,
               "line_end": 416
             },
@@ -947,118 +1059,6 @@
             {
               "line_start": 420,
               "line_end": 424
-            },
-            {
-              "line_start": 426,
-              "line_end": 428
-            },
-            {
-              "line_start": 415,
-              "line_end": 415
-            },
-            {
-              "line_start": 422,
-              "line_end": 422
-            },
-            {
-              "line_start": 427,
-              "line_end": 427
-            },
-            {
-              "line_start": 414,
-              "line_end": 418
-            },
-            {
-              "line_start": 426,
-              "line_end": 428
-            },
-            {
-              "line_start": 444,
-              "line_end": 444
-            },
-            {
-              "line_start": 454,
-              "line_end": 454
-            },
-            {
-              "line_start": 457,
-              "line_end": 457
-            },
-            {
-              "line_start": 415,
-              "line_end": 415
-            },
-            {
-              "line_start": 422,
-              "line_end": 422
-            },
-            {
-              "line_start": 425,
-              "line_end": 425
-            },
-            {
-              "line_start": 413,
-              "line_end": 419
-            },
-            {
-              "line_start": 420,
-              "line_end": 424
-            },
-            {
-              "line_start": 425,
-              "line_end": 425
-            },
-            {
-              "line_start": 413,
-              "line_end": 419
-            },
-            {
-              "line_start": 420,
-              "line_end": 424
-            },
-            {
-              "line_start": 425,
-              "line_end": 425
-            },
-            {
-              "line_start": 444,
-              "line_end": 444
-            },
-            {
-              "line_start": 454,
-              "line_end": 454
-            },
-            {
-              "line_start": 457,
-              "line_end": 457
-            },
-            {
-              "line_start": 415,
-              "line_end": 417
-            },
-            {
-              "line_start": 427,
-              "line_end": 427
-            },
-            {
-              "line_start": 413,
-              "line_end": 419
-            },
-            {
-              "line_start": 420,
-              "line_end": 424
-            },
-            {
-              "line_start": 425,
-              "line_end": 425
-            },
-            {
-              "line_start": 415,
-              "line_end": 415
-            },
-            {
-              "line_start": 422,
-              "line_end": 422
             },
             {
               "line_start": 425,
@@ -1246,14 +1246,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 637,
-              "line_end": 637
-            },
-            {
-              "line_start": 652,
-              "line_end": 652
-            },
-            {
               "line_start": 655,
               "line_end": 655
             },
@@ -1268,6 +1260,14 @@
             {
               "line_start": 643,
               "line_end": 644
+            },
+            {
+              "line_start": 637,
+              "line_end": 637
+            },
+            {
+              "line_start": 652,
+              "line_end": 652
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1342,12 +1342,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 726,
-              "line_end": 726
+              "line_start": 727,
+              "line_end": 727
             },
             {
-              "line_start": 726,
-              "line_end": 726
+              "line_start": 728,
+              "line_end": 728
             },
             {
               "line_start": 726,
@@ -1366,20 +1366,20 @@
               "line_end": 713
             },
             {
+              "line_start": 726,
+              "line_end": 726
+            },
+            {
+              "line_start": 726,
+              "line_end": 726
+            },
+            {
               "line_start": 722,
               "line_end": 722
             },
             {
               "line_start": 723,
               "line_end": 723
-            },
-            {
-              "line_start": 727,
-              "line_end": 727
-            },
-            {
-              "line_start": 728,
-              "line_end": 728
             },
             {
               "line_start": 727,
@@ -1469,11 +1469,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.4,
-  "attention_score": 0.51,
-  "centrality_score": 0.14,
+  "attention_score": 0.53,
+  "centrality_score": 0.0,
   "quality_radar": {
     "understandability": 0.3,
-    "changeability": 0.68,
+    "changeability": 0.64,
     "correctness": 0.5,
     "security": 1.0,
     "stability": 0.4

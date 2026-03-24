@@ -1,13 +1,13 @@
 {
   "id": "app/access_control.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
-  "source_hash": "342f52ed",
+  "analyzed_at": "2026-03-24T03:06:52.617505+00:00",
+  "source_hash": "4a6917ba",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 73,
-    "lines": 277,
+    "cyclomatic": 50,
+    "lines": 308,
     "rating": "red"
   },
   "dependencies": {
@@ -28,9 +28,7 @@
       "app/services/moment_service.py",
       "tests/test_access_control.py"
     ],
-    "tested_by": [
-      "tests/test_access_control.py"
-    ]
+    "tested_by": []
   },
   "exports": [
     {
@@ -100,21 +98,84 @@
       "name": "redact_person_summary",
       "type": "function",
       "summary": null,
-      "line": 214,
+      "line": 167,
       "signature": "(person: Person, access: PersonAccess) -> PersonSummary"
+    },
+    {
+      "name": "_root_redacted_name",
+      "type": "function",
+      "summary": null,
+      "line": 181,
+      "signature": "(value: str | None, person: Person) -> str | None"
+    },
+    {
+      "name": "_detail_identity_payload",
+      "type": "function",
+      "summary": null,
+      "line": 185,
+      "signature": "(person: Person, access: PersonAccess) -> dict[str, object]"
+    },
+    {
+      "name": "_detail_profile_payload",
+      "type": "function",
+      "summary": null,
+      "line": 204,
+      "signature": "(person: Person, access: PersonAccess) -> dict[str, object]"
+    },
+    {
+      "name": "_detail_contact_payload",
+      "type": "function",
+      "summary": null,
+      "line": 228,
+      "signature": "(person: Person, access: PersonAccess) -> dict[str, object]"
+    },
+    {
+      "name": "_detail_nickname",
+      "type": "function",
+      "summary": null,
+      "line": 237,
+      "signature": "(person: Person) -> str | None"
+    },
+    {
+      "name": "_profile_value",
+      "type": "function",
+      "summary": null,
+      "line": 241,
+      "signature": "(value, access: PersonAccess)"
+    },
+    {
+      "name": "_profile_list",
+      "type": "function",
+      "summary": null,
+      "line": 245,
+      "signature": "(value: list[str], access: PersonAccess) -> list[str]"
+    },
+    {
+      "name": "_profile_name_value",
+      "type": "function",
+      "summary": null,
+      "line": 249,
+      "signature": "(value: str | None, person: Person, access: PersonAccess) -> str | None"
+    },
+    {
+      "name": "_contact_value",
+      "type": "function",
+      "summary": null,
+      "line": 255,
+      "signature": "(value: str | None, access: PersonAccess) -> str | None"
     },
     {
       "name": "_graph_distances",
       "type": "function",
       "summary": null,
-      "line": 228,
+      "line": 259,
       "signature": "( db: AsyncSession, origin_id: str, max_distance: int, ) -> dict[str, int]"
     },
     {
       "name": "_family_graph",
       "type": "function",
       "summary": null,
-      "line": 258,
+      "line": 289,
       "signature": "(db: AsyncSession) -> dict[str, set[str]]"
     }
   ],
@@ -389,11 +450,36 @@
       "kind": "function",
       "line": 160,
       "signature": "(person: Person, access: PersonAccess) -> PersonDetail",
-      "complexity": 33,
+      "complexity": 1,
       "calls": [
         {
+          "name": "_detail_identity_payload",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "payload.update",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "_detail_profile_payload",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "payload.update",
+          "line": 163,
+          "module_hint": null
+        },
+        {
+          "name": "_detail_contact_payload",
+          "line": 163,
+          "module_hint": null
+        },
+        {
           "name": "PersonDetail",
-          "line": 173,
+          "line": 164,
           "module_hint": "app.schemas"
         }
       ]
@@ -401,62 +487,283 @@
     {
       "name": "redact_person_summary",
       "kind": "function",
-      "line": 214,
+      "line": 167,
       "signature": "(person: Person, access: PersonAccess) -> PersonSummary",
       "complexity": 5,
       "calls": [
         {
           "name": "PersonSummary",
-          "line": 215,
+          "line": 168,
           "module_hint": "app.schemas"
         }
       ]
     },
     {
-      "name": "_graph_distances",
+      "name": "_root_redacted_name",
+      "kind": "function",
+      "line": 181,
+      "signature": "(value: str | None, person: Person) -> str | None",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "_detail_identity_payload",
+      "kind": "function",
+      "line": 185,
+      "signature": "(person: Person, access: PersonAccess) -> dict[str, object]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "_detail_nickname",
+          "line": 189,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 191,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 192,
+          "module_hint": null
+        },
+        {
+          "name": "_root_redacted_name",
+          "line": 195,
+          "module_hint": null
+        },
+        {
+          "name": "_root_redacted_name",
+          "line": 196,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_detail_profile_payload",
+      "kind": "function",
+      "line": 204,
+      "signature": "(person: Person, access: PersonAccess) -> dict[str, object]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_profile_name_value",
+          "line": 206,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_name_value",
+          "line": 207,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_name_value",
+          "line": 208,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 209,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 210,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 211,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 212,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 213,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 215,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 216,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 217,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 218,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 219,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 220,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 221,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_list",
+          "line": 222,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 223,
+          "module_hint": null
+        },
+        {
+          "name": "_profile_value",
+          "line": 224,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_detail_contact_payload",
       "kind": "function",
       "line": 228,
+      "signature": "(person: Person, access: PersonAccess) -> dict[str, object]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_contact_value",
+          "line": 230,
+          "module_hint": null
+        },
+        {
+          "name": "_contact_value",
+          "line": 231,
+          "module_hint": null
+        },
+        {
+          "name": "_contact_value",
+          "line": 232,
+          "module_hint": null
+        },
+        {
+          "name": "_contact_value",
+          "line": 233,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_detail_nickname",
+      "kind": "function",
+      "line": 237,
+      "signature": "(person: Person) -> str | None",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "_profile_value",
+      "kind": "function",
+      "line": 241,
+      "signature": "(value, access: PersonAccess)",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "_profile_list",
+      "kind": "function",
+      "line": 245,
+      "signature": "(value: list[str], access: PersonAccess) -> list[str]",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "_profile_name_value",
+      "kind": "function",
+      "line": 249,
+      "signature": "(value: str | None, person: Person, access: PersonAccess) -> str | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "_profile_value",
+          "line": 252,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_contact_value",
+      "kind": "function",
+      "line": 255,
+      "signature": "(value: str | None, access: PersonAccess) -> str | None",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "_graph_distances",
+      "kind": "function",
+      "line": 259,
       "signature": "( db: AsyncSession, origin_id: str, max_distance: int, ) -> dict[str, int]",
       "complexity": 6,
       "calls": [
         {
           "name": "db.info.setdefault",
-          "line": 233,
+          "line": 264,
           "module_hint": null
         },
         {
           "name": "cache.setdefault",
-          "line": 234,
+          "line": 265,
           "module_hint": null
         },
         {
           "name": "_family_graph",
-          "line": 239,
+          "line": 270,
           "module_hint": null
         },
         {
           "name": "deque",
-          "line": 241,
+          "line": 272,
           "module_hint": "collections"
         },
         {
           "name": "queue.popleft",
-          "line": 244,
+          "line": 275,
           "module_hint": null
         },
         {
           "name": "adjacency.get",
-          "line": 248,
+          "line": 279,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 248,
+          "line": 279,
           "module_hint": null
         },
         {
           "name": "queue.append",
-          "line": 252,
+          "line": 283,
           "module_hint": null
         }
       ]
@@ -464,108 +771,108 @@
     {
       "name": "_family_graph",
       "kind": "function",
-      "line": 258,
+      "line": 289,
       "signature": "(db: AsyncSession) -> dict[str, set[str]]",
       "complexity": 4,
       "calls": [
         {
           "name": "db.info.setdefault",
-          "line": 259,
+          "line": 290,
           "module_hint": null
         },
         {
           "name": "cache.get",
-          "line": 260,
+          "line": 291,
           "module_hint": null
         },
         {
           "name": "db.execute",
-          "line": 266,
+          "line": 297,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 266,
+          "line": 297,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "parent_child_rows.all",
-          "line": 267,
+          "line": 298,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault(parent_id, set()).add",
-          "line": 268,
+          "line": 299,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault",
-          "line": 268,
+          "line": 299,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 268,
+          "line": 299,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault(child_id, set()).add",
-          "line": 269,
+          "line": 300,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault",
-          "line": 269,
+          "line": 300,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 269,
+          "line": 300,
           "module_hint": null
         },
         {
           "name": "db.execute",
-          "line": 271,
+          "line": 302,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 271,
+          "line": 302,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "partnerships.all",
-          "line": 272,
+          "line": 303,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault(person_a_id, set()).add",
-          "line": 273,
+          "line": 304,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault",
-          "line": 273,
+          "line": 304,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 273,
+          "line": 304,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault(person_b_id, set()).add",
-          "line": 274,
+          "line": 305,
           "module_hint": null
         },
         {
           "name": "adjacency.setdefault",
-          "line": 274,
+          "line": 305,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 274,
+          "line": 305,
           "module_hint": null
         }
       ]
@@ -609,20 +916,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 55,
-              "line_end": 61
-            },
-            {
-              "line_start": 66,
-              "line_end": 72
-            },
-            {
               "line_start": 41,
               "line_end": 41
             },
             {
               "line_start": 63,
               "line_end": 63
+            },
+            {
+              "line_start": 55,
+              "line_end": 61
+            },
+            {
+              "line_start": 66,
+              "line_end": 72
             },
             {
               "line_start": 55,
@@ -768,14 +1075,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 131,
-              "line_end": 131
-            },
-            {
-              "line_start": 134,
-              "line_end": 134
-            },
-            {
               "line_start": 132,
               "line_end": 133
             },
@@ -798,6 +1097,14 @@
             {
               "line_start": 135,
               "line_end": 135
+            },
+            {
+              "line_start": 131,
+              "line_end": 131
+            },
+            {
+              "line_start": 134,
+              "line_end": 134
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -877,11 +1184,11 @@
       "function": "redact_person_detail",
       "line": 160,
       "metrics": {
-        "cyclomatic": 33,
-        "cognitive": 29,
-        "size": 51,
-        "nesting": 1,
-        "token_count": 341
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 4,
+        "nesting": 0,
+        "token_count": 37
       },
       "findings": [
         {
@@ -889,56 +1196,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 184,
-              "line_end": 184
+              "line_start": 162,
+              "line_end": 162
             },
             {
-              "line_start": 185,
-              "line_end": 185
-            },
-            {
-              "line_start": 186,
-              "line_end": 186
-            },
-            {
-              "line_start": 207,
-              "line_end": 207
-            },
-            {
-              "line_start": 210,
-              "line_end": 210
-            },
-            {
-              "line_start": 184,
-              "line_end": 184
-            },
-            {
-              "line_start": 185,
-              "line_end": 185
-            },
-            {
-              "line_start": 186,
-              "line_end": 186
-            },
-            {
-              "line_start": 178,
-              "line_end": 178
-            },
-            {
-              "line_start": 179,
-              "line_end": 179
-            },
-            {
-              "line_start": 187,
-              "line_end": 187
-            },
-            {
-              "line_start": 207,
-              "line_end": 207
-            },
-            {
-              "line_start": 210,
-              "line_end": 210
+              "line_start": 163,
+              "line_end": 163
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -957,7 +1220,7 @@
     },
     {
       "function": "redact_person_summary",
-      "line": 214,
+      "line": 167,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 4,
@@ -971,28 +1234,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 220,
-              "line_end": 220
+              "line_start": 173,
+              "line_end": 173
             },
             {
-              "line_start": 221,
-              "line_end": 221
+              "line_start": 174,
+              "line_end": 174
             },
             {
-              "line_start": 222,
-              "line_end": 222
+              "line_start": 175,
+              "line_end": 175
             },
             {
-              "line_start": 220,
-              "line_end": 220
+              "line_start": 173,
+              "line_end": 173
             },
             {
-              "line_start": 221,
-              "line_end": 221
+              "line_start": 174,
+              "line_end": 174
             },
             {
-              "line_start": 222,
-              "line_end": 222
+              "line_start": 175,
+              "line_end": 175
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1010,8 +1273,312 @@
       "review_priority": 0.47
     },
     {
-      "function": "_graph_distances",
+      "function": "_root_redacted_name",
+      "line": 181,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_detail_identity_payload",
+      "line": 185,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 16,
+        "nesting": 1,
+        "token_count": 150
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 197,
+              "line_end": 197
+            },
+            {
+              "line_start": 200,
+              "line_end": 200
+            },
+            {
+              "line_start": 187,
+              "line_end": 187
+            },
+            {
+              "line_start": 188,
+              "line_end": 188
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 191,
+              "line_end": 191
+            },
+            {
+              "line_start": 192,
+              "line_end": 192
+            },
+            {
+              "line_start": 195,
+              "line_end": 195
+            },
+            {
+              "line_start": 197,
+              "line_end": 197
+            },
+            {
+              "line_start": 200,
+              "line_end": 200
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_detail_profile_payload",
+      "line": 204,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 21,
+        "nesting": 0,
+        "token_count": 234
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 206,
+              "line_end": 206
+            },
+            {
+              "line_start": 207,
+              "line_end": 207
+            },
+            {
+              "line_start": 208,
+              "line_end": 208
+            },
+            {
+              "line_start": 206,
+              "line_end": 206
+            },
+            {
+              "line_start": 207,
+              "line_end": 207
+            },
+            {
+              "line_start": 208,
+              "line_end": 208
+            },
+            {
+              "line_start": 209,
+              "line_end": 209
+            },
+            {
+              "line_start": 210,
+              "line_end": 210
+            },
+            {
+              "line_start": 211,
+              "line_end": 211
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_detail_contact_payload",
       "line": 228,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 6,
+        "nesting": 0,
+        "token_count": 51
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 231,
+              "line_end": 231
+            },
+            {
+              "line_start": 232,
+              "line_end": 232
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_detail_nickname",
+      "line": 237,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 10
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_profile_value",
+      "line": 241,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_profile_list",
+      "line": 245,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_profile_name_value",
+      "line": 249,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_contact_value",
+      "line": 255,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_graph_distances",
+      "line": 259,
       "metrics": {
         "cyclomatic": 6,
         "cognitive": 9,
@@ -1025,8 +1592,8 @@
           "category": "algorithmic_inefficiency",
           "evidence_spans": [
             {
-              "line_start": 249,
-              "line_end": 249
+              "line_start": 280,
+              "line_end": 280
             }
           ],
           "estimated_effect": "Potential O(n^2) behavior from nested iteration + linear membership",
@@ -1045,7 +1612,7 @@
     },
     {
       "function": "_family_graph",
-      "line": 258,
+      "line": 289,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 3,
@@ -1059,80 +1626,80 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 266,
-              "line_end": 266
+              "line_start": 297,
+              "line_end": 297
             },
             {
-              "line_start": 271,
-              "line_end": 271
+              "line_start": 302,
+              "line_end": 302
             },
             {
-              "line_start": 268,
-              "line_end": 269
+              "line_start": 297,
+              "line_end": 297
             },
             {
-              "line_start": 273,
-              "line_end": 274
+              "line_start": 302,
+              "line_end": 302
             },
             {
-              "line_start": 268,
-              "line_end": 268
+              "line_start": 299,
+              "line_end": 300
             },
             {
-              "line_start": 269,
-              "line_end": 269
+              "line_start": 304,
+              "line_end": 305
             },
             {
-              "line_start": 273,
-              "line_end": 273
+              "line_start": 299,
+              "line_end": 299
             },
             {
-              "line_start": 268,
-              "line_end": 268
+              "line_start": 300,
+              "line_end": 300
             },
             {
-              "line_start": 269,
-              "line_end": 269
+              "line_start": 304,
+              "line_end": 304
             },
             {
-              "line_start": 273,
-              "line_end": 273
+              "line_start": 298,
+              "line_end": 300
             },
             {
-              "line_start": 268,
-              "line_end": 268
+              "line_start": 303,
+              "line_end": 305
             },
             {
-              "line_start": 269,
-              "line_end": 269
+              "line_start": 299,
+              "line_end": 299
             },
             {
-              "line_start": 273,
-              "line_end": 273
+              "line_start": 300,
+              "line_end": 300
             },
             {
-              "line_start": 267,
-              "line_end": 269
+              "line_start": 304,
+              "line_end": 304
             },
             {
-              "line_start": 272,
-              "line_end": 274
+              "line_start": 297,
+              "line_end": 297
             },
             {
-              "line_start": 266,
-              "line_end": 266
+              "line_start": 302,
+              "line_end": 302
             },
             {
-              "line_start": 271,
-              "line_end": 271
+              "line_start": 299,
+              "line_end": 299
             },
             {
-              "line_start": 266,
-              "line_end": 266
+              "line_start": 300,
+              "line_end": 300
             },
             {
-              "line_start": 271,
-              "line_end": 271
+              "line_start": 304,
+              "line_end": 304
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1159,7 +1726,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 3,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
@@ -1174,8 +1741,17 @@
     "databases": [],
     "services": [],
     "unused_exports": [
+      "_contact_value",
+      "_detail_contact_payload",
+      "_detail_identity_payload",
+      "_detail_nickname",
+      "_detail_profile_payload",
       "_family_graph",
       "_graph_distances",
+      "_profile_list",
+      "_profile_name_value",
+      "_profile_value",
+      "_root_redacted_name",
       "can_collaborate",
       "can_create_moment_for_person",
       "can_manage_moment",
@@ -1188,10 +1764,10 @@
       "redact_person_summary"
     ],
     "package": null,
-    "change_velocity": 2.0,
+    "change_velocity": 3.0,
     "bus_factor": 1,
     "author_count": 1,
-    "last_modified": "2026-03-23T16:57:43-04:00",
+    "last_modified": "2026-03-23T21:12:49-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": true,
@@ -1204,15 +1780,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.7,
-  "attention_score": 0.3,
-  "centrality_score": 0.33,
+  "testability_score": 0.4,
+  "attention_score": 0.65,
+  "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.38,
-    "changeability": 0.89,
-    "correctness": 1.0,
+    "understandability": 0.41,
+    "changeability": 0.3,
+    "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.6
+    "stability": 0.53
   },
   "domain_role": "utility",
   "detected_patterns": null,

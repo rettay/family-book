@@ -1,6 +1,6 @@
 # Family Book Backlog
 
-Sprint: `S06 - Theme Customization and Branding Controls`
+Sprint: `S07 - Observability and Coverage Hardening`
 Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
@@ -63,17 +63,32 @@ Execution slices:
 - `S06-2` Admin Theme Controls
 - `S06-3` Surface Rollout and Staging Acceptance
 
+## Closed Sprint `S07 - Observability and Coverage Hardening`
+
+Sprint goal:
+- Raise the reliability floor of Family Book by adding direct tests for risky runtime plumbing, improving coverage in central modules, and reducing the remaining high-signal CodeMap warnings.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-010 | Observability and Coverage Hardening | P1 | done | `task_packets/FB-010_observability_and_coverage_hardening.md` |
+
+Execution slices:
+- `S07-1` Attack-Surface Test Hardening
+- `S07-2` Critical-Module Coverage Expansion
+- `S07-3` Observability and Complexity Hardening
+
 ## Next Sprint
 
-- Recommended next sprint: `S07 - Observability and Coverage Hardening`
-- Primary packet: `TBD`
-- Follow-on candidate after Sprint 06:
-  - backup/observability cleanup from remaining CodeMap warnings
-  - attack-surface tests for `app/middleware/security.py` and `app/services/io_limits.py`
-  - critical-module coverage for `app/config.py`, `app/models/moments.py`, and `app/schemas.py`
+- Recommended next sprint: `S08 - Browser Regression Expansion and Release Confidence`
+- Primary packet candidate: `FB-011 Browser Regression Expansion and Release Confidence`
+- Follow-on candidate after Sprint 08:
+  - residual CodeMap observability cleanup in central modules
+  - deeper staging/manual acceptance workflows tied to release gating
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-010 | Observability and Coverage Hardening | P1 | todo | CodeMap warning cleanup, attack-surface tests, and core runtime observability |
+| FB-011 | Browser Regression Expansion and Release Confidence | P1 | proposed | Expand Playwright/manual acceptance depth and tighten release confidence before the next broad feature cycle |

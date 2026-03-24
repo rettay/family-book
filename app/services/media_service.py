@@ -200,6 +200,50 @@ async def save_media_temp_file(
     data_dir: str | None = None,
 ) -> tuple[Media, bool]:
     """Persist a streamed upload without buffering the entire file in route code."""
+    _validate_media_upload(mime_type, file_size)
+
+    existing = await check_duplicate(db, file_hash)
+    if existing:
+        return await _merge_duplicate_and_cleanup(
+            db=db,
+            existing=existing,
+            temp_path=temp_path,
+            caption=caption,
+            tagged_person_ids=tagged_person_ids,
+        )
+
+    if data_dir is None:
+        data_dir = get_settings().resolved_data_dir
+
+    media_id, relative_path, media_dir, file_path = _allocate_media_paths(data_dir, filename)
+    width, height, stored_size = _persist_streamed_media(
+        temp_path=temp_path,
+        mime_type=mime_type,
+        file_path=file_path,
+        media_dir=media_dir,
+        media_id=media_id,
+    )
+    media = _build_media_record(
+        media_id=media_id,
+        person_id=person_id,
+        relative_path=relative_path,
+        filename=filename,
+        mime_type=mime_type,
+        width=width,
+        height=height,
+        stored_size=stored_size,
+        file_hash=file_hash,
+        caption=caption,
+        uploaded_by=uploaded_by,
+        tagged_person_ids=tagged_person_ids,
+    )
+    db.add(media)
+    await db.flush()
+
+    return media, False
+
+
+def _validate_media_upload(mime_type: str, file_size: int) -> None:
     if mime_type not in ALLOWED_MIME_TYPES:
         raise ValueError(f"Unsupported MIME type: {mime_type}")
 
@@ -208,58 +252,73 @@ async def save_media_temp_file(
     if file_size > max_size:
         raise ValueError(f"File too large: {file_size} bytes (max {max_size})")
 
-    existing = await check_duplicate(db, file_hash)
-    if existing:
-        if tagged_person_ids:
-            existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
-        if caption and not existing.caption:
-            existing.caption = caption
-        await db.flush()
-        os.unlink(temp_path)
-        return existing, True
 
-    if data_dir is None:
-        data_dir = get_settings().resolved_data_dir
+async def _merge_duplicate_and_cleanup(
+    db: AsyncSession,
+    existing: Media,
+    temp_path: str,
+    caption: str | None,
+    tagged_person_ids: list[str] | None,
+) -> tuple[Media, bool]:
+    if tagged_person_ids:
+        existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
+    if caption and not existing.caption:
+        existing.caption = caption
+    await db.flush()
+    os.unlink(temp_path)
+    return existing, True
 
+
+def _allocate_media_paths(data_dir: str, filename: str) -> tuple[str, str, str, str]:
     media_id = str(uuid.uuid4())
     ext = os.path.splitext(filename)[1].lower() if filename else ""
     relative_path = f"{media_id}{ext}"
-
     media_dir = os.path.join(data_dir, "media")
     os.makedirs(media_dir, exist_ok=True)
-
     file_path = os.path.join(media_dir, relative_path)
+    return media_id, relative_path, media_dir, file_path
 
-    width: int | None = None
-    height: int | None = None
-    stored_size = file_size
 
+def _persist_streamed_media(
+    *,
+    temp_path: str,
+    mime_type: str,
+    file_path: str,
+    media_dir: str,
+    media_id: str,
+) -> tuple[int | None, int | None, int]:
     try:
         if mime_type.startswith("image/"):
-            with open(temp_path, "rb") as temp_file:
-                original_data = temp_file.read()
-            clean_data = strip_exif(original_data, mime_type)
-            with open(file_path, "wb") as output_file:
-                output_file.write(clean_data)
-
-            thumb_data = generate_thumbnail(clean_data, mime_type)
-            if thumb_data:
-                thumb_dir = os.path.join(media_dir, "thumbnails")
-                os.makedirs(thumb_dir, exist_ok=True)
-                thumb_path = os.path.join(thumb_dir, f"{media_id}.jpg")
-                with open(thumb_path, "wb") as thumb_file:
-                    thumb_file.write(thumb_data)
-
-            width, height = get_image_dimensions(clean_data, mime_type)
-            stored_size = len(clean_data)
-            os.unlink(temp_path)
-        else:
-            shutil.move(temp_path, file_path)
+            return _persist_temp_image(
+                temp_path=temp_path,
+                mime_type=mime_type,
+                file_path=file_path,
+                media_dir=media_dir,
+                media_id=media_id,
+            )
+        shutil.move(temp_path, file_path)
+        return None, None, os.path.getsize(file_path)
     except Exception:
         if os.path.exists(temp_path):
             os.unlink(temp_path)
         raise
 
+
+def _build_media_record(
+    *,
+    media_id: str,
+    person_id: str,
+    relative_path: str,
+    filename: str,
+    mime_type: str,
+    width: int | None,
+    height: int | None,
+    stored_size: int,
+    file_hash: str,
+    caption: str | None,
+    uploaded_by: str,
+    tagged_person_ids: list[str] | None,
+) -> Media:
     media = Media(
         id=media_id,
         person_id=person_id,
@@ -276,10 +335,34 @@ async def save_media_temp_file(
         uploaded_by=uploaded_by,
     )
     media.tagged_person_ids = tagged_person_ids or []
-    db.add(media)
-    await db.flush()
+    return media
 
-    return media, False
+
+def _persist_temp_image(
+    *,
+    temp_path: str,
+    mime_type: str,
+    file_path: str,
+    media_dir: str,
+    media_id: str,
+) -> tuple[int | None, int | None, int]:
+    with open(temp_path, "rb") as temp_file:
+        original_data = temp_file.read()
+    clean_data = strip_exif(original_data, mime_type)
+    with open(file_path, "wb") as output_file:
+        output_file.write(clean_data)
+
+    thumb_data = generate_thumbnail(clean_data, mime_type)
+    if thumb_data:
+        thumb_dir = os.path.join(media_dir, "thumbnails")
+        os.makedirs(thumb_dir, exist_ok=True)
+        thumb_path = os.path.join(thumb_dir, f"{media_id}.jpg")
+        with open(thumb_path, "wb") as thumb_file:
+            thumb_file.write(thumb_data)
+
+    width, height = get_image_dimensions(clean_data, mime_type)
+    os.unlink(temp_path)
+    return width, height, len(clean_data)
 
 
 def delete_media_files(media: Media, data_dir: str | None = None) -> None:

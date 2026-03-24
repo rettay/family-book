@@ -14,7 +14,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.i18n import t as translate
+from app.i18n import translate
 from app.models.media import Media
 from app.models.moments import Moment, MomentComment
 from app.models.person import Person, Visibility

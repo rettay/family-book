@@ -23,7 +23,7 @@ from app.access_control import (
 )
 from app.auth import get_current_user, require_admin, require_auth
 from app.database import get_db
-from app.i18n import t as translate
+from app.i18n import translate
 from app.models.media import Media
 from app.models.moments import Moment, MomentComment, MomentLifecycleState
 from app.models.person import Person, AccountState, PersonLifecycleState, Visibility
