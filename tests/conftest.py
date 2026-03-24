@@ -1,4 +1,6 @@
 import os
+import base64
+import hashlib
 
 import pytest
 import pytest_asyncio
@@ -9,7 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Set env vars before any app imports
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production-use-1234567890")
-os.environ.setdefault("FERNET_KEY", "REMOVED_FERNET_KEY_LITERAL=")
+os.environ.setdefault(
+    "FERNET_KEY",
+    base64.urlsafe_b64encode(hashlib.sha256(b"family-book-test-key").digest()).decode(),
+)
 os.environ.setdefault("BASE_URL", "http://localhost:8000")
 os.environ.setdefault("DATABASE_URL", "sqlite:///data/family.db")
 os.environ.setdefault("GOOGLE_CLIENT_ID", "test-google-client-id.apps.googleusercontent.com")

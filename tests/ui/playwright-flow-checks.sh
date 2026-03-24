@@ -8,7 +8,14 @@ PORT="${PORT:-8766}"
 BASE_URL="http://127.0.0.1:${PORT}"
 
 export SECRET_KEY="test-secret-key-not-for-production-use-1234567890"
-export FERNET_KEY="REMOVED_FERNET_KEY_LITERAL="
+export FERNET_KEY="$(
+  uv run python - <<'PY'
+import base64
+import hashlib
+
+print(base64.urlsafe_b64encode(hashlib.sha256(b"family-book-playwright-test-key").digest()).decode())
+PY
+)"
 export BASE_URL
 export DATABASE_URL="sqlite:///${TMP_DIR}/family-book-ui.db"
 export DATA_DIR="${TMP_DIR}/data"
