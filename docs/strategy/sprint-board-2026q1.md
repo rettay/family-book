@@ -390,3 +390,37 @@ Raise the reliability floor of Family Book by adding direct tests for risky runt
 ### Planning Artifacts
 
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s07.md`
+
+## Planned Sprint
+
+### `S08 - Browser Regression Expansion and Release Confidence`
+
+Status: Planned
+
+### Sprint Goal
+
+Increase confidence in Family Book releases by broadening browser automation coverage, establishing a clear staging acceptance contract, and making the release evidence required for `main` promotion easy to inspect.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 10 | FB-011 | Browser Regression Expansion and Release Confidence | P1 | planned |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S08-1 | Playwright Coverage Expansion | planned |
+| S08-2 | Staging Acceptance Contract | planned |
+| S08-3 | Release Evidence and Promotion Gate | planned |
+
+### Why This Sprint Next
+
+Family Book now has a stable product spine, a working staging lane, and stronger backend/runtime verification. The highest-leverage next improvement is release confidence: broader browser flow coverage, clearer manual acceptance rules, and a promotion contract that makes staging evidence meaningful before merges to `main`.
+
+### Planning Artifacts
+
+- Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
+- Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
+- Task packet: `/Users/cheech/code/family-book/task_packets/FB-011_browser_regression_expansion_and_release_confidence.md`

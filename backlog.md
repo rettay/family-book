@@ -1,7 +1,7 @@
 # Family Book Backlog
 
-Sprint: `S07 - Observability and Coverage Hardening`
-Status: Closed
+Sprint: `S08 - Browser Regression Expansion and Release Confidence`
+Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -81,14 +81,34 @@ Execution slices:
 
 ## Next Sprint
 
+## Planned Sprint `S08 - Browser Regression Expansion and Release Confidence`
+
+Sprint goal:
+- Increase confidence in staging and production releases by expanding browser-based regression coverage, formalizing staging acceptance criteria, and making release evidence easy to inspect before merges to `main`.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-011 | Browser Regression Expansion and Release Confidence | P1 | planned | `task_packets/FB-011_browser_regression_expansion_and_release_confidence.md` |
+
+Execution slices:
+- `S08-1` Playwright Coverage Expansion
+- `S08-2` Staging Acceptance Contract
+- `S08-3` Release Evidence and Promotion Gate
+
+## Next Sprint
+
 - Recommended next sprint: `S08 - Browser Regression Expansion and Release Confidence`
-- Primary packet candidate: `FB-011 Browser Regression Expansion and Release Confidence`
+- Primary packet: `FB-011 Browser Regression Expansion and Release Confidence`
+- Sprint plan: `docs/strategy/sprint-plan-s08.md`
+- Slice plan: `docs/strategy/sprint-slices-s08.md`
 - Follow-on candidate after Sprint 08:
   - residual CodeMap observability cleanup in central modules
-  - deeper staging/manual acceptance workflows tied to release gating
+  - targeted UX polish informed by staging/manual review findings
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-011 | Browser Regression Expansion and Release Confidence | P1 | proposed | Expand Playwright/manual acceptance depth and tighten release confidence before the next broad feature cycle |
+| FB-011 | Browser Regression Expansion and Release Confidence | P1 | planned | Expand Playwright/manual acceptance depth and tighten release confidence before the next broad feature cycle |

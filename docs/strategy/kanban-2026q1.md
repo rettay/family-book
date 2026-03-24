@@ -2,7 +2,9 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-011 | Browser Regression Expansion and Release Confidence | P1 | `task_packets/FB-011_browser_regression_expansion_and_release_confidence.md` |
 
 ## In Progress
 

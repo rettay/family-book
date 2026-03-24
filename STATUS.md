@@ -65,8 +65,8 @@ Sprint 01 through Sprint 07 are closed.
 
 ## Current Priority Order
 
-1. Expand browser-based regression coverage beyond the current core flow set
-2. Tighten release confidence around staging-to-production acceptance
+1. Execute Sprint 08 around browser regression expansion and release confidence
+2. Tighten staging-to-production acceptance with clearer evidence and promotion rules
 3. Pay down remaining CodeMap observability warnings in core modules
 4. Reassess where richer visual regression evidence is worth the maintenance cost
 
@@ -81,6 +81,8 @@ Sprint 01 through Sprint 07 are closed.
 - `S06 - Theme Customization and Branding Controls`
 - `S07 - Observability and Coverage Hardening`
 - Next recommended sprint: `S08 - Browser Regression Expansion and Release Confidence`
+- Sprint 08 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
+- Sprint 08 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
 - Sprint 07 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s07.md`
 - Sprint 07 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s07.md`
 - Sprint 07 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s07.md`
