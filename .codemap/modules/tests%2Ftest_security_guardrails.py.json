@@ -1,14 +1,14 @@
 {
   "id": "tests/test_security_guardrails.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
-  "source_hash": "b8acdfef",
+  "analyzed_at": "2026-03-24T03:06:52.617505+00:00",
+  "source_hash": "b198d440",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 5,
-    "lines": 85,
-    "rating": "green"
+    "cyclomatic": 11,
+    "lines": 232,
+    "rating": "yellow"
   },
   "dependencies": {
     "imports": [
@@ -23,21 +23,21 @@
       "name": "_request",
       "type": "function",
       "summary": null,
-      "line": 15,
+      "line": 24,
       "signature": "(method: str, path: str, headers: list[tuple[bytes, bytes]] | None = None) -> Request"
     },
     {
       "name": "test_add_security_middleware_registers_expected_stack",
       "type": "function",
       "summary": null,
-      "line": 31,
+      "line": 40,
       "signature": "()"
     },
     {
       "name": "test_rate_limit_resolve_key_prefers_session_cookie",
       "type": "function",
       "summary": null,
-      "line": 55,
+      "line": 114,
       "signature": "()"
     }
   ],
@@ -45,18 +45,18 @@
     {
       "name": "_request",
       "kind": "function",
-      "line": 15,
+      "line": 24,
       "signature": "(method: str, path: str, headers: list[tuple[bytes, bytes]] | None = None) -> Request",
       "complexity": 2,
       "calls": [
         {
           "name": "path.encode",
-          "line": 21,
+          "line": 30,
           "module_hint": null
         },
         {
           "name": "Request",
-          "line": 28,
+          "line": 37,
           "module_hint": "starlette.requests"
         }
       ]
@@ -64,18 +64,18 @@
     {
       "name": "test_add_security_middleware_registers_expected_stack",
       "kind": "function",
-      "line": 31,
+      "line": 40,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "FastAPI",
-          "line": 32,
+          "line": 43,
           "module_hint": "fastapi"
         },
         {
           "name": "add_security_middleware",
-          "line": 33,
+          "line": 44,
           "module_hint": "app.middleware.security"
         }
       ]
@@ -83,43 +83,43 @@
     {
       "name": "test_rate_limit_resolve_key_prefers_session_cookie",
       "kind": "function",
-      "line": 55,
+      "line": 114,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "RateLimitMiddleware",
-          "line": 56,
+          "line": 115,
           "module_hint": "app.middleware.security"
         },
         {
           "name": "FastAPI",
-          "line": 56,
+          "line": 115,
           "module_hint": "fastapi"
         },
         {
           "name": "SimpleNamespace",
-          "line": 57,
+          "line": 116,
           "module_hint": "types"
         },
         {
           "name": "SimpleNamespace",
-          "line": 57,
+          "line": 116,
           "module_hint": "types"
         },
         {
           "name": "middleware._resolve_key",
-          "line": 59,
+          "line": 118,
           "module_hint": null
         },
         {
           "name": "middleware._resolve_key",
-          "line": 60,
+          "line": 119,
           "module_hint": null
         },
         {
           "name": "middleware._get_limit",
-          "line": 61,
+          "line": 120,
           "module_hint": null
         }
       ]
@@ -128,7 +128,7 @@
   "function_audits": [
     {
       "function": "_request",
-      "line": 15,
+      "line": 24,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -142,24 +142,24 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 25,
-              "line_end": 25
-            },
-            {
               "line_start": 26,
               "line_end": 26
             },
             {
-              "line_start": 17,
-              "line_end": 17
+              "line_start": 27,
+              "line_end": 27
             },
             {
-              "line_start": 18,
-              "line_end": 18
+              "line_start": 33,
+              "line_end": 33
             },
             {
-              "line_start": 24,
-              "line_end": 24
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -178,13 +178,13 @@
     },
     {
       "function": "test_add_security_middleware_registers_expected_stack",
-      "line": 31,
+      "line": 40,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 9,
+        "size": 11,
         "nesting": 0,
-        "token_count": 61
+        "token_count": 69
       },
       "findings": [],
       "estimated_complexity": {
@@ -199,7 +199,7 @@
     },
     {
       "function": "test_body_size_limit_rejects_invalid_content_length",
-      "line": 44,
+      "line": 55,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -220,7 +220,166 @@
     },
     {
       "function": "call_next",
-      "line": 47,
+      "line": 58,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 9
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_body_size_limit_allows_in_range_request",
+      "line": 67,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 9,
+        "nesting": 0,
+        "token_count": 69
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "call_next",
+      "line": 71,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_body_size_limit_rejects_oversized_request",
+      "line": 80,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 9,
+        "nesting": 0,
+        "token_count": 74
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "call_next",
+      "line": 84,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 9
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_security_headers_add_hsts_and_no_store",
+      "line": 93,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 18,
+        "nesting": 0,
+        "token_count": 135
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 108,
+              "line_end": 108
+            },
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            },
+            {
+              "line_start": 108,
+              "line_end": 108
+            },
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "call_next",
+      "line": 103,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -241,7 +400,7 @@
     },
     {
       "function": "test_rate_limit_resolve_key_prefers_session_cookie",
-      "line": 55,
+      "line": 114,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -255,20 +414,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 59,
-              "line_end": 59
+              "line_start": 118,
+              "line_end": 118
             },
             {
-              "line_start": 60,
-              "line_end": 60
+              "line_start": 119,
+              "line_end": 119
             },
             {
-              "line_start": 59,
-              "line_end": 59
+              "line_start": 118,
+              "line_end": 118
             },
             {
-              "line_start": 60,
-              "line_end": 60
+              "line_start": 119,
+              "line_end": 119
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -286,8 +445,50 @@
       "review_priority": 0.47
     },
     {
+      "function": "test_rate_limit_dispatch_blocks_after_threshold",
+      "line": 124,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 13,
+        "nesting": 1,
+        "token_count": 104
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "call_next",
+      "line": 129,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 9
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
       "function": "test_read_upload_limited_raises_for_oversized_payload",
-      "line": 65,
+      "line": 141,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 1,
@@ -308,7 +509,7 @@
     },
     {
       "function": "__init__",
-      "line": 67,
+      "line": 143,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -329,7 +530,70 @@
     },
     {
       "function": "read",
-      "line": 70,
+      "line": 146,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_read_upload_limited_returns_payload",
+      "line": 154,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 9,
+        "nesting": 1,
+        "token_count": 67
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "__init__",
+      "line": 156,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "read",
+      "line": 159,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -350,7 +614,7 @@
     },
     {
       "function": "test_read_response_limited_raises_for_oversized_payload",
-      "line": 78,
+      "line": 167,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -371,13 +635,223 @@
     },
     {
       "function": "aiter_bytes",
-      "line": 80,
+      "line": 169,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
         "size": 2,
         "nesting": 0,
         "token_count": 13
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_read_response_limited_returns_payload",
+      "line": 178,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 6,
+        "nesting": 0,
+        "token_count": 36
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "aiter_bytes",
+      "line": 180,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 13
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_stream_upload_to_temp_persists_file",
+      "line": 188,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 21,
+        "nesting": 1,
+        "token_count": 152
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "__init__",
+      "line": 190,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "read",
+      "line": 193,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "fake_mkstemp",
+      "line": 198,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 29
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_stream_upload_to_temp_cleans_up_on_overflow",
+      "line": 213,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 19,
+        "nesting": 1,
+        "token_count": 124
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "__init__",
+      "line": 217,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "read",
+      "line": 220,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "fake_mkstemp",
+      "line": 223,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 29
       },
       "findings": [],
       "estimated_complexity": {
@@ -397,11 +871,13 @@
     "in_cycle": false,
     "is_test_file": true,
     "security_issues": [],
-    "side_effects": [],
-    "purity": "pure",
+    "side_effects": [
+      "filesystem: open() at line 208"
+    ],
+    "purity": "filesystem",
     "todo_count": 0,
-    "churn_count": 0,
-    "change_risk": "low",
+    "churn_count": 1,
+    "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -410,10 +886,10 @@
     "unused_exports": [],
     "package": null,
     "change_velocity": null,
-    "bus_factor": null,
-    "author_count": null,
-    "last_modified": null,
-    "recency_score": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T21:12:49-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": true,
     "convention_compliance": 1.0,

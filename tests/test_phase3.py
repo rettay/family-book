@@ -80,15 +80,15 @@ class TestI18n:
         es = get_translations("es")
         assert es["nav"]["tree"] == "Árbol Familiar"
 
-    def test_t_function(self):
-        from app.i18n import load_translations, t
+    def test_translate_function(self):
+        from app.i18n import load_translations, translate
 
         load_translations()
-        assert t("nav.tree", "en") == "Family Tree"
-        assert t("nav.tree", "ru") == "Семейное Древо"
-        assert t("nav.tree", "es") == "Árbol Familiar"
-        assert t("nav.tree", "xx") == "Family Tree"  # fallback to en
-        assert t("nonexistent.key", "en") == "nonexistent.key"  # missing → key itself
+        assert translate("nav.tree", "en") == "Family Tree"
+        assert translate("nav.tree", "ru") == "Семейное Древо"
+        assert translate("nav.tree", "es") == "Árbol Familiar"
+        assert translate("nav.tree", "xx") == "Family Tree"  # fallback to en
+        assert translate("nonexistent.key", "en") == "nonexistent.key"  # missing → key itself
 
     def test_relationship_terms(self):
         from app.i18n import load_translations, rel_term

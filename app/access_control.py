@@ -158,57 +158,10 @@ def can_create_moment_for_person(current_user: Person, person: Person) -> bool:
 
 
 def redact_person_detail(person: Person, access: PersonAccess) -> PersonDetail:
-    if person.is_root:
-        first_name = None
-        last_name = None
-        nickname = None
-    else:
-        first_name = person.first_name
-        last_name = person.last_name
-        nickname = person.nickname
-
-    show_profile = access.can_view_profile
-    show_contacts = access.can_view_contacts
-
-    return PersonDetail(
-        id=person.id,
-        display_name=person.display_name,
-        nickname=nickname,
-        photo_url=person.photo_url,
-        residence_country_code=person.residence_country_code if show_profile else None,
-        branch=person.branch if show_profile else None,
-        is_living=person.is_living,
-        visibility=person.visibility,
-        first_name=first_name,
-        last_name=last_name,
-        patronymic=person.patronymic if show_profile and not person.is_root else None,
-        birth_last_name=person.birth_last_name if show_profile and not person.is_root else None,
-        gender=person.gender if show_profile and not person.is_root else None,
-        birth_date_raw=person.birth_date_raw if show_profile else None,
-        birth_date=person.birth_date if show_profile else None,
-        birth_date_precision=person.birth_date_precision if show_profile else None,
-        death_date_raw=person.death_date_raw if show_profile else None,
-        death_date=person.death_date if show_profile else None,
-        death_date_precision=person.death_date_precision if show_profile else None,
-        birth_place=person.birth_place if show_profile else None,
-        birth_country_code=person.birth_country_code if show_profile else None,
-        residence_place=person.residence_place if show_profile else None,
-        burial_place=person.burial_place if show_profile else None,
-        burial_country_code=person.burial_country_code if show_profile else None,
-        burial_cemetery_name=person.burial_cemetery_name if show_profile else None,
-        burial_plot_number=person.burial_plot_number if show_profile else None,
-        languages=person.languages if show_profile else [],
-        bio=person.bio if show_profile else None,
-        medical_history=person.medical_history if show_profile else None,
-        contact_whatsapp=person.contact_whatsapp if show_contacts else None,
-        contact_telegram=person.contact_telegram if show_contacts else None,
-        contact_signal=person.contact_signal if show_contacts else None,
-        contact_email=person.contact_email if show_contacts else None,
-        is_admin=person.is_admin if access.can_manage else False,
-        is_root=person.is_root,
-        source=person.source if access.can_manage else "manual",
-        created_at=person.created_at if access.can_manage else None,
-    )
+    payload = _detail_identity_payload(person, access)
+    payload.update(_detail_profile_payload(person, access))
+    payload.update(_detail_contact_payload(person, access))
+    return PersonDetail(**payload)
 
 
 def redact_person_summary(person: Person, access: PersonAccess) -> PersonSummary:
@@ -223,6 +176,84 @@ def redact_person_summary(person: Person, access: PersonAccess) -> PersonSummary
         is_living=person.is_living,
         visibility=person.visibility,
     )
+
+
+def _root_redacted_name(value: str | None, person: Person) -> str | None:
+    return None if person.is_root else value
+
+
+def _detail_identity_payload(person: Person, access: PersonAccess) -> dict[str, object]:
+    return {
+        "id": person.id,
+        "display_name": person.display_name,
+        "nickname": _detail_nickname(person),
+        "photo_url": person.photo_url,
+        "residence_country_code": _profile_value(person.residence_country_code, access),
+        "branch": _profile_value(person.branch, access),
+        "is_living": person.is_living,
+        "visibility": person.visibility,
+        "first_name": _root_redacted_name(person.first_name, person),
+        "last_name": _root_redacted_name(person.last_name, person),
+        "is_admin": person.is_admin if access.can_manage else False,
+        "is_root": person.is_root,
+        "source": person.source if access.can_manage else "manual",
+        "created_at": person.created_at if access.can_manage else None,
+    }
+
+
+def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, object]:
+    return {
+        "patronymic": _profile_name_value(person.patronymic, person, access),
+        "birth_last_name": _profile_name_value(person.birth_last_name, person, access),
+        "gender": _profile_name_value(person.gender, person, access),
+        "birth_date_raw": _profile_value(person.birth_date_raw, access),
+        "birth_date": _profile_value(person.birth_date, access),
+        "birth_date_precision": _profile_value(person.birth_date_precision, access),
+        "death_date_raw": _profile_value(person.death_date_raw, access),
+        "death_date": _profile_value(person.death_date, access),
+        "death_date_precision": _profile_value(person.death_date_precision, access),
+        "birth_place": _profile_value(person.birth_place, access),
+        "birth_country_code": _profile_value(person.birth_country_code, access),
+        "residence_place": _profile_value(person.residence_place, access),
+        "burial_place": _profile_value(person.burial_place, access),
+        "burial_country_code": _profile_value(person.burial_country_code, access),
+        "burial_cemetery_name": _profile_value(person.burial_cemetery_name, access),
+        "burial_plot_number": _profile_value(person.burial_plot_number, access),
+        "languages": _profile_list(person.languages, access),
+        "bio": _profile_value(person.bio, access),
+        "medical_history": _profile_value(person.medical_history, access),
+    }
+
+
+def _detail_contact_payload(person: Person, access: PersonAccess) -> dict[str, object]:
+    return {
+        "contact_whatsapp": _contact_value(person.contact_whatsapp, access),
+        "contact_telegram": _contact_value(person.contact_telegram, access),
+        "contact_signal": _contact_value(person.contact_signal, access),
+        "contact_email": _contact_value(person.contact_email, access),
+    }
+
+
+def _detail_nickname(person: Person) -> str | None:
+    return None if person.is_root else person.nickname
+
+
+def _profile_value(value, access: PersonAccess):
+    return value if access.can_view_profile else None
+
+
+def _profile_list(value: list[str], access: PersonAccess) -> list[str]:
+    return value if access.can_view_profile else []
+
+
+def _profile_name_value(value: str | None, person: Person, access: PersonAccess) -> str | None:
+    if person.is_root:
+        return None
+    return _profile_value(value, access)
+
+
+def _contact_value(value: str | None, access: PersonAccess) -> str | None:
+    return value if access.can_view_contacts else None
 
 
 async def _graph_distances(

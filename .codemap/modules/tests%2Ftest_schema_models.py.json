@@ -1,13 +1,13 @@
 {
   "id": "tests/test_schema_models.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
-  "source_hash": "627a1739",
+  "analyzed_at": "2026-03-24T03:06:52.617505+00:00",
+  "source_hash": "1867498a",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 54,
+    "lines": 117,
     "rating": "green"
   },
   "dependencies": {
@@ -24,21 +24,49 @@
       "name": "test_person_schema_helpers_preserve_expected_fields",
       "type": "function",
       "summary": null,
-      "line": 6,
+      "line": 10,
       "signature": "()"
     },
     {
       "name": "test_root_person_detail_redacts_name_fields",
       "type": "function",
       "summary": null,
-      "line": 29,
+      "line": 35,
       "signature": "()"
     },
     {
       "name": "test_moment_model_list_properties_round_trip",
       "type": "function",
       "summary": null,
-      "line": 48,
+      "line": 54,
+      "signature": "()"
+    },
+    {
+      "name": "test_schema_models_do_not_share_default_language_list",
+      "type": "function",
+      "summary": null,
+      "line": 65,
+      "signature": "()"
+    },
+    {
+      "name": "test_person_update_can_clear_fields_without_setting_unrelated_defaults",
+      "type": "function",
+      "summary": null,
+      "line": 74,
+      "signature": "()"
+    },
+    {
+      "name": "test_moment_model_defaults_and_repr_are_stable",
+      "type": "function",
+      "summary": null,
+      "line": 82,
+      "signature": "()"
+    },
+    {
+      "name": "test_person_summary_helper_preserves_datetime_fields_for_detail",
+      "type": "function",
+      "summary": null,
+      "line": 98,
       "signature": "()"
     }
   ],
@@ -46,23 +74,23 @@
     {
       "name": "test_person_schema_helpers_preserve_expected_fields",
       "kind": "function",
-      "line": 6,
+      "line": 10,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 7,
+          "line": 13,
           "module_hint": "app.models.person"
         },
         {
           "name": "person_to_summary",
-          "line": 21,
+          "line": 27,
           "module_hint": "app.schemas"
         },
         {
           "name": "person_to_detail",
-          "line": 22,
+          "line": 28,
           "module_hint": "app.schemas"
         }
       ]
@@ -70,18 +98,18 @@
     {
       "name": "test_root_person_detail_redacts_name_fields",
       "kind": "function",
-      "line": 29,
+      "line": 35,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 30,
+          "line": 36,
           "module_hint": "app.models.person"
         },
         {
           "name": "person_to_detail",
-          "line": 41,
+          "line": 47,
           "module_hint": "app.schemas"
         }
       ]
@@ -89,14 +117,95 @@
     {
       "name": "test_moment_model_list_properties_round_trip",
       "kind": "function",
-      "line": 48,
+      "line": 54,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Moment",
-          "line": 49,
+          "line": 57,
           "module_hint": "app.models.moments"
+        }
+      ]
+    },
+    {
+      "name": "test_schema_models_do_not_share_default_language_list",
+      "kind": "function",
+      "line": 65,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "PersonCreate",
+          "line": 66,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "PersonCreate",
+          "line": 67,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "first.languages.append",
+          "line": 69,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "test_person_update_can_clear_fields_without_setting_unrelated_defaults",
+      "kind": "function",
+      "line": 74,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "PersonUpdate",
+          "line": 75,
+          "module_hint": "app.schemas"
+        }
+      ]
+    },
+    {
+      "name": "test_moment_model_defaults_and_repr_are_stable",
+      "kind": "function",
+      "line": 82,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "Moment",
+          "line": 83,
+          "module_hint": "app.models.moments"
+        },
+        {
+          "name": "repr",
+          "line": 92,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "test_person_summary_helper_preserves_datetime_fields_for_detail",
+      "kind": "function",
+      "line": 98,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "datetime",
+          "line": 99,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "Person",
+          "line": 100,
+          "module_hint": "app.models.person"
+        },
+        {
+          "name": "person_to_detail",
+          "line": 113,
+          "module_hint": "app.schemas"
         }
       ]
     }
@@ -104,13 +213,13 @@
   "function_audits": [
     {
       "function": "test_person_schema_helpers_preserve_expected_fields",
-      "line": 6,
+      "line": 10,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 20,
+        "size": 22,
         "nesting": 0,
-        "token_count": 105
+        "token_count": 118
       },
       "findings": [
         {
@@ -118,16 +227,16 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 24,
-              "line_end": 24
+              "line_start": 30,
+              "line_end": 30
             },
             {
-              "line_start": 25,
-              "line_end": 25
+              "line_start": 31,
+              "line_end": 31
             },
             {
-              "line_start": 26,
-              "line_end": 26
+              "line_start": 32,
+              "line_end": 32
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -146,7 +255,7 @@
     },
     {
       "function": "test_root_person_detail_redacts_name_fields",
-      "line": 29,
+      "line": 35,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -167,13 +276,13 @@
     },
     {
       "function": "test_moment_model_list_properties_round_trip",
-      "line": 48,
+      "line": 54,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 6,
+        "size": 8,
         "nesting": 0,
-        "token_count": 82
+        "token_count": 95
       },
       "findings": [
         {
@@ -181,32 +290,32 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 50,
-              "line_end": 50
+              "line_start": 58,
+              "line_end": 58
             },
             {
-              "line_start": 51,
-              "line_end": 51
+              "line_start": 59,
+              "line_end": 59
             },
             {
-              "line_start": 50,
-              "line_end": 50
+              "line_start": 61,
+              "line_end": 61
             },
             {
-              "line_start": 51,
-              "line_end": 51
+              "line_start": 61,
+              "line_end": 61
             },
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 62,
+              "line_end": 62
             },
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 58,
+              "line_end": 58
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 59,
+              "line_end": 59
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -222,6 +331,123 @@
         "mismatch": "No performance contract annotation available for this function"
       },
       "review_priority": 0.47
+    },
+    {
+      "function": "test_schema_models_do_not_share_default_language_list",
+      "line": 65,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 6,
+        "nesting": 0,
+        "token_count": 55
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_person_update_can_clear_fields_without_setting_unrelated_defaults",
+      "line": 74,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 5,
+        "nesting": 0,
+        "token_count": 40
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_moment_model_defaults_and_repr_are_stable",
+      "line": 82,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 13,
+        "nesting": 0,
+        "token_count": 74
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_person_summary_helper_preserves_datetime_fields_for_detail",
+      "line": 98,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 19,
+        "nesting": 0,
+        "token_count": 97
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
     }
   ],
   "spec_linkages": [],
@@ -233,8 +459,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 0,
-    "change_risk": "low",
+    "churn_count": 1,
+    "change_risk": "medium",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -243,10 +469,10 @@
     "unused_exports": [],
     "package": null,
     "change_velocity": null,
-    "bus_factor": null,
-    "author_count": null,
-    "last_modified": null,
-    "recency_score": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T21:12:49-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,

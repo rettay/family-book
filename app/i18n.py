@@ -1,7 +1,7 @@
 """
 Internationalization — static JSON translation catalogs.
 
-Loaded once at startup. Available in Jinja2 templates via `t()` helper.
+Loaded once at startup. Available in Jinja2 templates via a translation helper.
 Relationship terms loaded separately for domain-specific cultural accuracy.
 """
 
@@ -49,7 +49,7 @@ def get_relationship_terms(locale: str = DEFAULT_LOCALE) -> dict:
     return _relationship_terms.get(locale, _relationship_terms.get(DEFAULT_LOCALE, {}))
 
 
-def t(key: str, locale: str = DEFAULT_LOCALE) -> str:
+def translate(key: str, locale: str = DEFAULT_LOCALE) -> str:
     """Translate a dotted key (e.g. 'nav.tree') for a locale.
 
     Falls back to English, then to the key itself.

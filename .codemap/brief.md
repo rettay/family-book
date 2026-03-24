@@ -1,40 +1,40 @@
 # family-book — Agent Brief
 
-**Modules:** 114  
-**Languages:** python (80), unknown (30), javascript (4)  
-**With AI briefings:** 0/114
+**Modules:** 161  
+**Languages:** python (86), unknown (71), javascript (4)  
+**With AI briefings:** 0/161
 
 ## Architecture Overview
 
 **Hub modules** (imported by others): `app/models/person.py` (26), `app/config.py` (18), `app/database.py` (13), `app/models/base.py` (12), `app/auth.py` (9), `app/models/relationships.py` (9), `app/models/media.py` (8), `app/models/moments.py` (8), `app/access_control.py` (7), `app/services/field_protection.py` (7)
 
-**Leaf modules** (import others, not imported): `app/seed.py`, `tests/conftest.py`, `alembic/env.py`, `tests/test_access_control.py`, `tests/test_api.py`, `tests/test_auth.py`, `tests/test_media.py`, `tests/test_models.py`, `tests/test_phase1_edge_cases.py`, `tests/test_protection_service.py`
+**Leaf modules** (import others, not imported): `app/seed.py`, `tests/conftest.py`, `tests/test_security_guardrails.py`, `alembic/env.py`, `tests/test_access_control.py`, `tests/test_api.py`, `tests/test_auth.py`, `tests/test_config.py`, `tests/test_media.py`, `tests/test_models.py`
 
 ## Domain Architecture
 
-**domain-0** (63 modules): `app/models/person.py`, `app/config.py`, `app/database.py`, `app/models/base.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/models/moments.py`
-  ... and 55 more
+**domain-0** (68 modules): `app/models/person.py`, `app/config.py`, `app/database.py`, `app/models/base.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/models/moments.py`
+  ... and 60 more
 
 ## Architecture Roles
 
-- **Core**: `app/models/person.py`, `app/config.py`, `app/models/base.py`, `app/models/moments.py`, `app/services/field_protection.py` (+1 more)
-- **Utility**: `app/database.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/access_control.py` (+88 more)
-- **Test Support**: `tests/conftest.py`, `tests/__init__.py`, `tests/test_access_control.py`, `tests/test_api.py`, `tests/test_auth.py` (+10 more)
+- **Core**: `app/models/person.py`, `app/config.py`, `app/models/base.py`, `app/models/moments.py`, `app/services/field_protection.py` (+4 more)
+- **Utility**: `app/database.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/access_control.py` (+130 more)
+- **Test Support**: `tests/conftest.py`, `tests/test_security_guardrails.py`, `tests/__init__.py`, `tests/test_access_control.py`, `tests/test_api.py` (+12 more)
 
 ## Top Modules Requiring Review
 
 | Module | Score | Centrality | Top Factor |
 |---|---:|---:|---|
-| `app/config.py` | 0.51 | 1.00 | centrality (18 importers) |
-| `app/routes/pages.py` | 0.51 | 0.00 | churn (7 changes) |
+| `app/access_control.py` | 0.65 | 0.50 | centrality (7 importers) |
+| `app/routes/pages.py` | 0.53 | 0.00 | churn (12 changes) |
+| `app/inbound/routes.py` | 0.50 | 0.14 | churn (3 changes) |
+| `app/services/media_service.py` | 0.50 | 0.00 | churn (3 changes) |
 | `app/backup/service.py` | 0.49 | 0.13 | centrality (3 importers) |
-| `app/services/media_service.py` | 0.46 | 0.08 | churn (3 changes) |
+| `app/config.py` | 0.47 | 0.71 | centrality (18 importers) |
 | `app/middleware/security.py` | 0.44 | 0.03 | complexity (red) |
 | `app/static/js/tree.js` | 0.43 | 0.00 | complexity (red) |
-| `app/inbound/routes.py` | 0.41 | 0.03 | complexity (red) |
 | `app/static/js/main.js` | 0.40 | 0.00 | complexity (red) |
-| `app/services/moment_service.py` | 0.39 | 0.17 | churn (3 changes) |
-| `app/routes/media.py` | 0.37 | 0.00 | churn (6 changes) |
+| `app/i18n.py` | 0.39 | 1.00 | centrality (3 importers) |
 
 ## Module Briefs
 
@@ -47,10 +47,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/config.py [hotspot] [environment] [testability: 0.35] [attention: 0.51] [CRITICAL] [domain-0] [unobservable]
+### app/config.py [hotspot] [environment] [testability: 0.65] [attention: 0.47] [CRITICAL] [domain-0] [unobservable]
 
-**Radar:** U=0.6 C=0.4 E=0.5 S=0.7 T=0.4  
-**Language:** python | **Complexity:** yellow (cyclomatic 13, 132 lines)
+**Radar:** U=0.6 C=0.6 E=1.0 S=0.9 T=0.3  
+**Language:** python | **Complexity:** yellow (cyclomatic 13, 133 lines)
 **Exports:** `Settings` (class), `get_settings` (function)  
 **Constructs:** 1 functions, 1 classes  
 
@@ -110,12 +110,12 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/access_control.py [hotspot] [testability: 0.70] [attention: 0.30] [domain-0] [observable]
+### app/access_control.py [hotspot] [testability: 0.40] [attention: 0.65] [domain-0] [observable]
 
-**Radar:** U=0.4 C=0.9 E=1.0 S=1.0 T=0.6  
-**Language:** python | **Complexity:** red (cyclomatic 73, 277 lines)
+**Radar:** U=0.4 C=0.3 E=0.5 S=0.8 T=0.5  
+**Language:** python | **Complexity:** red (cyclomatic 50, 291 lines)
 **Exports:** `can_collaborate` (function), `get_person_access` (function), `get_accessible_person_ids` (function), `can_manage_person` (function), `can_view_media` (function), `can_view_moment` (function), `can_manage_moment` (function), `can_create_moment_for_person` (function), `redact_person_detail` (function), `redact_person_summary` (function)  
-**Constructs:** 12 functions  
+**Constructs:** 18 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -134,6 +134,15 @@
 **Language:** python | **Complexity:** yellow (cyclomatic 15, 243 lines)
 **Exports:** `_hash_token` (function), `generate_session_token` (function), `generate_invite_token` (function), `generate_magic_link_token` (function), `create_session` (function), `validate_session` (function), `delete_session` (function), `create_invite` (function), `get_valid_invite` (function), `claim_invite` (function)  
 **Constructs:** 13 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/services/theme_service.py [hotspot] [testability: 0.85] [attention: 0.25] [CRITICAL] [domain-0] [unobservable]
+
+**Radar:** U=0.6 C=0.6 E=1.0 S=1.0 T=0.0  
+**Language:** python | **Complexity:** yellow (cyclomatic 13, 266 lines)
+**Exports:** `ThemeSettingsPayload` (class), `_hex_to_rgb_tuple` (function), `_relative_luminance` (function), `_contrast_ratio` (function), `_rgb_tuple_to_hex` (function), `_blend` (function), `_darken` (function), `_lighten` (function), `_rgb_string` (function), `_build_css_variables` (function)  
+**Constructs:** 14 functions, 1 classes  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -173,12 +182,29 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### app/i18n.py [hotspot] [filesystem] [testability: 0.35] [attention: 0.39] [CRITICAL] [domain-0] [observable]
+
+**Radar:** U=0.6 C=0.5 E=0.5 S=0.7 T=0.7  
+**Language:** python | **Complexity:** yellow (cyclomatic 14, 88 lines)
+**Exports:** `load_translations` (function), `get_translations` (function), `get_relationship_terms` (function), `translate` (function), `rel_term` (function), `_resolve_dotted` (function), `_count_keys` (function)  
+**Constructs:** 7 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### app/services/io_limits.py [hotspot] [filesystem] [testability: 0.35] [attention: 0.33] [domain-0]
 
 **Radar:** U=0.5 C=0.6 E=0.5 S=0.9 T=0.5  
 **Language:** python | **Complexity:** yellow (cyclomatic 12, 80 lines)
 **Exports:** `SizeLimitExceeded` (class), `read_upload_limited` (function), `stream_upload_to_temp` (function), `read_response_limited` (function)  
 **Constructs:** 3 functions, 1 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/models/__init__.py [hotspot] [testability: 1.00] [attention: 0.18] [domain-0]
+
+**Radar:** U=1.0 C=0.9 E=1.0 S=1.0 T=0.3  
+**Language:** python | **Complexity:** green (cyclomatic 1, 47 lines)
+**Exports:** `Base` (function), `Person` (function), `ParentChild` (function), `Partnership` (function), `Media` (function), `Moment` (function), `MomentReaction` (function), `MomentComment` (function), `UserSession` (function), `Invite` (function)  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -200,6 +226,15 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### app/models/settings.py [testability: 1.00] [attention: 0.01] [CRITICAL] [domain-0] [unobservable]
+
+**Radar:** U=1.0 C=0.6 E=1.0 S=1.0 T=0.3  
+**Language:** python | **Complexity:** green (cyclomatic 3, 30 lines)
+**Exports:** `AppThemeSettings` (class)  
+**Constructs:** 1 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### app/routes/__init__.py [testability: 1.00] [attention: 0.00] [domain-0]
 
 **Radar:** U=1.0 C=0.9 E=1.0 S=1.0 T=0.7  
@@ -207,10 +242,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/auth_routes.py [hotspot] [testability: 0.70] [attention: 0.29] [domain-0] [observable] [endpoint]
+### app/routes/auth_routes.py [hotspot] [testability: 0.70] [attention: 0.36] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.4 C=1.0 E=1.0 S=1.0 T=0.5  
-**Language:** python | **Complexity:** red (cyclomatic 21, 235 lines)
+**Radar:** U=0.3 C=1.0 E=1.0 S=1.0 T=0.4  
+**Language:** python | **Complexity:** red (cyclomatic 21, 298 lines)
 **Exports:** `GoogleCredentialRequest` (class), `AdminInviteResponse` (class), `_set_session_cookie` (function)  
 **Constructs:** 1 functions, 2 classes  
 
@@ -258,15 +293,6 @@
 **Language:** python | **Complexity:** red (cyclomatic 28, 244 lines)
 **Exports:** `_moment_order` (function), `_tagged_person_match` (function), `list_visible_moments` (function), `build_moment_cards` (function), `build_moment_card` (function), `build_moments_path` (function)  
 **Constructs:** 6 functions  
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/i18n.py [hotspot] [filesystem] [testability: 0.35] [attention: 0.32] [domain-0] [observable]
-
-**Radar:** U=0.5 C=0.7 E=0.5 S=0.9 T=0.6  
-**Language:** python | **Complexity:** yellow (cyclomatic 14, 88 lines)
-**Exports:** `load_translations` (function), `get_translations` (function), `get_relationship_terms` (function), `t` (function), `rel_term` (function), `_resolve_dotted` (function), `_count_keys` (function)  
-**Constructs:** 7 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -331,9 +357,9 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/inbound/routes.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.41] [domain-0] [observable] [endpoint]
+### app/inbound/routes.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.50] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.2 C=0.7 E=0.5 S=0.9 T=0.6  
+**Radar:** U=0.3 C=0.7 E=0.5 S=0.9 T=0.4  
 **Language:** python | **Complexity:** red (cyclomatic 29, 188 lines)
 **Exports:** `EnvelopeAttachment` (class), `EnvelopePayload` (class), `_ext_from_mime` (function), `_is_allowed_attachment_url` (function)  
 **Constructs:** 2 functions, 2 classes  
@@ -349,21 +375,30 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/pages.py [hotspot] [testability: 0.40] [attention: 0.51] [domain-0] [observable] [endpoint]
+### app/routes/demo.py [hotspot] [testability: 0.40] [attention: 0.36] [domain-0] [endpoint]
 
-**Radar:** U=0.3 C=0.7 E=0.5 S=1.0 T=0.4  
-**Language:** python | **Complexity:** red (cyclomatic 72, 732 lines)
+**Radar:** U=0.4 C=0.6 E=0.5 S=1.0 T=0.6  
+**Language:** python | **Complexity:** red (cyclomatic 37, 424 lines)
+**Exports:** `_get_locale` (function), `_country_flag` (function), `_ctx` (function), `_build_demo_moment` (function)  
+**Constructs:** 4 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/routes/pages.py [hotspot] [testability: 0.40] [attention: 0.53] [domain-0] [observable] [endpoint]
+
+**Radar:** U=0.3 C=0.6 E=0.5 S=1.0 T=0.4  
+**Language:** python | **Complexity:** red (cyclomatic 73, 741 lines)
 **Exports:** `_get_locale` (function), `_country_flag` (function), `_ctx` (function), `_moment_people` (function), `_actor_names` (function)  
 **Constructs:** 5 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/services/media_service.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.46] [domain-0]
+### app/services/media_service.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.50] [domain-0]
 
-**Radar:** U=0.2 C=0.7 E=0.5 S=0.9 T=0.6  
-**Language:** python | **Complexity:** red (cyclomatic 49, 296 lines)
-**Exports:** `_category_for_mime` (function), `_media_type_for_mime` (function), `compute_sha256` (function), `strip_exif` (function), `generate_thumbnail` (function), `get_image_dimensions` (function), `check_duplicate` (function), `save_media_file` (function), `save_media_temp_file` (function), `delete_media_files` (function)  
-**Constructs:** 10 functions  
+**Radar:** U=0.3 C=0.6 E=0.5 S=0.9 T=0.5  
+**Language:** python | **Complexity:** red (cyclomatic 49, 336 lines)
+**Exports:** `_category_for_mime` (function), `_media_type_for_mime` (function), `compute_sha256` (function), `strip_exif` (function), `generate_thumbnail` (function), `get_image_dimensions` (function), `check_duplicate` (function), `save_media_file` (function), `save_media_temp_file` (function), `_validate_media_upload` (function)  
+**Constructs:** 14 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -417,10 +452,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/main.py [filesystem] [testability: 0.50] [attention: 0.30] [domain-0] [observable]
+### app/main.py [filesystem] [testability: 0.80] [attention: 0.15] [domain-0] [observable] [database]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=0.9 T=0.6  
-**Language:** python | **Complexity:** green (cyclomatic 9, 123 lines)
+**Radar:** U=0.8 C=1.0 E=1.0 S=0.9 T=0.6  
+**Language:** python | **Complexity:** green (cyclomatic 10, 133 lines)
 **Exports:** `create_app` (function)  
 **Constructs:** 1 functions  
 
@@ -432,14 +467,6 @@
 **Language:** python | **Complexity:** green (cyclomatic 6, 61 lines)
 **Exports:** `start_matrix_bot` (function), `stop_matrix_bot` (function)  
 **Constructs:** 2 functions  
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/models/__init__.py [hotspot] [testability: 0.70] [attention: 0.18] [domain-0]
-
-**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.6  
-**Language:** python | **Complexity:** green (cyclomatic 1, 45 lines)
-**Exports:** `Base` (function), `Person` (function), `ParentChild` (function), `Partnership` (function), `Media` (function), `Moment` (function), `MomentReaction` (function), `MomentComment` (function), `UserSession` (function), `Invite` (function)  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -461,10 +488,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/pwa/routes.py [filesystem] [testability: 0.50] [attention: 0.21] [domain-0] [observable] [endpoint]
+### app/pwa/routes.py [hotspot] [filesystem] [testability: 0.50] [attention: 0.35] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=0.9 T=0.8  
-**Language:** python | **Complexity:** green (cyclomatic 6, 91 lines)
+**Radar:** U=0.8 C=0.7 E=0.5 S=0.9 T=0.4  
+**Language:** python | **Complexity:** green (cyclomatic 6, 101 lines)
 **Exports:** `_ext_from_content_type` (function)  
 **Constructs:** 1 functions  
 
@@ -512,9 +539,17 @@
 
 ### tests/conftest.py [hotspot] [environment] [domain-0] [database]
 
-**Language:** python | **Complexity:** yellow (cyclomatic 11, 239 lines)
+**Language:** python | **Complexity:** yellow (cyclomatic 11, 245 lines)
 **Exports:** `_set_sqlite_pragmas` (function)  
 **Constructs:** 1 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### tests/test_security_guardrails.py [hotspot] [filesystem] [domain-0]
+
+**Language:** python | **Complexity:** yellow (cyclomatic 11, 227 lines)
+**Exports:** `_request` (function), `test_add_security_middleware_registers_expected_stack` (function), `test_rate_limit_resolve_key_prefers_session_cookie` (function)  
+**Constructs:** 3 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -586,6 +621,15 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### alembic/versions/b4d3e9a1c2f0_add_app_theme_settings.py [testability: 0.70]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** python | **Complexity:** green (cyclomatic 1, 34 lines)
+**Exports:** `upgrade` (function), `downgrade` (function)  
+**Constructs:** 2 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### alembic/versions/c6a8d41f2b5e_add_burial_country_code.py [testability: 0.70]
 
 **Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=1.0  
@@ -646,72 +690,352 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/static/css/main.css [testability: 0.70] [attention: 0.12]
-
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 684 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/static/manifest.json [testability: 0.70] [attention: 0.12]
-
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 42 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/static/sw.js [network] [testability: 0.50] [attention: 0.20] [service]
-
-**Radar:** U=0.8 C=0.7 E=0.5 S=0.9 T=0.7  
-**Language:** javascript | **Complexity:** green (cyclomatic 7, 68 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/templates/admin.html [hotspot] [testability: 0.70] [attention: 0.19]
-
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 191 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/templates/base.html [testability: 0.70] [attention: 0.23]
-
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 52 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/templates/home.html [hotspot] [testability: 0.70] [attention: 0.24]
+### app/static/css/main.css [testability: 0.70] [attention: 0.21]
 
 **Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.5  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 341 lines)
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 1140 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/invite.html [testability: 0.70] [attention: 0.12]
+### app/static/demo-photos/anniversary-dinner.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 371 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/art-gallery.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 290 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/barcelona-gothic.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 822 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/beach-vacation.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 2839 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/birthday-celebration.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3125 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/birthday-tamales.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 395 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/christmas-morning.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3378 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/family-dinner.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3170 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/first-day-school.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3741 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/graduation-ceremony.jpg [testability: 0.70] [attention: 0.12]
 
 **Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 61 lines)
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 197 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/landing.html [testability: 0.70] [attention: 0.12]
+### app/static/demo-photos/memorial-candle.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 352 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/new-years-eve.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3075 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/newborn-baby.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 86 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-alex.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 805 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-carlos.jpg [testability: 0.70] [attention: 0.12]
 
 **Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 18 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/templates/login.html [testability: 0.70] [attention: 0.23]
-
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 78 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/map.html [testability: 0.70] [attention: 0.12]
+### app/static/demo-photos/portrait-clara.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 183 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-dmitri.jpg [testability: 0.70] [attention: 0.12]
 
 **Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 872 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-elena.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 934 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-emilio.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 104 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-irina.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 93 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-james.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 885 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-kenji.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 139 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-leo.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 858 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-lily.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 195 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-linda.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 864 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-maria.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 825 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-maya.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 199 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-miguel.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 124 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-nadia.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 103 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-nikolai.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 95 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-patrick.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 123 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-rosa.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 1020 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-sasha.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 174 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-sophie.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 765 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-tatiana.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 170 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-viktor.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 117 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-wei.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 155 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/portrait-yuki.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 978 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/summer-reunion.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3379 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/demo-photos/woodworking-chair.jpg [testability: 0.70] [attention: 0.12]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 3503 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/manifest.json [testability: 0.70] [attention: 0.23]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 42 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/static/sw.js [hotspot] [network] [testability: 0.50] [attention: 0.34] [service]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=0.9 T=0.3  
+**Language:** javascript | **Complexity:** green (cyclomatic 8, 72 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/admin.html [hotspot] [testability: 0.70] [attention: 0.27]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.3  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 295 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/base.html [testability: 0.70] [attention: 0.22]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 68 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/home.html [hotspot] [testability: 0.70] [attention: 0.26]
+
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.3  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 341 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/invite.html [testability: 0.70] [attention: 0.22]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 66 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/landing.html [testability: 0.70] [attention: 0.22]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 44 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/login.html [testability: 0.70] [attention: 0.22]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 81 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/map.html [testability: 0.70] [attention: 0.23]
+
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 114 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
@@ -723,9 +1047,9 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/partials/comments.html [testability: 0.70] [attention: 0.12]
+### app/templates/partials/comments.html [testability: 0.70] [attention: 0.23]
 
-**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.7  
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 18 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
@@ -744,10 +1068,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/partials/people_grid.html [testability: 0.70] [attention: 0.12]
+### app/templates/partials/people_grid.html [hotspot] [testability: 0.70] [attention: 0.30]
 
-**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 24 lines)
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.3  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 31 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -758,51 +1082,58 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/partials/person_sidebar.html [testability: 0.70] [attention: 0.12]
+### app/templates/partials/person_sidebar.html [hotspot] [testability: 0.70] [attention: 0.30]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 45 lines)
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.3  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 49 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/people.html [testability: 0.70] [attention: 0.23]
+### app/templates/partials/theme_head.html [testability: 0.70] [attention: 0.12]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 12 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/people.html [testability: 0.70] [attention: 0.22]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 34 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/person.html [hotspot] [testability: 0.70] [attention: 0.24]
+### app/templates/person.html [testability: 0.70] [attention: 0.23]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 311 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/person_edit.html [testability: 0.70] [attention: 0.16]
+### app/templates/person_edit.html [testability: 0.70] [attention: 0.22]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 244 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/person_new.html [testability: 0.70] [attention: 0.16]
+### app/templates/person_new.html [testability: 0.70] [attention: 0.23]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 138 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 141 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/settings.html [testability: 0.70] [attention: 0.12]
+### app/templates/settings.html [testability: 0.70] [attention: 0.23]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 67 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/tree.html [testability: 0.70] [attention: 0.23]
+### app/templates/tree.html [testability: 0.70] [attention: 0.22]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.5  
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 175 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
@@ -883,7 +1214,15 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### tests/test_media.py [hotspot] [domain-0] [service]
+### tests/test_config.py [domain-0]
+
+**Language:** python | **Complexity:** green (cyclomatic 1, 56 lines)
+**Exports:** `test_settings_admin_email_list_and_trusted_hosts` (function), `test_settings_sqlite_paths_resolve_data_dir` (function), `test_settings_non_sqlite_database_path_is_empty` (function), `test_settings_envelope_allowed_hosts_dedupes_and_infers_api_host` (function)  
+**Constructs:** 4 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### tests/test_media.py [domain-0] [service]
 
 **Language:** python | **Complexity:** green (cyclomatic 2, 405 lines)
 **Exports:** `_make_test_image` (function), `_make_test_png` (function), `TestMediaUpload` (class), `TestMediaDedup` (class), `TestMediaServing` (class), `TestMediaDeletion` (class), `TestMediaThumbnails` (class), `TestMediaMetadata` (class)  
@@ -891,7 +1230,7 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### tests/test_models.py [hotspot] [domain-0]
+### tests/test_models.py [domain-0]
 
 **Language:** python | **Complexity:** green (cyclomatic 4, 227 lines)
 
@@ -937,17 +1276,17 @@
 
 ### tests/test_schema_models.py [domain-0]
 
-**Language:** python | **Complexity:** green (cyclomatic 1, 54 lines)
-**Exports:** `test_person_schema_helpers_preserve_expected_fields` (function), `test_root_person_detail_redacts_name_fields` (function), `test_moment_model_list_properties_round_trip` (function)  
-**Constructs:** 3 functions  
+**Language:** python | **Complexity:** green (cyclomatic 1, 111 lines)
+**Exports:** `test_person_schema_helpers_preserve_expected_fields` (function), `test_root_person_detail_redacts_name_fields` (function), `test_moment_model_list_properties_round_trip` (function), `test_schema_models_do_not_share_default_language_list` (function), `test_person_update_can_clear_fields_without_setting_unrelated_defaults` (function), `test_moment_model_defaults_and_repr_are_stable` (function), `test_person_summary_helper_preserves_datetime_fields_for_detail` (function)  
+**Constructs:** 7 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### tests/test_security_guardrails.py [domain-0]
+### tests/test_theme.py [domain-0]
 
-**Language:** python | **Complexity:** green (cyclomatic 5, 85 lines)
-**Exports:** `_request` (function), `test_add_security_middleware_registers_expected_stack` (function), `test_rate_limit_resolve_key_prefers_session_cookie` (function)  
-**Constructs:** 3 functions  
+**Language:** python | **Complexity:** green (cyclomatic 2, 126 lines)
+**Exports:** `test_theme_payload_rejects_unreadable_palette` (function)  
+**Constructs:** 1 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -964,13 +1303,17 @@
 - `app/access_control.py`
 - `app/services/field_protection.py`
 - `app/services/auth_service.py`
+- `app/services/theme_service.py`
 - `app/models/auth.py`
 - `app/schemas.py`
 - `app/services/revision_service.py`
 - `app/backup/service.py`
+- `app/i18n.py`
 - `app/services/io_limits.py`
+- `app/models/__init__.py`
 - `app/models/audit.py`
 - `app/models/revisions.py`
+- `app/models/settings.py`
 - `app/routes/__init__.py`
 - `app/routes/auth_routes.py`
 - `app/routes/media.py`
@@ -978,7 +1321,6 @@
 - `app/routes/persons.py`
 - `app/routes/relationships.py`
 - `app/services/moment_service.py`
-- `app/i18n.py`
 - `app/routes/tree.py`
 - `app/services/google_auth.py`
 - `app/services/protection_service.py`
@@ -988,6 +1330,7 @@
 - `app/services/audit_service.py`
 - `app/inbound/routes.py`
 - `app/middleware/security.py`
+- `app/routes/demo.py`
 - `app/routes/pages.py`
 - `app/services/media_service.py`
 - `app/matrix/client.py`
@@ -998,7 +1341,6 @@
 - `app/backup/scheduler.py`
 - `app/main.py`
 - `app/matrix/startup.py`
-- `app/models/__init__.py`
 - `app/models/governance.py`
 - `app/models/notifications.py`
 - `app/pwa/routes.py`
@@ -1008,6 +1350,7 @@
 - `app/seed.py`
 - `app/static/js/map.js`
 - `tests/conftest.py`
+- `tests/test_security_guardrails.py`
 - `alembic/README`
 - `alembic/env.py`
 - `alembic/script.py.mako`
@@ -1016,6 +1359,7 @@
 - `alembic/versions/75d48eb17ca2_initial_schema.py`
 - `alembic/versions/8c1f9e6b7d11_add_sensitive_field_encryption_support.py`
 - `alembic/versions/9b3f4d7c1a2e_add_tree_preferences.py`
+- `alembic/versions/b4d3e9a1c2f0_add_app_theme_settings.py`
 - `alembic/versions/c6a8d41f2b5e_add_burial_country_code.py`
 - `alembic/versions/f3c4b8e1a9d2_add_revisions_and_recoverable_state.py`
 - `app/backup/__init__.py`
@@ -1025,6 +1369,46 @@
 - `app/pwa/__init__.py`
 - `app/services/__init__.py`
 - `app/static/css/main.css`
+- `app/static/demo-photos/anniversary-dinner.jpg`
+- `app/static/demo-photos/art-gallery.jpg`
+- `app/static/demo-photos/barcelona-gothic.jpg`
+- `app/static/demo-photos/beach-vacation.jpg`
+- `app/static/demo-photos/birthday-celebration.jpg`
+- `app/static/demo-photos/birthday-tamales.jpg`
+- `app/static/demo-photos/christmas-morning.jpg`
+- `app/static/demo-photos/family-dinner.jpg`
+- `app/static/demo-photos/first-day-school.jpg`
+- `app/static/demo-photos/graduation-ceremony.jpg`
+- `app/static/demo-photos/memorial-candle.jpg`
+- `app/static/demo-photos/new-years-eve.jpg`
+- `app/static/demo-photos/newborn-baby.jpg`
+- `app/static/demo-photos/portrait-alex.jpg`
+- `app/static/demo-photos/portrait-carlos.jpg`
+- `app/static/demo-photos/portrait-clara.jpg`
+- `app/static/demo-photos/portrait-dmitri.jpg`
+- `app/static/demo-photos/portrait-elena.jpg`
+- `app/static/demo-photos/portrait-emilio.jpg`
+- `app/static/demo-photos/portrait-irina.jpg`
+- `app/static/demo-photos/portrait-james.jpg`
+- `app/static/demo-photos/portrait-kenji.jpg`
+- `app/static/demo-photos/portrait-leo.jpg`
+- `app/static/demo-photos/portrait-lily.jpg`
+- `app/static/demo-photos/portrait-linda.jpg`
+- `app/static/demo-photos/portrait-maria.jpg`
+- `app/static/demo-photos/portrait-maya.jpg`
+- `app/static/demo-photos/portrait-miguel.jpg`
+- `app/static/demo-photos/portrait-nadia.jpg`
+- `app/static/demo-photos/portrait-nikolai.jpg`
+- `app/static/demo-photos/portrait-patrick.jpg`
+- `app/static/demo-photos/portrait-rosa.jpg`
+- `app/static/demo-photos/portrait-sasha.jpg`
+- `app/static/demo-photos/portrait-sophie.jpg`
+- `app/static/demo-photos/portrait-tatiana.jpg`
+- `app/static/demo-photos/portrait-viktor.jpg`
+- `app/static/demo-photos/portrait-wei.jpg`
+- `app/static/demo-photos/portrait-yuki.jpg`
+- `app/static/demo-photos/summer-reunion.jpg`
+- `app/static/demo-photos/woodworking-chair.jpg`
 - `app/static/manifest.json`
 - `app/static/sw.js`
 - `app/templates/admin.html`
@@ -1041,6 +1425,7 @@
 - `app/templates/partials/people_grid.html`
 - `app/templates/partials/person_history.html`
 - `app/templates/partials/person_sidebar.html`
+- `app/templates/partials/theme_head.html`
 - `app/templates/people.html`
 - `app/templates/person.html`
 - `app/templates/person_edit.html`
@@ -1058,6 +1443,7 @@
 - `tests/test_api.py`
 - `tests/test_auth.py`
 - `tests/test_comments.py`
+- `tests/test_config.py`
 - `tests/test_media.py`
 - `tests/test_models.py`
 - `tests/test_moments.py`
@@ -1066,8 +1452,8 @@
 - `tests/test_reactions.py`
 - `tests/test_revision_service.py`
 - `tests/test_schema_models.py`
-- `tests/test_security_guardrails.py`
+- `tests/test_theme.py`
 
 ---
 
-*Generated by CodeMap on 2026-03-24 02:50 UTC. Estimated tokens: ~0 (0 words × 1.3). ACE ratio: N/A.*
+*Generated by CodeMap on 2026-03-24 03:05 UTC. Estimated tokens: ~0 (0 words × 1.3). ACE ratio: N/A.*
