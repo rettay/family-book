@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S09 - Accessibility and Interaction Hardening`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -95,7 +95,7 @@ Execution slices:
 - `S08-2` Staging Acceptance Contract
 - `S08-3` Release Evidence and Promotion Gate
 
-## Planned Sprint `S09 - Accessibility and Interaction Hardening`
+## Closed Sprint `S09 - Accessibility and Interaction Hardening`
 
 Sprint goal:
 - Fix the highest-severity UI/UX and accessibility issues from the recent code review so the core Family Book flows are keyboard reachable, overlays behave correctly, dynamic updates communicate state, and core forms become easier to use.
@@ -104,7 +104,7 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-012 | Accessibility and Interaction Hardening | P1 | planned | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |
+| FB-012 | Accessibility and Interaction Hardening | P1 | done | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |
 
 Execution slices:
 - `S09-1` Dialog and Focus Contract

@@ -4,7 +4,7 @@
 
 ### S09-1 Dialog and Focus Contract
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   turn the current modal/sidebar/lightbox behavior into a consistent accessibility contract
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S09-2 Keyboard and Semantic Interaction Hardening
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   eliminate mouse-only interaction from high-value controls and visualizations
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S09-3 Dynamic Feedback and Form Usability
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make dynamic content updates and core forms self-explanatory during use

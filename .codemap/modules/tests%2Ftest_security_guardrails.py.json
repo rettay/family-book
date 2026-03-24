@@ -1,7 +1,7 @@
 {
   "id": "tests/test_security_guardrails.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T03:06:52.617505+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "b198d440",
   "staleness": false,
   "purpose": null,
@@ -142,6 +142,14 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
+            },
+            {
               "line_start": 26,
               "line_end": 26
             },
@@ -152,14 +160,6 @@
             {
               "line_start": 33,
               "line_end": 33
-            },
-            {
-              "line_start": 34,
-              "line_end": 34
-            },
-            {
-              "line_start": 35,
-              "line_end": 35
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -876,7 +876,7 @@
     ],
     "purity": "filesystem",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 2,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -885,10 +885,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 1.0,
     "bus_factor": 1,
     "author_count": 1,
-    "last_modified": "2026-03-23T21:12:49-04:00",
+    "last_modified": "2026-03-23T23:07:35-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": true,

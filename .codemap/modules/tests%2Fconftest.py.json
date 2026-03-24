@@ -1,7 +1,7 @@
 {
   "id": "tests/conftest.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "066a1447",
   "staleness": false,
   "purpose": null,
@@ -142,20 +142,20 @@
               "line_end": 57
             },
             {
-              "line_start": 52,
-              "line_end": 52
-            },
-            {
-              "line_start": 57,
-              "line_end": 57
-            },
-            {
               "line_start": 51,
               "line_end": 51
             },
             {
               "line_start": 56,
               "line_end": 56
+            },
+            {
+              "line_start": 52,
+              "line_end": 52
+            },
+            {
+              "line_start": 57,
+              "line_end": 57
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -250,6 +250,14 @@
               "line_end": 131
             },
             {
+              "line_start": 110,
+              "line_end": 120
+            },
+            {
+              "line_start": 121,
+              "line_end": 131
+            },
+            {
               "line_start": 136,
               "line_end": 136
             },
@@ -260,14 +268,6 @@
             {
               "line_start": 139,
               "line_end": 139
-            },
-            {
-              "line_start": 110,
-              "line_end": 120
-            },
-            {
-              "line_start": 121,
-              "line_end": 131
             },
             {
               "line_start": 110,

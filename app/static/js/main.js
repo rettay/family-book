@@ -20,11 +20,21 @@ function rememberOverlayState(overlay) {
   return overlay.__fbOverlayState;
 }
 
+function replaceNodeChildrenFromHTML(target, html) {
+  if (!target) return;
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(html, 'text/html');
+  var nodes = Array.prototype.slice.call(doc.body.childNodes).map(function(node) {
+    return document.importNode(node, true);
+  });
+  target.replaceChildren.apply(target, nodes);
+}
+
 function openAccessibleOverlay(overlay, options) {
   if (!overlay) return;
   var opts = options || {};
   var state = rememberOverlayState(overlay);
-  state.returnFocusTo = document.activeElement;
+  state.returnFocusTo = opts.returnFocus || document.activeElement;
   state.options = opts;
   overlay.hidden = false;
   overlay.classList.remove('hidden');
@@ -65,6 +75,7 @@ function closeAccessibleOverlay(overlay) {
 
 window.openAccessibleOverlay = openAccessibleOverlay;
 window.closeAccessibleOverlay = closeAccessibleOverlay;
+window.replaceNodeChildrenFromHTML = replaceNodeChildrenFromHTML;
 
 document.addEventListener('keydown', function(e) {
   var activeOverlay = overlayStack[overlayStack.length - 1];
@@ -291,7 +302,7 @@ async function uploadMedia() {
         try {
           var partialResp = await fetch('/partials/media-gallery?person_id=' + encodeURIComponent(match[1]));
           if (partialResp.ok) {
-            gallery.innerHTML = await partialResp.text();
+            replaceNodeChildrenFromHTML(gallery, await partialResp.text());
           }
         } finally {
           gallery.setAttribute('aria-busy', 'false');

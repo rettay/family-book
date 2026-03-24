@@ -1,7 +1,7 @@
 {
   "id": "app/services/google_auth.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "0e9034a1",
   "staleness": false,
   "purpose": null,
@@ -227,30 +227,6 @@
               "line_end": 34
             },
             {
-              "line_start": 40,
-              "line_end": 40
-            },
-            {
-              "line_start": 42,
-              "line_end": 42
-            },
-            {
-              "line_start": 43,
-              "line_end": 43
-            },
-            {
-              "line_start": 40,
-              "line_end": 40
-            },
-            {
-              "line_start": 42,
-              "line_end": 42
-            },
-            {
-              "line_start": 43,
-              "line_end": 43
-            },
-            {
               "line_start": 16,
               "line_end": 17
             },
@@ -261,6 +237,30 @@
             {
               "line_start": 35,
               "line_end": 36
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 43
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 43
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -325,7 +325,7 @@
     "bus_factor": 1,
     "author_count": 1,
     "last_modified": "2026-03-22T23:40:48-04:00",
-    "recency_score": 1.0,
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -339,11 +339,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.85,
-  "attention_score": 0.1,
-  "centrality_score": 0.07,
+  "attention_score": 0.09,
+  "centrality_score": 0.06,
   "quality_radar": {
-    "understandability": 0.68,
-    "changeability": 0.96,
+    "understandability": 0.71,
+    "changeability": 0.97,
     "correctness": 1.0,
     "security": 1.0,
     "stability": 0.5

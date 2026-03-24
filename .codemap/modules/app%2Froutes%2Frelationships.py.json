@@ -1,7 +1,7 @@
 {
   "id": "app/routes/relationships.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "0c358070",
   "staleness": false,
   "purpose": null,
@@ -217,18 +217,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 114,
-              "line_end": 114
-            },
-            {
-              "line_start": 114,
-              "line_end": 114
-            },
-            {
-              "line_start": 114,
-              "line_end": 114
-            },
-            {
               "line_start": 79,
               "line_end": 79
             },
@@ -251,6 +239,18 @@
             {
               "line_start": 111,
               "line_end": 111
+            },
+            {
+              "line_start": 114,
+              "line_end": 114
+            },
+            {
+              "line_start": 114,
+              "line_end": 114
+            },
+            {
+              "line_start": 114,
+              "line_end": 114
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -428,7 +428,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 3,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
@@ -452,10 +452,10 @@
       "_would_create_ancestry_cycle"
     ],
     "package": null,
-    "change_velocity": 0.5,
-    "bus_factor": 1,
+    "change_velocity": 1.0,
+    "bus_factor": 2,
     "author_count": 2,
-    "last_modified": "2026-03-23T16:57:43-04:00",
+    "last_modified": "2026-03-23T21:12:49-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -469,14 +469,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.21,
-  "centrality_score": 0.0,
+  "attention_score": 0.3,
+  "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.4,
+    "understandability": 0.32,
     "changeability": 0.97,
     "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.6
+    "stability": 0.4
   },
   "domain_role": "utility",
   "detected_patterns": null,

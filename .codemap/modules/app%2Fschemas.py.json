@@ -1,7 +1,7 @@
 {
   "id": "app/schemas.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:11:24.443401+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "cd1d1b5a",
   "staleness": false,
   "purpose": null,
@@ -14,12 +14,16 @@
     "imports": [],
     "imported_by": [
       "app/access_control.py",
+      "app/routes/demo.py",
       "app/routes/pages.py",
       "app/routes/persons.py",
       "app/routes/relationships.py",
-      "app/routes/tree.py"
+      "app/routes/tree.py",
+      "tests/test_schema_models.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/test_schema_models.py"
+    ]
   },
   "exports": [
     {
@@ -275,7 +279,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 3,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -297,11 +301,11 @@
       "person_to_summary"
     ],
     "package": null,
-    "change_velocity": 2.0,
+    "change_velocity": 3.0,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T11:44:52-04:00",
-    "recency_score": 1.0,
+    "last_modified": "2026-03-23T13:13:31-04:00",
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -314,17 +318,17 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.7,
-  "attention_score": 0.28,
-  "centrality_score": 1.0,
+  "testability_score": 1.0,
+  "attention_score": 0.2,
+  "centrality_score": 0.29,
   "quality_radar": {
-    "understandability": 0.85,
-    "changeability": 0.59,
-    "correctness": 0.5,
-    "security": 0.8,
-    "stability": 0.4
+    "understandability": 0.8,
+    "changeability": 0.9,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.3
   },
-  "domain_role": "core",
+  "domain_role": "utility",
   "detected_patterns": null,
   "detected_anti_patterns": null,
   "agent_briefing": null

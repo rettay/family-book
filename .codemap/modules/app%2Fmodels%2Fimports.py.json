@@ -1,7 +1,7 @@
 {
   "id": "app/models/imports.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "84cd684f",
   "staleness": false,
   "purpose": null,
@@ -326,10 +326,10 @@
   },
   "testability_score": 0.7,
   "attention_score": 0.14,
-  "centrality_score": 0.14,
+  "centrality_score": 0.11,
   "quality_radar": {
-    "understandability": 0.81,
-    "changeability": 0.66,
+    "understandability": 0.9,
+    "changeability": 0.67,
     "correctness": 0.5,
     "security": 1.0,
     "stability": 0.65

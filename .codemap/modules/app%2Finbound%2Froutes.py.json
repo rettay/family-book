@@ -1,7 +1,7 @@
 {
   "id": "app/inbound/routes.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "89d5a68b",
   "staleness": false,
   "purpose": null,
@@ -138,40 +138,16 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 133,
-              "line_end": 133
+              "line_start": 58,
+              "line_end": 58
             },
             {
-              "line_start": 135,
-              "line_end": 135
+              "line_start": 66,
+              "line_end": 66
             },
             {
-              "line_start": 62,
-              "line_end": 62
-            },
-            {
-              "line_start": 70,
-              "line_end": 70
-            },
-            {
-              "line_start": 71,
-              "line_end": 71
-            },
-            {
-              "line_start": 129,
-              "line_end": 129
-            },
-            {
-              "line_start": 144,
-              "line_end": 144
-            },
-            {
-              "line_start": 132,
-              "line_end": 133
-            },
-            {
-              "line_start": 134,
-              "line_end": 135
+              "line_start": 80,
+              "line_end": 83
             },
             {
               "line_start": 71,
@@ -186,28 +162,20 @@
               "line_end": 93
             },
             {
-              "line_start": 58,
-              "line_end": 58
+              "line_start": 133,
+              "line_end": 133
             },
             {
-              "line_start": 66,
-              "line_end": 66
+              "line_start": 135,
+              "line_end": 135
             },
             {
-              "line_start": 80,
-              "line_end": 83
+              "line_start": 129,
+              "line_end": 129
             },
             {
-              "line_start": 70,
-              "line_end": 70
-            },
-            {
-              "line_start": 71,
-              "line_end": 71
-            },
-            {
-              "line_start": 89,
-              "line_end": 89
+              "line_start": 144,
+              "line_end": 144
             },
             {
               "line_start": 133,
@@ -226,6 +194,18 @@
               "line_end": 69
             },
             {
+              "line_start": 70,
+              "line_end": 70
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
+            },
+            {
               "line_start": 58,
               "line_end": 58
             },
@@ -238,6 +218,22 @@
               "line_end": 83
             },
             {
+              "line_start": 97,
+              "line_end": 97
+            },
+            {
+              "line_start": 101,
+              "line_end": 101
+            },
+            {
+              "line_start": 132,
+              "line_end": 133
+            },
+            {
+              "line_start": 134,
+              "line_end": 135
+            },
+            {
               "line_start": 133,
               "line_end": 133
             },
@@ -246,12 +242,16 @@
               "line_end": 135
             },
             {
-              "line_start": 97,
-              "line_end": 97
+              "line_start": 62,
+              "line_end": 62
             },
             {
-              "line_start": 101,
-              "line_end": 101
+              "line_start": 70,
+              "line_end": 70
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -384,10 +384,10 @@
   },
   "testability_score": 0.2,
   "attention_score": 0.5,
-  "centrality_score": 0.14,
+  "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.28,
-    "changeability": 0.68,
+    "understandability": 0.23,
+    "changeability": 0.69,
     "correctness": 0.5,
     "security": 0.88,
     "stability": 0.4

@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S09 - Accessibility and Interaction Hardening`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,7 +18,7 @@ The latest review found concrete operability failures in the current UI: modal/s
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 11 | FB-012 | Accessibility and Interaction Hardening | P1 | planned |
+| 11 | FB-012 | Accessibility and Interaction Hardening | P1 | done |
 
 ### Follow-On Candidate
 
@@ -44,6 +44,26 @@ The sprint is successful when all are true:
 - HTMX-driven updates and core forms communicate state more clearly
 - browser verification demonstrates real improvement in the main flows
 - the sprint closes the highest-severity review findings without drifting into redesign work
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 09 accessibility fixes and a follow-up quick-win DOM replacement cleanup on `main`
+- Auditor identified focus-return, browser-harness reporting, and proof-obligation gaps in the first review
+- Builder corrected those issues and the final audit accepted the sprint for closeout
+- Focused closeout baseline:
+  - `uv run pytest tests/test_pages.py tests/test_theme.py -q`
+  - result: `14 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `19 PASS`, `0 FAIL`, `6 WARN`
+
+## Recommended Next Sprint
+
+- `S10 - Readability and Responsive Polish`
+- Primary packet candidate: `FB-013 Readability and Responsive Polish`
+- Rationale: the highest-severity operability failures are now closed, so the next highest-value UX work is improving readability, touch comfort, and small-screen scanability without reopening major architecture or access-control scope.
 
 ## Closed Sprint
 

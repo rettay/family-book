@@ -1,7 +1,7 @@
 {
   "id": "app/seed.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "471ee8f6",
   "staleness": false,
   "purpose": null,
@@ -242,30 +242,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 26,
-              "line_end": 26
-            },
-            {
-              "line_start": 44,
-              "line_end": 44
-            },
-            {
-              "line_start": 51,
-              "line_end": 51
-            },
-            {
-              "line_start": 26,
-              "line_end": 26
-            },
-            {
-              "line_start": 44,
-              "line_end": 44
-            },
-            {
-              "line_start": 51,
-              "line_end": 51
-            },
-            {
               "line_start": 25,
               "line_end": 25
             },
@@ -278,44 +254,24 @@
               "line_end": 50
             },
             {
-              "line_start": 45,
-              "line_end": 47
-            },
-            {
-              "line_start": 52,
-              "line_end": 54
-            },
-            {
-              "line_start": 26,
-              "line_end": 26
-            },
-            {
-              "line_start": 44,
-              "line_end": 44
-            },
-            {
-              "line_start": 51,
-              "line_end": 51
-            },
-            {
-              "line_start": 26,
-              "line_end": 26
-            },
-            {
-              "line_start": 44,
-              "line_end": 44
-            },
-            {
-              "line_start": 51,
-              "line_end": 51
-            },
-            {
               "line_start": 43,
               "line_end": 47
             },
             {
               "line_start": 50,
               "line_end": 54
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 44,
+              "line_end": 44
+            },
+            {
+              "line_start": 51,
+              "line_end": 51
             },
             {
               "line_start": 46,
@@ -326,11 +282,55 @@
               "line_end": 53
             },
             {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 44,
+              "line_end": 44
+            },
+            {
+              "line_start": 51,
+              "line_end": 51
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 44,
+              "line_end": 44
+            },
+            {
+              "line_start": 51,
+              "line_end": 51
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 44,
+              "line_end": 44
+            },
+            {
+              "line_start": 51,
+              "line_end": 51
+            },
+            {
               "line_start": 44,
               "line_end": 47
             },
             {
               "line_start": 51,
+              "line_end": 54
+            },
+            {
+              "line_start": 45,
+              "line_end": 47
+            },
+            {
+              "line_start": 52,
               "line_end": 54
             },
             {
@@ -389,7 +389,7 @@
     ],
     "purity": "filesystem",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
@@ -408,11 +408,11 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 0.33,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-16T18:59:37+01:00",
-    "recency_score": 0.96,
+    "author_count": 2,
+    "last_modified": "2026-03-23T19:23:45-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -428,11 +428,11 @@
   "attention_score": null,
   "centrality_score": null,
   "quality_radar": {
-    "understandability": 0.54,
+    "understandability": 0.58,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,
-    "stability": 0.6
+    "stability": 0.4
   },
   "domain_role": "utility",
   "detected_patterns": null,

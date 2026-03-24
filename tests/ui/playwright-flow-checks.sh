@@ -157,9 +157,8 @@ assert_run "protected page redirects anonymous browser to login" \
 assert_run "authenticated home feed shows seeded story" \
   "${PWCLI}" run-code "async page => { if (!await page.locator('#moments-feed').getByText('Seeded family story').count()) throw new Error('missing seeded story'); }"
 
-"${PWCLI}" run-code "async page => { await page.locator('#compose-details-button').focus(); await page.keyboard.press('Enter'); await page.locator('#compose-modal[aria-hidden=\"false\"]').waitFor(); await page.waitForFunction(() => document.activeElement && document.activeElement.id === 'compose-kind'); await page.keyboard.press('Escape'); await page.waitForFunction(() => document.getElementById('compose-modal')?.hidden === true); await page.waitForFunction(() => document.activeElement && document.activeElement.id === 'compose-details-button'); }"
 assert_run "compose modal supports keyboard open, focus, and escape close" \
-  "${PWCLI}" run-code "async page => { if (!await page.locator('#compose-modal[hidden]').count()) throw new Error('compose modal did not close'); }"
+  "${PWCLI}" run-code "async page => { await page.locator('#compose-details-button').focus(); await page.keyboard.press('Enter'); await page.locator('#compose-modal[aria-hidden=\"false\"]').waitFor(); await page.waitForFunction(() => document.activeElement && document.activeElement.id === 'compose-kind'); await page.keyboard.press('Escape'); await page.waitForFunction(() => document.getElementById('compose-modal')?.hidden === true); await page.waitForFunction(() => document.activeElement && document.activeElement.id === 'compose-details-button'); if (!await page.locator('#compose-modal[hidden]').count()) throw new Error('compose modal did not close'); }"
 
 "${PWCLI}" run-code "async page => { await page.locator('#compose-input').fill('Playwright quick note'); await page.locator('#compose-send-button').click(); await page.waitForLoadState('networkidle'); }"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Playwright quick note').waitFor(); }"
@@ -219,9 +218,8 @@ assert_run "person timeline shows tagged or owned story" \
 assert_run "tree page renders data" \
   "${PWCLI}" run-code "async page => { const status = await page.locator('#tree-status').textContent(); if (!status || !status.match(/\\d+/)) throw new Error('tree status missing count'); }"
 
-"${PWCLI}" run-code "async page => { const node = page.locator('#tree-svg [role=\"button\"]').first(); await node.focus(); await page.keyboard.press('Enter'); await page.locator('#person-sidebar:not([hidden])').waitFor(); await page.keyboard.press('Escape'); await page.waitForFunction(() => document.getElementById('person-sidebar')?.hidden === true); }"
 assert_run "tree node supports keyboard open and escape close" \
-  "${PWCLI}" run-code "async page => { if (!await page.locator('#person-sidebar[hidden]').count()) throw new Error('tree sidebar did not close'); }"
+  "${PWCLI}" run-code "async page => { const node = page.locator('#tree-svg [role=\"button\"]').first(); await node.focus(); await page.keyboard.press('Enter'); await page.locator('#person-sidebar:not([hidden])').waitFor(); await page.keyboard.press('Escape'); await page.waitForFunction(() => document.getElementById('person-sidebar')?.hidden === true); if (!await page.locator('#person-sidebar[hidden]').count()) throw new Error('tree sidebar did not close'); }"
 
 "${PWCLI}" run-code "async page => { await page.locator('#tree-filter-branch').fill('martin'); await page.locator('#apply-tree-filters').click(); await page.waitForTimeout(1200); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/tree-filtered.png" --full-page true >/dev/null
@@ -236,9 +234,8 @@ assert_run "tree filters can be applied in-browser" \
 assert_run "map page renders at least one marker" \
   "${PWCLI}" run-code "async page => { if (await page.locator('#map-svg g').count() === 0) throw new Error('no map markers'); }"
 
-"${PWCLI}" run-code "async page => { const marker = page.locator('#map-svg [role=\"link\"]').first(); await marker.focus(); await page.keyboard.press('Enter'); await page.waitForURL(/\\/people\\//); }"
 assert_run "map marker supports keyboard navigation" \
-  "${PWCLI}" run-code "async page => { if (!page.url().includes('/people/')) throw new Error('map keyboard navigation failed'); }"
+  "${PWCLI}" run-code "async page => { const marker = page.locator('#map-svg [role=\"link\"]').first(); await marker.focus(); await page.keyboard.press('Enter'); await page.waitForURL(/\\/people\\//); if (!page.url().includes('/people/')) throw new Error('map keyboard navigation failed'); }"
 
 "${PWCLI}" goto "${BASE_URL}/map"
 "${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(800); }"

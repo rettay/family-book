@@ -1,7 +1,7 @@
 {
   "id": "app/auth.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "072e0b8d",
   "staleness": false,
   "purpose": null,
@@ -192,7 +192,7 @@
     "bus_factor": 2,
     "author_count": 2,
     "last_modified": "2026-03-22T23:40:48-04:00",
-    "recency_score": 1.0,
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -205,11 +205,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.33,
-  "centrality_score": 0.34,
+  "attention_score": 0.3,
+  "centrality_score": 0.29,
   "quality_radar": {
-    "understandability": 0.95,
-    "changeability": 0.51,
+    "understandability": 0.97,
+    "changeability": 0.57,
     "correctness": 0.5,
     "security": 1.0,
     "stability": 0.45

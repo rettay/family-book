@@ -1,7 +1,7 @@
 {
   "id": "app/routes/__init__.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "e3b0c442",
   "staleness": false,
   "purpose": null,
@@ -63,7 +63,7 @@
   "centrality_score": 0.0,
   "quality_radar": {
     "understandability": 1.0,
-    "changeability": 0.94,
+    "changeability": 0.96,
     "correctness": 1.0,
     "security": 1.0,
     "stability": 0.65

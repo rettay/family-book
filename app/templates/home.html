@@ -51,7 +51,7 @@
 
 <!-- Compose bar -->
 <div class="compose-bar" id="compose-bar">
-  <button type="button" class="compose-bar__photo-btn" onclick="document.getElementById('compose-file').click()" aria-label="Add media">&#128247;</button>
+  <button type="button" class="compose-bar__photo-btn" id="compose-photo-button" onclick="document.getElementById('compose-file').click()" aria-label="Add media">&#128247;</button>
   <input type="file" id="compose-file" accept="image/*,video/*" multiple onchange="handleComposeFile(this)">
   <label class="sr-only" for="compose-input">{{ t('moments.share') }}</label>
   <input type="text" class="compose-bar__input" id="compose-input"
@@ -157,11 +157,11 @@ function handleComposeFile(input) {
     }
   }
   if (COMPOSE_FILES.length > 0) {
-    openComposeModal();
+    openComposeModal(null, document.getElementById('compose-photo-button'));
   }
 }
 
-function openComposeModal(defaultPersonId = null) {
+function openComposeModal(defaultPersonId = null, returnFocusEl = null) {
   const modal = document.getElementById('compose-modal');
   const quickInput = document.getElementById('compose-input');
   clearComposeError();
@@ -173,7 +173,7 @@ function openComposeModal(defaultPersonId = null) {
     document.getElementById('compose-person').value = defaultPersonId;
   }
   toggleMilestoneFields();
-  window.openAccessibleOverlay(modal, {initialFocus: '#compose-kind'});
+  window.openAccessibleOverlay(modal, {initialFocus: '#compose-kind', returnFocus: returnFocusEl});
 }
 
 function closeComposeModal() {
@@ -351,7 +351,7 @@ async function refreshMomentsFeed() {
     if (kind) params.set('kind', kind);
     const resp = await fetch(`/partials/moments${params.toString() ? `?${params.toString()}` : ''}`);
     if (!resp.ok) throw new Error('Could not refresh moments');
-    container.innerHTML = await resp.text();
+    window.replaceNodeChildrenFromHTML(container, await resp.text());
   } finally {
     container.setAttribute('aria-busy', 'false');
   }

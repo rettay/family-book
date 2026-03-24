@@ -1,7 +1,7 @@
 {
   "id": "alembic/versions/75d48eb17ca2_initial_schema.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "805b8321",
   "staleness": false,
   "purpose": null,
@@ -2968,16 +2968,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 25,
-              "line_end": 25
+              "line_start": 91,
+              "line_end": 91
             },
             {
-              "line_start": 26,
-              "line_end": 26
-            },
-            {
-              "line_start": 27,
-              "line_end": 27
+              "line_start": 313,
+              "line_end": 313
             },
             {
               "line_start": 122,
@@ -2992,6 +2988,26 @@
               "line_end": 139
             },
             {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 32,
+              "line_end": 32
+            },
+            {
+              "line_start": 317,
+              "line_end": 327
+            },
+            {
+              "line_start": 338,
+              "line_end": 348
+            },
+            {
               "line_start": 25,
               "line_end": 25
             },
@@ -3004,24 +3020,16 @@
               "line_end": 27
             },
             {
-              "line_start": 93,
-              "line_end": 93
+              "line_start": 273,
+              "line_end": 273
             },
             {
-              "line_start": 94,
-              "line_end": 94
+              "line_start": 293,
+              "line_end": 293
             },
             {
-              "line_start": 30,
-              "line_end": 30
-            },
-            {
-              "line_start": 31,
-              "line_end": 31
-            },
-            {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 294,
+              "line_end": 294
             },
             {
               "line_start": 91,
@@ -3030,66 +3038,6 @@
             {
               "line_start": 313,
               "line_end": 313
-            },
-            {
-              "line_start": 30,
-              "line_end": 30
-            },
-            {
-              "line_start": 31,
-              "line_end": 31
-            },
-            {
-              "line_start": 32,
-              "line_end": 32
-            },
-            {
-              "line_start": 92,
-              "line_end": 92
-            },
-            {
-              "line_start": 314,
-              "line_end": 314
-            },
-            {
-              "line_start": 315,
-              "line_end": 315
-            },
-            {
-              "line_start": 25,
-              "line_end": 25
-            },
-            {
-              "line_start": 26,
-              "line_end": 26
-            },
-            {
-              "line_start": 27,
-              "line_end": 27
-            },
-            {
-              "line_start": 151,
-              "line_end": 151
-            },
-            {
-              "line_start": 326,
-              "line_end": 326
-            },
-            {
-              "line_start": 347,
-              "line_end": 347
-            },
-            {
-              "line_start": 92,
-              "line_end": 92
-            },
-            {
-              "line_start": 314,
-              "line_end": 314
-            },
-            {
-              "line_start": 315,
-              "line_end": 315
             },
             {
               "line_start": 151,
@@ -3128,12 +3076,24 @@
               "line_end": 139
             },
             {
-              "line_start": 91,
-              "line_end": 91
+              "line_start": 93,
+              "line_end": 93
             },
             {
-              "line_start": 313,
-              "line_end": 313
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
             },
             {
               "line_start": 317,
@@ -3144,12 +3104,16 @@
               "line_end": 348
             },
             {
-              "line_start": 91,
-              "line_end": 91
+              "line_start": 30,
+              "line_end": 30
             },
             {
-              "line_start": 313,
-              "line_end": 313
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 32,
+              "line_end": 32
             },
             {
               "line_start": 93,
@@ -3158,6 +3122,70 @@
             {
               "line_start": 94,
               "line_end": 94
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 313,
+              "line_end": 313
+            },
+            {
+              "line_start": 151,
+              "line_end": 151
+            },
+            {
+              "line_start": 326,
+              "line_end": 326
+            },
+            {
+              "line_start": 347,
+              "line_end": 347
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 314,
+              "line_end": 314
+            },
+            {
+              "line_start": 315,
+              "line_end": 315
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 314,
+              "line_end": 314
+            },
+            {
+              "line_start": 315,
+              "line_end": 315
             },
             {
               "line_start": 273,
@@ -3170,34 +3198,6 @@
             {
               "line_start": 294,
               "line_end": 294
-            },
-            {
-              "line_start": 273,
-              "line_end": 273
-            },
-            {
-              "line_start": 293,
-              "line_end": 293
-            },
-            {
-              "line_start": 294,
-              "line_end": 294
-            },
-            {
-              "line_start": 317,
-              "line_end": 327
-            },
-            {
-              "line_start": 338,
-              "line_end": 348
-            },
-            {
-              "line_start": 93,
-              "line_end": 93
-            },
-            {
-              "line_start": 94,
-              "line_end": 94
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -3230,6 +3230,22 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 392,
+              "line_end": 392
+            },
+            {
+              "line_start": 393,
+              "line_end": 393
+            },
+            {
+              "line_start": 392,
+              "line_end": 392
+            },
+            {
+              "line_start": 393,
+              "line_end": 393
+            },
+            {
               "line_start": 373,
               "line_end": 373
             },
@@ -3244,6 +3260,14 @@
             {
               "line_start": 393,
               "line_end": 393
+            },
+            {
+              "line_start": 373,
+              "line_end": 373
+            },
+            {
+              "line_start": 391,
+              "line_end": 391
             },
             {
               "line_start": 369,
@@ -3256,30 +3280,6 @@
             {
               "line_start": 371,
               "line_end": 371
-            },
-            {
-              "line_start": 392,
-              "line_end": 392
-            },
-            {
-              "line_start": 393,
-              "line_end": 393
-            },
-            {
-              "line_start": 392,
-              "line_end": 392
-            },
-            {
-              "line_start": 393,
-              "line_end": 393
-            },
-            {
-              "line_start": 373,
-              "line_end": 373
-            },
-            {
-              "line_start": 391,
-              "line_end": 391
             },
             {
               "line_start": 373,

@@ -1,7 +1,7 @@
 {
   "id": "app/models/settings.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "4379660a",
   "staleness": false,
   "purpose": null,
@@ -123,16 +123,16 @@
     "outlier_identifiers": null
   },
   "testability_score": 1.0,
-  "attention_score": 0.01,
-  "centrality_score": 1.0,
+  "attention_score": 0.0,
+  "centrality_score": 0.2,
   "quality_radar": {
     "understandability": 0.98,
-    "changeability": 0.63,
+    "changeability": 0.66,
     "correctness": 1.0,
     "security": 1.0,
     "stability": 0.35
   },
-  "domain_role": "core",
+  "domain_role": "utility",
   "detected_patterns": null,
   "detected_anti_patterns": null,
   "agent_briefing": null

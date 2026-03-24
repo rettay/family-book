@@ -1,7 +1,8 @@
 import pytest
+from fastapi import Request
 from httpx import AsyncClient
 
-from app.routes import pages as pages_routes
+import app.routes.pages as pages_routes
 
 TYLER_ID = "tyler-000-0000-0000-000000000002"
 
@@ -78,3 +79,12 @@ async def test_person_edit_page_renders_labeled_fields_and_inline_error_containe
 
 def test_pages_router_exports_routes():
     assert pages_routes.router.routes
+
+
+def test_pages_helper_functions_cover_locale_and_flags():
+    scope = {"type": "http", "headers": [], "method": "GET", "path": "/"}
+    request = Request(scope)
+    request._cookies = {"locale": "es"}
+
+    assert pages_routes._get_locale(request) == "es"
+    assert pages_routes._country_flag("US") == "🇺🇸"

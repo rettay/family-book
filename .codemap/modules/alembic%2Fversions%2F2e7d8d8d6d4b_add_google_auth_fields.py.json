@@ -1,7 +1,7 @@
 {
   "id": "alembic/versions/2e7d8d8d6d4b_add_google_auth_fields.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "d1d6b545",
   "staleness": false,
   "purpose": null,
@@ -246,7 +246,7 @@
     "bus_factor": 1,
     "author_count": 1,
     "last_modified": "2026-03-22T23:40:48-04:00",
-    "recency_score": 1.0,
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 0.6667,
@@ -261,7 +261,7 @@
   "attention_score": null,
   "centrality_score": null,
   "quality_radar": {
-    "understandability": 0.95,
+    "understandability": 0.97,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,

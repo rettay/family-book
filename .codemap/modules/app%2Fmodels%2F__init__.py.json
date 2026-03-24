@@ -1,7 +1,7 @@
 {
   "id": "app/models/__init__.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "1b5c0d19",
   "staleness": false,
   "purpose": null,
@@ -247,11 +247,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 1.0,
-  "attention_score": 0.18,
-  "centrality_score": 0.14,
+  "attention_score": 0.17,
+  "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.98,
-    "changeability": 0.93,
+    "understandability": 0.96,
+    "changeability": 0.96,
     "correctness": 1.0,
     "security": 1.0,
     "stability": 0.3

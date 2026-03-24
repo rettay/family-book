@@ -1,7 +1,7 @@
 {
   "id": "app/config.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "9dcb6a3a",
   "staleness": false,
   "purpose": null,
@@ -30,9 +30,11 @@
       "app/services/field_protection.py",
       "app/services/google_auth.py",
       "app/services/media_service.py",
+      "tests/test_config.py",
       "tests/test_media.py"
     ],
     "tested_by": [
+      "tests/test_config.py",
       "tests/test_media.py"
     ]
   },
@@ -265,11 +267,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.65,
-  "attention_score": 0.47,
-  "centrality_score": 0.71,
+  "attention_score": 0.42,
+  "centrality_score": 0.89,
   "quality_radar": {
-    "understandability": 0.56,
-    "changeability": 0.6,
+    "understandability": 0.53,
+    "changeability": 0.72,
     "correctness": 1.0,
     "security": 0.88,
     "stability": 0.3

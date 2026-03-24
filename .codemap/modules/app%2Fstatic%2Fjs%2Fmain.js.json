@@ -1,13 +1,13 @@
 {
   "id": "app/static/js/main.js",
   "language": "javascript",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
-  "source_hash": "66d45cfd",
+  "analyzed_at": "2026-03-24T18:42:07.341333+00:00",
+  "source_hash": "6d9ada8f",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 23,
-    "lines": 133,
+    "cyclomatic": 85,
+    "lines": 346,
     "rating": "red"
   },
   "dependencies": {
@@ -18,20 +18,234 @@
   "exports": [],
   "constructs": [
     {
-      "name": "toggleNav",
+      "name": "getFocusableElements",
       "kind": "function",
-      "line": 4,
-      "signature": "()",
-      "complexity": 1,
+      "line": 5,
+      "signature": "(container)",
+      "complexity": 4,
       "calls": [
         {
-          "name": "document.getElementById('nav-links').classList.toggle",
-          "line": 5,
+          "name": "Array.prototype.slice.call(\n    container.querySelectorAll(\n      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type=\"hidden\"]), select:not([disabled]), [tabindex]:not([tabindex=\"-1\"])'\n    )\n  ).filter",
+          "line": 7,
           "module_hint": null
         },
         {
+          "name": "Array.prototype.slice.call",
+          "line": 7,
+          "module_hint": null
+        },
+        {
+          "name": "container.querySelectorAll",
+          "line": 8,
+          "module_hint": null
+        },
+        {
+          "name": "el.closest",
+          "line": 12,
+          "module_hint": null
+        },
+        {
+          "name": "el.getClientRects",
+          "line": 12,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "rememberOverlayState",
+      "kind": "function",
+      "line": 16,
+      "signature": "(overlay)",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "replaceNodeChildrenFromHTML",
+      "kind": "function",
+      "line": 23,
+      "signature": "(target, html)",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "DOMParser",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "parser.parseFromString",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "Array.prototype.slice.call(doc.body.childNodes).map",
+          "line": 27,
+          "module_hint": null
+        },
+        {
+          "name": "Array.prototype.slice.call",
+          "line": 27,
+          "module_hint": null
+        },
+        {
+          "name": "document.importNode",
+          "line": 28,
+          "module_hint": null
+        },
+        {
+          "name": "target.replaceChildren.apply",
+          "line": 30,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "openAccessibleOverlay",
+      "kind": "function",
+      "line": 33,
+      "signature": "(overlay, options)",
+      "complexity": 9,
+      "calls": [
+        {
+          "name": "rememberOverlayState",
+          "line": 36,
+          "module_hint": null
+        },
+        {
+          "name": "overlay.classList.remove",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "overlay.setAttribute",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "overlayStack.filter",
+          "line": 42,
+          "module_hint": null
+        },
+        {
+          "name": "overlayStack.push",
+          "line": 43,
+          "module_hint": null
+        },
+        {
+          "name": "document.body.classList.add",
+          "line": 44,
+          "module_hint": null
+        },
+        {
+          "name": "overlay.querySelector",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "getFocusableElements",
+          "line": 51,
+          "module_hint": null
+        },
+        {
+          "name": "focusTarget.focus",
+          "line": 54,
+          "module_hint": null
+        },
+        {
+          "name": "window.setTimeout",
+          "line": 55,
+          "module_hint": null
+        },
+        {
+          "name": "focusTarget.focus",
+          "line": 56,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "closeAccessibleOverlay",
+      "kind": "function",
+      "line": 61,
+      "signature": "(overlay)",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "rememberOverlayState",
+          "line": 63,
+          "module_hint": null
+        },
+        {
+          "name": "overlay.classList.add",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "overlay.setAttribute",
+          "line": 66,
+          "module_hint": null
+        },
+        {
+          "name": "overlayStack.filter",
+          "line": 67,
+          "module_hint": null
+        },
+        {
+          "name": "document.body.classList.remove",
+          "line": 69,
+          "module_hint": null
+        },
+        {
+          "name": "state.returnFocusTo.focus",
+          "line": 72,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "toggleNav",
+      "kind": "function",
+      "line": 122,
+      "signature": "(forceOpen)",
+      "complexity": 8,
+      "calls": [
+        {
           "name": "document.getElementById",
-          "line": 5,
+          "line": 123,
+          "module_hint": null
+        },
+        {
+          "name": "document.querySelector",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "links.classList.contains",
+          "line": 127,
+          "module_hint": null
+        },
+        {
+          "name": "links.classList.toggle",
+          "line": 129,
+          "module_hint": null
+        },
+        {
+          "name": "links.setAttribute",
+          "line": 130,
+          "module_hint": null
+        },
+        {
+          "name": "links.classList.remove",
+          "line": 132,
+          "module_hint": null
+        },
+        {
+          "name": "links.removeAttribute",
+          "line": 133,
+          "module_hint": null
+        },
+        {
+          "name": "button.setAttribute",
+          "line": 136,
           "module_hint": null
         }
       ]
@@ -39,38 +253,38 @@
     {
       "name": "logout",
       "kind": "function",
-      "line": 16,
+      "line": 148,
       "signature": "()",
       "complexity": 6,
       "calls": [
         {
           "name": "fetch",
-          "line": 17,
+          "line": 149,
           "module_hint": null
         },
         {
           "name": "caches.keys",
-          "line": 20,
+          "line": 152,
           "module_hint": null
         },
         {
           "name": "Promise.all",
-          "line": 21,
+          "line": 153,
           "module_hint": null
         },
         {
           "name": "keys.map",
-          "line": 21,
+          "line": 153,
           "module_hint": null
         },
         {
           "name": "caches.delete",
-          "line": 21,
+          "line": 153,
           "module_hint": null
         },
         {
           "name": "google.accounts.id.disableAutoSelect",
-          "line": 25,
+          "line": 157,
           "module_hint": null
         }
       ]
@@ -78,33 +292,38 @@
     {
       "name": "showToast",
       "kind": "function",
-      "line": 31,
+      "line": 163,
       "signature": "(msg)",
       "complexity": 2,
       "calls": [
         {
           "name": "document.getElementById",
-          "line": 32,
+          "line": 164,
           "module_hint": null
         },
         {
           "name": "document.createElement",
-          "line": 34,
+          "line": 166,
+          "module_hint": null
+        },
+        {
+          "name": "toast.setAttribute",
+          "line": 168,
           "module_hint": null
         },
         {
           "name": "container.appendChild",
-          "line": 37,
+          "line": 170,
           "module_hint": null
         },
         {
           "name": "setTimeout",
-          "line": 38,
+          "line": 171,
           "module_hint": null
         },
         {
           "name": "toast.remove",
-          "line": 38,
+          "line": 171,
           "module_hint": null
         }
       ]
@@ -112,18 +331,28 @@
     {
       "name": "toggleReactionPicker",
       "kind": "function",
-      "line": 54,
-      "signature": "(momentId)",
-      "complexity": 2,
+      "line": 187,
+      "signature": "(momentId, trigger)",
+      "complexity": 4,
       "calls": [
         {
           "name": "document.getElementById",
-          "line": 55,
+          "line": 188,
+          "module_hint": null
+        },
+        {
+          "name": "el.classList.contains",
+          "line": 190,
           "module_hint": null
         },
         {
           "name": "el.classList.toggle",
-          "line": 56,
+          "line": 191,
+          "module_hint": null
+        },
+        {
+          "name": "trigger.setAttribute",
+          "line": 194,
           "module_hint": null
         }
       ]
@@ -131,28 +360,38 @@
     {
       "name": "toggleComments",
       "kind": "function",
-      "line": 60,
-      "signature": "(momentId)",
-      "complexity": 4,
+      "line": 199,
+      "signature": "(momentId, trigger)",
+      "complexity": 6,
       "calls": [
         {
           "name": "document.getElementById",
-          "line": 61,
-          "module_hint": null
-        },
-        {
-          "name": "el.classList.toggle",
-          "line": 63,
+          "line": 200,
           "module_hint": null
         },
         {
           "name": "el.classList.contains",
-          "line": 64,
+          "line": 202,
+          "module_hint": null
+        },
+        {
+          "name": "el.classList.toggle",
+          "line": 203,
+          "module_hint": null
+        },
+        {
+          "name": "trigger.setAttribute",
+          "line": 206,
+          "module_hint": null
+        },
+        {
+          "name": "el.setAttribute",
+          "line": 210,
           "module_hint": null
         },
         {
           "name": "htmx.trigger",
-          "line": 66,
+          "line": 211,
           "module_hint": null
         }
       ]
@@ -160,38 +399,63 @@
     {
       "name": "postComment",
       "kind": "function",
-      "line": 72,
+      "line": 217,
       "signature": "(e, momentId)",
-      "complexity": 3,
+      "complexity": 6,
       "calls": [
         {
           "name": "e.preventDefault",
-          "line": 73,
+          "line": 218,
           "module_hint": null
         },
         {
           "name": "e.target.querySelector",
-          "line": 74,
+          "line": 219,
+          "module_hint": null
+        },
+        {
+          "name": "document.getElementById",
+          "line": 220,
           "module_hint": null
         },
         {
           "name": "input.value.trim",
-          "line": 75,
+          "line": 221,
+          "module_hint": null
+        },
+        {
+          "name": "statusNode.classList.add",
+          "line": 225,
           "module_hint": null
         },
         {
           "name": "fetch",
-          "line": 79,
+          "line": 229,
           "module_hint": null
         },
         {
           "name": "JSON.stringify",
-          "line": 82,
+          "line": 232,
           "module_hint": null
         },
         {
           "name": "htmx.ajax",
-          "line": 87,
+          "line": 237,
+          "module_hint": null
+        },
+        {
+          "name": "resp.json().catch",
+          "line": 239,
+          "module_hint": null
+        },
+        {
+          "name": "resp.json",
+          "line": 239,
+          "module_hint": null
+        },
+        {
+          "name": "statusNode.classList.remove",
+          "line": 241,
           "module_hint": null
         }
       ]
@@ -199,53 +463,103 @@
     {
       "name": "openLightbox",
       "kind": "function",
-      "line": 95,
-      "signature": "(url)",
-      "complexity": 1,
+      "line": 249,
+      "signature": "(url, altText)",
+      "complexity": 4,
       "calls": [
         {
           "name": "document.createElement",
-          "line": 96,
+          "line": 250,
+          "module_hint": null
+        },
+        {
+          "name": "lb.setAttribute",
+          "line": 253,
+          "module_hint": null
+        },
+        {
+          "name": "closeAccessibleOverlay",
+          "line": 256,
           "module_hint": null
         },
         {
           "name": "lb.remove",
-          "line": 98,
+          "line": 257,
           "module_hint": null
         },
         {
           "name": "document.createElement",
-          "line": 99,
+          "line": 260,
+          "module_hint": null
+        },
+        {
+          "name": "closeBtn.setAttribute",
+          "line": 263,
           "module_hint": null
         },
         {
           "name": "e.stopPropagation",
-          "line": 102,
+          "line": 266,
+          "module_hint": null
+        },
+        {
+          "name": "closeAccessibleOverlay",
+          "line": 267,
           "module_hint": null
         },
         {
           "name": "lb.remove",
-          "line": 102,
+          "line": 268,
           "module_hint": null
         },
         {
           "name": "document.createElement",
-          "line": 103,
+          "line": 270,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.setAttribute",
+          "line": 272,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.setAttribute",
+          "line": 273,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.setAttribute",
+          "line": 274,
+          "module_hint": null
+        },
+        {
+          "name": "document.createElement",
+          "line": 276,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.appendChild",
+          "line": 279,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.appendChild",
+          "line": 280,
           "module_hint": null
         },
         {
           "name": "lb.appendChild",
-          "line": 106,
-          "module_hint": null
-        },
-        {
-          "name": "lb.appendChild",
-          "line": 107,
+          "line": 281,
           "module_hint": null
         },
         {
           "name": "document.body.appendChild",
-          "line": 108,
+          "line": 282,
+          "module_hint": null
+        },
+        {
+          "name": "openAccessibleOverlay",
+          "line": 283,
           "module_hint": null
         }
       ]
@@ -253,58 +567,88 @@
     {
       "name": "uploadMedia",
       "kind": "function",
-      "line": 112,
+      "line": 287,
       "signature": "()",
-      "complexity": 5,
+      "complexity": 8,
       "calls": [
         {
           "name": "document.getElementById",
-          "line": 113,
+          "line": 288,
           "module_hint": null
         },
         {
           "name": "showToast",
-          "line": 114,
+          "line": 289,
           "module_hint": null
         },
         {
           "name": "FormData",
-          "line": 115,
+          "line": 290,
           "module_hint": null
         },
         {
           "name": "fd.append",
-          "line": 116,
+          "line": 291,
           "module_hint": null
         },
         {
           "name": "window.location.pathname.match",
-          "line": 118,
+          "line": 293,
           "module_hint": null
         },
         {
           "name": "fd.append",
-          "line": 119,
+          "line": 294,
           "module_hint": null
         },
         {
           "name": "fetch",
-          "line": 120,
+          "line": 295,
           "module_hint": null
         },
         {
           "name": "showToast",
-          "line": 122,
+          "line": 297,
           "module_hint": null
         },
         {
-          "name": "window.location.reload",
-          "line": 123,
+          "name": "document.getElementById",
+          "line": 299,
+          "module_hint": null
+        },
+        {
+          "name": "gallery.setAttribute",
+          "line": 301,
+          "module_hint": null
+        },
+        {
+          "name": "fetch",
+          "line": 303,
+          "module_hint": null
+        },
+        {
+          "name": "encodeURIComponent",
+          "line": 303,
+          "module_hint": null
+        },
+        {
+          "name": "replaceNodeChildrenFromHTML",
+          "line": 305,
+          "module_hint": null
+        },
+        {
+          "name": "partialResp.text",
+          "line": 305,
+          "module_hint": null
+        },
+        {
+          "name": "gallery.setAttribute",
+          "line": 308,
           "module_hint": null
         },
         {
           "name": "showToast",
-          "line": 125,
+          "line": 313,
           "module_hint": null
         }
       ]
@@ -312,18 +656,23 @@
     {
       "name": "closeSidebar",
       "kind": "function",
-      "line": 130,
+      "line": 318,
       "signature": "()",
       "complexity": 2,
       "calls": [
         {
           "name": "document.getElementById",
-          "line": 131,
+          "line": 319,
           "module_hint": null
         },
         {
           "name": "el.classList.remove",
-          "line": 132,
+          "line": 321,
+          "module_hint": null
+        },
+        {
+          "name": "closeAccessibleOverlay",
+          "line": 322,
           "module_hint": null
         }
       ]
@@ -331,14 +680,14 @@
   ],
   "function_audits": [
     {
-      "function": "toggleNav",
-      "line": 4,
+      "function": "getFocusableElements",
+      "line": 5,
       "metrics": {
-        "cyclomatic": 1,
-        "cognitive": 0,
-        "size": 3,
-        "nesting": 0,
-        "token_count": 17
+        "cyclomatic": 4,
+        "cognitive": 1,
+        "size": 10,
+        "nesting": 1,
+        "token_count": 57
       },
       "findings": [],
       "estimated_complexity": {
@@ -352,8 +701,138 @@
       "review_priority": 0.0
     },
     {
-      "function": "logout",
+      "function": "rememberOverlayState",
       "line": 16,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 6,
+        "nesting": 1,
+        "token_count": 18
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "replaceNodeChildrenFromHTML",
+      "line": 23,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 9,
+        "nesting": 1,
+        "token_count": 67
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "openAccessibleOverlay",
+      "line": 33,
+      "metrics": {
+        "cyclomatic": 9,
+        "cognitive": 4,
+        "size": 27,
+        "nesting": 1,
+        "token_count": 170
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "closeAccessibleOverlay",
+      "line": 61,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 3,
+        "size": 14,
+        "nesting": 1,
+        "token_count": 100
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "toggleNav",
+      "line": 122,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 8,
+        "size": 17,
+        "nesting": 2,
+        "token_count": 123
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 127,
+              "line_end": 127
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "logout",
+      "line": 148,
       "metrics": {
         "cyclomatic": 6,
         "cognitive": 4,
@@ -374,13 +853,13 @@
     },
     {
       "function": "showToast",
-      "line": 31,
+      "line": 163,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
-        "size": 9,
+        "size": 10,
         "nesting": 1,
-        "token_count": 60
+        "token_count": 70
       },
       "findings": [
         {
@@ -388,12 +867,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 164,
+              "line_end": 164
             },
             {
-              "line_start": 34,
-              "line_end": 34
+              "line_start": 166,
+              "line_end": 166
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -412,13 +891,13 @@
     },
     {
       "function": "toggleReactionPicker",
-      "line": 54,
+      "line": 187,
       "metrics": {
-        "cyclomatic": 2,
-        "cognitive": 1,
-        "size": 4,
-        "nesting": 1,
-        "token_count": 26
+        "cyclomatic": 4,
+        "cognitive": 4,
+        "size": 10,
+        "nesting": 2,
+        "token_count": 67
       },
       "findings": [],
       "estimated_complexity": {
@@ -433,13 +912,34 @@
     },
     {
       "function": "toggleComments",
-      "line": 60,
+      "line": 199,
       "metrics": {
-        "cyclomatic": 4,
-        "cognitive": 3,
-        "size": 10,
+        "cyclomatic": 6,
+        "cognitive": 8,
+        "size": 16,
+        "nesting": 3,
+        "token_count": 107
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "postComment",
+      "line": 217,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 5,
+        "size": 30,
         "nesting": 2,
-        "token_count": 67
+        "token_count": 193
       },
       "findings": [
         {
@@ -447,12 +947,16 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 63,
-              "line_end": 63
+              "line_start": 219,
+              "line_end": 219
             },
             {
-              "line_start": 64,
-              "line_end": 64
+              "line_start": 225,
+              "line_end": 225
+            },
+            {
+              "line_start": 241,
+              "line_end": 241
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -470,35 +974,14 @@
       "review_priority": 0.47
     },
     {
-      "function": "postComment",
-      "line": 72,
-      "metrics": {
-        "cyclomatic": 3,
-        "cognitive": 2,
-        "size": 21,
-        "nesting": 1,
-        "token_count": 117
-      },
-      "findings": [],
-      "estimated_complexity": {
-        "time": "O(1)",
-        "space": "unknown"
-      },
-      "contract_status": {
-        "status": "unknown",
-        "mismatch": "No performance contract annotation available for this function"
-      },
-      "review_priority": 0.0
-    },
-    {
       "function": "openLightbox",
-      "line": 95,
+      "line": 249,
       "metrics": {
-        "cyclomatic": 1,
-        "cognitive": 0,
-        "size": 15,
-        "nesting": 0,
-        "token_count": 123
+        "cyclomatic": 4,
+        "cognitive": 1,
+        "size": 36,
+        "nesting": 1,
+        "token_count": 252
       },
       "findings": [
         {
@@ -506,16 +989,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 96,
-              "line_end": 96
+              "line_start": 253,
+              "line_end": 253
             },
             {
-              "line_start": 99,
-              "line_end": 99
+              "line_start": 263,
+              "line_end": 263
             },
             {
-              "line_start": 103,
-              "line_end": 103
+              "line_start": 272,
+              "line_end": 272
+            },
+            {
+              "line_start": 250,
+              "line_end": 250
+            },
+            {
+              "line_start": 260,
+              "line_end": 260
+            },
+            {
+              "line_start": 270,
+              "line_end": 270
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -534,15 +1029,40 @@
     },
     {
       "function": "uploadMedia",
-      "line": 112,
+      "line": 287,
       "metrics": {
-        "cyclomatic": 5,
-        "cognitive": 3,
-        "size": 16,
-        "nesting": 1,
-        "token_count": 121
+        "cyclomatic": 8,
+        "cognitive": 12,
+        "size": 29,
+        "nesting": 4,
+        "token_count": 188
       },
-      "findings": [],
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 288,
+              "line_end": 288
+            },
+            {
+              "line_start": 299,
+              "line_end": 299
+            },
+            {
+              "line_start": 301,
+              "line_end": 301
+            },
+            {
+              "line_start": 308,
+              "line_end": 308
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
       "estimated_complexity": {
         "time": "O(1)",
         "space": "unknown"
@@ -551,17 +1071,17 @@
         "status": "unknown",
         "mismatch": "No performance contract annotation available for this function"
       },
-      "review_priority": 0.0
+      "review_priority": 0.47
     },
     {
       "function": "closeSidebar",
-      "line": 130,
+      "line": 318,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
-        "size": 4,
+        "size": 7,
         "nesting": 1,
-        "token_count": 24
+        "token_count": 30
       },
       "findings": [],
       "estimated_complexity": {
@@ -582,34 +1102,36 @@
     "is_test_file": false,
     "security_issues": [],
     "side_effects": [
-      "network: fetch() at line 17",
-      "network: fetch() at line 79",
-      "network: fetch() at line 120"
+      "network: fetch() at line 149",
+      "network: fetch() at line 229",
+      "network: fetch() at line 295",
+      "network: fetch() at line 303"
     ],
     "purity": "network",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 3,
     "change_risk": "high",
     "domain": null,
     "observability_patterns": [],
     "endpoints": [],
     "databases": [],
     "services": [
-      "service:fetch-api: fetch() at line 17",
-      "service:fetch-api: fetch() at line 79",
-      "service:fetch-api: fetch() at line 120"
+      "service:fetch-api: fetch() at line 149",
+      "service:fetch-api: fetch() at line 229",
+      "service:fetch-api: fetch() at line 295",
+      "service:fetch-api: fetch() at line 303"
     ],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 2.0,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-18T09:51:12+01:00",
-    "recency_score": 0.97,
+    "author_count": 2,
+    "last_modified": "2026-03-24T14:06:44-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
-    "convention_compliance": 0.6875,
-    "convention_consistency": 0.7963,
+    "convention_compliance": 0.5625,
+    "convention_consistency": 0.8782,
     "dominant_conventions": {
       "module": "snake_case",
       "function": "camelCase",
@@ -620,14 +1142,14 @@
     ]
   },
   "testability_score": 0.2,
-  "attention_score": 0.4,
+  "attention_score": 0.43,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.19,
+    "understandability": 0.28,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,
-    "stability": 0.5
+    "stability": 0.6
   },
   "domain_role": "utility",
   "detected_patterns": null,

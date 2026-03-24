@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S09 - Accessibility and Interaction Hardening`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-012 Accessibility and Interaction Hardening`
 - Follow-on packet candidate: `FB-013 Readability and Responsive Polish`
 

@@ -61,7 +61,7 @@ def _country_flag(code: str | None) -> str:
 
 
 def _ctx(request: Request, current_user: Person | None = None, **kwargs):
-    """Build common template context."""
+    """Build common template context shared by the page-rendering routes."""
     locale = _get_locale(request)
     app_theme = get_runtime_theme_from_app(request.app)
     return {

@@ -1,7 +1,7 @@
 {
   "id": "app/templates/partials/person_history.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-23T22:28:51.946063+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "39868760",
   "staleness": false,
   "purpose": null,
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.07,
+  "attention_score": 0.12,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.99,
+    "understandability": 0.97,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.8
+    "stability": 0.65
   },
   "domain_role": "utility",
   "detected_patterns": null,

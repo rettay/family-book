@@ -4,7 +4,6 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-012 | Accessibility and Interaction Hardening | P1 | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |
 | FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |
 
 ## In Progress
@@ -30,3 +29,4 @@ None.
 | FB-009 | Encryption and Backup Hardening Pass | P1 | `task_packets/FB-009_encryption_and_backup_hardening_pass.md` |
 | FB-010 | Observability and Coverage Hardening | P1 | `task_packets/FB-010_observability_and_coverage_hardening.md` |
 | FB-011 | Browser Regression Expansion and Release Confidence | P1 | `task_packets/FB-011_browser_regression_expansion_and_release_confidence.md` |
+| FB-012 | Accessibility and Interaction Hardening | P1 | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |

@@ -1,7 +1,7 @@
 {
   "id": "app/routes/auth_routes.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "853203ee",
   "staleness": false,
   "purpose": null,
@@ -250,6 +250,30 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 130,
+              "line_end": 130
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            },
+            {
+              "line_start": 134,
+              "line_end": 134
+            },
+            {
+              "line_start": 130,
+              "line_end": 130
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            },
+            {
+              "line_start": 134,
+              "line_end": 134
+            },
+            {
               "line_start": 131,
               "line_end": 131
             },
@@ -260,30 +284,6 @@
             {
               "line_start": 139,
               "line_end": 139
-            },
-            {
-              "line_start": 130,
-              "line_end": 130
-            },
-            {
-              "line_start": 132,
-              "line_end": 132
-            },
-            {
-              "line_start": 134,
-              "line_end": 134
-            },
-            {
-              "line_start": 130,
-              "line_end": 130
-            },
-            {
-              "line_start": 132,
-              "line_end": 132
-            },
-            {
-              "line_start": 134,
-              "line_end": 134
             },
             {
               "line_start": 131,
@@ -616,11 +616,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.36,
-  "centrality_score": 0.14,
+  "attention_score": 0.35,
+  "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.34,
-    "changeability": 0.96,
+    "understandability": 0.3,
+    "changeability": 0.97,
     "correctness": 1.0,
     "security": 1.0,
     "stability": 0.4

@@ -1,8 +1,8 @@
 {
   "id": "app/templates/partials/people_grid.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
-  "source_hash": "45cc5f35",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
+  "source_hash": "454bd80d",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -27,8 +27,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 5,
-    "change_risk": "high",
+    "churn_count": 6,
+    "change_risk": "medium",
     "domain": null,
     "observability_patterns": [],
     "endpoints": [],
@@ -36,11 +36,11 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 4.0,
+    "change_velocity": 0.2,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-20T08:38:57+01:00",
-    "recency_score": 0.98,
+    "author_count": 2,
+    "last_modified": "2026-03-24T14:06:44-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [
       "app/templates/partials/moment_card.html",
       "app/templates/partials/person_sidebar.html",
@@ -55,14 +55,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.3,
+  "attention_score": 0.21,
   "centrality_score": 0.0,
   "quality_radar": {
     "understandability": 0.98,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.3
+    "stability": 0.45
   },
   "domain_role": "utility",
   "detected_patterns": null,

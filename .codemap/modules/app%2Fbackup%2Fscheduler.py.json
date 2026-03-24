@@ -1,7 +1,7 @@
 {
   "id": "app/backup/scheduler.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "e5182658",
   "staleness": false,
   "purpose": null,
@@ -308,8 +308,8 @@
   "attention_score": 0.13,
   "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.91,
-    "changeability": 0.68,
+    "understandability": 0.95,
+    "changeability": 0.69,
     "correctness": 0.5,
     "security": 1.0,
     "stability": 0.75

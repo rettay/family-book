@@ -1,7 +1,7 @@
 {
   "id": "app/routes/demo.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T03:05:13.376981+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "2018e419",
   "staleness": false,
   "purpose": null,
@@ -425,46 +425,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 132,
-              "line_end": 132
-            },
-            {
-              "line_start": 133,
-              "line_end": 133
-            },
-            {
-              "line_start": 120,
-              "line_end": 120
-            },
-            {
-              "line_start": 126,
-              "line_end": 126
-            },
-            {
-              "line_start": 118,
-              "line_end": 121
-            },
-            {
-              "line_start": 124,
-              "line_end": 127
-            },
-            {
-              "line_start": 118,
-              "line_end": 121
-            },
-            {
-              "line_start": 124,
-              "line_end": 127
-            },
-            {
-              "line_start": 132,
-              "line_end": 132
-            },
-            {
-              "line_start": 133,
-              "line_end": 133
-            },
-            {
               "line_start": 117,
               "line_end": 117
             },
@@ -473,12 +433,20 @@
               "line_end": 123
             },
             {
-              "line_start": 119,
-              "line_end": 119
+              "line_start": 107,
+              "line_end": 107
             },
             {
-              "line_start": 125,
-              "line_end": 125
+              "line_start": 111,
+              "line_end": 113
+            },
+            {
+              "line_start": 120,
+              "line_end": 120
+            },
+            {
+              "line_start": 126,
+              "line_end": 126
             },
             {
               "line_start": 117,
@@ -501,12 +469,44 @@
               "line_end": 125
             },
             {
-              "line_start": 107,
-              "line_end": 107
+              "line_start": 118,
+              "line_end": 121
             },
             {
-              "line_start": 111,
-              "line_end": 113
+              "line_start": 124,
+              "line_end": 127
+            },
+            {
+              "line_start": 118,
+              "line_end": 121
+            },
+            {
+              "line_start": 124,
+              "line_end": 127
+            },
+            {
+              "line_start": 119,
+              "line_end": 119
+            },
+            {
+              "line_start": 125,
+              "line_end": 125
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            },
+            {
+              "line_start": 133,
+              "line_end": 133
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            },
+            {
+              "line_start": 133,
+              "line_end": 133
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -568,36 +568,8 @@
               "line_end": 188
             },
             {
-              "line_start": 183,
-              "line_end": 183
-            },
-            {
-              "line_start": 190,
-              "line_end": 190
-            },
-            {
-              "line_start": 198,
-              "line_end": 198
-            },
-            {
-              "line_start": 173,
-              "line_end": 173
-            },
-            {
-              "line_start": 179,
-              "line_end": 182
-            },
-            {
-              "line_start": 186,
-              "line_end": 189
-            },
-            {
-              "line_start": 173,
-              "line_end": 173
-            },
-            {
-              "line_start": 205,
-              "line_end": 205
+              "line_start": 215,
+              "line_end": 216
             },
             {
               "line_start": 180,
@@ -608,20 +580,12 @@
               "line_end": 188
             },
             {
-              "line_start": 215,
-              "line_end": 216
+              "line_start": 173,
+              "line_end": 173
             },
             {
-              "line_start": 183,
-              "line_end": 183
-            },
-            {
-              "line_start": 190,
-              "line_end": 190
-            },
-            {
-              "line_start": 198,
-              "line_end": 198
+              "line_start": 205,
+              "line_end": 205
             },
             {
               "line_start": 180,
@@ -634,14 +598,6 @@
             {
               "line_start": 215,
               "line_end": 215
-            },
-            {
-              "line_start": 179,
-              "line_end": 182
-            },
-            {
-              "line_start": 186,
-              "line_end": 189
             },
             {
               "line_start": 180,
@@ -660,8 +616,52 @@
               "line_end": 173
             },
             {
+              "line_start": 179,
+              "line_end": 182
+            },
+            {
+              "line_start": 186,
+              "line_end": 189
+            },
+            {
+              "line_start": 179,
+              "line_end": 182
+            },
+            {
+              "line_start": 186,
+              "line_end": 189
+            },
+            {
+              "line_start": 183,
+              "line_end": 183
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 198,
+              "line_end": 198
+            },
+            {
+              "line_start": 173,
+              "line_end": 173
+            },
+            {
               "line_start": 205,
               "line_end": 205
+            },
+            {
+              "line_start": 183,
+              "line_end": 183
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 198,
+              "line_end": 198
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -778,18 +778,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 301,
-              "line_end": 301
-            },
-            {
-              "line_start": 303,
-              "line_end": 303
-            },
-            {
-              "line_start": 305,
-              "line_end": 305
-            },
-            {
               "line_start": 300,
               "line_end": 301
             },
@@ -799,6 +787,18 @@
             },
             {
               "line_start": 304,
+              "line_end": 305
+            },
+            {
+              "line_start": 301,
+              "line_end": 301
+            },
+            {
+              "line_start": 303,
+              "line_end": 303
+            },
+            {
+              "line_start": 305,
               "line_end": 305
             },
             {
@@ -882,66 +882,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 374,
-              "line_end": 374
-            },
-            {
-              "line_start": 380,
-              "line_end": 380
-            },
-            {
-              "line_start": 377,
-              "line_end": 377
-            },
-            {
-              "line_start": 377,
-              "line_end": 377
-            },
-            {
-              "line_start": 377,
-              "line_end": 377
-            },
-            {
-              "line_start": 374,
-              "line_end": 374
-            },
-            {
-              "line_start": 380,
-              "line_end": 380
-            },
-            {
-              "line_start": 418,
-              "line_end": 418
-            },
-            {
-              "line_start": 423,
-              "line_end": 423
-            },
-            {
-              "line_start": 376,
-              "line_end": 377
-            },
-            {
-              "line_start": 382,
-              "line_end": 383
-            },
-            {
-              "line_start": 418,
-              "line_end": 418
-            },
-            {
-              "line_start": 423,
-              "line_end": 423
-            },
-            {
-              "line_start": 377,
-              "line_end": 377
-            },
-            {
-              "line_start": 383,
-              "line_end": 383
-            },
-            {
               "line_start": 377,
               "line_end": 377
             },
@@ -958,6 +898,50 @@
               "line_end": 405
             },
             {
+              "line_start": 377,
+              "line_end": 377
+            },
+            {
+              "line_start": 383,
+              "line_end": 383
+            },
+            {
+              "line_start": 377,
+              "line_end": 377
+            },
+            {
+              "line_start": 377,
+              "line_end": 377
+            },
+            {
+              "line_start": 377,
+              "line_end": 377
+            },
+            {
+              "line_start": 374,
+              "line_end": 374
+            },
+            {
+              "line_start": 380,
+              "line_end": 380
+            },
+            {
+              "line_start": 376,
+              "line_end": 377
+            },
+            {
+              "line_start": 382,
+              "line_end": 383
+            },
+            {
+              "line_start": 374,
+              "line_end": 374
+            },
+            {
+              "line_start": 380,
+              "line_end": 380
+            },
+            {
               "line_start": 374,
               "line_end": 374
             },
@@ -968,6 +952,22 @@
             {
               "line_start": 392,
               "line_end": 392
+            },
+            {
+              "line_start": 418,
+              "line_end": 418
+            },
+            {
+              "line_start": 423,
+              "line_end": 423
+            },
+            {
+              "line_start": 418,
+              "line_end": 418
+            },
+            {
+              "line_start": 423,
+              "line_end": 423
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -994,7 +994,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
+    "churn_count": 3,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -1020,11 +1020,11 @@
       "_get_locale"
     ],
     "package": null,
-    "change_velocity": 1.0,
+    "change_velocity": 0.5,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-20T08:38:57+01:00",
-    "recency_score": 0.98,
+    "author_count": 2,
+    "last_modified": "2026-03-23T23:07:35-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -1037,14 +1037,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.4,
-  "attention_score": 0.36,
-  "centrality_score": 0.0,
+  "attention_score": 0.42,
+  "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.37,
-    "changeability": 0.64,
+    "understandability": 0.3,
+    "changeability": 0.69,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.57
+    "stability": 0.3
   },
   "domain_role": "utility",
   "detected_patterns": null,
