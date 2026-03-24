@@ -104,20 +104,20 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] Playwright covers additional high-value member/admin flows beyond the current smoke baseline.
-- [ ] Browser test artifacts include useful screenshots and failure traces that are easy to inspect.
-- [ ] A documented staging acceptance checklist exists and maps to real core flows.
-- [ ] The release runbook explains what must be green before merging to `main`.
-- [ ] The documented promotion model matches the actual GitHub Actions and Railway lane.
-- [ ] The sprint improves release confidence without adding brittle or noisy process.
+- [x] Playwright covers additional high-value member/admin flows beyond the current smoke baseline.
+- [x] Browser test artifacts include useful screenshots and failure traces that are easy to inspect.
+- [x] A documented staging acceptance checklist exists and maps to real core flows.
+- [x] The release runbook explains what must be green before merging to `main`.
+- [x] The documented promotion model matches the actual GitHub Actions and Railway lane.
+- [x] The sprint improves release confidence without adding brittle or noisy process.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Validation evidence attached
-- [ ] Staging acceptance contract documented
-- [ ] Release evidence requirements documented
-- [ ] No unrelated feature work folded into the sprint
+- [x] Acceptance criteria satisfied
+- [x] Validation evidence attached
+- [x] Staging acceptance contract documented
+- [x] Release evidence requirements documented
+- [x] No unrelated feature work folded into the sprint
 
 ## Risk and Verification Notes
 

@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S08 - Browser Regression Expansion and Release Confidence`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-011 Browser Regression Expansion and Release Confidence`
 
 ## Sprint Goal

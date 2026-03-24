@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S08 - Browser Regression Expansion and Release Confidence`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -79,9 +79,7 @@ Execution slices:
 - `S07-2` Critical-Module Coverage Expansion
 - `S07-3` Observability and Complexity Hardening
 
-## Next Sprint
-
-## Planned Sprint `S08 - Browser Regression Expansion and Release Confidence`
+## Closed Sprint `S08 - Browser Regression Expansion and Release Confidence`
 
 Sprint goal:
 - Increase confidence in staging and production releases by expanding browser-based regression coverage, formalizing staging acceptance criteria, and making release evidence easy to inspect before merges to `main`.
@@ -90,7 +88,7 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-011 | Browser Regression Expansion and Release Confidence | P1 | planned | `task_packets/FB-011_browser_regression_expansion_and_release_confidence.md` |
+| FB-011 | Browser Regression Expansion and Release Confidence | P1 | done | `task_packets/FB-011_browser_regression_expansion_and_release_confidence.md` |
 
 Execution slices:
 - `S08-1` Playwright Coverage Expansion
@@ -99,16 +97,15 @@ Execution slices:
 
 ## Next Sprint
 
-- Recommended next sprint: `S08 - Browser Regression Expansion and Release Confidence`
-- Primary packet: `FB-011 Browser Regression Expansion and Release Confidence`
-- Sprint plan: `docs/strategy/sprint-plan-s08.md`
-- Slice plan: `docs/strategy/sprint-slices-s08.md`
-- Follow-on candidate after Sprint 08:
-  - residual CodeMap observability cleanup in central modules
-  - targeted UX polish informed by staging/manual review findings
+- Recommended next sprint: `S09 - Architecture and Maintainability Hardening`
+- Primary packet candidate: `FB-012 Architecture and Maintainability Hardening`
+- Follow-on candidate areas after Sprint 08:
+  - remove the remaining settings/theme service dependency cycle
+  - reduce hidden coupling between templates and client-side tree/person surfaces
+  - add direct coverage or instrumentation for the remaining attack-surface modules flagged by CodeMap
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-011 | Browser Regression Expansion and Release Confidence | P1 | planned | Expand Playwright/manual acceptance depth and tighten release confidence before the next broad feature cycle |
+| FB-012 | Architecture and Maintainability Hardening | P1 | candidate | Reduce remaining CodeMap structural warnings, remove the settings/theme cycle, and improve maintainability in central modules without reopening core product scope |

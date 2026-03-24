@@ -383,19 +383,19 @@ Raise the reliability floor of Family Book by adding direct tests for risky runt
 
 ### Recommended Next Sprint
 
-- `S08 - Browser Regression Expansion and Release Confidence`
-- Primary packet candidate: `FB-011 Browser Regression Expansion and Release Confidence`
-- Rationale: Sprint 07 hardened core plumbing and lowered the warning surface; the next highest-leverage work is increasing release confidence through broader browser coverage, stronger staging acceptance, and clearer manual review evidence before production merges.
+- `S09 - Architecture and Maintainability Hardening`
+- Primary packet candidate: `FB-012 Architecture and Maintainability Hardening`
+- Rationale: Sprint 08 materially improved release confidence and promotion discipline. The next highest-leverage work is structural: remove the remaining dependency cycle, reduce hidden coupling, and harden the remaining attack-surface and observability debt that CodeMap still flags.
 
 ### Planning Artifacts
 
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s07.md`
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S08 - Browser Regression Expansion and Release Confidence`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -405,22 +405,32 @@ Increase confidence in Family Book releases by broadening browser automation cov
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 10 | FB-011 | Browser Regression Expansion and Release Confidence | P1 | planned |
+| 10 | FB-011 | Browser Regression Expansion and Release Confidence | P1 | done |
 
-### Planned Slices
+### Delivered Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S08-1 | Playwright Coverage Expansion | planned |
-| S08-2 | Staging Acceptance Contract | planned |
-| S08-3 | Release Evidence and Promotion Gate | planned |
+| S08-1 | Playwright Coverage Expansion | done |
+| S08-2 | Staging Acceptance Contract | done |
+| S08-3 | Release Evidence and Promotion Gate | done |
 
-### Why This Sprint Next
+### Exit Result
 
-Family Book now has a stable product spine, a working staging lane, and stronger backend/runtime verification. The highest-leverage next improvement is release confidence: broader browser flow coverage, clearer manual acceptance rules, and a promotion contract that makes staging evidence meaningful before merges to `main`.
+- Exit result: `pass`
+- Builder implementation completed on `codex/s08-release-confidence`
+- Auditor found no blocking defects in the final review
+- Focused verification at closeout:
+  - `uv run pytest tests/test_pages.py tests/test_theme.py -q`
+  - result: `7 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
 
 ### Planning Artifacts
 
 - Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
 - Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
 - Task packet: `/Users/cheech/code/family-book/task_packets/FB-011_browser_regression_expansion_and_release_confidence.md`
+- Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s08.md`

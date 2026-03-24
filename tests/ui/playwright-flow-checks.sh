@@ -32,7 +32,16 @@ export DATABASE_URL="sqlite:///${TMP_DIR}/family-book-ui.db"
 export DATA_DIR="${TMP_DIR}/data"
 export GOOGLE_CLIENT_ID="test-google-client-id.apps.googleusercontent.com"
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-export PWCLI="${CODEX_HOME}/skills/playwright/scripts/playwright_cli.sh"
+LOCAL_PWCLI="${ROOT_DIR}/tests/ui/playwright_cli.sh"
+SKILL_PWCLI="${CODEX_HOME}/skills/playwright/scripts/playwright_cli.sh"
+if [[ -x "${LOCAL_PWCLI}" ]]; then
+  export PWCLI="${LOCAL_PWCLI}"
+elif [[ -x "${SKILL_PWCLI}" ]]; then
+  export PWCLI="${SKILL_PWCLI}"
+else
+  echo "Missing Playwright CLI wrapper. Expected ${LOCAL_PWCLI} or ${SKILL_PWCLI}." >&2
+  exit 1
+fi
 export PLAYWRIGHT_CLI_SESSION="family-book-flow-${PORT}"
 export PLAYWRIGHT_DAEMON_SOCKETS_DIR="/tmp/playwright-cli"
 
@@ -43,7 +52,21 @@ mkdir -p "${DATA_DIR}"
 
 : > "${SUMMARY_FILE}"
 
+playwright_finalized=0
+
+finalize_playwright_artifacts() {
+  if (( playwright_finalized )); then
+    return
+  fi
+
+  "${PWCLI}" tracing-stop > "${TRACE_DIR}/trace-stop.txt" 2>&1 || true
+  "${PWCLI}" video-stop > "${TRACE_DIR}/video-stop.txt" 2>&1 || true
+  "${PWCLI}" close >/dev/null 2>&1 || true
+  playwright_finalized=1
+}
+
 cleanup() {
+  finalize_playwright_artifacts
   if [[ -d "${ROOT_DIR}/.playwright-cli" ]]; then
     cp -R "${ROOT_DIR}/.playwright-cli/." "${TRACE_DIR}/" >/dev/null 2>&1 || true
     rm -rf "${ROOT_DIR}/.playwright-cli"
@@ -52,7 +75,6 @@ cleanup() {
     kill "${SERVER_PID}" >/dev/null 2>&1 || true
     wait "${SERVER_PID}" >/dev/null 2>&1 || true
   fi
-  "${PWCLI}" close >/dev/null 2>&1 || true
   rm -rf "${TMP_DIR}"
 }
 trap cleanup EXIT
@@ -205,8 +227,7 @@ assert_run "map page renders at least one marker" \
 assert_run "map filters can be applied in-browser" \
   "${PWCLI}" run-code "async page => { if (await page.locator('#map-svg g').count() === 0) throw new Error('filtered map has no markers'); }"
 
-"${PWCLI}" tracing-stop > "${TRACE_DIR}/trace-stop.txt"
-"${PWCLI}" video-stop > "${TRACE_DIR}/video-stop.txt"
+finalize_playwright_artifacts
 
 if (( failures > 0 )); then
   echo "Playwright flow checks completed with ${failures} failure(s). Artifacts: ${ARTIFACT_DIR}"

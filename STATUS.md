@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 07 are closed.
+Sprint 01 through Sprint 08 are closed.
 
 ## North Star
 
@@ -44,6 +44,11 @@ Sprint 01 through Sprint 07 are closed.
 - Focused Sprint 07 verification:
   - `uv run pytest tests/test_config.py tests/test_security_guardrails.py tests/test_schema_models.py tests/test_phase3.py tests/test_auth.py tests/test_models.py -q`
   - Result at closeout: `78 passed`
+- Focused Sprint 08 verification:
+  - `uv run pytest tests/test_pages.py tests/test_theme.py -q`
+  - Result at closeout: `7 passed`
+  - `make test-ui-playwright`
+  - Result at closeout: success
 - Browser flow baseline:
   - `make test-ui-playwright`
   - Result at closeout: success
@@ -53,22 +58,22 @@ Sprint 01 through Sprint 07 are closed.
   - Result: success
 - CodeMap governance baseline:
   - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
-  - Result at Sprint 07 closeout: `17 PASS`, `0 FAIL`, `8 WARN`
+  - Result at Sprint 08 closeout: `17 PASS`, `0 FAIL`, `8 WARN`
 - Known repo-wide baseline before this sprint work:
   - `uv run pytest -q`
   - Result observed earlier: `143 passed, 2 failed, 1 xfailed`
 
 ## Current Risks
 
-- Browser-flow evaluation exists now, but it is still a focused smoke layer rather than full cross-browser coverage
-- Critical security-sensitive modules still have residual CodeMap warnings around observability, complexity, and a few untested central modules
+- The release-confidence lane is stronger now, but browser coverage is still a targeted confidence layer rather than a full visual/cross-browser matrix
+- CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and a few attack-surface modules
 
 ## Current Priority Order
 
-1. Execute Sprint 08 around browser regression expansion and release confidence
-2. Tighten staging-to-production acceptance with clearer evidence and promotion rules
-3. Pay down remaining CodeMap observability warnings in core modules
-4. Reassess where richer visual regression evidence is worth the maintenance cost
+1. Plan Sprint 09 around architecture and maintainability hardening
+2. Remove the remaining settings/theme cycle and hidden-coupling hotspots
+3. Add direct coverage or instrumentation for the remaining attack-surface modules
+4. Reassess whether any additional browser or visual-regression depth is worth the maintenance cost
 
 ## Sprint State
 
@@ -80,9 +85,11 @@ Sprint 01 through Sprint 07 are closed.
 - `S05 - Encryption and Backup Hardening Pass`
 - `S06 - Theme Customization and Branding Controls`
 - `S07 - Observability and Coverage Hardening`
-- Next recommended sprint: `S08 - Browser Regression Expansion and Release Confidence`
+- `S08 - Browser Regression Expansion and Release Confidence`
+- Next recommended sprint: `S09 - Architecture and Maintainability Hardening`
 - Sprint 08 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
 - Sprint 08 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
+- Sprint 08 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s08.md`
 - Sprint 07 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s07.md`
 - Sprint 07 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s07.md`
 - Sprint 07 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s07.md`

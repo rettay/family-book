@@ -4,7 +4,7 @@
 
 ### S08-1 Playwright Coverage Expansion
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   expand the browser automation layer to cover the highest-value product workflows
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S08-2 Staging Acceptance Contract
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   define a reusable manual acceptance checklist for staging
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S08-3 Release Evidence and Promotion Gate
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make main-branch promotion criteria explicit and inspectable
