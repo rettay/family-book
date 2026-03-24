@@ -1,13 +1,13 @@
 {
   "id": "app/config.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "9dcb6a3a",
+  "analyzed_at": "2026-03-24T22:00:48.276480+00:00",
+  "source_hash": "38ca2fc8",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 13,
-    "lines": 133,
+    "cyclomatic": 14,
+    "lines": 148,
     "rating": "yellow"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
       "app/routes/pages.py",
       "app/services/auth_service.py",
       "app/services/bootstrap_service.py",
+      "app/services/email_delivery.py",
       "app/services/field_protection.py",
       "app/services/google_auth.py",
       "app/services/media_service.py",
@@ -34,8 +35,7 @@
       "tests/test_media.py"
     ],
     "tested_by": [
-      "tests/test_config.py",
-      "tests/test_media.py"
+      "tests/test_config.py"
     ]
   },
   "exports": [
@@ -50,7 +50,7 @@
       "name": "get_settings",
       "type": "function",
       "summary": null,
-      "line": 132,
+      "line": 147,
       "signature": "() -> Settings"
     }
   ],
@@ -66,13 +66,13 @@
     {
       "name": "get_settings",
       "kind": "function",
-      "line": 132,
+      "line": 147,
       "signature": "() -> Settings",
       "complexity": 1,
       "calls": [
         {
           "name": "Settings",
-          "line": 133,
+          "line": 148,
           "module_hint": null
         }
       ]
@@ -81,7 +81,7 @@
   "function_audits": [
     {
       "function": "admin_email_list",
-      "line": 69,
+      "line": 76,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -102,7 +102,7 @@
     },
     {
       "function": "resolved_data_dir",
-      "line": 75,
+      "line": 82,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -123,7 +123,7 @@
     },
     {
       "function": "normalized_database_url",
-      "line": 79,
+      "line": 86,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -144,7 +144,7 @@
     },
     {
       "function": "sqlite_database_path",
-      "line": 85,
+      "line": 92,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 3,
@@ -165,7 +165,7 @@
     },
     {
       "function": "trusted_host_list",
-      "line": 102,
+      "line": 109,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -186,7 +186,7 @@
     },
     {
       "function": "envelope_allowed_host_list",
-      "line": 112,
+      "line": 119,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 5,
@@ -206,8 +206,50 @@
       "review_priority": 0.0
     },
     {
+      "function": "google_maps_enabled",
+      "line": 139,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "resend_enabled",
+      "line": 143,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 20
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
       "function": "get_settings",
-      "line": 132,
+      "line": 147,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -267,14 +309,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.65,
-  "attention_score": 0.42,
-  "centrality_score": 0.89,
+  "attention_score": 0.39,
+  "centrality_score": 1.0,
   "quality_radar": {
-    "understandability": 0.53,
-    "changeability": 0.72,
+    "understandability": 0.55,
+    "changeability": 0.6,
     "correctness": 1.0,
     "security": 0.88,
-    "stability": 0.3
+    "stability": 0.53
   },
   "domain_role": "core",
   "detected_patterns": null,

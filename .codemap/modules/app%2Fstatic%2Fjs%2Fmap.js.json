@@ -1,13 +1,13 @@
 {
   "id": "app/static/js/map.js",
   "language": "javascript",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "2b468b4e",
+  "analyzed_at": "2026-03-24T22:00:48.276480+00:00",
+  "source_hash": "c65175ce",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 22,
-    "lines": 169,
+    "cyclomatic": 50,
+    "lines": 324,
     "rating": "red"
   },
   "dependencies": {
@@ -20,7 +20,7 @@
   "function_audits": [
     {
       "function": "isSafePersonId",
-      "line": 7,
+      "line": 13,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -41,7 +41,7 @@
     },
     {
       "function": "safeText",
-      "line": 11,
+      "line": 17,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 1,
@@ -62,7 +62,7 @@
     },
     {
       "function": "safeNumber",
-      "line": 18,
+      "line": 24,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 1,
@@ -83,7 +83,7 @@
     },
     {
       "function": "project",
-      "line": 22,
+      "line": 28,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -104,7 +104,7 @@
     },
     {
       "function": "filtersFromForm",
-      "line": 28,
+      "line": 34,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -118,64 +118,64 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 36,
+              "line_end": 36
             },
             {
-              "line_start": 33,
-              "line_end": 33
+              "line_start": 37,
+              "line_end": 37
             },
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 38,
+              "line_end": 38
             },
             {
-              "line_start": 33,
-              "line_end": 33
+              "line_start": 37,
+              "line_end": 37
             },
             {
-              "line_start": 31,
-              "line_end": 31
+              "line_start": 38,
+              "line_end": 38
             },
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 39,
+              "line_end": 39
             },
             {
-              "line_start": 33,
-              "line_end": 33
+              "line_start": 38,
+              "line_end": 38
             },
             {
-              "line_start": 30,
-              "line_end": 30
+              "line_start": 39,
+              "line_end": 39
             },
             {
-              "line_start": 31,
-              "line_end": 31
+              "line_start": 37,
+              "line_end": 37
             },
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 38,
+              "line_end": 38
             },
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 39,
+              "line_end": 39
             },
             {
-              "line_start": 33,
-              "line_end": 33
+              "line_start": 38,
+              "line_end": 38
             },
             {
-              "line_start": 31,
-              "line_end": 31
+              "line_start": 39,
+              "line_end": 39
             },
             {
-              "line_start": 32,
-              "line_end": 32
+              "line_start": 38,
+              "line_end": 38
             },
             {
-              "line_start": 33,
-              "line_end": 33
+              "line_start": 39,
+              "line_end": 39
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -194,7 +194,7 @@
     },
     {
       "function": "queryString",
-      "line": 37,
+      "line": 43,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 2,
@@ -214,8 +214,71 @@
       "review_priority": 0.0
     },
     {
+      "function": "currentProvider",
+      "line": 54,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "setProviderStatus",
+      "line": 58,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 1,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 19
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "setBoardMode",
+      "line": 64,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 27
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
       "function": "drawBackdrop",
-      "line": 48,
+      "line": 70,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -229,52 +292,52 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 76,
+              "line_end": 76
             },
             {
-              "line_start": 63,
-              "line_end": 63
+              "line_start": 85,
+              "line_end": 85
             },
             {
-              "line_start": 74,
-              "line_end": 74
+              "line_start": 96,
+              "line_end": 96
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 77,
+              "line_end": 77
             },
             {
-              "line_start": 63,
-              "line_end": 63
+              "line_start": 78,
+              "line_end": 78
             },
             {
-              "line_start": 74,
-              "line_end": 74
+              "line_start": 79,
+              "line_end": 79
             },
             {
-              "line_start": 55,
-              "line_end": 55
+              "line_start": 88,
+              "line_end": 88
             },
             {
-              "line_start": 56,
-              "line_end": 56
+              "line_start": 89,
+              "line_end": 89
             },
             {
-              "line_start": 57,
-              "line_end": 57
+              "line_start": 97,
+              "line_end": 97
             },
             {
-              "line_start": 66,
-              "line_end": 66
+              "line_start": 76,
+              "line_end": 76
             },
             {
-              "line_start": 67,
-              "line_end": 67
+              "line_start": 85,
+              "line_end": 85
             },
             {
-              "line_start": 75,
-              "line_end": 75
+              "line_start": 96,
+              "line_end": 96
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -292,14 +355,14 @@
       "review_priority": 0.47
     },
     {
-      "function": "drawMarkers",
-      "line": 85,
+      "function": "drawSvgMarkers",
+      "line": 107,
       "metrics": {
         "cyclomatic": 10,
         "cognitive": 6,
-        "size": 63,
+        "size": 64,
         "nesting": 1,
-        "token_count": 546
+        "token_count": 552
       },
       "findings": [
         {
@@ -307,84 +370,84 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 118,
-              "line_end": 118
+              "line_start": 113,
+              "line_end": 113
             },
             {
-              "line_start": 123,
-              "line_end": 123
+              "line_start": 114,
+              "line_end": 114
             },
             {
-              "line_start": 97,
-              "line_end": 97
+              "line_start": 130,
+              "line_end": 130
             },
             {
-              "line_start": 116,
-              "line_end": 116
+              "line_start": 135,
+              "line_end": 135
             },
             {
-              "line_start": 121,
-              "line_end": 121
+              "line_start": 141,
+              "line_end": 141
             },
             {
-              "line_start": 97,
-              "line_end": 97
+              "line_start": 146,
+              "line_end": 146
             },
             {
-              "line_start": 101,
-              "line_end": 101
+              "line_start": 130,
+              "line_end": 130
             },
             {
-              "line_start": 102,
-              "line_end": 102
+              "line_start": 135,
+              "line_end": 135
             },
             {
-              "line_start": 90,
-              "line_end": 90
+              "line_start": 120,
+              "line_end": 120
             },
             {
-              "line_start": 91,
-              "line_end": 91
+              "line_start": 124,
+              "line_end": 124
             },
             {
-              "line_start": 107,
-              "line_end": 107
+              "line_start": 125,
+              "line_end": 125
             },
             {
-              "line_start": 112,
-              "line_end": 112
+              "line_start": 130,
+              "line_end": 130
             },
             {
-              "line_start": 107,
-              "line_end": 107
+              "line_start": 135,
+              "line_end": 135
             },
             {
-              "line_start": 112,
-              "line_end": 112
+              "line_start": 141,
+              "line_end": 141
             },
             {
-              "line_start": 107,
-              "line_end": 107
+              "line_start": 146,
+              "line_end": 146
             },
             {
-              "line_start": 112,
-              "line_end": 112
+              "line_start": 141,
+              "line_end": 141
             },
             {
-              "line_start": 118,
-              "line_end": 118
+              "line_start": 146,
+              "line_end": 146
             },
             {
-              "line_start": 123,
-              "line_end": 123
+              "line_start": 120,
+              "line_end": 120
             },
             {
-              "line_start": 118,
-              "line_end": 118
+              "line_start": 139,
+              "line_end": 139
             },
             {
-              "line_start": 123,
-              "line_end": 123
+              "line_start": 144,
+              "line_end": 144
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -402,14 +465,14 @@
       "review_priority": 0.47
     },
     {
-      "function": "loadMap",
-      "line": 149,
+      "function": "clearGoogleMarkers",
+      "line": 172,
       "metrics": {
-        "cyclomatic": 3,
-        "cognitive": 1,
-        "size": 9,
-        "nesting": 1,
-        "token_count": 53
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 6,
+        "nesting": 0,
+        "token_count": 23
       },
       "findings": [],
       "estimated_complexity": {
@@ -421,6 +484,153 @@
         "mismatch": "No performance contract annotation available for this function"
       },
       "review_priority": 0.0
+    },
+    {
+      "function": "renderGoogleMap",
+      "line": 179,
+      "metrics": {
+        "cyclomatic": 13,
+        "cognitive": 10,
+        "size": 70,
+        "nesting": 2,
+        "token_count": 379
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 213,
+              "line_end": 213
+            },
+            {
+              "line_start": 214,
+              "line_end": 214
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "loadGoogleMapsLibrary",
+      "line": 250,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 4,
+        "size": 31,
+        "nesting": 1,
+        "token_count": 168
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 251,
+              "line_end": 251
+            },
+            {
+              "line_start": 268,
+              "line_end": 268
+            },
+            {
+              "line_start": 272,
+              "line_end": 272
+            },
+            {
+              "line_start": 275,
+              "line_end": 275
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "fetchMarkers",
+      "line": 282,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 9,
+        "nesting": 1,
+        "token_count": 51
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "loadMap",
+      "line": 292,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 4,
+        "size": 20,
+        "nesting": 2,
+        "token_count": 72
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 301,
+              "line_end": 301
+            },
+            {
+              "line_start": 305,
+              "line_end": 305
+            },
+            {
+              "line_start": 309,
+              "line_end": 309
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
     }
   ],
   "spec_linkages": [],
@@ -430,7 +640,7 @@
     "is_test_file": false,
     "security_issues": [],
     "side_effects": [
-      "network: fetch() at line 150"
+      "network: fetch() at line 283"
     ],
     "purity": "network",
     "todo_count": 0,
@@ -441,7 +651,7 @@
     "endpoints": [],
     "databases": [],
     "services": [
-      "service:fetch-api: fetch() at line 150"
+      "service:fetch-api: fetch() at line 283"
     ],
     "unused_exports": [],
     "package": null,
@@ -460,14 +670,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.2,
-  "attention_score": 0.49,
+  "attention_score": 0.38,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.25,
+    "understandability": 0.21,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,
-    "stability": 0.3
+    "stability": 0.6
   },
   "domain_role": "utility",
   "detected_patterns": null,

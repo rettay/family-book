@@ -1,8 +1,16 @@
 (function() {
   'use strict';
 
+  var root = document.getElementById('map-root');
   var svg = document.getElementById('map-svg');
+  var googleMapEl = document.getElementById('google-map');
   var emptyState = document.getElementById('map-empty');
+  var providerStatus = document.getElementById('map-provider-status');
+  var googleMap = null;
+  var googleLoader = null;
+  var googleOverlay = null;
+  var googleOverlayContainer = null;
+  var googleOverlayMarkers = [];
 
   function isSafePersonId(value) {
     return typeof value === 'string' && /^[A-Za-z0-9-]{1,64}$/.test(value);
@@ -45,6 +53,26 @@
     return query ? '?' + query : '';
   }
 
+  function currentProvider() {
+    return root && root.dataset.mapProvider === 'google' ? 'google' : 'svg';
+  }
+
+  function setProviderStatus(text) {
+    if (providerStatus && typeof text === 'string' && text) {
+      providerStatus.textContent = text;
+    }
+  }
+
+  function setBoardMode(mode) {
+    var useGoogle = mode === 'google';
+    if (googleMapEl) googleMapEl.hidden = !useGoogle;
+    if (svg) svg.hidden = useGoogle;
+  }
+
+  function navigateToPerson(personId) {
+    window.location.assign('/people/' + encodeURIComponent(personId));
+  }
+
   function drawBackdrop() {
     while (svg.firstChild) {
       svg.removeChild(svg.firstChild);
@@ -82,7 +110,8 @@
     });
   }
 
-  function drawMarkers(markers) {
+  function drawSvgMarkers(markers) {
+    setBoardMode('svg');
     drawBackdrop();
     emptyState.hidden = markers.length > 0;
 
@@ -104,12 +133,12 @@
       group.setAttribute('aria-label', labelText + (sublabelText ? ', ' + sublabelText : ''));
       group.style.cursor = 'pointer';
       group.addEventListener('click', function() {
-        window.location.assign('/people/' + encodeURIComponent(marker.person.id));
+        navigateToPerson(marker.person.id);
       });
       group.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          window.location.assign('/people/' + encodeURIComponent(marker.person.id));
+          navigateToPerson(marker.person.id);
         }
       });
 
@@ -146,14 +175,219 @@
     });
   }
 
-  async function loadMap() {
+  function clearGoogleOverlayMarkers() {
+    googleOverlayMarkers = [];
+    if (googleOverlayContainer) {
+      googleOverlayContainer.textContent = '';
+    }
+  }
+
+  function ensureGoogleOverlay() {
+    if (googleOverlay) {
+      return googleOverlay;
+    }
+
+    googleOverlay = new window.google.maps.OverlayView();
+    googleOverlay.onAdd = function() {
+      googleOverlayContainer = document.createElement('div');
+      googleOverlayContainer.className = 'map-google-overlay';
+      this.getPanes().overlayMouseTarget.appendChild(googleOverlayContainer);
+    };
+    googleOverlay.draw = function() {
+      renderGoogleOverlayMarkers();
+    };
+    googleOverlay.onRemove = function() {
+      if (googleOverlayContainer) {
+        googleOverlayContainer.remove();
+        googleOverlayContainer = null;
+      }
+    };
+    googleOverlay.setMap(googleMap);
+    return googleOverlay;
+  }
+
+  function renderGoogleOverlayMarkers() {
+    if (!googleOverlay || !googleOverlayContainer) {
+      return;
+    }
+
+    var projection = googleOverlay.getProjection();
+    if (!projection) {
+      return;
+    }
+
+    googleOverlayContainer.textContent = '';
+
+    googleOverlayMarkers.forEach(function(marker) {
+      var latitude = safeNumber(marker.latitude);
+      var longitude = safeNumber(marker.longitude);
+      if (latitude === null || longitude === null || !isSafePersonId(marker.person && marker.person.id)) {
+        return;
+      }
+
+      var position = projection.fromLatLngToDivPixel(
+        new window.google.maps.LatLng(latitude, longitude)
+      );
+      if (!position) {
+        return;
+      }
+
+      var labelText = safeText(marker.person.display_name, 'Family member');
+      var sublabelText = safeText(marker.place, safeText(marker.country_code, ''));
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'map-google-marker-button';
+      button.style.left = position.x + 'px';
+      button.style.top = position.y + 'px';
+      button.setAttribute('aria-label', labelText + (sublabelText ? ', ' + sublabelText : ''));
+      button.addEventListener('click', function() {
+        navigateToPerson(marker.person.id);
+      });
+      button.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          navigateToPerson(marker.person.id);
+        }
+      });
+
+      var dot = document.createElement('span');
+      dot.className = 'map-google-marker-dot map-google-marker-dot--' + (marker.kind === 'burial' ? 'burial' : 'residence');
+      dot.setAttribute('aria-hidden', 'true');
+      button.appendChild(dot);
+
+      var label = document.createElement('span');
+      label.className = 'map-google-marker-label';
+      label.textContent = labelText;
+      button.appendChild(label);
+
+      googleOverlayContainer.appendChild(button);
+    });
+  }
+
+  function renderGoogleMap(markers) {
+    if (!window.google || !window.google.maps) {
+      throw new Error('google-maps-unavailable');
+    }
+
+    setBoardMode('google');
+    emptyState.hidden = markers.length > 0;
+
+    if (!googleMap) {
+      var options = {
+        center: {lat: 20, lng: 0},
+        zoom: 2,
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        gestureHandling: 'cooperative'
+      };
+      if (root.dataset.googleMapsMapId) {
+        options.mapId = root.dataset.googleMapsMapId;
+      }
+      googleMap = new window.google.maps.Map(googleMapEl, options);
+    }
+
+    clearGoogleOverlayMarkers();
+
+    if (!markers.length) {
+      googleMap.setCenter({lat: 20, lng: 0});
+      googleMap.setZoom(2);
+      ensureGoogleOverlay();
+      renderGoogleOverlayMarkers();
+      return;
+    }
+
+    var bounds = new window.google.maps.LatLngBounds();
+    var validMarkers = [];
+
+    markers.forEach(function(marker) {
+      var latitude = safeNumber(marker.latitude);
+      var longitude = safeNumber(marker.longitude);
+      if (latitude === null || longitude === null || !isSafePersonId(marker.person && marker.person.id)) {
+        return;
+      }
+      validMarkers.push(marker);
+      bounds.extend({lat: latitude, lng: longitude});
+    });
+
+    googleOverlayMarkers = validMarkers;
+    ensureGoogleOverlay();
+
+    if (googleOverlayMarkers.length === 1) {
+      googleMap.setCenter(bounds.getCenter());
+      googleMap.setZoom(4);
+      renderGoogleOverlayMarkers();
+      return;
+    }
+    googleMap.fitBounds(bounds, 64);
+    renderGoogleOverlayMarkers();
+  }
+
+  function loadGoogleMapsLibrary() {
+    if (window.google && window.google.maps) {
+      return Promise.resolve(window.google.maps);
+    }
+    if (googleLoader) {
+      return googleLoader;
+    }
+    var apiKey = root.dataset.googleMapsApiKey;
+    if (!apiKey) {
+      return Promise.reject(new Error('google-maps-not-configured'));
+    }
+
+    googleLoader = new Promise(function(resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey);
+      script.async = true;
+      script.defer = true;
+      script.onload = function() {
+        if (window.google && window.google.maps) {
+          resolve(window.google.maps);
+          return;
+        }
+        reject(new Error('google-maps-unavailable'));
+      };
+      script.onerror = function() {
+        googleLoader = null;
+        reject(new Error('google-maps-load-failed'));
+      };
+      document.head.appendChild(script);
+    });
+    googleLoader.catch(function() {
+      googleLoader = null;
+    });
+    return googleLoader;
+  }
+
+  async function fetchMarkers() {
     var response = await fetch('/api/map' + queryString(filtersFromForm()));
     if (response.status === 401) {
       window.location.href = '/login';
-      return;
+      return null;
     }
     var data = await response.json();
-    drawMarkers(data.markers || []);
+    return data.markers || [];
+  }
+
+  async function loadMap() {
+    var markers = await fetchMarkers();
+    if (markers === null) {
+      return;
+    }
+
+    if (currentProvider() === 'google') {
+      try {
+        await loadGoogleMapsLibrary();
+        setProviderStatus(root.dataset.providerGoogleLabel);
+        renderGoogleMap(markers);
+        return;
+      } catch (error) {
+        setProviderStatus(root.dataset.providerErrorLabel);
+      }
+    }
+
+    setProviderStatus(root.dataset.providerFallbackLabel);
+    drawSvgMarkers(markers);
   }
 
   document.getElementById('apply-map-filters').addEventListener('click', loadMap);
@@ -164,6 +398,10 @@
     document.getElementById('map-filter-birth-country').value = '';
     loadMap();
   });
+
   drawBackdrop();
   loadMap();
+  window.familyBookMap = {
+    reload: loadMap
+  };
 })();

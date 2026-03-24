@@ -218,8 +218,16 @@ async def map_page(
     request: Request,
     current_user: Person = Depends(require_auth),
 ):
+    from app.config import get_settings
+
+    settings = get_settings()
     return templates.TemplateResponse("map.html", _ctx(
-        request, current_user, active_page="map",
+        request,
+        current_user,
+        active_page="map",
+        google_maps_enabled=settings.google_maps_enabled,
+        google_maps_api_key=settings.GOOGLE_MAPS_API_KEY.strip(),
+        google_maps_map_id=settings.GOOGLE_MAPS_MAP_ID.strip(),
     ))
 
 
@@ -564,6 +572,7 @@ async def admin_page(
         invites=invites,
         invite_people=invite_people,
         backup_health=get_backup_health(),
+        resend_enabled=settings.resend_enabled,
         staging_review_url=settings.STAGING_REVIEW_URL.strip() or None,
     ))
 

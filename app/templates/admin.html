@@ -2,7 +2,15 @@
 {% block title %}{{ t('admin.dashboard') }} — {{ brand_display_name }}{% endblock %}
 
 {% block content %}
-<div class="container-wide" id="admin-page" style="padding-top: 16px;">
+<div
+  class="container-wide"
+  id="admin-page"
+  style="padding-top: 16px;"
+  data-invite-sent="{{ t('admin.invite_sent') }}"
+  data-invite-fallback="{{ t('admin.invite_manual_fallback') }}"
+  data-invite-failed="{{ t('admin.invite_delivery_failed') }}"
+  data-invite-link-copied="{{ t('admin.invite_link_copied') }}"
+>
   <div class="page-header mb-16">
     <h1 class="page-header__title">{{ t('admin.dashboard') }}</h1>
     <p class="page-header__subtitle">{{ t('admin.subtitle') }}</p>
@@ -50,6 +58,14 @@
         <p class="status-list__item text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
         <p class="status-list__item text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
         <p class="status-list__item text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
+        <p class="status-list__item text-sm text-muted">
+          {{ t('admin.invite_delivery') }}:
+          {% if resend_enabled %}
+          {{ t('admin.invite_delivery_resend_ready') }}
+          {% else %}
+          {{ t('admin.invite_delivery_manual') }}
+          {% endif %}
+        </p>
       </div>
     </div>
   </div>
@@ -140,7 +156,7 @@
         </div>
         <div class="invite-row__actions">
           {% if p.contact_email %}
-          <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">Create Invite</button>
+          <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">{{ t('admin.invite') }}</button>
           {% endif %}
           {% if p.account_state != 'active' %}
           <button class="btn btn--primary btn--sm" onclick="activatePerson('{{ p.id }}')">Activate</button>
@@ -289,19 +305,25 @@ async function activatePerson(id) {
 }
 
 async function createInvite(id) {
+  const page = document.getElementById('admin-page');
   const resp = await fetch('/api/admin/persons/' + id + '/invite', {method: 'POST'});
   const data = await resp.json().catch(() => ({}));
   if (!resp.ok) {
     showToast(data.detail || 'Invite creation failed');
     return;
   }
+  let feedback = page.dataset.inviteFallback;
+  if (data.delivery_status === 'sent') {
+    feedback = page.dataset.inviteSent.replace('%s', data.contact_email || '');
+  } else if (data.delivery_status === 'failed') {
+    feedback = page.dataset.inviteFailed.replace('%s', data.delivery_error || 'unknown error');
+  }
   try {
     await navigator.clipboard.writeText(data.invite_url);
-    showToast('Invite link copied');
+    showToast(feedback + ' ' + page.dataset.inviteLinkCopied);
   } catch (err) {
-    showToast(data.invite_url);
+    showToast(feedback + ' ' + data.invite_url);
   }
-  window.location.reload();
 }
 
 async function revokeInvite(id) {

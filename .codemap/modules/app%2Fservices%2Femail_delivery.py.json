@@ -1,0 +1,453 @@
+{
+  "id": "app/services/email_delivery.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T22:00:48.276480+00:00",
+  "source_hash": "7df03cc5",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 13,
+    "lines": 142,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py"
+    ],
+    "imported_by": [
+      "app/routes/auth_routes.py",
+      "tests/test_auth.py"
+    ],
+    "tested_by": [
+      "tests/test_auth.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "InviteDeliveryResult",
+      "type": "class",
+      "summary": null,
+      "line": 14,
+      "signature": null
+    },
+    {
+      "name": "send_invite_email",
+      "type": "function",
+      "summary": null,
+      "line": 21,
+      "signature": "( *, recipient_email: str, recipient_name: str, invite_url: str, invited_by_name: str, expires_at: datetime, ) -> InviteDeliveryResult"
+    },
+    {
+      "name": "_invite_email_html",
+      "type": "function",
+      "summary": null,
+      "line": 93,
+      "signature": "( *, recipient_name: str, invite_url: str, invited_by_name: str, expires_at: datetime, ) -> str"
+    },
+    {
+      "name": "_invite_email_text",
+      "type": "function",
+      "summary": null,
+      "line": 115,
+      "signature": "( *, recipient_name: str, invite_url: str, invited_by_name: str, expires_at: datetime, ) -> str"
+    },
+    {
+      "name": "_extract_error_message",
+      "type": "function",
+      "summary": null,
+      "line": 131,
+      "signature": "(response: httpx.Response) -> str"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "InviteDeliveryResult",
+      "kind": "class",
+      "line": 14,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "send_invite_email",
+      "kind": "function",
+      "line": 21,
+      "signature": "( *, recipient_email: str, recipient_name: str, invite_url: str, invited_by_name: str, expires_at: datetime, ) -> InviteDeliveryResult",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 29,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "InviteDeliveryResult",
+          "line": 31,
+          "module_hint": null
+        },
+        {
+          "name": "_invite_email_html",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "_invite_email_text",
+          "line": 43,
+          "module_hint": null
+        },
+        {
+          "name": "settings.RESEND_REPLY_TO_EMAIL.strip",
+          "line": 50,
+          "module_hint": null
+        },
+        {
+          "name": "settings.RESEND_REPLY_TO_EMAIL.strip",
+          "line": 51,
+          "module_hint": null
+        },
+        {
+          "name": "httpx.AsyncClient",
+          "line": 59,
+          "module_hint": "httpx"
+        },
+        {
+          "name": "client.post",
+          "line": 60,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 66,
+          "module_hint": null
+        },
+        {
+          "name": "InviteDeliveryResult",
+          "line": 67,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 67,
+          "module_hint": null
+        },
+        {
+          "name": "response.json",
+          "line": 70,
+          "module_hint": null
+        },
+        {
+          "name": "body.get",
+          "line": 71,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 71,
+          "module_hint": null
+        },
+        {
+          "name": "logger.info",
+          "line": 72,
+          "module_hint": null
+        },
+        {
+          "name": "InviteDeliveryResult",
+          "line": 73,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 76,
+          "module_hint": null
+        },
+        {
+          "name": "_extract_error_message",
+          "line": 79,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 80,
+          "module_hint": null
+        },
+        {
+          "name": "InviteDeliveryResult",
+          "line": 86,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_invite_email_html",
+      "kind": "function",
+      "line": 93,
+      "signature": "( *, recipient_name: str, invite_url: str, invited_by_name: str, expires_at: datetime, ) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "expires_at.strftime",
+          "line": 100,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_invite_email_text",
+      "kind": "function",
+      "line": 115,
+      "signature": "( *, recipient_name: str, invite_url: str, invited_by_name: str, expires_at: datetime, ) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "expires_at.strftime",
+          "line": 122,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_extract_error_message",
+      "kind": "function",
+      "line": 131,
+      "signature": "(response: httpx.Response) -> str",
+      "complexity": 6,
+      "calls": [
+        {
+          "name": "response.json",
+          "line": 133,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 137,
+          "module_hint": null
+        },
+        {
+          "name": "payload.get",
+          "line": 139,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "value.strip",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "value.strip",
+          "line": 141,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "send_invite_email",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 8,
+        "size": 62,
+        "nesting": 2,
+        "token_count": 330
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 72,
+              "line_end": 72
+            },
+            {
+              "line_start": 37,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 48
+            },
+            {
+              "line_start": 37,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 48
+            },
+            {
+              "line_start": 37,
+              "line_end": 42
+            },
+            {
+              "line_start": 43,
+              "line_end": 48
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_invite_email_html",
+      "line": 93,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 13,
+        "nesting": 0,
+        "token_count": 77
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_invite_email_text",
+      "line": 115,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 7,
+        "nesting": 0,
+        "token_count": 50
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 124,
+              "line_end": 124
+            },
+            {
+              "line_start": 126,
+              "line_end": 126
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_extract_error_message",
+      "line": 131,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 7,
+        "size": 11,
+        "nesting": 3,
+        "token_count": 74
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 0,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.warning() at line 66",
+      "logging: logger.info() at line 72",
+      "logging: logger.warning() at line 80"
+    ],
+    "endpoints": [],
+    "databases": [],
+    "services": [
+      "service:http-client: client.post() at line 60"
+    ],
+    "unused_exports": [
+      "InviteDeliveryResult",
+      "_extract_error_message",
+      "_invite_email_html",
+      "_invite_email_text",
+      "send_invite_email"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": null,
+    "author_count": null,
+    "last_modified": null,
+    "recency_score": null,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.0,
+  "centrality_score": 0.33,
+  "quality_radar": {
+    "understandability": 0.68,
+    "changeability": 0.96,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.95
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

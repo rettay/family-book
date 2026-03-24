@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # Google Sign-In
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_HOSTED_DOMAIN: str = ""
+    GOOGLE_MAPS_API_KEY: str = ""
+    GOOGLE_MAPS_MAP_ID: str = ""
 
     # Admin
     ADMIN_EMAILS: str = ""
@@ -50,6 +52,11 @@ class Settings(BaseSettings):
     ENVELOPE_WEBHOOK_SECRET: str = ""
     ENVELOPE_ALLOWED_HOSTS: str = ""
     ENVELOPE_MAX_ATTACHMENT_BYTES: int = 25 * 1024 * 1024
+
+    # Resend invite delivery
+    RESEND_API_KEY: str = ""
+    RESEND_FROM_EMAIL: str = ""
+    RESEND_REPLY_TO_EMAIL: str = ""
 
     # Matrix
     MATRIX_HOMESERVER: str = ""
@@ -127,6 +134,14 @@ class Settings(BaseSettings):
             if host not in deduped:
                 deduped.append(host)
         return deduped
+
+    @property
+    def google_maps_enabled(self) -> bool:
+        return bool(self.GOOGLE_MAPS_API_KEY.strip())
+
+    @property
+    def resend_enabled(self) -> bool:
+        return bool(self.RESEND_API_KEY.strip() and self.RESEND_FROM_EMAIL.strip())
 
 
 def get_settings() -> Settings:

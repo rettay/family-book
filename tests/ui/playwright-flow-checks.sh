@@ -275,6 +275,12 @@ assert_run "map marker supports keyboard navigation" \
 "${PWCLI}" goto "${BASE_URL}/map"
 "${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(800); }"
 
+assert_run "configured google map path preserves keyboard navigation" \
+  "${PWCLI}" run-code "async page => { await page.evaluate(() => { const mapEl = document.getElementById('google-map'); mapEl.innerHTML = ''; const overlayPane = document.createElement('div'); overlayPane.style.position = 'absolute'; overlayPane.style.inset = '0'; mapEl.appendChild(overlayPane); class FakeMap { constructor(el, opts) { this.el = el; this.opts = opts; } setCenter() {} setZoom() {} fitBounds() {} } class FakeLatLngBounds { constructor() { this.points = []; } extend(value) { this.points.push(value); } getCenter() { return { lat: 20, lng: 0 }; } } class FakeLatLng { constructor(lat, lng) { this.lat = lat; this.lng = lng; } } class FakeOverlayView { setMap(map) { this.map = map; if (map) { if (this.onAdd) this.onAdd(); if (this.draw) this.draw(); } } getPanes() { return { overlayMouseTarget: overlayPane }; } getProjection() { return { fromLatLngToDivPixel() { return { x: 140, y: 140 }; } }; } } window.google = { maps: { Map: FakeMap, OverlayView: FakeOverlayView, LatLngBounds: FakeLatLngBounds, LatLng: FakeLatLng } }; const root = document.getElementById('map-root'); root.dataset.mapProvider = 'google'; root.dataset.googleMapsApiKey = 'fake-google-key'; root.dataset.googleMapsMapId = ''; }); await page.evaluate(() => window.familyBookMap.reload()); await page.locator('.map-google-marker-button').first().waitFor(); const marker = page.locator('.map-google-marker-button').first(); await marker.focus(); await page.keyboard.press('Enter'); await page.waitForURL(/\\/people\\//); if (!page.url().includes('/people/')) throw new Error('google map keyboard navigation failed'); }"
+
+"${PWCLI}" goto "${BASE_URL}/map"
+"${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(800); }"
+
 "${PWCLI}" run-code "async page => { await page.locator('#map-filter-residence-country').fill('CA'); await page.locator('#apply-map-filters').click(); await page.waitForTimeout(1200); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map-filtered.png" --full-page true >/dev/null
 

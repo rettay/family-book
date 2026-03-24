@@ -1,13 +1,13 @@
 {
   "id": "tests/test_config.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "63a6a8f5",
+  "analyzed_at": "2026-03-24T22:00:48.276480+00:00",
+  "source_hash": "83f943a6",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 56,
+    "lines": 79,
     "rating": "green"
   },
   "dependencies": {
@@ -44,6 +44,13 @@
       "type": "function",
       "summary": null,
       "line": 48,
+      "signature": "()"
+    },
+    {
+      "name": "test_settings_google_maps_and_resend_flags_require_full_config",
+      "type": "function",
+      "summary": null,
+      "line": 59,
       "signature": "()"
     }
   ],
@@ -115,6 +122,25 @@
         {
           "name": "Settings",
           "line": 49,
+          "module_hint": "app.config"
+        }
+      ]
+    },
+    {
+      "name": "test_settings_google_maps_and_resend_flags_require_full_config",
+      "kind": "function",
+      "line": 59,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "Settings",
+          "line": 60,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "Settings",
+          "line": 71,
           "module_hint": "app.config"
         }
       ]
@@ -204,6 +230,27 @@
         "mismatch": "No performance contract annotation available for this function"
       },
       "review_priority": 0.0
+    },
+    {
+      "function": "test_settings_google_maps_and_resend_flags_require_full_config",
+      "line": 59,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 20,
+        "nesting": 0,
+        "token_count": 90
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
     }
   ],
   "spec_linkages": [],
@@ -216,7 +263,7 @@
     "purity": "pure",
     "todo_count": 0,
     "churn_count": 1,
-    "change_risk": "medium",
+    "change_risk": "low",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],

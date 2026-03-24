@@ -83,6 +83,13 @@
     "dashboard": "Panel de Administración",
     "subtitle": "Gestiona invitaciones, revisa el estado de protección y mantén funcionando el archivo familiar.",
     "invite": "Enviar Invitación",
+    "invite_delivery": "Entrega de invitaciones",
+    "invite_delivery_resend_ready": "Resend está configurado para enviar correos directamente.",
+    "invite_delivery_manual": "El correo no está configurado; copia los enlaces de invitación manualmente.",
+    "invite_sent": "Invitación enviada por correo a %s.",
+    "invite_manual_fallback": "Invitación creada sin envío por correo.",
+    "invite_delivery_failed": "La invitación se creó, pero falló el envío por correo: %s.",
+    "invite_link_copied": "El enlace de invitación también se copió.",
     "approve": "Aprobar",
     "suspend": "Suspender",
     "backup": "Copia de Seguridad",
@@ -176,6 +183,9 @@
     "description": "Consulta residencias y lugares memoriales de la familia en una vista privada.",
     "apply_filters": "Aplicar Filtros",
     "legend": "Los marcadores azules muestran residencias. Los dorados muestran entierros o memoriales.",
-    "empty": "No hay personas con ubicación para estos filtros."
+    "empty": "No hay personas con ubicación para estos filtros.",
+    "provider_google": "Google Maps está activo para esta vista.",
+    "provider_fallback": "Se está usando el mapa privado integrado como alternativa.",
+    "provider_error": "Google Maps no estuvo disponible, así que se muestra el mapa privado alternativo."
   }
 }

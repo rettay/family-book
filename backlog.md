@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S12 - External Integrations and Confidence Hardening`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -149,7 +149,7 @@ Execution slices:
 - `S11-2` Inline Tree Editing
 - `S11-3` Relationship Workflows and Tree-First Landing
 
-## Planned Sprint `S12 - External Integrations and Confidence Hardening`
+## Closed Sprint `S12 - External Integrations and Confidence Hardening`
 
 Sprint goal:
 - Deliver the next product-value integrations through Google Maps and Resend while folding the remaining high-signal CodeMap debt into the same sprint as targeted confidence hardening.
@@ -158,8 +158,8 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | planned | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
-| FB-014 | Architecture and Maintainability Hardening | P1 | planned | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
+| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | done | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
+| FB-014 | Architecture and Maintainability Hardening | P1 | done | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
 
 Execution slices:
 - `S12-1` Google Maps Integration

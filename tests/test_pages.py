@@ -88,6 +88,39 @@ async def test_map_page_renders_accessible_svg_and_reset_filter(member_client: A
     assert 'id="map-svg"' in resp.text
     assert 'role="img"' in resp.text
     assert 'id="reset-map-filters"' in resp.text
+    assert 'data-map-provider="svg"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_map_page_exposes_google_maps_provider_when_configured(
+    member_client: AsyncClient,
+    monkeypatch,
+):
+    monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "maps-key")
+    monkeypatch.setenv("GOOGLE_MAPS_MAP_ID", "map-id-1")
+
+    resp = await member_client.get("/map")
+
+    assert resp.status_code == 200
+    assert 'data-map-provider="google"' in resp.text
+    assert 'data-google-maps-api-key="maps-key"' in resp.text
+    assert 'data-google-maps-map-id="map-id-1"' in resp.text
+    assert 'id="google-map"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_admin_page_reports_resend_delivery_mode(
+    admin_client: AsyncClient,
+    monkeypatch,
+):
+    monkeypatch.setenv("RESEND_API_KEY", "resend-key")
+    monkeypatch.setenv("RESEND_FROM_EMAIL", "Family Book <invites@example.com>")
+
+    resp = await admin_client.get("/admin")
+
+    assert resp.status_code == 200
+    assert 'Invite delivery' in resp.text
+    assert 'Resend is configured for direct email delivery.' in resp.text
 
 
 @pytest.mark.asyncio

@@ -4,7 +4,7 @@
 
 ### S12-1 Google Maps Integration
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   strengthen the map experience with a real map provider while preserving graceful fallback
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S12-2 Resend Invite Delivery
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make invite delivery and related notification plumbing real
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S12-3 Confidence Hardening for Integration Paths
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   reduce the remaining central-module risk that Sprint 12 touches

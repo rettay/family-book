@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S12 - External Integrations and Confidence Hardening`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,8 +18,8 @@ Family Book now has a stronger tree-centered workflow, but the map and invite-de
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 14 | FB-016 | External Integrations: Google Maps and Email Delivery | P1 | planned |
-| 15 | FB-014 | Architecture and Maintainability Hardening | P1 | planned |
+| 14 | FB-016 | External Integrations: Google Maps and Email Delivery | P1 | done |
+| 15 | FB-014 | Architecture and Maintainability Hardening | P1 | done |
 
 ## Packet Sequence Rationale
 
@@ -39,6 +39,21 @@ The sprint is successful when all are true:
 - Resend-backed invite delivery works in configured environments
 - central-module confidence improves for the access/schema paths touched by the integrations
 - browser, staging, and CodeMap baselines remain intact
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 12 on `main` and Auditor required one follow-up pass for the configured Google Maps and outbound email paths
+- Builder corrected the Google Maps keyboard regression, added retry behavior for loader failures, and escaped outbound invite email HTML before final audit signoff
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_email_delivery.py tests/test_auth.py tests/test_pages.py tests/test_config.py tests/test_access_control.py tests/test_schema_models.py -q`
+  - result: `52 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
 
 ## Closed Sprint
 

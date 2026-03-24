@@ -4,6 +4,7 @@ from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import app.routes.auth_routes as auth_routes
 from app.models.person import Person, AccountState, PersonLifecycleState
 from app.models.auth import Invite, UserSession
 from app.services.auth_service import (
@@ -15,6 +16,7 @@ from app.services.auth_service import (
     delete_session,
     _hash_token,
 )
+from app.services.email_delivery import InviteDeliveryResult
 
 
 @pytest.mark.asyncio
@@ -218,6 +220,8 @@ async def test_admin_can_create_and_revoke_invite(
     assert body["person_id"] == member.id
     assert body["contact_email"] == "jane@example.com"
     assert "/invite/" in body["invite_url"]
+    assert body["delivery_status"] == "not_configured"
+    assert body["delivery_provider"] is None
 
     invite_result = await seeded_db.execute(select(Invite).where(Invite.person_id == member.id))
     invite = invite_result.scalar_one()
@@ -249,6 +253,64 @@ async def test_admin_reinvite_does_not_downgrade_active_member(
     refreshed = await seeded_db.get(Person, member.id)
     assert refreshed is not None
     assert refreshed.account_state == AccountState.active.value
+
+
+@pytest.mark.asyncio
+async def test_admin_invite_reports_resend_delivery_result(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+    monkeypatch,
+):
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
+    await seeded_db.commit()
+
+    async def fake_send_invite_email(**kwargs):
+        assert kwargs["recipient_email"] == "jane@example.com"
+        assert "/invite/" in kwargs["invite_url"]
+        return InviteDeliveryResult(
+            status="sent",
+            provider="resend",
+            message_id="re_123",
+        )
+
+    monkeypatch.setattr(auth_routes, "send_invite_email", fake_send_invite_email)
+
+    create_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert create_resp.status_code == 201
+    body = create_resp.json()
+    assert body["delivery_status"] == "sent"
+    assert body["delivery_provider"] == "resend"
+    assert body["delivery_message_id"] == "re_123"
+
+
+@pytest.mark.asyncio
+async def test_admin_invite_preserves_link_when_delivery_fails(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+    monkeypatch,
+):
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+    member.contact_email = "jane@example.com"
+    await seeded_db.commit()
+
+    async def fake_send_invite_email(**kwargs):
+        return InviteDeliveryResult(
+            status="failed",
+            provider="resend",
+            error="temporary outage",
+        )
+
+    monkeypatch.setattr(auth_routes, "send_invite_email", fake_send_invite_email)
+
+    create_resp = await admin_client.post(f"/api/admin/persons/{member.id}/invite")
+    assert create_resp.status_code == 201
+    body = create_resp.json()
+    assert body["delivery_status"] == "failed"
+    assert body["delivery_error"] == "temporary outage"
+    assert "/invite/" in body["invite_url"]
 
 
 @pytest.mark.asyncio

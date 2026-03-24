@@ -1,10 +1,21 @@
 from datetime import datetime, timezone
 
+import pytest
 import app.models.moments as moment_models
 import app.schemas as schemas
 from app.models.moments import Moment, MomentKind, MomentLifecycleState
 from app.models.person import Person
-from app.schemas import PersonCreate, PersonUpdate, person_to_detail, person_to_summary
+from pydantic import ValidationError
+from app.schemas import (
+    ParentChildCreate,
+    ParentChildResponse,
+    PartnershipResponse,
+    PartnershipUpdate,
+    PersonCreate,
+    PersonUpdate,
+    person_to_detail,
+    person_to_summary,
+)
 
 
 def test_person_schema_helpers_preserve_expected_fields():
@@ -115,3 +126,34 @@ def test_person_summary_helper_preserves_datetime_fields_for_detail():
     assert detail.created_at == created_at
     assert detail.is_admin is True
     assert detail.contact_email == "detail@example.com"
+
+
+def test_relationship_schemas_validate_integration_shapes():
+    relationship = ParentChildCreate(
+        parent_id="parent-1",
+        child_id="child-1",
+    )
+    relationship_response = ParentChildResponse(
+        id="pc-1",
+        parent_id="parent-1",
+        child_id="child-1",
+        kind="biological",
+        confidence="confirmed",
+        source="manual",
+    )
+    partnership = PartnershipResponse(
+        id="partner-1",
+        person_a_id="person-a",
+        person_b_id="person-b",
+        kind="married",
+        status="active",
+        source="manual",
+    )
+    partnership_update = PartnershipUpdate(status="ended", notes="archived")
+
+    with pytest.raises(ValidationError):
+        schemas.PersonCreate(first_name="x" * 201, last_name="Person")
+    assert relationship.kind == "biological"
+    assert relationship_response.parent_id == "parent-1"
+    assert partnership.status == "active"
+    assert partnership_update.status == "ended"

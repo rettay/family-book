@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S12 - External Integrations and Confidence Hardening`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-016 External Integrations: Google Maps and Email Delivery`
 - Supporting packet: `FB-014 Architecture and Maintainability Hardening`
 
@@ -63,3 +63,19 @@ Sprint 11 made the tree the primary workspace. The next product-visible gains ar
 ## Exit Target
 
 Sprint 12 is complete when Family Book can deliver real invites, offer a meaningfully stronger map surface through Google Maps, and carry those integrations on a tested, CodeMap-clean-enough base.
+
+## Closeout Result
+
+- Exit result: `pass`
+- Builder implemented the external integration layer and the audit follow-up on `main`
+- Auditor initially flagged Google Maps keyboard regression, unescaped invite email HTML, and non-retryable Google loader failures
+- Builder corrected those issues and added focused regression coverage for escaped outbound email content and the configured Google Maps keyboard path
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_email_delivery.py tests/test_auth.py tests/test_pages.py tests/test_config.py tests/test_access_control.py tests/test_schema_models.py -q`
+  - result: `52 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`

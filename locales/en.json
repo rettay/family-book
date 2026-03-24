@@ -83,6 +83,13 @@
     "dashboard": "Admin Dashboard",
     "subtitle": "Manage invites, review protection status, and keep the family archive running smoothly.",
     "invite": "Send Invite",
+    "invite_delivery": "Invite delivery",
+    "invite_delivery_resend_ready": "Resend is configured for direct email delivery.",
+    "invite_delivery_manual": "Email delivery is not configured; copy invite links manually.",
+    "invite_sent": "Invite emailed to %s.",
+    "invite_manual_fallback": "Invite created without email delivery.",
+    "invite_delivery_failed": "Invite created, but email delivery failed: %s.",
+    "invite_link_copied": "The invite link was copied too.",
     "approve": "Approve",
     "suspend": "Suspend",
     "backup": "Backup",
@@ -176,6 +183,9 @@
     "description": "See family residences and memorial locations in one private view.",
     "apply_filters": "Apply Filters",
     "legend": "Blue markers show residences. Gold markers show burial or memorial locations.",
-    "empty": "No mapped people match these filters yet."
+    "empty": "No mapped people match these filters yet.",
+    "provider_google": "Google Maps is active for this view.",
+    "provider_fallback": "Using the built-in private map fallback.",
+    "provider_error": "Google Maps was unavailable, so the private fallback map is shown."
   }
 }

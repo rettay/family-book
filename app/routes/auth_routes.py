@@ -12,6 +12,7 @@ from app.models.auth import AuthMethod, Invite
 from app.models.person import AccountState, Person, PersonLifecycleState
 from app.services.audit_service import log_audit
 from app.services.google_auth import GoogleAuthError, verify_google_credential
+from app.services.email_delivery import send_invite_email
 from app.services.auth_service import (
     authenticate_google_identity,
     claim_invite,
@@ -42,6 +43,10 @@ class AdminInviteResponse(BaseModel):
     claimed_at: str | None
     revoked: bool
     expires_at: str
+    delivery_status: str
+    delivery_provider: str | None = None
+    delivery_message_id: str | None = None
+    delivery_error: str | None = None
 
 
 def _set_session_cookie(response: Response, token: str) -> None:
@@ -142,14 +147,26 @@ async def create_person_invite(
     logger.info("Invite created for person %s by admin %s", person.id, current_user.id)
 
     settings = get_settings()
+    invite_url = f"{settings.BASE_URL.rstrip('/')}/invite/{invite.raw_token}"
+    delivery = await send_invite_email(
+        recipient_email=person.contact_email,
+        recipient_name=person.display_name,
+        invite_url=invite_url,
+        invited_by_name=current_user.display_name,
+        expires_at=invite.expires_at,
+    )
     return AdminInviteResponse(
         id=invite.id,
         person_id=person.id,
         contact_email=person.contact_email,
-        invite_url=f"{settings.BASE_URL.rstrip('/')}/invite/{invite.raw_token}",
+        invite_url=invite_url,
         claimed_at=None,
         revoked=invite.revoked,
         expires_at=invite.expires_at.isoformat(),
+        delivery_status=delivery.status,
+        delivery_provider=delivery.provider,
+        delivery_message_id=delivery.message_id,
+        delivery_error=delivery.error,
     )
 
 

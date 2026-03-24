@@ -1,11 +1,14 @@
 import pytest
 
+import app.access_control as access_control
 from app.access_control import (
     PersonAccess,
     can_collaborate,
     can_manage_person,
+    get_accessible_person_ids,
     get_person_access,
     redact_person_detail,
+    redact_person_summary,
 )
 from app.models.person import AccountState, Person, PersonLifecycleState, Visibility
 
@@ -97,3 +100,50 @@ def test_redact_person_detail_hides_sensitive_fields_without_profile_access():
     assert detail.residence_country_code is None
     assert detail.medical_history is None
     assert detail.contact_email is None
+
+
+@pytest.mark.asyncio
+async def test_get_accessible_person_ids_hides_hidden_people_from_members(seeded_db):
+    hidden = Person(
+        first_name="Hidden",
+        last_name="Relative",
+        visibility=Visibility.hidden.value,
+        account_state=AccountState.active.value,
+    )
+    seeded_db.add(hidden)
+    await seeded_db.flush()
+
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert member is not None
+
+    visible_ids = await get_accessible_person_ids(seeded_db, member)
+    all_ids = await get_accessible_person_ids(seeded_db, member, include_hidden=True)
+
+    assert hidden.id not in visible_ids
+    assert hidden.id in all_ids
+
+
+def test_redact_person_summary_preserves_metrics_when_profile_visible():
+    person = Person(
+        id="person-summary-1",
+        first_name="Metric",
+        last_name="Person",
+        branch="martin",
+        residence_country_code="US",
+        account_state=AccountState.active.value,
+        visibility=Visibility.visible.value,
+        is_living=True,
+    )
+    person.moment_count = 4
+    person.story_count = 2
+    person.media_count = 9
+    access = PersonAccess(True, True, False, False)
+
+    summary = redact_person_summary(person, access)
+
+    assert access_control.can_collaborate(person) is True
+    assert summary.branch == "martin"
+    assert summary.residence_country_code == "US"
+    assert summary.moment_count == 4
+    assert summary.story_count == 2
+    assert summary.media_count == 9

@@ -54,3 +54,26 @@ def test_settings_envelope_allowed_hosts_dedupes_and_infers_api_host():
     )
 
     assert settings.envelope_allowed_host_list == ["mail.example.com", "files.example.com"]
+
+
+def test_settings_google_maps_and_resend_flags_require_full_config():
+    settings = Settings(
+        SECRET_KEY="secret",
+        FERNET_KEY="fernet",
+        GOOGLE_MAPS_API_KEY="maps-key",
+        RESEND_API_KEY="resend-key",
+        RESEND_FROM_EMAIL="Family Book <invites@example.com>",
+    )
+
+    assert settings.google_maps_enabled is True
+    assert settings.resend_enabled is True
+
+    incomplete = Settings(
+        SECRET_KEY="secret",
+        FERNET_KEY="fernet",
+        RESEND_API_KEY="resend-key",
+        RESEND_FROM_EMAIL="",
+    )
+
+    assert incomplete.google_maps_enabled is False
+    assert incomplete.resend_enabled is False

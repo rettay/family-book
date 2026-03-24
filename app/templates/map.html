@@ -46,6 +46,55 @@
     width: 100%;
     height: 72vh;
   }
+  #google-map {
+    display: block;
+    width: 100%;
+    height: 72vh;
+  }
+  .map-google-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .map-google-marker-button {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.2rem 0.55rem 0.2rem 0.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 6px 18px rgba(41, 64, 58, 0.14);
+    color: #29403a;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    pointer-events: auto;
+    cursor: pointer;
+    transform: translate(-50%, -100%);
+  }
+  .map-google-marker-button:focus-visible {
+    outline: 3px solid rgba(47, 93, 75, 0.35);
+    outline-offset: 2px;
+  }
+  .map-google-marker-dot {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    flex: 0 0 auto;
+  }
+  .map-google-marker-dot--residence {
+    background: #205c9c;
+  }
+  .map-google-marker-dot--burial {
+    background: #b4851c;
+  }
+  .map-google-marker-label {
+    white-space: nowrap;
+  }
   .map-legend,
   .map-empty {
     position: absolute;
@@ -65,6 +114,7 @@
       grid-template-columns: 1fr;
     }
     #map-svg,
+    #google-map,
     .map-board {
       min-height: 60vh;
       height: 60vh;
@@ -74,10 +124,27 @@
 {% endblock %}
 
 {% block content %}
-<div class="map-page" id="map-root" data-empty-text="{{ t('map.empty') }}">
+<div
+  class="map-page"
+  id="map-root"
+  data-empty-text="{{ t('map.empty') }}"
+  data-map-provider="{% if google_maps_enabled %}google{% else %}svg{% endif %}"
+  data-google-maps-api-key="{{ google_maps_api_key }}"
+  data-google-maps-map-id="{{ google_maps_map_id }}"
+  data-provider-google-label="{{ t('map.provider_google') }}"
+  data-provider-fallback-label="{{ t('map.provider_fallback') }}"
+  data-provider-error-label="{{ t('map.provider_error') }}"
+>
   <aside class="map-panel">
     <h1 class="map-panel__title">{{ t('map.title') }}</h1>
     <p>{{ t('map.description') }}</p>
+    <p class="text-sm text-muted" id="map-provider-status">
+      {% if google_maps_enabled %}
+      {{ t('map.provider_google') }}
+      {% else %}
+      {{ t('map.provider_fallback') }}
+      {% endif %}
+    </p>
     <label>
       {{ t('tree.filter_living') }}
       <select id="map-filter-living">
@@ -105,6 +172,7 @@
   </aside>
 
   <section class="map-board">
+    <div id="google-map" hidden aria-label="{{ t('map.title') }}"></div>
     <svg id="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="{{ t('map.title') }}"></svg>
     <div class="map-legend">{{ t('map.legend') }}</div>
     <div class="map-empty" id="map-empty" hidden role="status" aria-live="polite">{{ t('map.empty') }}</div>

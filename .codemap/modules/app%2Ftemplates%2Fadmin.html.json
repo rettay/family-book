@@ -1,13 +1,13 @@
 {
   "id": "app/templates/admin.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T19:38:32.300070+00:00",
-  "source_hash": "ec1e3c46",
+  "analyzed_at": "2026-03-24T22:00:48.276480+00:00",
+  "source_hash": "9c2b9add",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 312,
+    "lines": 334,
     "rating": "green"
   },
   "dependencies": {
@@ -27,7 +27,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 8,
+    "churn_count": 9,
     "change_risk": "high",
     "domain": null,
     "observability_patterns": [],
@@ -36,10 +36,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 3.0,
+    "change_velocity": 3.5,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-24T14:06:44-04:00",
+    "last_modified": "2026-03-24T15:47:29-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.25,
+  "attention_score": 0.26,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.8,
+    "understandability": 0.83,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.43
+    "stability": 0.4
   },
   "domain_role": "utility",
   "detected_patterns": null,

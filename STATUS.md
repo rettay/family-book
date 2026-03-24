@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 11 are closed. Sprint 12 is now planned around external integrations and the confidence hardening needed to support them.
+Sprint 01 through Sprint 12 are closed. Sprint 12 delivered the first real external integrations, pairing Google Maps and Resend with targeted confidence hardening.
 
 ## North Star
 
@@ -65,6 +65,13 @@ Sprint 01 through Sprint 11 are closed. Sprint 12 is now planned around external
   - `make test-ui-playwright`
   - Result at closeout: success
   - Screenshot artifacts: `/Users/cheech/code/family-book/output/playwright/family-book-flow`
+- Focused Sprint 12 verification:
+  - `uv run pytest tests/test_email_delivery.py tests/test_auth.py tests/test_pages.py tests/test_config.py tests/test_access_control.py tests/test_schema_models.py -q`
+  - Result at closeout: `52 passed`
+  - `make test-ui-playwright`
+  - Result at closeout: success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
 - Syntax smoke check:
   - `uv run python -m compileall app tests`
   - Result: success
@@ -79,15 +86,15 @@ Sprint 01 through Sprint 11 are closed. Sprint 12 is now planned around external
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next major product value gap is external integration depth: the map is still lighter than it should be, and invite delivery still needs real email infrastructure
-- CodeMap still points to central-module risk in access control, schemas, observability, and ownership concentration even though overall governance remains passing
+- The next major product value gap is broader product usability and feature depth now that map and invite delivery have real integrations
+- CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Execute Sprint 12 to land Google Maps and Resend on top of the current tree-first product baseline
-2. Reduce the remaining high-signal CodeMap warnings in the modules Sprint 12 depends on
-3. Preserve browser, accessibility, and staging-review confidence while external dependencies are introduced
-4. Keep deeper structural cleanup behind the integration sprint unless it directly supports release confidence
+1. Evaluate the current product baseline and capture the next usability and feature-depth sprint clearly
+2. Preserve browser, accessibility, and staging-review confidence while the next product surface expands
+3. Reduce remaining warning-only structural debt where it directly supports release confidence
+4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
 
 ## Sprint State
 
@@ -103,10 +110,12 @@ Sprint 01 through Sprint 11 are closed. Sprint 12 is now planned around external
   - `S09 - Accessibility and Interaction Hardening`
   - `S10 - Readability and Responsive Polish`
   - `S11 - Tree as Primary Workspace`
-- Planned sprint:
-  - `S12 - External Integrations and Confidence Hardening`
+- `S12 - External Integrations and Confidence Hardening`
+- Current sprint:
+  - none active
 - Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
 - Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
+- Sprint 12 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s12.md`
 - Primary packet: `/Users/cheech/code/family-book/task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md`
 - Supporting packet: `/Users/cheech/code/family-book/task_packets/FB-014_architecture_and_maintainability_hardening.md`
 - Sprint 11 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s11.md`

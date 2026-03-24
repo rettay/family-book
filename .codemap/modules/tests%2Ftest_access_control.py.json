@@ -1,13 +1,13 @@
 {
   "id": "tests/test_access_control.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "1a8f46eb",
+  "analyzed_at": "2026-03-24T22:00:48.276480+00:00",
+  "source_hash": "c1fd2f50",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 99,
+    "lines": 149,
     "rating": "green"
   },
   "dependencies": {
@@ -23,21 +23,28 @@
       "name": "test_can_collaborate_requires_active_account",
       "type": "function",
       "summary": null,
-      "line": 52,
+      "line": 55,
       "signature": "()"
     },
     {
       "name": "test_can_manage_person_blocks_deleted_profile",
       "type": "function",
       "summary": null,
-      "line": 61,
+      "line": 64,
       "signature": "()"
     },
     {
       "name": "test_redact_person_detail_hides_sensitive_fields_without_profile_access",
       "type": "function",
       "summary": null,
-      "line": 72,
+      "line": 75,
+      "signature": "()"
+    },
+    {
+      "name": "test_redact_person_summary_preserves_metrics_when_profile_visible",
+      "type": "function",
+      "summary": null,
+      "line": 126,
       "signature": "()"
     }
   ],
@@ -45,33 +52,33 @@
     {
       "name": "test_can_collaborate_requires_active_account",
       "kind": "function",
-      "line": 52,
+      "line": 55,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 53,
+          "line": 56,
           "module_hint": "app.models.person"
         },
         {
           "name": "Person",
-          "line": 54,
+          "line": 57,
           "module_hint": "app.models.person"
         },
         {
           "name": "can_collaborate",
-          "line": 56,
+          "line": 59,
           "module_hint": "app.access_control"
         },
         {
           "name": "can_collaborate",
-          "line": 57,
+          "line": 60,
           "module_hint": "app.access_control"
         },
         {
           "name": "can_collaborate",
-          "line": 58,
+          "line": 61,
           "module_hint": "app.access_control"
         }
       ]
@@ -79,23 +86,23 @@
     {
       "name": "test_can_manage_person_blocks_deleted_profile",
       "kind": "function",
-      "line": 61,
+      "line": 64,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 62,
+          "line": 65,
           "module_hint": "app.models.person"
         },
         {
           "name": "Person",
-          "line": 63,
+          "line": 66,
           "module_hint": "app.models.person"
         },
         {
           "name": "can_manage_person",
-          "line": 69,
+          "line": 72,
           "module_hint": "app.access_control"
         }
       ]
@@ -103,23 +110,52 @@
     {
       "name": "test_redact_person_detail_hides_sensitive_fields_without_profile_access",
       "kind": "function",
-      "line": 72,
+      "line": 75,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 73,
+          "line": 76,
           "module_hint": "app.models.person"
         },
         {
           "name": "PersonAccess",
-          "line": 87,
+          "line": 90,
           "module_hint": "app.access_control"
         },
         {
           "name": "redact_person_detail",
-          "line": 94,
+          "line": 97,
+          "module_hint": "app.access_control"
+        }
+      ]
+    },
+    {
+      "name": "test_redact_person_summary_preserves_metrics_when_profile_visible",
+      "kind": "function",
+      "line": 126,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "Person",
+          "line": 127,
+          "module_hint": "app.models.person"
+        },
+        {
+          "name": "PersonAccess",
+          "line": 140,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "redact_person_summary",
+          "line": 142,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "access_control.can_collaborate",
+          "line": 144,
           "module_hint": "app.access_control"
         }
       ]
@@ -128,7 +164,7 @@
   "function_audits": [
     {
       "function": "test_hidden_person_denied_to_member",
-      "line": 14,
+      "line": 17,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -149,7 +185,7 @@
     },
     {
       "function": "test_admin_can_view_hidden_person",
-      "line": 34,
+      "line": 37,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -170,7 +206,7 @@
     },
     {
       "function": "test_can_collaborate_requires_active_account",
-      "line": 52,
+      "line": 55,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -184,28 +220,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 56,
+              "line_end": 56
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 57,
+              "line_end": 57
             },
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 56,
+              "line_end": 56
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 57,
+              "line_end": 57
             },
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 56,
+              "line_end": 56
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 57,
+              "line_end": 57
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -224,7 +260,7 @@
     },
     {
       "function": "test_can_manage_person_blocks_deleted_profile",
-      "line": 61,
+      "line": 64,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -245,7 +281,7 @@
     },
     {
       "function": "test_redact_person_detail_hides_sensitive_fields_without_profile_access",
-      "line": 72,
+      "line": 75,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -263,6 +299,65 @@
         "mismatch": "No performance contract annotation available for this function"
       },
       "review_priority": 0.0
+    },
+    {
+      "function": "test_get_accessible_person_ids_hides_hidden_people_from_members",
+      "line": 106,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 17,
+        "nesting": 0,
+        "token_count": 98
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_redact_person_summary_preserves_metrics_when_profile_visible",
+      "line": 126,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 23,
+        "nesting": 0,
+        "token_count": 135
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 145,
+              "line_end": 145
+            },
+            {
+              "line_start": 146,
+              "line_end": 146
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
     }
   ],
   "spec_linkages": [],
@@ -275,7 +370,7 @@
     "purity": "pure",
     "todo_count": 0,
     "churn_count": 1,
-    "change_risk": "medium",
+    "change_risk": "low",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],

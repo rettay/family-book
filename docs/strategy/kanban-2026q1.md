@@ -2,10 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
-| FB-014 | Architecture and Maintainability Hardening | P1 | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
+None.
 
 ## In Progress
 
@@ -33,3 +30,5 @@ None.
 | FB-012 | Accessibility and Interaction Hardening | P1 | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |
 | FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |
 | FB-015 | Tree as Primary Workspace | P1 | `task_packets/FB-015_tree_as_primary_workspace.md` |
+| FB-014 | Architecture and Maintainability Hardening | P1 | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
+| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
