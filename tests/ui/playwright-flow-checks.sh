@@ -45,6 +45,7 @@ fi
 export PLAYWRIGHT_CLI_SESSION="family-book-flow-${PORT}"
 export PLAYWRIGHT_DAEMON_SOCKETS_DIR="/tmp/playwright-cli"
 
+rm -rf "${ARTIFACT_DIR}"
 mkdir -p "${ARTIFACT_DIR}"
 mkdir -p "${SCREENSHOT_DIR}"
 mkdir -p "${TRACE_DIR}"
@@ -111,6 +112,7 @@ source "${TMP_DIR}/seed.env"
 uv run python -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port "${PORT}" > "${ARTIFACT_DIR}/server.log" 2>&1 &
 SERVER_PID=$!
 
+server_ready=0
 for _ in $(seq 1 50); do
   if uv run python - <<'PY' >/dev/null 2>&1
 import json
@@ -121,12 +123,17 @@ with urllib.request.urlopen(f"{os.environ['BASE_URL']}/health", timeout=1) as re
     json.load(response)
 PY
   then
+    server_ready=1
     break
   fi
   sleep 0.2
 done
 
-env -u PLAYWRIGHT_CLI_SESSION "${PWCLI}" install-browser >/dev/null
+if (( ! server_ready )); then
+  echo "App did not become ready at ${BASE_URL}/health within the startup window." >&2
+  exit 1
+fi
+
 "${PWCLI}" open "${BASE_URL}/login"
 "${PWCLI}" tracing-start >/dev/null
 "${PWCLI}" video-start >/dev/null
