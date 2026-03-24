@@ -51,7 +51,7 @@
           body: '{}'
         });
         if (resp.ok) {
-          window.location.href = '/';
+          window.location.href = '/tree';
         } else {
           const data = await resp.json();
           btn.textContent = data.detail || '{{ t("common.error") }}';

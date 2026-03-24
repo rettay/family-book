@@ -175,6 +175,9 @@ def redact_person_summary(person: Person, access: PersonAccess) -> PersonSummary
         branch=person.branch if access.can_view_profile else None,
         is_living=person.is_living,
         visibility=person.visibility,
+        moment_count=getattr(person, "moment_count", 0) or 0,
+        story_count=getattr(person, "story_count", 0) or 0,
+        media_count=getattr(person, "media_count", 0) or 0,
     )
 
 

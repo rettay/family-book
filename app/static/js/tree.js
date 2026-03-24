@@ -8,6 +8,7 @@
   var zoom;
   var treeData;
   var sidebarTrigger = null;
+  var currentSidebarPersonId = null;
   var preferences = {
     show_names: true,
     show_birth_dates: false,
@@ -16,10 +17,12 @@
   };
   var NODE_RADIUS = 30;
   var NODE_SPACING_X = 100;
-  var NODE_SPACING_Y = 140;
+  var NODE_SPACING_Y = 150;
 
   var root = document.getElementById('tree-root');
   var statusNode = document.getElementById('tree-status');
+  var sidebar = document.getElementById('person-sidebar');
+  var sidebarContent = document.getElementById('sidebar-content');
 
   function queryString(filters) {
     var params = new URLSearchParams();
@@ -61,6 +64,71 @@
     statusNode.textContent = text;
   }
 
+  function showToastMessage(message) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(message);
+    }
+  }
+
+  function resolvePhotoHref(photoUrl) {
+    if (!photoUrl) {
+      return '';
+    }
+    if (photoUrl.indexOf('http') === 0 || photoUrl.indexOf('/') === 0) {
+      return photoUrl;
+    }
+    return '/api/media/' + photoUrl + '/file';
+  }
+
+  function relationshipPayload(personId, relatedId, mode) {
+    if (mode === 'parent') {
+      return {
+        endpoint: '/api/relationships/parent-child',
+        body: {parent_id: relatedId, child_id: personId, kind: 'biological'}
+      };
+    }
+    if (mode === 'child') {
+      return {
+        endpoint: '/api/relationships/parent-child',
+        body: {parent_id: personId, child_id: relatedId, kind: 'biological'}
+      };
+    }
+    return {
+      endpoint: '/api/relationships/partnership',
+      body: {person_a_id: personId, person_b_id: relatedId, kind: 'married'}
+    };
+  }
+
+  function setError(nodeId, message) {
+    var node = document.getElementById(nodeId);
+    if (!node) return;
+    node.textContent = message || '';
+    node.classList.toggle('hidden', !message);
+  }
+
+  function clearErrors() {
+    setError('tree-person-edit-error', '');
+    setError('tree-relationship-error', '');
+  }
+
+  function formDataToJson(form, options) {
+    var opts = options || {};
+    var nullableFields = opts.nullableFields || [];
+    var formData = new FormData(form);
+    var payload = {};
+    formData.forEach(function(value, key) {
+      if (typeof value === 'string') {
+        var trimmed = value.trim();
+        if (trimmed !== '') {
+          payload[key] = trimmed;
+        } else if (nullableFields.indexOf(key) !== -1) {
+          payload[key] = null;
+        }
+      }
+    });
+    return payload;
+  }
+
   async function loadPreferences() {
     var resp = await fetch('/api/tree/preferences');
     if (resp.status === 401) {
@@ -97,6 +165,15 @@
     }
     treeData = await resp.json();
     render();
+  }
+
+  async function renderSidebar(personId) {
+    currentSidebarPersonId = personId;
+    sidebarContent.setAttribute('aria-busy', 'true');
+    var resp = await fetch('/people/' + personId + '/card');
+    var html = await resp.text();
+    window.replaceNodeChildrenFromHTML(sidebarContent, html);
+    sidebarContent.setAttribute('aria-busy', 'false');
   }
 
   async function init() {
@@ -239,6 +316,29 @@
     return {allNodes: allNodes, nodePositions: nodePositions};
   }
 
+  function addMetricPill(nodeGroup, person, baseY) {
+    var metrics = [];
+    if (person.moment_count) metrics.push('M ' + person.moment_count);
+    if (person.story_count) metrics.push('S ' + person.story_count);
+    if (person.media_count) metrics.push('Md ' + person.media_count);
+    if (!metrics.length) {
+      return;
+    }
+
+    var label = metrics.join(' · ');
+    var width = Math.max(52, label.length * 5.9 + 14);
+    nodeGroup.append('rect')
+      .attr('class', 'metric-pill')
+      .attr('x', -(width / 2))
+      .attr('y', baseY - 10)
+      .attr('width', width)
+      .attr('height', 16);
+    nodeGroup.append('text')
+      .attr('class', 'metric-label')
+      .attr('y', baseY + 1)
+      .text(label);
+  }
+
   function renderNode(node, person) {
     var nodeGroup = g.append('g')
       .attr('class', 'person-node' + (person.branch ? ' person-node--branch-' + person.branch : ''))
@@ -258,7 +358,7 @@
         .append('circle')
         .attr('r', NODE_RADIUS);
       nodeGroup.append('image')
-        .attr('href', '/api/media/' + person.photo_url + '/file')
+        .attr('href', resolvePhotoHref(person.photo_url))
         .attr('x', -NODE_RADIUS)
         .attr('y', -NODE_RADIUS)
         .attr('width', NODE_RADIUS * 2)
@@ -281,7 +381,7 @@
           .attr('dy', '0.35em')
           .attr('fill', '#2d5016')
           .attr('font-size', '14px')
-          .attr('font-weight', '600')
+          .attr('font-weight', '700')
           .attr('pointer-events', 'none')
           .text(person.display_name.substring(0, 2));
       }
@@ -291,26 +391,32 @@
       .attr('class', 'tap-target')
       .attr('r', NODE_RADIUS + 10);
 
+    var nextTextY = NODE_RADIUS + 16;
     if (preferences.show_names) {
       nodeGroup.append('text')
         .attr('class', 'name-label')
-        .attr('dy', NODE_RADIUS + 16)
+        .attr('dy', nextTextY)
         .text(person.display_name);
+      nextTextY += 15;
     }
 
     if (preferences.show_birth_dates && person.birth_date_raw) {
       nodeGroup.append('text')
         .attr('class', 'rel-label')
-        .attr('dy', NODE_RADIUS + (preferences.show_names ? 32 : 18))
+        .attr('dy', nextTextY)
         .text(person.birth_date_raw);
+      nextTextY += 14;
     }
 
     if (preferences.show_country_flags && person.residence_country_code) {
       nodeGroup.append('text')
         .attr('class', 'rel-label')
-        .attr('dy', NODE_RADIUS + (preferences.show_names || preferences.show_birth_dates ? 46 : 18))
+        .attr('dy', nextTextY)
         .text(countryFlag(person.residence_country_code));
+      nextTextY += 14;
     }
+
+    addMetricPill(nodeGroup, person, nextTextY);
 
     nodeGroup.on('click', function() {
       openPersonSidebar(person.id, this);
@@ -398,14 +504,11 @@
     setStatus(root.dataset.statusTemplate.replace('{count}', String(treeData.persons.length)));
   }
 
-  function openPersonSidebar(personId, triggerNode) {
-    var sidebar = document.getElementById('person-sidebar');
-    var content = document.getElementById('sidebar-content');
+  async function openPersonSidebar(personId, triggerNode) {
     sidebarTrigger = triggerNode || document.activeElement;
     sidebar.classList.add('person-sidebar--open');
-    content.setAttribute('aria-busy', 'true');
     window.openAccessibleOverlay(sidebar, {initialFocus: '.person-sidebar__close'});
-    htmx.ajax('GET', '/people/' + personId + '/card', {target: '#sidebar-content', swap: 'innerHTML'});
+    await renderSidebar(personId);
   }
 
   function countryFlag(code) {
@@ -416,43 +519,169 @@
     return String.fromCodePoint(code.charCodeAt(0) + offset, code.charCodeAt(1) + offset);
   }
 
+  async function refreshTreeWorkspace(personId) {
+    await loadTree();
+    if (personId) {
+      await renderSidebar(personId);
+    }
+  }
+
+  async function saveTreePerson(event, personId) {
+    event.preventDefault();
+    clearErrors();
+    var form = event.target;
+    var button = form.querySelector('button[type="submit"]');
+    var originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = root.dataset.savingLabel;
+
+    try {
+      var resp = await fetch('/api/persons/' + personId, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formDataToJson(form, {
+          nullableFields: [
+            'nickname',
+            'birth_date_raw',
+            'birth_place',
+            'residence_place',
+            'residence_country_code',
+            'branch',
+            'bio'
+          ]
+        }))
+      });
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.updateError);
+      }
+      await refreshTreeWorkspace(personId);
+      showToastMessage(root.dataset.savedMessage);
+    } catch (err) {
+      setError('tree-person-edit-error', err.message || root.dataset.updateError);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
+    return false;
+  }
+
+  async function linkTreeRelationship(event, personId, mode) {
+    event.preventDefault();
+    setError('tree-relationship-error', '');
+    var form = event.target;
+    var relatedId = form.querySelector('[name="related_person_id"]').value;
+    if (!relatedId) {
+      setError('tree-relationship-error', root.dataset.relationshipError);
+      return false;
+    }
+
+    try {
+      var request = relationshipPayload(personId, relatedId, mode);
+      var resp = await fetch(request.endpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(request.body)
+      });
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.relationshipError);
+      }
+      form.reset();
+      await refreshTreeWorkspace(personId);
+      showToastMessage(root.dataset.relationshipMessage);
+    } catch (err) {
+      setError('tree-relationship-error', err.message || root.dataset.relationshipError);
+    }
+    return false;
+  }
+
+  async function createTreeRelative(event, personId, mode) {
+    event.preventDefault();
+    setError('tree-relationship-error', '');
+    var form = event.target;
+    var button = form.querySelector('button[type="submit"]');
+    var originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = root.dataset.savingLabel;
+
+    try {
+      var createResp = await fetch('/api/persons', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formDataToJson(form))
+      });
+      var created = await createResp.json().catch(function() { return {}; });
+      if (!createResp.ok) {
+        throw new Error(created.detail || root.dataset.updateError);
+      }
+
+      var request = relationshipPayload(personId, created.id, mode);
+      var linkResp = await fetch(request.endpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(request.body)
+      });
+      var linkData = await linkResp.json().catch(function() { return {}; });
+      if (!linkResp.ok) {
+        throw new Error(linkData.detail || root.dataset.relationshipError);
+      }
+
+      form.reset();
+      await loadTree();
+      await openPersonSidebar(created.id, sidebarTrigger);
+      showToastMessage(root.dataset.createdMessage);
+    } catch (err) {
+      setError('tree-relationship-error', err.message || root.dataset.relationshipError);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
+    return false;
+  }
+
   window.treeZoomIn = function() {
     if (svg && zoom) {
       svg.transition().call(zoom.scaleBy, 1.3);
     }
   };
+
   window.treeZoomOut = function() {
     if (svg && zoom) {
       svg.transition().call(zoom.scaleBy, 0.7);
     }
   };
+
   window.treeReset = function() {
     if (treeData) {
       render();
     }
   };
+
   window.closeSidebar = function() {
-    var sidebar = document.getElementById('person-sidebar');
     sidebar.classList.remove('person-sidebar--open');
+    currentSidebarPersonId = null;
     window.closeAccessibleOverlay(sidebar);
     if (sidebarTrigger && typeof sidebarTrigger.focus === 'function') {
       sidebarTrigger.focus();
     }
   };
 
-  document.body.addEventListener('htmx:afterSwap', function(event) {
-    if (event.target && event.target.id === 'sidebar-content') {
-      event.target.setAttribute('aria-busy', 'false');
-    }
-  });
+  window.saveTreePerson = saveTreePerson;
+  window.linkTreeRelationship = linkTreeRelationship;
+  window.createTreeRelative = createTreeRelative;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
-  document.getElementById('apply-tree-filters').addEventListener('click', loadTree);
+  document.getElementById('apply-tree-filters').addEventListener('click', function() {
+    window.closeSidebar();
+    loadTree();
+  });
   document.getElementById('reset-tree-filters').addEventListener('click', function() {
     document.getElementById('tree-filter-living').value = 'all';
     document.getElementById('tree-filter-branch').value = '';
     document.getElementById('tree-filter-residence-country').value = '';
     document.getElementById('tree-filter-birth-country').value = '';
+    window.closeSidebar();
     loadTree();
   });
 

@@ -31,9 +31,9 @@
   </div>
   {% elif current_user %}
   <nav class="nav" id="main-nav">
-    <a href="/" class="nav__brand">{{ brand_display_name }}</a>
+    <a href="/tree" class="nav__brand">{{ brand_display_name }}</a>
     <div class="nav__links" id="nav-links">
-      <a href="/" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
+      <a href="/moments" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
       <a href="/tree" class="nav__link {% if active_page == 'tree' %}nav__link--active{% endif %}">{{ t('nav.tree') }}</a>
       <a href="/map" class="nav__link {% if active_page == 'map' %}nav__link--active{% endif %}">{{ t('nav.map') }}</a>
       <a href="/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>

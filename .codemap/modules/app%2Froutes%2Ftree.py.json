@@ -1,20 +1,22 @@
 {
   "id": "app/routes/tree.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "816e2952",
+  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
+  "source_hash": "32ea1f9c",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 17,
-    "lines": 239,
-    "rating": "yellow"
+    "cyclomatic": 21,
+    "lines": 285,
+    "rating": "red"
   },
   "dependencies": {
     "imports": [
       "app/access_control.py",
       "app/auth.py",
       "app/database.py",
+      "app/models/media.py",
+      "app/models/moments.py",
       "app/models/person.py",
       "app/models/preferences.py",
       "app/models/relationships.py",
@@ -25,59 +27,64 @@
       "app/main.py",
       "tests/conftest.py"
     ],
-    "tested_by": [
-      "tests/conftest.py"
-    ]
+    "tested_by": []
   },
   "exports": [
     {
       "name": "TreePreferencesPayload",
       "type": "class",
       "summary": null,
-      "line": 25,
+      "line": 27,
       "signature": null
     },
     {
       "name": "MapMarkerPerson",
       "type": "class",
       "summary": null,
-      "line": 32,
+      "line": 34,
       "signature": null
     },
     {
       "name": "MapMarker",
       "type": "class",
       "summary": null,
-      "line": 38,
+      "line": 40,
       "signature": null
     },
     {
       "name": "MapResponse",
       "type": "class",
       "summary": null,
-      "line": 48,
+      "line": 50,
       "signature": null
     },
     {
       "name": "_get_or_create_tree_preferences",
       "type": "function",
       "summary": null,
-      "line": 52,
+      "line": 54,
       "signature": "(db: AsyncSession, person_id: str) -> TreePreference"
     },
     {
       "name": "_filtered_tree_people",
       "type": "function",
       "summary": null,
-      "line": 63,
+      "line": 65,
       "signature": "( db: AsyncSession, current_user: Person, *, branch: str | None = None, residence_country: str | None = None, birth_country: str | None = None, living: str | None = None, ) -> list[Person]"
+    },
+    {
+      "name": "_person_metric_maps",
+      "type": "function",
+      "summary": null,
+      "line": 95,
+      "signature": "( db: AsyncSession, current_user: Person, person_ids: set[str], ) -> tuple[dict[str, int], dict[str, int], dict[str, int]]"
     }
   ],
   "constructs": [
     {
       "name": "TreePreferencesPayload",
       "kind": "class",
-      "line": 25,
+      "line": 27,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -85,7 +92,7 @@
     {
       "name": "MapMarkerPerson",
       "kind": "class",
-      "line": 32,
+      "line": 34,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -93,7 +100,7 @@
     {
       "name": "MapMarker",
       "kind": "class",
-      "line": 38,
+      "line": 40,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -101,7 +108,7 @@
     {
       "name": "MapResponse",
       "kind": "class",
-      "line": 48,
+      "line": 50,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -109,43 +116,43 @@
     {
       "name": "_get_or_create_tree_preferences",
       "kind": "function",
-      "line": 52,
+      "line": 54,
       "signature": "(db: AsyncSession, person_id: str) -> TreePreference",
       "complexity": 2,
       "calls": [
         {
           "name": "db.execute",
-          "line": 53,
+          "line": 55,
           "module_hint": null
         },
         {
           "name": "select(TreePreference).where",
-          "line": 53,
+          "line": 55,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 53,
+          "line": 55,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "result.scalar_one_or_none",
-          "line": 54,
+          "line": 56,
           "module_hint": null
         },
         {
           "name": "TreePreference",
-          "line": 56,
+          "line": 58,
           "module_hint": "app.models.preferences"
         },
         {
           "name": "db.add",
-          "line": 58,
+          "line": 60,
           "module_hint": null
         },
         {
           "name": "db.flush",
-          "line": 59,
+          "line": 61,
           "module_hint": null
         }
       ]
@@ -153,62 +160,52 @@
     {
       "name": "_filtered_tree_people",
       "kind": "function",
-      "line": 63,
+      "line": 65,
       "signature": "( db: AsyncSession, current_user: Person, *, branch: str | None = None, residence_country: str | None = None, birth_country: str | None = None, living: str | None = None, ) -> list[Person]",
       "complexity": 6,
       "calls": [
         {
           "name": "get_accessible_person_ids",
-          "line": 72,
+          "line": 74,
           "module_hint": "app.access_control"
         },
         {
           "name": "select(Person).where",
-          "line": 73,
+          "line": 75,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 73,
+          "line": 75,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "Person.id.in_",
-          "line": 76,
-          "module_hint": null
-        },
-        {
-          "name": "query.where",
-          "line": 79,
+          "line": 78,
           "module_hint": null
         },
         {
           "name": "query.where",
           "line": 81,
+          "module_hint": null
+        },
+        {
+          "name": "query.where",
+          "line": 83,
           "module_hint": null
         },
         {
           "name": "residence_country.upper",
-          "line": 81,
+          "line": 83,
           "module_hint": null
         },
         {
           "name": "query.where",
-          "line": 83,
+          "line": 85,
           "module_hint": null
         },
         {
           "name": "birth_country.upper",
-          "line": 83,
-          "module_hint": null
-        },
-        {
-          "name": "query.where",
-          "line": 85,
-          "module_hint": null
-        },
-        {
-          "name": "Person.is_living.is_",
           "line": 85,
           "module_hint": null
         },
@@ -220,26 +217,130 @@
         {
           "name": "Person.is_living.is_",
           "line": 87,
+          "module_hint": null
+        },
+        {
+          "name": "query.where",
+          "line": 89,
+          "module_hint": null
+        },
+        {
+          "name": "Person.is_living.is_",
+          "line": 89,
           "module_hint": null
         },
         {
           "name": "db.execute",
-          "line": 89,
+          "line": 91,
           "module_hint": null
         },
         {
           "name": "query.order_by",
-          "line": 89,
+          "line": 91,
           "module_hint": null
         },
         {
           "name": "result.scalars().all",
-          "line": 90,
+          "line": 92,
           "module_hint": null
         },
         {
           "name": "result.scalars",
-          "line": 90,
+          "line": 92,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_person_metric_maps",
+      "kind": "function",
+      "line": 95,
+      "signature": "( db: AsyncSession, current_user: Person, person_ids: set[str], ) -> tuple[dict[str, int], dict[str, int], dict[str, int]]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "select(\n            Moment.person_id,\n            func.count(Moment.id),\n            func.sum(case((Moment.kind == \"story\", 1), else_=0)),\n        )\n        .where(\n            Moment.person_id.in_(person_ids),\n            Moment.lifecycle_state == MomentLifecycleState.active.value,\n        ).group_by",
+          "line": 104,
+          "module_hint": null
+        },
+        {
+          "name": "select(\n            Moment.person_id,\n            func.count(Moment.id),\n            func.sum(case((Moment.kind == \"story\", 1), else_=0)),\n        ).where",
+          "line": 104,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 104,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "func.count",
+          "line": 106,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "func.sum",
+          "line": 107,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "case",
+          "line": 107,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Moment.person_id.in_",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "moment_query.where",
+          "line": 116,
+          "module_hint": null
+        },
+        {
+          "name": "select(Media.person_id, func.count(Media.id))\n        .where(Media.person_id.in_(person_ids)).group_by",
+          "line": 119,
+          "module_hint": null
+        },
+        {
+          "name": "select(Media.person_id, func.count(Media.id)).where",
+          "line": 119,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 119,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "func.count",
+          "line": 119,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Media.person_id.in_",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "(await db.execute(moment_query)).all",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "(await db.execute(media_query)).all",
+          "line": 125,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 125,
           "module_hint": null
         }
       ]
@@ -248,7 +349,7 @@
   "function_audits": [
     {
       "function": "_get_or_create_tree_preferences",
-      "line": 52,
+      "line": 54,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -269,7 +370,7 @@
     },
     {
       "function": "_filtered_tree_people",
-      "line": 63,
+      "line": 65,
       "metrics": {
         "cyclomatic": 6,
         "cognitive": 6,
@@ -283,16 +384,52 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 81,
-              "line_end": 81
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
             },
             {
               "line_start": 83,
               "line_end": 83
             },
             {
-              "line_start": 78,
-              "line_end": 79
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
+            },
+            {
+              "line_start": 83,
+              "line_end": 83
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 83,
+              "line_end": 83
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
             },
             {
               "line_start": 80,
@@ -303,52 +440,94 @@
               "line_end": 83
             },
             {
-              "line_start": 85,
+              "line_start": 84,
               "line_end": 85
             },
             {
-              "line_start": 87,
-              "line_end": 87
+              "line_start": 76,
+              "line_end": 76
             },
             {
-              "line_start": 85,
-              "line_end": 85
+              "line_start": 77,
+              "line_end": 77
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_person_metric_maps",
+      "line": 95,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 2,
+        "size": 31,
+        "nesting": 1,
+        "token_count": 212
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 124,
+              "line_end": 124
             },
             {
-              "line_start": 87,
-              "line_end": 87
+              "line_start": 125,
+              "line_end": 125
             },
             {
-              "line_start": 81,
-              "line_end": 81
+              "line_start": 111,
+              "line_end": 111
             },
             {
-              "line_start": 83,
-              "line_end": 83
+              "line_start": 116,
+              "line_end": 116
             },
             {
-              "line_start": 74,
-              "line_end": 74
+              "line_start": 106,
+              "line_end": 106
             },
             {
-              "line_start": 75,
-              "line_end": 75
+              "line_start": 119,
+              "line_end": 119
             },
             {
-              "line_start": 85,
-              "line_end": 85
+              "line_start": 110,
+              "line_end": 110
             },
             {
-              "line_start": 87,
-              "line_end": 87
+              "line_start": 120,
+              "line_end": 120
             },
             {
-              "line_start": 81,
-              "line_end": 81
+              "line_start": 124,
+              "line_end": 124
             },
             {
-              "line_start": 83,
-              "line_end": 83
+              "line_start": 125,
+              "line_end": 125
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            },
+            {
+              "line_start": 125,
+              "line_end": 125
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -367,13 +546,13 @@
     },
     {
       "function": "get_tree",
-      "line": 94,
+      "line": 134,
       "metrics": {
-        "cyclomatic": 5,
-        "cognitive": 1,
-        "size": 56,
+        "cyclomatic": 6,
+        "cognitive": 2,
+        "size": 62,
         "nesting": 1,
-        "token_count": 245
+        "token_count": 311
       },
       "findings": [
         {
@@ -381,76 +560,100 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 136,
-              "line_end": 141
+              "line_start": 184,
+              "line_end": 184
             },
             {
-              "line_start": 145,
-              "line_end": 150
+              "line_start": 193,
+              "line_end": 193
             },
             {
-              "line_start": 135,
-              "line_end": 135
+              "line_start": 201,
+              "line_end": 201
             },
             {
-              "line_start": 144,
-              "line_end": 144
+              "line_start": 202,
+              "line_end": 202
             },
             {
-              "line_start": 136,
-              "line_end": 141
+              "line_start": 182,
+              "line_end": 187
             },
             {
-              "line_start": 145,
-              "line_end": 150
+              "line_start": 191,
+              "line_end": 196
             },
             {
-              "line_start": 138,
-              "line_end": 138
+              "line_start": 181,
+              "line_end": 181
             },
             {
-              "line_start": 147,
-              "line_end": 147
+              "line_start": 190,
+              "line_end": 190
             },
             {
-              "line_start": 135,
-              "line_end": 135
+              "line_start": 175,
+              "line_end": 175
             },
             {
-              "line_start": 144,
-              "line_end": 144
+              "line_start": 176,
+              "line_end": 176
             },
             {
-              "line_start": 155,
-              "line_end": 155
+              "line_start": 177,
+              "line_end": 177
             },
             {
-              "line_start": 156,
-              "line_end": 156
+              "line_start": 182,
+              "line_end": 187
             },
             {
-              "line_start": 138,
-              "line_end": 138
+              "line_start": 191,
+              "line_end": 196
             },
             {
-              "line_start": 147,
-              "line_end": 147
+              "line_start": 184,
+              "line_end": 184
             },
             {
-              "line_start": 139,
-              "line_end": 140
+              "line_start": 193,
+              "line_end": 193
             },
             {
-              "line_start": 148,
-              "line_end": 149
+              "line_start": 185,
+              "line_end": 186
             },
             {
-              "line_start": 155,
-              "line_end": 155
+              "line_start": 194,
+              "line_end": 195
             },
             {
-              "line_start": 156,
-              "line_end": 156
+              "line_start": 175,
+              "line_end": 175
+            },
+            {
+              "line_start": 176,
+              "line_end": 176
+            },
+            {
+              "line_start": 177,
+              "line_end": 177
+            },
+            {
+              "line_start": 181,
+              "line_end": 181
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 201,
+              "line_end": 201
+            },
+            {
+              "line_start": 202,
+              "line_end": 202
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -458,7 +661,7 @@
         }
       ],
       "estimated_complexity": {
-        "time": "O(1)",
+        "time": "O(n)",
         "space": "unknown"
       },
       "contract_status": {
@@ -469,7 +672,7 @@
     },
     {
       "function": "get_tree_preferences",
-      "line": 161,
+      "line": 207,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -490,7 +693,7 @@
     },
     {
       "function": "update_tree_preferences",
-      "line": 170,
+      "line": 216,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -511,7 +714,7 @@
     },
     {
       "function": "get_map_data",
-      "line": 182,
+      "line": 228,
       "metrics": {
         "cyclomatic": 7,
         "cognitive": 11,
@@ -525,92 +728,92 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 205,
-              "line_end": 217
+              "line_start": 251,
+              "line_end": 263
             },
             {
-              "line_start": 224,
-              "line_end": 236
+              "line_start": 270,
+              "line_end": 282
             },
             {
-              "line_start": 203,
-              "line_end": 218
+              "line_start": 248,
+              "line_end": 264
             },
             {
-              "line_start": 222,
-              "line_end": 237
+              "line_start": 267,
+              "line_end": 283
             },
             {
-              "line_start": 202,
-              "line_end": 218
+              "line_start": 252,
+              "line_end": 256
             },
             {
-              "line_start": 221,
-              "line_end": 237
+              "line_start": 271,
+              "line_end": 275
             },
             {
-              "line_start": 204,
-              "line_end": 218
+              "line_start": 252,
+              "line_end": 256
             },
             {
-              "line_start": 223,
-              "line_end": 237
+              "line_start": 271,
+              "line_end": 275
             },
             {
-              "line_start": 205,
-              "line_end": 217
+              "line_start": 250,
+              "line_end": 264
             },
             {
-              "line_start": 224,
-              "line_end": 236
+              "line_start": 269,
+              "line_end": 283
             },
             {
-              "line_start": 202,
-              "line_end": 202
+              "line_start": 252,
+              "line_end": 256
             },
             {
-              "line_start": 221,
-              "line_end": 221
+              "line_start": 271,
+              "line_end": 275
             },
             {
-              "line_start": 206,
-              "line_end": 210
+              "line_start": 258,
+              "line_end": 258
             },
             {
-              "line_start": 225,
-              "line_end": 229
+              "line_start": 277,
+              "line_end": 277
             },
             {
-              "line_start": 212,
-              "line_end": 212
+              "line_start": 248,
+              "line_end": 248
             },
             {
-              "line_start": 231,
-              "line_end": 231
+              "line_start": 267,
+              "line_end": 267
             },
             {
-              "line_start": 206,
-              "line_end": 210
+              "line_start": 249,
+              "line_end": 264
             },
             {
-              "line_start": 225,
-              "line_end": 229
+              "line_start": 268,
+              "line_end": 283
             },
             {
-              "line_start": 206,
-              "line_end": 210
+              "line_start": 251,
+              "line_end": 263
             },
             {
-              "line_start": 225,
-              "line_end": 229
+              "line_start": 270,
+              "line_end": 282
             },
             {
-              "line_start": 212,
-              "line_end": 212
+              "line_start": 258,
+              "line_end": 258
             },
             {
-              "line_start": 231,
-              "line_end": 231
+              "line_start": 277,
+              "line_end": 277
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -641,13 +844,13 @@
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
-      "logging: logger.debug() at line 102"
+      "logging: logger.debug() at line 142"
     ],
     "endpoints": [
-      "endpoint:fastapi: @router.get() at line 93",
-      "endpoint:fastapi: @router.get() at line 160",
-      "endpoint:fastapi: @router.put() at line 169",
-      "endpoint:fastapi: @router.get() at line 181"
+      "endpoint:fastapi: @router.get() at line 133",
+      "endpoint:fastapi: @router.get() at line 206",
+      "endpoint:fastapi: @router.put() at line 215",
+      "endpoint:fastapi: @router.get() at line 227"
     ],
     "databases": [],
     "services": [],
@@ -657,7 +860,8 @@
       "MapResponse",
       "TreePreferencesPayload",
       "_filtered_tree_people",
-      "_get_or_create_tree_preferences"
+      "_get_or_create_tree_preferences",
+      "_person_metric_maps"
     ],
     "package": null,
     "change_velocity": 2.5,
@@ -677,22 +881,22 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.85,
-  "attention_score": 0.25,
-  "centrality_score": 0.03,
+  "testability_score": 0.4,
+  "attention_score": 0.47,
+  "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.56,
-    "changeability": 0.97,
-    "correctness": 1.0,
+    "understandability": 0.38,
+    "changeability": 0.6,
+    "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.4
+    "stability": 0.57
   },
   "domain_role": "utility",
   "detected_patterns": null,
   "detected_anti_patterns": [
     {
       "name": "primitive_obsession",
-      "evidence": "_filtered_tree_people() has 6 params (line 63)",
+      "evidence": "_filtered_tree_people() has 6 params (line 65)",
       "severity": "medium"
     }
   ],

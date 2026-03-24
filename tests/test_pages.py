@@ -28,8 +28,8 @@ async def test_admin_dashboard_renders_release_confidence_sections(admin_client:
 
 
 @pytest.mark.asyncio
-async def test_home_page_renders_accessible_compose_and_live_regions(admin_client: AsyncClient):
-    resp = await admin_client.get("/")
+async def test_moments_page_renders_accessible_compose_and_live_regions(admin_client: AsyncClient):
+    resp = await admin_client.get("/moments")
 
     assert resp.status_code == 200
     assert 'id="compose-modal"' in resp.text
@@ -37,6 +37,25 @@ async def test_home_page_renders_accessible_compose_and_live_regions(admin_clien
     assert 'aria-live="polite"' in resp.text
     assert 'id="moments-feed"' in resp.text
     assert 'class="form-select feed-filter-select"' in resp.text
+    assert "const url = kind ? '/moments?kind=' + kind : '/moments';" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_authenticated_root_redirects_to_tree(member_client: AsyncClient):
+    resp = await member_client.get("/")
+
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/tree"
+
+
+@pytest.mark.asyncio
+async def test_login_page_preserves_safe_return_to_after_auth(client: AsyncClient):
+    resp = await client.get("/login?return_to=/moments")
+
+    assert resp.status_code == 200
+    assert "const params = new URLSearchParams(window.location.search);" in resp.text
+    assert "const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')" in resp.text
+    assert "window.location.href = safeReturnTo || '/tree';" in resp.text
 
 
 @pytest.mark.asyncio
@@ -58,6 +77,7 @@ async def test_tree_page_renders_sidebar_dialog_and_labeled_controls(member_clie
     assert 'role="dialog"' in resp.text
     assert 'aria-label="' in resp.text
     assert 'id="tree-status" role="status" aria-live="polite"' in resp.text
+    assert 'data-saved-message="' in resp.text
 
 
 @pytest.mark.asyncio

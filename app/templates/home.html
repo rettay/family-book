@@ -142,7 +142,7 @@
 const COMPOSE_FILES = [];
 
 function filterMoments(kind) {
-  const url = kind ? '/?kind=' + kind : '/';
+  const url = kind ? '/moments?kind=' + kind : '/moments';
   window.location.href = url;
 }
 

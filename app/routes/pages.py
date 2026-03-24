@@ -123,6 +123,16 @@ async def home(
         logger.debug("Anonymous landing page rendered")
         return templates.TemplateResponse("landing.html", _ctx(request))
 
+    return RedirectResponse("/tree", status_code=302)
+
+
+@router.get("/moments", response_class=HTMLResponse)
+async def moments_page(
+    request: Request,
+    kind: str | None = Query(None),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
     moments_orm = await list_visible_moments(
         db, current_user, kind=kind, limit=20
     )
@@ -150,7 +160,7 @@ async def home(
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, current_user: Person | None = Depends(get_current_user)):
     if current_user:
-        return RedirectResponse("/", status_code=302)
+        return RedirectResponse("/tree", status_code=302)
     from app.config import get_settings
     settings = get_settings()
     return templates.TemplateResponse("login.html", _ctx(
@@ -166,7 +176,7 @@ async def invite_page(
     db: AsyncSession = Depends(get_db),
 ):
     if current_user:
-        return RedirectResponse("/", status_code=302)
+        return RedirectResponse("/tree", status_code=302)
 
     from app.services.auth_service import get_valid_invite
 
@@ -392,8 +402,93 @@ async def person_card(
     if not access.can_view:
         return HTMLResponse("<p>Person not found</p>")
 
+    moment_count_query = select(func.count(Moment.id)).where(
+        Moment.person_id == person.id,
+        Moment.lifecycle_state == MomentLifecycleState.active.value,
+    )
+    story_count_query = select(func.count(Moment.id)).where(
+        Moment.person_id == person.id,
+        Moment.lifecycle_state == MomentLifecycleState.active.value,
+        Moment.kind == "story",
+    )
+    if not current_user.is_admin:
+        moment_count_query = moment_count_query.where(Moment.visibility == "members")
+        story_count_query = story_count_query.where(Moment.visibility == "members")
+    media_count_query = select(func.count(Media.id)).where(Media.person_id == person.id)
+
+    parent_result = await db.execute(
+        select(Person).join(ParentChild, ParentChild.parent_id == Person.id).where(ParentChild.child_id == person_id)
+    )
+    child_result = await db.execute(
+        select(Person).join(ParentChild, ParentChild.child_id == Person.id).where(ParentChild.parent_id == person_id)
+    )
+    partnership_result = await db.execute(
+        select(Partnership).where(
+            (Partnership.person_a_id == person_id) | (Partnership.person_b_id == person_id)
+        )
+    )
+
+    parent_people = parent_result.scalars().all()
+    child_people = child_result.scalars().all()
+    partnership_rows = partnership_result.scalars().all()
+    partner_ids = {
+        rel.person_b_id if rel.person_a_id == person_id else rel.person_a_id
+        for rel in partnership_rows
+    }
+    partner_people: list[Person] = []
+    if partner_ids:
+        partners_result = await db.execute(select(Person).where(Person.id.in_(partner_ids)))
+        partner_people = partners_result.scalars().all()
+
+    accessible_person_ids = await get_accessible_person_ids(db, current_user)
+    option_result = await db.execute(
+        select(Person)
+        .where(
+            Person.id.in_(accessible_person_ids),
+            Person.id != person_id,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+        .order_by(Person.last_name, Person.first_name)
+    )
+    people_options = [
+        redact_person_summary(option, await get_person_access(db, current_user, option))
+        for option in option_result.scalars().all()
+    ]
+
+    metrics = {
+        "moment_count": (await db.execute(moment_count_query)).scalar() or 0,
+        "story_count": (await db.execute(story_count_query)).scalar() or 0,
+        "media_count": (await db.execute(media_count_query)).scalar() or 0,
+    }
+
+    visible_parents = []
+    for parent in parent_people:
+        parent_access = await get_person_access(db, current_user, parent)
+        if parent_access.can_view:
+            visible_parents.append(redact_person_summary(parent, parent_access))
+
+    visible_children = []
+    for child in child_people:
+        child_access = await get_person_access(db, current_user, child)
+        if child_access.can_view:
+            visible_children.append(redact_person_summary(child, child_access))
+
+    visible_partners = []
+    for partner in partner_people:
+        partner_access = await get_person_access(db, current_user, partner)
+        if partner_access.can_view:
+            visible_partners.append(redact_person_summary(partner, partner_access))
+
     return templates.TemplateResponse("partials/person_sidebar.html", _ctx(
-        request, current_user, person=redact_person_detail(person, access),
+        request,
+        current_user,
+        person=redact_person_detail(person, access),
+        person_metrics=metrics,
+        can_manage=can_manage_person(current_user, person),
+        parent_people=visible_parents,
+        child_people=visible_children,
+        partner_people=visible_partners,
+        people_options=people_options,
     ))
 
 

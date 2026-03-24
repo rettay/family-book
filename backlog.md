@@ -1,6 +1,6 @@
 # Family Book Backlog
 
-Sprint: `S11 - Tree as Primary Workspace`
+Sprint: `S12 - External Integrations and Confidence Hardening`
 Status: Planned
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
@@ -131,10 +131,9 @@ Execution slices:
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-014 | Architecture and Maintainability Hardening | P1 | candidate | Reduce remaining CodeMap structural warnings, remove the settings/theme cycle, and improve maintainability in central modules without reopening core product scope |
-| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | candidate | Move Google Maps into the map view and wire invites/notifications to real email delivery without bloating the tree-workspace sprint |
+| FB-017 | Post-Integration Structural Cleanup | P2 | candidate | Continue deeper cycle, coupling, and ownership cleanup after Sprint 12 lands the external integrations and targeted hardening |
 
-## Planned Sprint `S11 - Tree as Primary Workspace`
+## Closed Sprint `S11 - Tree as Primary Workspace`
 
 Sprint goal:
 - Make the family tree the main workspace for Family Book by improving node identity, in-context editing, relationship creation, and default landing behavior.
@@ -143,9 +142,26 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-015 | Tree as Primary Workspace | P1 | planned | `task_packets/FB-015_tree_as_primary_workspace.md` |
+| FB-015 | Tree as Primary Workspace | P1 | done | `task_packets/FB-015_tree_as_primary_workspace.md` |
 
 Execution slices:
 - `S11-1` Tree Identity and Richness
 - `S11-2` Inline Tree Editing
 - `S11-3` Relationship Workflows and Tree-First Landing
+
+## Planned Sprint `S12 - External Integrations and Confidence Hardening`
+
+Sprint goal:
+- Deliver the next product-value integrations through Google Maps and Resend while folding the remaining high-signal CodeMap debt into the same sprint as targeted confidence hardening.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-016 | External Integrations: Google Maps and Email Delivery | P1 | planned | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
+| FB-014 | Architecture and Maintainability Hardening | P1 | planned | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
+
+Execution slices:
+- `S12-1` Google Maps Integration
+- `S12-2` Resend Invite Delivery
+- `S12-3` Confidence Hardening for Integration Paths

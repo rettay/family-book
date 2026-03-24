@@ -1,14 +1,14 @@
 {
   "id": "app/schemas.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "cd1d1b5a",
+  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
+  "source_hash": "b3482b7f",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 3,
-    "lines": 263,
-    "rating": "green"
+    "cyclomatic": 12,
+    "lines": 275,
+    "rating": "yellow"
   },
   "dependencies": {
     "imports": [],
@@ -21,9 +21,7 @@
       "app/routes/tree.py",
       "tests/test_schema_models.py"
     ],
-    "tested_by": [
-      "tests/test_schema_models.py"
-    ]
+    "tested_by": []
   },
   "exports": [
     {
@@ -51,63 +49,63 @@
       "name": "PersonDetail",
       "type": "class",
       "summary": null,
-      "line": 89,
+      "line": 92,
       "signature": null
     },
     {
       "name": "person_to_summary",
       "type": "function",
       "summary": null,
-      "line": 121,
+      "line": 124,
       "signature": "(person) -> PersonSummary"
     },
     {
       "name": "person_to_detail",
       "type": "function",
       "summary": null,
-      "line": 136,
+      "line": 142,
       "signature": "(person) -> PersonDetail"
     },
     {
       "name": "ParentChildCreate",
       "type": "class",
       "summary": null,
-      "line": 197,
+      "line": 209,
       "signature": null
     },
     {
       "name": "ParentChildResponse",
       "type": "class",
       "summary": null,
-      "line": 209,
+      "line": 221,
       "signature": null
     },
     {
       "name": "PartnershipCreate",
       "type": "class",
       "summary": null,
-      "line": 223,
+      "line": 235,
       "signature": null
     },
     {
       "name": "PartnershipUpdate",
       "type": "class",
       "summary": null,
-      "line": 236,
+      "line": 248,
       "signature": null
     },
     {
       "name": "PartnershipResponse",
       "type": "class",
       "summary": null,
-      "line": 243,
+      "line": 255,
       "signature": null
     },
     {
       "name": "TreeResponse",
       "type": "class",
       "summary": null,
-      "line": 259,
+      "line": 271,
       "signature": null
     }
   ],
@@ -139,7 +137,7 @@
     {
       "name": "PersonDetail",
       "kind": "class",
-      "line": 89,
+      "line": 92,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -147,13 +145,28 @@
     {
       "name": "person_to_summary",
       "kind": "function",
-      "line": 121,
+      "line": 124,
       "signature": "(person) -> PersonSummary",
-      "complexity": 2,
+      "complexity": 5,
       "calls": [
         {
           "name": "PersonSummary",
-          "line": 123,
+          "line": 126,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 136,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 137,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 138,
           "module_hint": null
         }
       ]
@@ -161,18 +174,48 @@
     {
       "name": "person_to_detail",
       "kind": "function",
-      "line": 136,
+      "line": 142,
       "signature": "(person) -> PersonDetail",
-      "complexity": 2,
+      "complexity": 8,
       "calls": [
         {
           "name": "PersonDetail",
-          "line": 139,
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 156,
           "module_hint": null
         },
         {
           "name": "PersonDetail",
-          "line": 154,
+          "line": 163,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 172,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 173,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 174,
           "module_hint": null
         }
       ]
@@ -180,7 +223,7 @@
     {
       "name": "ParentChildCreate",
       "kind": "class",
-      "line": 197,
+      "line": 209,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -188,7 +231,7 @@
     {
       "name": "ParentChildResponse",
       "kind": "class",
-      "line": 209,
+      "line": 221,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -196,7 +239,7 @@
     {
       "name": "PartnershipCreate",
       "kind": "class",
-      "line": 223,
+      "line": 235,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -204,7 +247,7 @@
     {
       "name": "PartnershipUpdate",
       "kind": "class",
-      "line": 236,
+      "line": 248,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -212,7 +255,7 @@
     {
       "name": "PartnershipResponse",
       "kind": "class",
-      "line": 243,
+      "line": 255,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -220,7 +263,7 @@
     {
       "name": "TreeResponse",
       "kind": "class",
-      "line": 259,
+      "line": 271,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -229,15 +272,60 @@
   "function_audits": [
     {
       "function": "person_to_summary",
-      "line": 121,
+      "line": 124,
       "metrics": {
-        "cyclomatic": 2,
+        "cyclomatic": 5,
         "cognitive": 1,
-        "size": 12,
+        "size": 15,
         "nesting": 1,
-        "token_count": 61
+        "token_count": 100
       },
-      "findings": [],
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 136,
+              "line_end": 136
+            },
+            {
+              "line_start": 137,
+              "line_end": 137
+            },
+            {
+              "line_start": 138,
+              "line_end": 138
+            },
+            {
+              "line_start": 136,
+              "line_end": 136
+            },
+            {
+              "line_start": 137,
+              "line_end": 137
+            },
+            {
+              "line_start": 138,
+              "line_end": 138
+            },
+            {
+              "line_start": 136,
+              "line_end": 136
+            },
+            {
+              "line_start": 137,
+              "line_end": 137
+            },
+            {
+              "line_start": 138,
+              "line_end": 138
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
       "estimated_complexity": {
         "time": "O(1)",
         "space": "unknown"
@@ -246,19 +334,64 @@
         "status": "unknown",
         "mismatch": "No performance contract annotation available for this function"
       },
-      "review_priority": 0.0
+      "review_priority": 0.47
     },
     {
       "function": "person_to_detail",
-      "line": 136,
+      "line": 142,
       "metrics": {
-        "cyclomatic": 2,
+        "cyclomatic": 8,
         "cognitive": 1,
-        "size": 56,
+        "size": 62,
         "nesting": 1,
-        "token_count": 261
+        "token_count": 339
       },
-      "findings": [],
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 155,
+              "line_end": 155
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 155,
+              "line_end": 155
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 155,
+              "line_end": 155
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
       "estimated_complexity": {
         "time": "O(1)",
         "space": "unknown"
@@ -267,7 +400,7 @@
         "status": "unknown",
         "mismatch": "No performance contract annotation available for this function"
       },
-      "review_priority": 0.0
+      "review_priority": 0.47
     }
   ],
   "spec_linkages": [],
@@ -318,17 +451,17 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 1.0,
-  "attention_score": 0.2,
-  "centrality_score": 0.29,
+  "testability_score": 0.55,
+  "attention_score": 0.47,
+  "centrality_score": 1.0,
   "quality_radar": {
-    "understandability": 0.8,
-    "changeability": 0.9,
-    "correctness": 1.0,
-    "security": 1.0,
-    "stability": 0.3
+    "understandability": 0.63,
+    "changeability": 0.35,
+    "correctness": 0.5,
+    "security": 0.8,
+    "stability": 0.57
   },
-  "domain_role": "utility",
+  "domain_role": "core",
   "detected_patterns": null,
   "detected_anti_patterns": null,
   "agent_briefing": null

@@ -1,8 +1,8 @@
 {
   "id": "app/templates/base.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "0a04606a",
+  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
+  "source_hash": "7615507c",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -52,14 +52,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.23,
+  "attention_score": 0.16,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.95,
+    "understandability": 0.97,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.65
   },
   "domain_role": "utility",
   "detected_patterns": null,

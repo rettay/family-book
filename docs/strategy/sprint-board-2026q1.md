@@ -2,9 +2,49 @@
 
 ## Planned Sprint
 
-### `S11 - Tree as Primary Workspace`
+### `S12 - External Integrations and Confidence Hardening`
 
 Status: Planned
+
+### Sprint Goal
+
+Land the next high-value external integrations while preserving release confidence through targeted hardening of the central modules Sprint 12 depends on.
+
+### Why This Sprint Exists
+
+Family Book now has a stronger tree-centered workflow, but the map and invite-delivery surfaces still lack real integration depth. Google Maps and Resend are the next product-value unlocks, and the remaining CodeMap warnings in access control and schemas should be tightened in the same sprint so those integrations do not reduce release confidence.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 14 | FB-016 | External Integrations: Google Maps and Email Delivery | P1 | planned |
+| 15 | FB-014 | Architecture and Maintainability Hardening | P1 | planned |
+
+## Packet Sequence Rationale
+
+### FB-016 now
+
+The highest-value next product move is to make the map and invite flows feel real by integrating the external systems the product already implies.
+
+### FB-014 alongside FB-016
+
+Sprint 11 increased attention on the tree/access/schema layer, so the remaining CodeMap debt should be pulled into Sprint 12 as targeted hardening rather than left as a disconnected cleanup sprint.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- Google Maps is integrated with truthful fallback behavior
+- Resend-backed invite delivery works in configured environments
+- central-module confidence improves for the access/schema paths touched by the integrations
+- browser, staging, and CodeMap baselines remain intact
+
+## Closed Sprint
+
+### `S11 - Tree as Primary Workspace`
+
+Status: Closed
 
 ### Sprint Goal
 
@@ -12,90 +52,57 @@ Make the family tree the main Family Book workspace so members can browse, recog
 
 ### Why This Sprint Exists
 
-The tree is the product’s strongest conceptual surface, but it is still too passive in day-to-day use. Users want the tree to feel personal, editable, and operational: profile photos on nodes, richer context, direct edits, relationship creation, and a tree-first landing experience. This sprint captures that product direction while deliberately keeping Google Maps and Resend out of scope.
+The tree is the product’s strongest conceptual surface, and users explicitly wanted it to become more personal, editable, and operational. This sprint converted that product direction into the default post-login experience while keeping Google Maps and Resend out of scope.
 
 ### Committed Packet
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 13 | FB-015 | Tree as Primary Workspace | P1 | planned |
+| 13 | FB-015 | Tree as Primary Workspace | P1 | done |
 
 ## Packet Sequence Rationale
 
 ### FB-015 now
 
-The highest-value next product move is to make the existing tree surface the primary workspace instead of adding unrelated integrations or returning immediately to maintainability work.
+The tree was already the strongest concept in Family Book, so the highest-value next product move was to turn it into the primary workspace rather than leave it as a passive visualization.
 
-### External integrations later
+### External integrations after the tree shift
 
-Google Maps and real email delivery matter, but they introduce external dependencies and operational scope that would dilute the tree-workspace sprint.
+Google Maps and Resend matter, but they were intentionally kept out of Sprint 11 so the tree-first workflow could land coherently.
 
 ## Sprint Exit Criteria
 
 The sprint is successful when all are true:
 
+- authenticated users land on the tree
 - tree nodes feel more personal and informative
-- common person edits can be made directly from the tree context
-- core relationship creation can be initiated from the tree
-- authenticated users land on the tree first
+- routine person edits and relationship creation can happen in tree context
 - browser and accessibility baselines remain intact
-
-## Closed Sprint
-
-### `S10 - Readability and Responsive Polish`
-
-Status: Closed
-
-### Sprint Goal
-
-Improve readability, scanability, and narrow-screen usability across the main Family Book surfaces so the product feels calmer and easier to use after the critical accessibility work from Sprint 09.
-
-### Why This Sprint Exists
-
-The next highest-value UX work is the lower-severity but still meaningful polish from the UI/UX review: small and muted metadata, cramped admin and control rows on smaller screens, and feed/media presentation that still feels denser and jumpier than it should.
-
-### Committed Packet
-
-| Order | ID | Title | Priority | Status |
-|---|---|---|---:|---|
-| 12 | FB-013 | Readability and Responsive Polish | P2 | done |
-
-## Packet Sequence Rationale
-
-### FB-013 now
-
-The severe operability bugs are closed, which makes this the right point to improve legibility, spacing, and visual stability without competing with more urgent accessibility work.
-
-### FB-014 after UX polish
-
-Maintainability debt still matters, but the next most user-visible payoff is readability and responsive comfort on the main Family Book surfaces.
-
-## Sprint Exit Criteria
-
-The sprint is successful when all are true:
-
-- metadata and helper text are easier to read
-- known cramped admin/action rows behave acceptably on narrow screens
-- feed media causes less visible layout jump
-- the browser regression lane stays green and Sprint 09 accessibility behaviors remain intact
 
 ## Exit Result
 
 - Exit result: `pass`
-- Builder implemented the readability, responsive, and scanability polish across the main Family Book surfaces on `main`
-- Auditor initially flagged localization regression and remaining mobile form compression, and Builder corrected both before final closeout
+- Builder implemented the tree-first workspace and audit follow-up on `main`
+- Auditor initially flagged `return_to`, moments filter targeting, inline-clear behavior, and hidden-name fallback regressions, and Builder corrected all four before final closeout
 - Focused closeout baseline:
-  - `uv run pytest tests/test_pages.py tests/test_theme.py -q`
-  - result: `15 passed`
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py -q`
+  - result: `62 passed`
+  - `uv run pytest tests/test_moments.py -q`
+  - result: `35 passed`
+  - `uv run pytest tests/test_theme.py -q`
+  - result: `5 passed`
   - `make test-ui-playwright`
   - result: success
   - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
-  - result: `19 PASS`, `0 FAIL`, `6 WARN`
+  - result: `16 PASS`, `0 FAIL`, `9 WARN`
 
 ## Recommended Next Sprint
 
-- next sprint to be selected
-- likely direction: continue from `FB-014` maintainability work or pick the next highest-value product surface based on manual staging review
+- `S12 - External Integrations and Confidence Hardening`
+- Primary packet: `FB-016 External Integrations: Google Maps and Email Delivery`
+- Supporting packet: `FB-014 Architecture and Maintainability Hardening`
 
 ## Closed Sprint
 

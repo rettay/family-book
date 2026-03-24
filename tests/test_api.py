@@ -99,6 +99,32 @@ async def test_member_tree_redacts_branch_and_country(member_client: AsyncClient
     tyler = next(person for person in resp.json()["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
     assert tyler["branch"] == "martin"
     assert tyler["residence_country_code"] == "ES"
+    assert "moment_count" in tyler
+    assert "story_count" in tyler
+    assert "media_count" in tyler
+
+
+@pytest.mark.asyncio
+async def test_tree_richness_counts_reflect_person_content(admin_client: AsyncClient):
+    moment_resp = await admin_client.post("/api/moments", json={
+        "person_id": "tyler-000-0000-0000-000000000002",
+        "kind": "story",
+        "title": "Tree depth",
+        "body": "Testing tree counts",
+    })
+    assert moment_resp.status_code == 201
+
+    media_resp = await admin_client.post("/api/media", data={
+        "person_id": "tyler-000-0000-0000-000000000002",
+    }, files={"file": ("tree-counts.jpg", b"fake-image", "image/jpeg")})
+    assert media_resp.status_code == 201
+
+    resp = await admin_client.get("/api/tree")
+    assert resp.status_code == 200
+    tyler = next(person for person in resp.json()["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
+    assert tyler["moment_count"] >= 1
+    assert tyler["story_count"] >= 1
+    assert tyler["media_count"] >= 1
 
 
 @pytest.mark.asyncio
@@ -407,6 +433,39 @@ async def test_create_parent_child(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_member_can_create_relationships_for_visible_people(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Visible",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    created_partner = await member_client.post("/api/persons", json={
+        "first_name": "Visible",
+        "last_name": "Partner",
+        "branch": "martin",
+    })
+    assert created_partner.status_code == 201
+    partner_id = created_partner.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    partnership_link = await member_client.post("/api/relationships/partnership", json={
+        "person_a_id": "member-00-0000-0000-000000000005",
+        "person_b_id": partner_id,
+        "kind": "married",
+    })
+    assert partnership_link.status_code == 201
+
+
+@pytest.mark.asyncio
 async def test_create_parent_child_self_ref_rejected(admin_client: AsyncClient):
     resp = await admin_client.post("/api/relationships/parent-child", json={
         "parent_id": "tyler-000-0000-0000-000000000002",
@@ -644,7 +703,7 @@ async def test_person_page_reuses_family_graph_per_request(member_client: AsyncC
 
 @pytest.mark.asyncio
 async def test_home_page_uses_selected_person_for_media_upload_and_handles_create_failures(admin_client: AsyncClient):
-    resp = await admin_client.get("/")
+    resp = await admin_client.get("/moments")
     assert resp.status_code == 200
     assert "fd.append('person_id', aboutPersonId ||" in resp.text
     assert "await cleanupUploadedMedia(mediaIds);" in resp.text

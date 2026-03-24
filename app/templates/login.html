@@ -54,7 +54,12 @@
         if (!resp.ok) {
           throw new Error(data.detail || '{{ t("common.error") }}');
         }
-        window.location.href = '/';
+        const params = new URLSearchParams(window.location.search);
+        const returnTo = params.get('return_to');
+        const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')
+          ? returnTo
+          : null;
+        window.location.href = safeReturnTo || '/tree';
       } catch (err) {
         setGoogleAuthError(err.message || '{{ t("common.error") }}');
       }

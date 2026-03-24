@@ -3,11 +3,11 @@
 ## Sprint
 
 - Name: `S11 - Tree as Primary Workspace`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-015 Tree as Primary Workspace`
 - Follow-on packet candidates:
+  - `FB-016 External Integrations: Google Maps and Email Delivery`
   - `FB-014 Architecture and Maintainability Hardening`
-  - external integrations sprint for Google Maps and Resend
 
 ## Sprint Goal
 

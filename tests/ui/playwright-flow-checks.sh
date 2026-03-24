@@ -151,10 +151,23 @@ assert_run "protected page redirects anonymous browser to login" \
 
 "${PWCLI}" cookie-set session "${ADMIN_SESSION}" --domain 127.0.0.1 --path / --httpOnly true --sameSite Lax >/dev/null
 "${PWCLI}" goto "${BASE_URL}/"
+"${PWCLI}" run-code "async page => { await page.waitForURL(/\\/tree$/); await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(1200); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/tree-landing-admin.png" --full-page true >/dev/null
+
+assert_run "authenticated root lands on tree" \
+  "${PWCLI}" run-code "async page => { if (!page.url().includes('/tree')) throw new Error('expected tree landing'); if (!await page.locator('#tree-svg [role=\"button\"]').count()) throw new Error('tree did not render nodes'); }"
+
+assert_run "tree sidebar supports inline person edits" \
+  "${PWCLI}" run-code "async page => { const node = page.locator('#tree-svg [data-id=\"tyler-000-0000-0000-000000000002\"]').first(); await node.click(); await page.locator('#tree-person-edit-form').waitFor(); const nickname = page.locator('#tree-person-edit-form input[name=\"nickname\"]'); await nickname.fill('Tree Captain'); await page.locator('#tree-person-edit-form button[type=\"submit\"]').click(); await page.waitForTimeout(1200); let value = await nickname.inputValue(); if (value !== 'Tree Captain') throw new Error('tree inline edit did not persist'); await nickname.fill(''); await page.locator('#tree-person-edit-form button[type=\"submit\"]').click(); await page.waitForTimeout(1200); value = await page.locator('#tree-person-edit-form input[name=\"nickname\"]').inputValue(); if (value !== '') throw new Error('tree inline edit could not clear nickname'); }"
+
+assert_run "tree name preference hides fallback initials when names are off" \
+  "${PWCLI}" run-code "async page => { await page.locator('#pref-show-names').uncheck(); await page.locator('#pref-show-photos').uncheck(); await page.locator('#save-tree-preferences').click(); await page.waitForTimeout(1200); const nodeText = await page.locator('#tree-svg [data-id=\"member-00-0000-0000-000000000005\"]').textContent(); if (nodeText && nodeText.includes('Ja')) throw new Error('fallback initials still visible when names are hidden'); }"
+
+"${PWCLI}" goto "${BASE_URL}/moments"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Seeded family story').waitFor(); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-admin.png" --full-page true >/dev/null
 
-assert_run "authenticated home feed shows seeded story" \
+assert_run "moments page still shows seeded story" \
   "${PWCLI}" run-code "async page => { if (!await page.locator('#moments-feed').getByText('Seeded family story').count()) throw new Error('missing seeded story'); }"
 
 assert_run "compose modal supports keyboard open, focus, and escape close" \
@@ -196,11 +209,11 @@ assert_run "admin dashboard avoids horizontal overflow on mobile" \
   "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('admin page overflows horizontally on mobile'); }"
 
 "${PWCLI}" goto "${BASE_URL}/"
-"${PWCLI}" run-code "async page => { await page.locator('#moments-feed').waitFor(); }"
+"${PWCLI}" run-code "async page => { await page.waitForURL(/\\/tree$/); await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(800); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-mobile.png" --full-page true >/dev/null
 
-assert_run "home feed avoids horizontal overflow on mobile" \
-  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('home page overflows horizontally on mobile'); }"
+assert_run "tree landing avoids horizontal overflow on mobile" \
+  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('tree page overflows horizontally on mobile'); }"
 
 "${PWCLI}" goto "${BASE_URL}/people/new"
 "${PWCLI}" run-code "async page => { await page.locator('#create-person-form').waitFor(); }"
@@ -212,7 +225,7 @@ assert_run "person create form stacks and avoids horizontal overflow on mobile" 
 "${PWCLI}" resize 1440 960
 
 "${PWCLI}" cookie-set session "${MEMBER_SESSION}" --domain 127.0.0.1 --path / --httpOnly true --sameSite Lax >/dev/null
-"${PWCLI}" goto "${BASE_URL}/"
+"${PWCLI}" goto "${BASE_URL}/moments"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Playwright shared story').waitFor(); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-member-view.png" --full-page true >/dev/null
 

@@ -5,7 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import require_admin
+from app.access_control import can_manage_person
+from app.auth import require_admin, require_auth
 from app.database import get_db
 from app.models.person import Person, PersonLifecycleState
 from app.models.relationships import ParentChild, Partnership
@@ -72,7 +73,7 @@ async def _partnership_exists(
 @router.post("/parent-child", response_model=ParentChildResponse, status_code=status.HTTP_201_CREATED)
 async def create_parent_child(
     body: ParentChildCreate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     if body.parent_id == body.child_id:
@@ -84,6 +85,8 @@ async def create_parent_child(
         person = result.scalar_one_or_none()
         if not person or person.lifecycle_state != PersonLifecycleState.active.value:
             raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+        if not can_manage_person(current_user, person):
+            raise HTTPException(status_code=403, detail="Not authorized to relate this person")
 
     if await _would_create_ancestry_cycle(db, body.parent_id, body.child_id):
         raise HTTPException(
@@ -112,7 +115,7 @@ async def create_parent_child(
 
     await log_audit(db, current_user.id, "create", "parent_child", pc.id,
                     new_value={"parent_id": pc.parent_id, "child_id": pc.child_id, "kind": pc.kind})
-    logger.info("Parent-child relationship %s created by admin %s", pc.id, current_user.id)
+    logger.info("Parent-child relationship %s created by %s", pc.id, current_user.id)
 
     return ParentChildResponse.model_validate(pc)
 
@@ -141,7 +144,7 @@ async def delete_parent_child(
 @router.post("/partnership", response_model=PartnershipResponse, status_code=status.HTTP_201_CREATED)
 async def create_partnership(
     body: PartnershipCreate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     if body.person_a_id == body.person_b_id:
@@ -156,6 +159,8 @@ async def create_partnership(
         person = result.scalar_one_or_none()
         if not person or person.lifecycle_state != PersonLifecycleState.active.value:
             raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+        if not can_manage_person(current_user, person):
+            raise HTTPException(status_code=403, detail="Not authorized to relate this person")
 
     if await _partnership_exists(db, a_id, b_id, body.kind, body.start_date):
         raise HTTPException(status_code=409, detail="This partnership already exists")
@@ -182,7 +187,7 @@ async def create_partnership(
 
     await log_audit(db, current_user.id, "create", "partnership", partnership.id,
                     new_value={"person_a_id": a_id, "person_b_id": b_id, "kind": body.kind})
-    logger.info("Partnership %s created by admin %s", partnership.id, current_user.id)
+    logger.info("Partnership %s created by %s", partnership.id, current_user.id)
 
     return PartnershipResponse.model_validate(partnership)
 

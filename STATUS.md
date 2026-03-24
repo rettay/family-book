@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 10 are closed. Sprint 11 is now planned around making the family tree the product’s primary browsing and editing workspace.
+Sprint 01 through Sprint 11 are closed. Sprint 12 is now planned around external integrations and the confidence hardening needed to support them.
 
 ## North Star
 
@@ -79,15 +79,15 @@ Sprint 01 through Sprint 10 are closed. Sprint 11 is now planned around making t
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next major product risk is that the tree remains the strongest concept in the app but not yet the strongest daily workspace
-- External integrations like Google Maps and real email delivery are intentionally deferred so they do not sprawl the next sprint
+- The next major product value gap is external integration depth: the map is still lighter than it should be, and invite delivery still needs real email infrastructure
+- CodeMap still points to central-module risk in access control, schemas, observability, and ownership concentration even though overall governance remains passing
 
 ## Current Priority Order
 
-1. Execute Sprint 11 to make the tree the default browsing and editing workspace
-2. Preserve the improved browser, accessibility, and responsive baseline as tree behavior becomes richer
-3. Continue using staging review for manual acceptance before production promotion
-4. Sequence Google Maps and email delivery into a later integration sprint instead of bloating the tree sprint
+1. Execute Sprint 12 to land Google Maps and Resend on top of the current tree-first product baseline
+2. Reduce the remaining high-signal CodeMap warnings in the modules Sprint 12 depends on
+3. Preserve browser, accessibility, and staging-review confidence while external dependencies are introduced
+4. Keep deeper structural cleanup behind the integration sprint unless it directly supports release confidence
 
 ## Sprint State
 
@@ -95,18 +95,21 @@ Sprint 01 through Sprint 10 are closed. Sprint 11 is now planned around making t
   - `S01 - Shared Collaboration Reset`
   - `S02 - Tree and Discovery Foundation`
   - `S03 - Timeline and Family Moments Expansion`
-- `S04 - Version History, Revert, and Moderation Controls`
-- `S05 - Encryption and Backup Hardening Pass`
-- `S06 - Theme Customization and Branding Controls`
-- `S07 - Observability and Coverage Hardening`
-- `S08 - Browser Regression Expansion and Release Confidence`
-- `S09 - Accessibility and Interaction Hardening`
-- `S10 - Readability and Responsive Polish`
-- Planned sprint:
+  - `S04 - Version History, Revert, and Moderation Controls`
+  - `S05 - Encryption and Backup Hardening Pass`
+  - `S06 - Theme Customization and Branding Controls`
+  - `S07 - Observability and Coverage Hardening`
+  - `S08 - Browser Regression Expansion and Release Confidence`
+  - `S09 - Accessibility and Interaction Hardening`
+  - `S10 - Readability and Responsive Polish`
   - `S11 - Tree as Primary Workspace`
-- Sprint 11 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s11.md`
-- Sprint 11 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s11.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-015_tree_as_primary_workspace.md`
+- Planned sprint:
+  - `S12 - External Integrations and Confidence Hardening`
+- Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
+- Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md`
+- Supporting packet: `/Users/cheech/code/family-book/task_packets/FB-014_architecture_and_maintainability_hardening.md`
+- Sprint 11 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s11.md`
 - Sprint 10 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s10.md`
 - Sprint 10 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s10.md`
 - Sprint 10 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s10.md`

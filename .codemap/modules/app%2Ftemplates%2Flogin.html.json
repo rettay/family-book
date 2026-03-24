@@ -1,13 +1,13 @@
 {
   "id": "app/templates/login.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "012858af",
+  "analyzed_at": "2026-03-24T21:26:46.859728+00:00",
+  "source_hash": "f526d478",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 81,
+    "lines": 86,
     "rating": "green"
   },
   "dependencies": {
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.23,
+  "attention_score": 0.14,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.94,
+    "understandability": 0.98,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.7
   },
   "domain_role": "utility",
   "detected_patterns": null,

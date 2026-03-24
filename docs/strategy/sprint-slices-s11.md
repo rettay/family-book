@@ -4,7 +4,7 @@
 
 ### S11-1 Tree Identity and Richness
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make the tree more personal and informative at a glance
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S11-2 Inline Tree Editing
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   move routine person editing into the tree workflow
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S11-3 Relationship Workflows and Tree-First Landing
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make the tree the operational center of the product

@@ -3,7 +3,8 @@
 import re
 
 
-ADMIN_ID = "alex-000-0000-0000-000000000002"
+ADMIN_ID = "tyler-000-0000-0000-000000000002"
+TYLER_ID = "tyler-000-0000-0000-000000000002"
 MEMBER_ID = "member-00-0000-0000-000000000005"
 
 
@@ -449,7 +450,7 @@ class TestMomentsFeed:
         assert api_resp.status_code == 200
         api_ids = [item["id"] for item in api_resp.json()]
 
-        home_resp = await admin_client.get("/")
+        home_resp = await admin_client.get("/moments")
         assert home_resp.status_code == 200
         home_ids = re.findall(r'<div class="moment" id="moment-([^"]+)"', home_resp.text)
         assert home_ids[:2] == api_ids[:2]

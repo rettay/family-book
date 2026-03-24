@@ -1,8 +1,8 @@
 {
   "id": "app/templates/invite.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "1cfb1f63",
+  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
+  "source_hash": "7e4003e2",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.22,
+  "attention_score": 0.1,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.95,
+    "understandability": 0.97,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.75
   },
   "domain_role": "utility",
   "detected_patterns": null,
