@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # Set env vars before any app imports
 os.environ.setdefault("SECRET_KEY", "test-secret-key-not-for-production-use-1234567890")
-os.environ.setdefault("FERNET_KEY", "dGVzdC1mZXJuZXQta2V5LW5vdC1mb3ItcHJvZHVjdGlvbg==")
+os.environ.setdefault("FERNET_KEY", "REMOVED_FERNET_KEY_LITERAL=")
 os.environ.setdefault("BASE_URL", "http://localhost:8000")
 os.environ.setdefault("DATABASE_URL", "sqlite:///data/family.db")
 os.environ.setdefault("GOOGLE_CLIENT_ID", "test-google-client-id.apps.googleusercontent.com")

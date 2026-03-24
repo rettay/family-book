@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import logging
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,7 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.moments import Moment
 from app.models.person import Person
 from app.models.revisions import EntityRevision
-from app.services.protection_service import decrypt_mapping_fields, encrypt_mapping_fields
+from app.services.field_protection import decrypt_mapping_fields, encrypt_mapping_fields
+
+logger = logging.getLogger(__name__)
 
 
 PERSON_MUTABLE_FIELDS = [
@@ -141,6 +144,7 @@ async def record_revision(
     revision.snapshot = snapshot
     db.add(revision)
     await db.flush()
+    logger.debug("Recorded revision %s for %s %s", revision.id, entity_type, entity_id)
     return revision
 
 

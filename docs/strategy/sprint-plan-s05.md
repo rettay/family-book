@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S05 - Encryption and Backup Hardening Pass`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-009 Encryption and Backup Hardening Pass`
 
 ## Sprint Goal
@@ -110,3 +110,13 @@ Family Book now supports shared collaboration, recovery, and moderation. That in
 ## Exit Target
 
 Sprint 05 is complete when Family Book can truthfully say what sensitive data it protects, can prove the highest-risk fields are protected in storage, and can demonstrate that backup and restore work as part of a normal self-hosted operating model.
+
+## Closeout
+
+- Status: Closed
+- Outcome:
+  Sprint 05 delivered field-level protection for medical and direct-contact data, explicit fail-closed key handling, plaintext revision-history backfill, restore-verification truthfulness, and tighter runtime hardening with updated focused tests.
+- Verification baseline:
+  - `uv run pytest tests/test_protection_service.py tests/test_revision_service.py tests/test_security_guardrails.py tests/test_schema_models.py tests/test_phase3.py tests/test_auth.py -q` → `54 passed`
+  - `uv run python -m compileall app tests` → success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json` → `16 PASS`, `0 FAIL`, `9 WARN`

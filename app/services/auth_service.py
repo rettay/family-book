@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.auth import UserSession, Invite, MagicLinkToken
 from app.models.person import Person, AccountState, PersonLifecycleState
 from app.config import get_settings
-from app.services.protection_service import contact_email_lookup_hash, normalize_email_for_lookup
+from app.services.field_protection import contact_email_lookup_hash, normalize_email_for_lookup
 
 SESSION_TOKEN_BYTES = 32
 SESSION_EXPIRY_DAYS = 30

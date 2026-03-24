@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from app.config import get_settings
 from app.database import async_session_factory
 from app.models.person import AccountState, Person, PersonSource
-from app.services.protection_service import contact_email_lookup_hash, normalize_email_for_lookup
+from app.services.field_protection import contact_email_lookup_hash, normalize_email_for_lookup
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,13 @@
 {
   "id": "app/backup/routes.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
-  "source_hash": "c27e32ad",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "522245cc",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 40,
+    "lines": 59,
     "rating": "green"
   },
   "dependencies": {
@@ -26,13 +26,13 @@
   "function_audits": [
     {
       "function": "trigger_backup",
-      "line": 20,
+      "line": 28,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 3,
+        "size": 4,
         "nesting": 0,
-        "token_count": 32
+        "token_count": 46
       },
       "findings": [],
       "estimated_complexity": {
@@ -47,13 +47,13 @@
     },
     {
       "function": "download_backup",
-      "line": 27,
+      "line": 36,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 7,
+        "size": 8,
         "nesting": 0,
-        "token_count": 29
+        "token_count": 43
       },
       "findings": [],
       "estimated_complexity": {
@@ -68,13 +68,34 @@
     },
     {
       "function": "backup_status",
-      "line": 38,
+      "line": 48,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 2,
+        "size": 3,
         "nesting": 0,
-        "token_count": 13
+        "token_count": 26
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "backup_verify",
+      "line": 55,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 4,
+        "nesting": 0,
+        "token_count": 30
       },
       "findings": [],
       "estimated_complexity": {
@@ -97,24 +118,30 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 2,
     "change_risk": "medium",
     "domain": "domain-0",
-    "observability_patterns": [],
+    "observability_patterns": [
+      "logging: logger.info() at line 31",
+      "logging: logger.info() at line 39",
+      "logging: logger.debug() at line 50",
+      "logging: logger.info() at line 58"
+    ],
     "endpoints": [
-      "endpoint:fastapi: @router.post() at line 19",
-      "endpoint:fastapi: @router.get() at line 26",
-      "endpoint:fastapi: @router.get() at line 37"
+      "endpoint:fastapi: @router.post() at line 27",
+      "endpoint:fastapi: @router.get() at line 35",
+      "endpoint:fastapi: @router.get() at line 47",
+      "endpoint:fastapi: @router.post() at line 54"
     ],
     "databases": [],
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
-    "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-16T20:24:52+01:00",
-    "recency_score": 0.96,
+    "change_velocity": 1.0,
+    "bus_factor": 2,
+    "author_count": 2,
+    "last_modified": "2026-03-23T19:38:18-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -125,14 +152,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.13,
-  "centrality_score": 0.03,
+  "attention_score": 0.14,
+  "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.94,
+    "understandability": 0.97,
     "changeability": 0.68,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.65
+    "stability": 0.82
   },
   "domain_role": "utility",
   "detected_patterns": null,

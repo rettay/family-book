@@ -1,13 +1,13 @@
 {
   "id": "tests/test_models.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:11:24.443401+00:00",
-  "source_hash": "b59c39c8",
+  "analyzed_at": "2026-03-23T23:57:08.763993+00:00",
+  "source_hash": "662e08ed",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 4,
-    "lines": 188,
+    "lines": 227,
     "rating": "green"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
   "function_audits": [
     {
       "function": "test_person_creation_minimal",
-      "line": 13,
+      "line": 14,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -39,12 +39,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 20,
-              "line_end": 20
-            },
-            {
               "line_start": 21,
               "line_end": 21
+            },
+            {
+              "line_start": 22,
+              "line_end": 22
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -63,7 +63,7 @@
     },
     {
       "function": "test_person_display_name_western",
-      "line": 28,
+      "line": 29,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -84,7 +84,7 @@
     },
     {
       "function": "test_person_display_name_root",
-      "line": 34,
+      "line": 35,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -105,7 +105,7 @@
     },
     {
       "function": "test_person_display_name_eastern",
-      "line": 40,
+      "line": 41,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -126,7 +126,7 @@
     },
     {
       "function": "test_person_languages_property",
-      "line": 46,
+      "line": 47,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -140,12 +140,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 48,
-              "line_end": 48
+              "line_start": 49,
+              "line_end": 49
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 55,
+              "line_end": 55
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -164,7 +164,7 @@
     },
     {
       "function": "test_person_rich_fields_round_trip",
-      "line": 58,
+      "line": 59,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -178,16 +178,58 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 73,
-              "line_end": 73
-            },
-            {
               "line_start": 74,
               "line_end": 74
             },
             {
               "line_start": 75,
               "line_end": 75
+            },
+            {
+              "line_start": 76,
+              "line_end": 76
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_sensitive_person_fields_persist_encrypted",
+      "line": 82,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 34,
+        "nesting": 0,
+        "token_count": 170
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 106,
+              "line_end": 106
+            },
+            {
+              "line_start": 107,
+              "line_end": 107
+            },
+            {
+              "line_start": 108,
+              "line_end": 108
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -206,7 +248,7 @@
     },
     {
       "function": "test_media_tagged_person_ids_property_round_trip",
-      "line": 81,
+      "line": 120,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -220,28 +262,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 82,
-              "line_end": 82
+              "line_start": 121,
+              "line_end": 121
             },
             {
-              "line_start": 83,
-              "line_end": 83
+              "line_start": 122,
+              "line_end": 122
             },
             {
-              "line_start": 82,
-              "line_end": 82
+              "line_start": 121,
+              "line_end": 121
             },
             {
-              "line_start": 83,
-              "line_end": 83
+              "line_start": 122,
+              "line_end": 122
             },
             {
-              "line_start": 82,
-              "line_end": 82
+              "line_start": 121,
+              "line_end": 121
             },
             {
-              "line_start": 83,
-              "line_end": 83
+              "line_start": 122,
+              "line_end": 122
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -260,7 +302,7 @@
     },
     {
       "function": "test_moment_tagged_person_ids_property_round_trip",
-      "line": 98,
+      "line": 137,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -274,28 +316,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 99,
-              "line_end": 99
+              "line_start": 138,
+              "line_end": 138
             },
             {
-              "line_start": 100,
-              "line_end": 100
+              "line_start": 139,
+              "line_end": 139
             },
             {
-              "line_start": 99,
-              "line_end": 99
+              "line_start": 138,
+              "line_end": 138
             },
             {
-              "line_start": 100,
-              "line_end": 100
+              "line_start": 139,
+              "line_end": 139
             },
             {
-              "line_start": 99,
-              "line_end": 99
+              "line_start": 138,
+              "line_end": 138
             },
             {
-              "line_start": 100,
-              "line_end": 100
+              "line_start": 139,
+              "line_end": 139
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -314,7 +356,7 @@
     },
     {
       "function": "test_parent_child_self_ref_rejected",
-      "line": 115,
+      "line": 154,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -335,7 +377,7 @@
     },
     {
       "function": "test_parent_child_unique_constraint",
-      "line": 128,
+      "line": 167,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -349,52 +391,52 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 129,
-              "line_end": 129
+              "line_start": 168,
+              "line_end": 168
             },
             {
-              "line_start": 130,
-              "line_end": 130
+              "line_start": 169,
+              "line_end": 169
             },
             {
-              "line_start": 129,
-              "line_end": 129
+              "line_start": 173,
+              "line_end": 173
             },
             {
-              "line_start": 130,
-              "line_end": 130
+              "line_start": 177,
+              "line_end": 177
             },
             {
-              "line_start": 129,
-              "line_end": 129
+              "line_start": 168,
+              "line_end": 168
             },
             {
-              "line_start": 130,
-              "line_end": 130
+              "line_start": 169,
+              "line_end": 169
             },
             {
-              "line_start": 134,
-              "line_end": 134
+              "line_start": 173,
+              "line_end": 173
             },
             {
-              "line_start": 138,
-              "line_end": 138
+              "line_start": 177,
+              "line_end": 177
             },
             {
-              "line_start": 134,
-              "line_end": 134
+              "line_start": 173,
+              "line_end": 173
             },
             {
-              "line_start": 138,
-              "line_end": 138
+              "line_start": 177,
+              "line_end": 177
             },
             {
-              "line_start": 134,
-              "line_end": 134
+              "line_start": 168,
+              "line_end": 168
             },
             {
-              "line_start": 138,
-              "line_end": 138
+              "line_start": 169,
+              "line_end": 169
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -413,7 +455,7 @@
     },
     {
       "function": "test_partnership_canonical_order_constraint",
-      "line": 146,
+      "line": 185,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -427,28 +469,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 147,
-              "line_end": 147
+              "line_start": 186,
+              "line_end": 186
             },
             {
-              "line_start": 148,
-              "line_end": 148
+              "line_start": 187,
+              "line_end": 187
             },
             {
-              "line_start": 147,
-              "line_end": 147
+              "line_start": 186,
+              "line_end": 186
             },
             {
-              "line_start": 148,
-              "line_end": 148
+              "line_start": 187,
+              "line_end": 187
             },
             {
-              "line_start": 147,
-              "line_end": 147
+              "line_start": 186,
+              "line_end": 186
             },
             {
-              "line_start": 148,
-              "line_end": 148
+              "line_start": 187,
+              "line_end": 187
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -467,7 +509,7 @@
     },
     {
       "function": "test_partnership_self_ref_rejected",
-      "line": 160,
+      "line": 199,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -488,7 +530,7 @@
     },
     {
       "function": "test_cascade_delete_person_removes_relationships",
-      "line": 173,
+      "line": 212,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -502,28 +544,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 174,
-              "line_end": 174
+              "line_start": 213,
+              "line_end": 213
             },
             {
-              "line_start": 175,
-              "line_end": 175
+              "line_start": 214,
+              "line_end": 214
             },
             {
-              "line_start": 174,
-              "line_end": 174
+              "line_start": 213,
+              "line_end": 213
             },
             {
-              "line_start": 175,
-              "line_end": 175
+              "line_start": 214,
+              "line_end": 214
             },
             {
-              "line_start": 174,
-              "line_end": 174
+              "line_start": 213,
+              "line_end": 213
             },
             {
-              "line_start": 175,
-              "line_end": 175
+              "line_start": 214,
+              "line_end": 214
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -550,8 +592,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
-    "change_risk": "medium",
+    "churn_count": 4,
+    "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -559,10 +601,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 1.0,
-    "bus_factor": 2,
+    "change_velocity": 3.0,
+    "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-22T23:40:48-04:00",
+    "last_modified": "2026-03-23T19:38:18-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,

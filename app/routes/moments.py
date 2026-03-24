@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -38,6 +39,7 @@ from app.services.revision_service import (
 )
 
 router = APIRouter(prefix="/api/moments", tags=["moments"])
+logger = logging.getLogger(__name__)
 
 
 # --- Schemas ---
@@ -258,6 +260,7 @@ async def list_moments(
     db: AsyncSession = Depends(get_db),
 ):
     """List moments feed, reverse-chronological, paginated."""
+    logger.debug("Moments requested by %s", current_user.id)
     if person:
         person_result = await db.execute(select(Person).where(Person.id == person))
         target_person = person_result.scalar_one_or_none()
@@ -337,6 +340,7 @@ async def create_moment(
         moment.id,
         new_value={"kind": moment.kind, "person_id": moment.person_id},
     )
+    logger.info("Moment %s created by %s", moment.id, current_user.id)
 
     return await build_moment_card(db, moment, current_user)
 
@@ -425,6 +429,7 @@ async def update_moment(
         old_value=old_snapshot,
         new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())},
     )
+    logger.info("Moment %s updated by %s", moment.id, current_user.id)
     return await build_moment_card(db, moment, current_user)
 
 
@@ -464,6 +469,7 @@ async def delete_moment(
         moment.id,
         old_value={"kind": moment.kind, "title": moment.title},
     )
+    logger.info("Moment %s soft-deleted by %s", moment.id, current_user.id)
     await db.flush()
 
 
@@ -526,6 +532,7 @@ async def revert_moment_revision(
         moment.id,
         new_value={"reverted_to_revision_id": revision.id},
     )
+    logger.info("Moment %s reverted to revision %s by %s", moment.id, revision.id, current_user.id)
     return {
         "ok": True,
         "lifecycle_state": moment.lifecycle_state,
@@ -569,6 +576,7 @@ async def moderate_moment(
         moment.id,
         new_value={"moderated": True, "reason": moment.moderation_reason},
     )
+    logger.info("Moment %s moderated by %s", moment.id, current_user.id)
     return {
         "ok": True,
         "lifecycle_state": moment.lifecycle_state,
@@ -613,6 +621,7 @@ async def restore_moment(
         moment.id,
         new_value={"restored": True},
     )
+    logger.info("Moment %s restored by %s", moment.id, current_user.id)
     return {
         "ok": True,
         "lifecycle_state": moment.lifecycle_state,

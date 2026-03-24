@@ -3,6 +3,7 @@ Backup service — SQLite .backup API + media directory, retention, health check
 """
 
 import gzip
+import json
 import logging
 import os
 import shutil
@@ -13,15 +14,54 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.config import get_settings
-from app.services.protection_service import get_protection_contract
+from app.services.field_protection import get_protection_contract
 
 logger = logging.getLogger(__name__)
+
+
+def _backup_dir(settings) -> str:
+    data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
+    return os.path.join(data_dir, "backups")
+
+
+def _restore_verification_path(backup_dir: str) -> Path:
+    return Path(backup_dir) / "restore-verification.json"
+
+
+def _load_restore_verification(backup_dir: str) -> dict | None:
+    path = _restore_verification_path(backup_dir)
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        logger.warning("Restore verification metadata is unreadable: %s", path)
+        return None
+
+
+def _write_restore_verification(backup_dir: str, payload: dict) -> None:
+    path = _restore_verification_path(backup_dir)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _latest_backup(backup_dir: str) -> Path | None:
+    backups = sorted(Path(backup_dir).glob("family-*.db.gz"), reverse=True)
+    return backups[0] if backups else None
+
+
+def _restore_supported(latest_backup: Path | None, verification: dict | None) -> bool:
+    if not latest_backup or not verification:
+        return False
+    return (
+        verification.get("status") == "ok"
+        and verification.get("source_backup") == latest_backup.name
+    )
 
 def run_backup() -> str:
     """Run a SQLite backup + compress. Returns backup file path."""
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
-    backup_dir = os.path.join(data_dir, "backups")
+    backup_dir = _backup_dir(settings)
     os.makedirs(backup_dir, exist_ok=True)
 
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -60,7 +100,7 @@ def create_download_zip() -> str:
     """Create a .zip containing latest backup + media directory. Returns zip path."""
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
-    backup_dir = os.path.join(data_dir, "backups")
+    backup_dir = _backup_dir(settings)
 
     # Find latest backup
     backups = sorted(Path(backup_dir).glob("family-*.db.gz"), reverse=True)
@@ -91,15 +131,16 @@ def get_backup_health() -> dict:
     """Return backup freshness info for health check."""
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
-    backup_dir = os.path.join(data_dir, "backups")
-    backups = sorted(Path(backup_dir).glob("family-*.db.gz"), reverse=True)
+    backup_dir = _backup_dir(settings)
+    latest = _latest_backup(backup_dir)
+    verification = _load_restore_verification(backup_dir)
     database_path = getattr(
         settings,
         "sqlite_database_path",
         settings.DATABASE_URL.replace("sqlite:///", "", 1),
     )
 
-    if not backups:
+    if not latest:
         return {
             "last_backup": None,
             "backup_count": 0,
@@ -107,13 +148,14 @@ def get_backup_health() -> dict:
             "data_dir": data_dir,
             "database_path": database_path,
             "retention_days": getattr(settings, "BACKUP_RETENTION_DAYS", 30),
-            "restore_supported": True,
+            "restore_supported": False,
+            "restore_verification": verification,
             "protection": get_protection_contract(),
         }
 
-    latest = backups[0]
     mtime = datetime.fromtimestamp(latest.stat().st_mtime, tz=timezone.utc)
     age_hours = (datetime.now(timezone.utc) - mtime).total_seconds() / 3600
+    backups = sorted(Path(backup_dir).glob("family-*.db.gz"), reverse=True)
 
     return {
         "last_backup": mtime.isoformat(),
@@ -124,7 +166,8 @@ def get_backup_health() -> dict:
         "data_dir": data_dir,
         "database_path": database_path,
         "retention_days": getattr(settings, "BACKUP_RETENTION_DAYS", 30),
-        "restore_supported": True,
+        "restore_supported": _restore_supported(latest, verification),
+        "restore_verification": verification,
         "protection": get_protection_contract(),
     }
 
@@ -186,7 +229,9 @@ def restore_backup_archive(
 
 def verify_backup_restore() -> dict:
     settings = get_settings()
+    backup_dir = _backup_dir(settings)
     archive_path = create_download_zip()
+    latest_backup = _latest_backup(backup_dir)
     db_filename = Path(
         getattr(
             settings,
@@ -195,21 +240,36 @@ def verify_backup_restore() -> dict:
         )
     ).name or "family.db"
 
-    with tempfile.TemporaryDirectory(prefix="family-book-restore-check-") as tmp_dir:
-        restored = restore_backup_archive(
-            archive_path,
-            target_data_dir=tmp_dir,
-            target_db_filename=db_filename,
-        )
-
-    return {
-        "status": "ok",
-        "archive_path": archive_path,
-        "db_filename": db_filename,
-        "table_count": restored["table_count"],
-        "person_count": restored["person_count"],
-        "restored_media_files": restored["restored_media_files"],
-    }
+    try:
+        with tempfile.TemporaryDirectory(prefix="family-book-restore-check-") as tmp_dir:
+            restored = restore_backup_archive(
+                archive_path,
+                target_data_dir=tmp_dir,
+                target_db_filename=db_filename,
+            )
+        verification = {
+            "status": "ok",
+            "verified_at": datetime.now(timezone.utc).isoformat(),
+            "archive_path": archive_path,
+            "db_filename": db_filename,
+            "source_backup": latest_backup.name if latest_backup else None,
+            "table_count": restored["table_count"],
+            "person_count": restored["person_count"],
+            "restored_media_files": restored["restored_media_files"],
+        }
+        _write_restore_verification(backup_dir, verification)
+        return verification
+    except Exception as exc:
+        failure = {
+            "status": "error",
+            "verified_at": datetime.now(timezone.utc).isoformat(),
+            "archive_path": archive_path,
+            "db_filename": db_filename,
+            "source_backup": latest_backup.name if latest_backup else None,
+            "error": str(exc),
+        }
+        _write_restore_verification(backup_dir, failure)
+        raise
 
 
 def _cleanup_old_backups(backup_dir: str, retention_days: int) -> None:

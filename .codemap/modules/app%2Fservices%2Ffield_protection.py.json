@@ -1,0 +1,636 @@
+{
+  "id": "app/services/field_protection.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "source_hash": "1b65a123",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 16,
+    "lines": 125,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py"
+    ],
+    "imported_by": [
+      "app/backup/service.py",
+      "app/models/person.py",
+      "app/services/auth_service.py",
+      "app/services/bootstrap_service.py",
+      "app/services/protection_service.py",
+      "app/services/revision_service.py",
+      "tests/test_protection_service.py"
+    ],
+    "tested_by": [
+      "tests/test_protection_service.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "ProtectionConfigurationError",
+      "type": "class",
+      "summary": null,
+      "line": 20,
+      "signature": null
+    },
+    {
+      "name": "ProtectedFieldDecryptionError",
+      "type": "class",
+      "summary": null,
+      "line": 24,
+      "signature": null
+    },
+    {
+      "name": "normalize_email_for_lookup",
+      "type": "function",
+      "summary": null,
+      "line": 28,
+      "signature": "(value: str | None) -> str | None"
+    },
+    {
+      "name": "contact_email_lookup_hash",
+      "type": "function",
+      "summary": null,
+      "line": 35,
+      "signature": "(value: str | None) -> str | None"
+    },
+    {
+      "name": "is_valid_fernet_key",
+      "type": "function",
+      "summary": null,
+      "line": 54,
+      "signature": "(raw_key: str | None) -> bool"
+    },
+    {
+      "name": "get_fernet",
+      "type": "function",
+      "summary": null,
+      "line": 64,
+      "signature": "() -> Fernet"
+    },
+    {
+      "name": "encrypt_string",
+      "type": "function",
+      "summary": null,
+      "line": 69,
+      "signature": "(value: str | None) -> str | None"
+    },
+    {
+      "name": "decrypt_string",
+      "type": "function",
+      "summary": null,
+      "line": 78,
+      "signature": "(value: str | None) -> str | None"
+    },
+    {
+      "name": "encrypt_mapping_fields",
+      "type": "function",
+      "summary": null,
+      "line": 92,
+      "signature": "(snapshot: dict, fields: list[str]) -> dict"
+    },
+    {
+      "name": "decrypt_mapping_fields",
+      "type": "function",
+      "summary": null,
+      "line": 100,
+      "signature": "(snapshot: dict, fields: list[str]) -> dict"
+    },
+    {
+      "name": "get_protection_contract",
+      "type": "function",
+      "summary": null,
+      "line": 108,
+      "signature": "() -> dict"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "ProtectionConfigurationError",
+      "kind": "class",
+      "line": 20,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "ProtectedFieldDecryptionError",
+      "kind": "class",
+      "line": 24,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "normalize_email_for_lookup",
+      "kind": "function",
+      "line": 28,
+      "signature": "(value: str | None) -> str | None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "value.strip().lower",
+          "line": 31,
+          "module_hint": null
+        },
+        {
+          "name": "value.strip",
+          "line": 31,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "contact_email_lookup_hash",
+      "kind": "function",
+      "line": 35,
+      "signature": "(value: str | None) -> str | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "normalize_email_for_lookup",
+          "line": 36,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256(normalized.encode(\"utf-8\")).hexdigest",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256",
+          "line": 39,
+          "module_hint": "hashlib"
+        },
+        {
+          "name": "normalized.encode",
+          "line": 39,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "is_valid_fernet_key",
+      "kind": "function",
+      "line": 54,
+      "signature": "(raw_key: str | None) -> bool",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "_normalized_fernet_key",
+          "line": 58,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_fernet",
+      "kind": "function",
+      "line": 64,
+      "signature": "() -> Fernet",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 65,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "Fernet",
+          "line": 66,
+          "module_hint": "cryptography.fernet"
+        },
+        {
+          "name": "_normalized_fernet_key",
+          "line": 66,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "encrypt_string",
+      "kind": "function",
+      "line": 69,
+      "signature": "(value: str | None) -> str | None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "value.startswith",
+          "line": 72,
+          "module_hint": null
+        },
+        {
+          "name": "get_fernet().encrypt(value.encode(\"utf-8\")).decode",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "get_fernet().encrypt",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "get_fernet",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "value.encode",
+          "line": 74,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "decrypt_string",
+      "kind": "function",
+      "line": 78,
+      "signature": "(value: str | None) -> str | None",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "value.startswith",
+          "line": 81,
+          "module_hint": null
+        },
+        {
+          "name": "value[len(ENCRYPTED_PREFIX):].encode",
+          "line": 83,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 83,
+          "module_hint": null
+        },
+        {
+          "name": "get_fernet().decrypt(token).decode",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "get_fernet().decrypt",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "get_fernet",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "ProtectedFieldDecryptionError",
+          "line": 87,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "encrypt_mapping_fields",
+      "kind": "function",
+      "line": 92,
+      "signature": "(snapshot: dict, fields: list[str]) -> dict",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "dict",
+          "line": 93,
+          "module_hint": null
+        },
+        {
+          "name": "encrypt_string",
+          "line": 96,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "decrypt_mapping_fields",
+      "kind": "function",
+      "line": 100,
+      "signature": "(snapshot: dict, fields: list[str]) -> dict",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "dict",
+          "line": 101,
+          "module_hint": null
+        },
+        {
+          "name": "decrypt_string",
+          "line": 104,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_protection_contract",
+      "kind": "function",
+      "line": 108,
+      "signature": "() -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 109,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "getattr",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "is_valid_fernet_key",
+          "line": 111,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 111,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "normalize_email_for_lookup",
+      "line": 28,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 4,
+        "nesting": 1,
+        "token_count": 24
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "contact_email_lookup_hash",
+      "line": 35,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 4,
+        "nesting": 1,
+        "token_count": 33
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_normalized_fernet_key",
+      "line": 43,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 8,
+        "nesting": 1,
+        "token_count": 41
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "is_valid_fernet_key",
+      "line": 54,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 21
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_fernet",
+      "line": 64,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "encrypt_string",
+      "line": 69,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 6,
+        "nesting": 1,
+        "token_count": 53
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "decrypt_string",
+      "line": 78,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 11,
+        "nesting": 1,
+        "token_count": 71
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "encrypt_mapping_fields",
+      "line": 92,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 5,
+        "nesting": 2,
+        "token_count": 30
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "decrypt_mapping_fields",
+      "line": 100,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 5,
+        "nesting": 2,
+        "token_count": 30
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_protection_contract",
+      "line": 108,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 17,
+        "nesting": 0,
+        "token_count": 106
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 0,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "ProtectedFieldDecryptionError",
+      "ProtectionConfigurationError",
+      "contact_email_lookup_hash",
+      "decrypt_mapping_fields",
+      "decrypt_string",
+      "encrypt_mapping_fields",
+      "encrypt_string",
+      "get_fernet",
+      "get_protection_contract",
+      "is_valid_fernet_key",
+      "normalize_email_for_lookup"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": null,
+    "author_count": null,
+    "last_modified": null,
+    "recency_score": null,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.0,
+  "centrality_score": 1.0,
+  "quality_radar": {
+    "understandability": 0.7,
+    "changeability": 0.89,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.85
+  },
+  "domain_role": "core",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

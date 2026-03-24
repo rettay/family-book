@@ -4,7 +4,7 @@
 
 ### S05-1 Data Protection Contract
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   establish the truthful protection contract and implement field-level protection for the highest-risk stored fields
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S05-2 Backup and Restore Truthfulness
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   make backup and restore a supported, verifiable operator workflow
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S05-3 Operational Hardening
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   align runtime defaults with the protection and durability contract
@@ -57,3 +57,7 @@ Status: `planned`
 ## PM Note
 
 This sprint is about truthful protection, not security theater. Prefer narrow guarantees that the code can prove over broad promises the runtime cannot keep.
+
+## Closeout Note
+
+Sprint 05 closed with all three slices delivered, focused protection/backup verification passing, compile checks green, and CodeMap back to `0 FAIL` after the fail-closed protection and restore-truthfulness fixes.

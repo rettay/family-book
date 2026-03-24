@@ -10,7 +10,7 @@ BASE_URL="http://127.0.0.1:${PORT}"
 mkdir -p "${ARTIFACT_DIR}"
 
 export SECRET_KEY="test-secret-key-not-for-production-use-1234567890"
-export FERNET_KEY="dGVzdC1mZXJuZXQta2V5LW5vdC1mb3ItcHJvZHVjdGlvbg=="
+export FERNET_KEY="REMOVED_FERNET_KEY_LITERAL="
 export BASE_URL
 export DATA_DIR="${TMP_DIR}/data"
 export DATABASE_URL="sqlite:///${TMP_DIR}/family-book-ui.db"

@@ -1,3 +1,5 @@
+import logging
+
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -31,6 +33,7 @@ from app.services.revision_service import (
 )
 
 router = APIRouter(prefix="/api/persons", tags=["persons"])
+logger = logging.getLogger(__name__)
 
 
 async def _person_history_entries(
@@ -76,6 +79,7 @@ async def list_persons(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    logger.debug("Person list requested by %s", current_user.id)
     country_filter = country
 
     query = select(Person).where(
@@ -182,6 +186,7 @@ async def create_person(
         "first_name": person.first_name,
         "last_name": person.last_name,
     })
+    logger.info("Person %s created by %s", person.id, current_user.id)
 
     return person_to_detail(person)
 
@@ -222,6 +227,7 @@ async def update_person(
     await log_audit(db, current_user.id, "update", "person", person.id,
                     old_value=old_snapshot,
                     new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())})
+    logger.info("Person %s updated by %s", person.id, current_user.id)
 
     access = await get_person_access(db, current_user, person)
     return redact_person_detail(person, access)
@@ -253,6 +259,7 @@ async def delete_person(
     )
     await log_audit(db, current_user.id, "delete", "person", person.id,
                     old_value={"first_name": person.first_name, "last_name": person.last_name})
+    logger.info("Person %s soft-deleted by %s", person.id, current_user.id)
     await db.flush()
 
 
@@ -313,6 +320,7 @@ async def revert_person_revision(
         person.id,
         new_value={"reverted_to_revision_id": revision.id},
     )
+    logger.info("Person %s reverted to revision %s by %s", person.id, revision.id, current_user.id)
 
     if person.lifecycle_state != PersonLifecycleState.active.value:
         return {"ok": True, "lifecycle_state": person.lifecycle_state}

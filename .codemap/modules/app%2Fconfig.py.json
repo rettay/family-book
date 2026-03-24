@@ -1,13 +1,13 @@
 {
   "id": "app/config.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
-  "source_hash": "4dcf3483",
+  "analyzed_at": "2026-03-23T23:57:08.763993+00:00",
+  "source_hash": "489b560b",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 13,
-    "lines": 131,
+    "lines": 132,
     "rating": "yellow"
   },
   "dependencies": {
@@ -29,11 +29,10 @@
       "app/services/bootstrap_service.py",
       "app/services/google_auth.py",
       "app/services/media_service.py",
+      "app/services/protection_service.py",
       "tests/test_media.py"
     ],
-    "tested_by": [
-      "tests/test_media.py"
-    ]
+    "tested_by": []
   },
   "exports": [
     {
@@ -47,7 +46,7 @@
       "name": "get_settings",
       "type": "function",
       "summary": null,
-      "line": 130,
+      "line": 131,
       "signature": "() -> Settings"
     }
   ],
@@ -63,13 +62,13 @@
     {
       "name": "get_settings",
       "kind": "function",
-      "line": 130,
+      "line": 131,
       "signature": "() -> Settings",
       "complexity": 1,
       "calls": [
         {
           "name": "Settings",
-          "line": 131,
+          "line": 132,
           "module_hint": null
         }
       ]
@@ -78,7 +77,7 @@
   "function_audits": [
     {
       "function": "admin_email_list",
-      "line": 67,
+      "line": 68,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -99,7 +98,7 @@
     },
     {
       "function": "resolved_data_dir",
-      "line": 73,
+      "line": 74,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -120,7 +119,7 @@
     },
     {
       "function": "normalized_database_url",
-      "line": 77,
+      "line": 78,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -141,7 +140,7 @@
     },
     {
       "function": "sqlite_database_path",
-      "line": 83,
+      "line": 84,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 3,
@@ -162,7 +161,7 @@
     },
     {
       "function": "trusted_host_list",
-      "line": 100,
+      "line": 101,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -183,7 +182,7 @@
     },
     {
       "function": "envelope_allowed_host_list",
-      "line": 110,
+      "line": 111,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 5,
@@ -204,7 +203,7 @@
     },
     {
       "function": "get_settings",
-      "line": 130,
+      "line": 131,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -235,7 +234,7 @@
     ],
     "purity": "environment",
     "todo_count": 0,
-    "churn_count": 3,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -247,10 +246,10 @@
       "get_settings"
     ],
     "package": null,
-    "change_velocity": 0.5,
-    "bus_factor": 1,
+    "change_velocity": 1.0,
+    "bus_factor": 2,
     "author_count": 2,
-    "last_modified": "2026-03-22T23:40:48-04:00",
+    "last_modified": "2026-03-23T19:38:18-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -263,15 +262,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.65,
-  "attention_score": 0.42,
-  "centrality_score": 0.83,
+  "testability_score": 0.35,
+  "attention_score": 0.51,
+  "centrality_score": 1.0,
   "quality_radar": {
-    "understandability": 0.45,
-    "changeability": 0.64,
-    "correctness": 1.0,
-    "security": 0.88,
-    "stability": 0.3
+    "understandability": 0.55,
+    "changeability": 0.39,
+    "correctness": 0.5,
+    "security": 0.68,
+    "stability": 0.43
   },
   "domain_role": "core",
   "detected_patterns": null,

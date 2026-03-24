@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01, Sprint 02, Sprint 03, and Sprint 04 are closed.
+Sprint 01 through Sprint 05 are closed.
 
 ## North Star
 
@@ -35,32 +35,34 @@ Sprint 01, Sprint 02, Sprint 03, and Sprint 04 are closed.
   - Result at closeout: `98 passed`
   - `uv run pytest tests/test_media.py -q`
   - Result at closeout: `18 passed`
+- Focused Sprint 05 verification:
+  - `uv run pytest tests/test_protection_service.py tests/test_revision_service.py tests/test_security_guardrails.py tests/test_schema_models.py tests/test_phase3.py tests/test_auth.py -q`
+  - Result at closeout: `54 passed`
 - Browser flow baseline:
   - `make test-ui-playwright`
   - Result at closeout: success
   - Screenshot artifacts: `/Users/cheech/code/family-book/output/playwright/family-book-flow`
 - Syntax smoke check:
-  - `uv run python -m compileall app`
+  - `uv run python -m compileall app tests`
   - Result: success
 - CodeMap governance baseline:
   - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
-  - Result: `17 PASS`, `0 FAIL`, `8 WARN`
+  - Result at Sprint 05 closeout: `16 PASS`, `0 FAIL`, `9 WARN`
 - Known repo-wide baseline before this sprint work:
   - `uv run pytest -q`
   - Result observed earlier: `143 passed, 2 failed, 1 xfailed`
 
 ## Current Risks
 
-- Sensitive-data handling needs explicit policy, not implicit behavior
 - Browser-flow evaluation exists now, but it is still a focused smoke layer rather than full cross-browser coverage
-- Revision and media-control plumbing now exists, but critical security-sensitive modules still need broader test coverage and instrumentation
+- Critical security-sensitive modules still have residual CodeMap warnings around observability, complexity, and a few untested central modules
 
 ## Current Priority Order
 
-1. Open Sprint 05 around encryption and backup hardening
-2. Clarify and harden sensitive-data policy and runtime guarantees
-3. Return to admin-facing theme customization and branding controls
-4. Expand browser-based regression coverage beyond the current core flow set
+1. Open Sprint 06 around theme customization and branding controls
+2. Expand browser-based regression coverage beyond the current core flow set
+3. Pay down remaining CodeMap observability/test warnings in core modules
+4. Reassess field-level privacy policy for medical/contact data after broader family usage
 
 ## Sprint State
 
@@ -69,9 +71,11 @@ Sprint 01, Sprint 02, Sprint 03, and Sprint 04 are closed.
   - `S02 - Tree and Discovery Foundation`
   - `S03 - Timeline and Family Moments Expansion`
 - `S04 - Version History, Revert, and Moderation Controls`
-- Next recommended sprint: `S05 - Encryption and Backup Hardening Pass`
+- `S05 - Encryption and Backup Hardening Pass`
+- Next recommended sprint: `S06 - Theme Customization and Branding Controls`
 - Sprint 05 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s05.md`
 - Sprint 05 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s05.md`
+- Sprint 05 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`
 - Sprint 04 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
 - Sprint 04 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
 - Sprint 04 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s04.md`

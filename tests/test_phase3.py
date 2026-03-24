@@ -159,7 +159,8 @@ class TestBackup:
             health = get_backup_health()
             assert health["backup_count"] >= 1
             assert health["fresh"] is True
-            assert health["restore_supported"] is True
+            assert health["restore_supported"] is False
+            assert health["restore_verification"] is None
             assert health["retention_days"] == 30
 
     def test_restore_backup_archive(self, tmp_path):
@@ -187,7 +188,12 @@ class TestBackup:
             FERNET_KEY = "test"
 
         with patch("app.backup.service.get_settings", return_value=MockSettings()):
-            from app.backup.service import create_download_zip, restore_backup_archive, verify_backup_restore
+            from app.backup.service import (
+                create_download_zip,
+                get_backup_health,
+                restore_backup_archive,
+                verify_backup_restore,
+            )
 
             archive_path = create_download_zip()
             restore_target = tmp_path / "restored"
@@ -205,6 +211,10 @@ class TestBackup:
             verification = verify_backup_restore()
             assert verification["status"] == "ok"
             assert verification["person_count"] == 1
+            health = get_backup_health()
+            assert health["restore_supported"] is True
+            assert health["restore_verification"]["status"] == "ok"
+            assert health["restore_verification"]["source_backup"] == health["latest_file"]
 
 
 class TestBootstrapAdmin:
@@ -248,7 +258,8 @@ class TestProtection:
         resp = await admin_client.get("/api/admin/backup/status")
         assert resp.status_code == 200
         body = resp.json()
-        assert body["restore_supported"] is True
+        assert "restore_supported" in body
+        assert "restore_verification" in body
         assert body["protection"]["field_encryption_enabled"] is True
         assert "contact_email" in body["protection"]["protected_person_fields"]
 

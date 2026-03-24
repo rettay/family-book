@@ -1,3 +1,4 @@
+import logging
 import json
 import os
 
@@ -20,6 +21,7 @@ from app.services.media_service import (
 )
 
 router = APIRouter(prefix="/api/media", tags=["media"])
+logger = logging.getLogger(__name__)
 
 
 def _parse_tagged_person_ids(raw_value: str | None) -> list[str]:
@@ -103,6 +105,7 @@ async def upload_media(
         raise HTTPException(status_code=400, detail=str(e))
 
     tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
+    logger.info("Media %s uploaded for person %s by %s", media.id, person_id, current_user.id)
     return {
         "id": media.id,
         "person_id": media.person_id,
@@ -132,6 +135,7 @@ async def get_media_metadata(
         raise HTTPException(status_code=404, detail="Media not found")
     if not await can_view_media(db, current_user, media):
         raise HTTPException(status_code=403, detail="Not visible")
+    logger.debug("Media metadata %s requested by %s", media.id, current_user.id)
 
     tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
     body = {

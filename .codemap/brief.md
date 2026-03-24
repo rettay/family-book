@@ -1,56 +1,56 @@
 # family-book — Agent Brief
 
-**Modules:** 101  
-**Languages:** python (68), unknown (29), javascript (4)  
-**With AI briefings:** 0/101
+**Modules:** 114  
+**Languages:** python (80), unknown (30), javascript (4)  
+**With AI briefings:** 0/114
 
 ## Architecture Overview
 
-**Hub modules** (imported by others): `app/models/person.py` (19), `app/config.py` (17), `app/database.py` (13), `app/models/base.py` (12), `app/auth.py` (9), `app/models/relationships.py` (9), `app/models/media.py` (8), `app/services/auth_service.py` (6), `app/models/auth.py` (6), `app/models/moments.py` (6)
+**Hub modules** (imported by others): `app/models/person.py` (26), `app/config.py` (18), `app/database.py` (13), `app/models/base.py` (12), `app/auth.py` (9), `app/models/relationships.py` (9), `app/models/media.py` (8), `app/models/moments.py` (8), `app/access_control.py` (7), `app/services/field_protection.py` (7)
 
-**Leaf modules** (import others, not imported): `app/seed.py`, `tests/conftest.py`, `alembic/env.py`, `tests/test_api.py`, `tests/test_auth.py`, `tests/test_media.py`, `tests/test_models.py`, `tests/test_phase1_edge_cases.py`
+**Leaf modules** (import others, not imported): `app/seed.py`, `tests/conftest.py`, `alembic/env.py`, `tests/test_access_control.py`, `tests/test_api.py`, `tests/test_auth.py`, `tests/test_media.py`, `tests/test_models.py`, `tests/test_phase1_edge_cases.py`, `tests/test_protection_service.py`
 
 ## Domain Architecture
 
-**domain-0** (53 modules): `app/models/person.py`, `app/config.py`, `app/database.py`, `app/models/base.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/services/auth_service.py`
-  ... and 45 more
+**domain-0** (63 modules): `app/models/person.py`, `app/config.py`, `app/database.py`, `app/models/base.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/models/moments.py`
+  ... and 55 more
 
 ## Architecture Roles
 
-- **Core**: `app/models/person.py`, `app/config.py`, `app/models/base.py`, `app/access_control.py`, `app/schemas.py`
-- **Utility**: `app/database.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/services/auth_service.py` (+81 more)
-- **Test Support**: `tests/conftest.py`, `tests/__init__.py`, `tests/test_api.py`, `tests/test_auth.py`, `tests/test_comments.py` (+5 more)
+- **Core**: `app/models/person.py`, `app/config.py`, `app/models/base.py`, `app/models/moments.py`, `app/services/field_protection.py` (+1 more)
+- **Utility**: `app/database.py`, `app/auth.py`, `app/models/relationships.py`, `app/models/media.py`, `app/access_control.py` (+88 more)
+- **Test Support**: `tests/conftest.py`, `tests/__init__.py`, `tests/test_access_control.py`, `tests/test_api.py`, `tests/test_auth.py` (+10 more)
 
 ## Top Modules Requiring Review
 
 | Module | Score | Centrality | Top Factor |
 |---|---:|---:|---|
-| `app/services/media_service.py` | 0.52 | 0.07 | complexity (red) |
-| `app/routes/pages.py` | 0.51 | 0.03 | churn (4 changes) |
+| `app/config.py` | 0.51 | 1.00 | centrality (18 importers) |
+| `app/routes/pages.py` | 0.51 | 0.00 | churn (7 changes) |
+| `app/backup/service.py` | 0.49 | 0.13 | centrality (3 importers) |
+| `app/services/media_service.py` | 0.46 | 0.08 | churn (3 changes) |
 | `app/middleware/security.py` | 0.44 | 0.03 | complexity (red) |
 | `app/static/js/tree.js` | 0.43 | 0.00 | complexity (red) |
-| `app/config.py` | 0.42 | 0.83 | centrality (17 importers) |
 | `app/inbound/routes.py` | 0.41 | 0.03 | complexity (red) |
 | `app/static/js/main.js` | 0.40 | 0.00 | complexity (red) |
-| `app/routes/tree.py` | 0.35 | 0.00 | churn (4 changes) |
-| `app/access_control.py` | 0.34 | 0.67 | centrality (5 importers) |
-| `app/routes/media.py` | 0.34 | 0.03 | churn (3 changes) |
+| `app/services/moment_service.py` | 0.39 | 0.17 | churn (3 changes) |
+| `app/routes/media.py` | 0.37 | 0.00 | churn (6 changes) |
 
 ## Module Briefs
 
-### app/models/person.py [testability: 1.00] [attention: 0.21] [CRITICAL] [domain-0] [unobservable]
+### app/models/person.py [hotspot] [testability: 1.00] [attention: 0.33] [CRITICAL] [domain-0] [unobservable]
 
-**Radar:** U=0.9 C=0.6 E=1.0 S=1.0 T=0.7  
-**Language:** python | **Complexity:** green (cyclomatic 6, 137 lines)
-**Exports:** `NameDisplayOrder` (class), `Gender` (class), `DatePrecision` (class), `Visibility` (class), `AccountState` (class), `PersonSource` (class), `Person` (class)  
-**Constructs:** 7 classes  
+**Radar:** U=0.9 C=0.6 E=1.0 S=1.0 T=0.4  
+**Language:** python | **Complexity:** green (cyclomatic 6, 173 lines)
+**Exports:** `EncryptedText` (class), `NameDisplayOrder` (class), `Gender` (class), `DatePrecision` (class), `Visibility` (class), `AccountState` (class), `PersonLifecycleState` (class), `PersonSource` (class), `Person` (class)  
+**Constructs:** 9 classes  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/config.py [hotspot] [environment] [testability: 0.65] [attention: 0.42] [CRITICAL] [domain-0] [unobservable]
+### app/config.py [hotspot] [environment] [testability: 0.35] [attention: 0.51] [CRITICAL] [domain-0] [unobservable]
 
-**Radar:** U=0.5 C=0.6 E=1.0 S=0.9 T=0.3  
-**Language:** python | **Complexity:** yellow (cyclomatic 13, 131 lines)
+**Radar:** U=0.6 C=0.4 E=0.5 S=0.7 T=0.4  
+**Language:** python | **Complexity:** yellow (cyclomatic 13, 132 lines)
 **Exports:** `Settings` (class), `get_settings` (function)  
 **Constructs:** 1 functions, 1 classes  
 
@@ -101,10 +101,37 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/services/auth_service.py [hotspot] [testability: 0.85] [attention: 0.23] [domain-0]
+### app/models/moments.py [hotspot] [testability: 0.70] [attention: 0.25] [CRITICAL] [domain-0] [unobservable]
 
-**Radar:** U=0.6 C=0.9 E=1.0 S=1.0 T=0.3  
-**Language:** python | **Complexity:** yellow (cyclomatic 16, 240 lines)
+**Radar:** U=0.9 C=0.6 E=0.5 S=0.8 T=0.6  
+**Language:** python | **Complexity:** green (cyclomatic 3, 150 lines)
+**Exports:** `MomentKind` (class), `MilestoneType` (class), `MomentSource` (class), `MomentVisibility` (class), `OccurredPrecision` (class), `MomentLifecycleState` (class), `Moment` (class), `MomentReaction` (class), `MomentComment` (class)  
+**Constructs:** 9 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/access_control.py [hotspot] [testability: 0.70] [attention: 0.30] [domain-0] [observable]
+
+**Radar:** U=0.4 C=0.9 E=1.0 S=1.0 T=0.6  
+**Language:** python | **Complexity:** red (cyclomatic 73, 277 lines)
+**Exports:** `can_collaborate` (function), `get_person_access` (function), `get_accessible_person_ids` (function), `can_manage_person` (function), `can_view_media` (function), `can_view_moment` (function), `can_manage_moment` (function), `can_create_moment_for_person` (function), `redact_person_detail` (function), `redact_person_summary` (function)  
+**Constructs:** 12 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/services/field_protection.py [testability: 0.85] [attention: 0.00] [CRITICAL] [domain-0] [unobservable]
+
+**Radar:** U=0.7 C=0.9 E=1.0 S=1.0 T=0.8  
+**Language:** python | **Complexity:** yellow (cyclomatic 16, 125 lines)
+**Exports:** `ProtectionConfigurationError` (class), `ProtectedFieldDecryptionError` (class), `normalize_email_for_lookup` (function), `contact_email_lookup_hash` (function), `is_valid_fernet_key` (function), `get_fernet` (function), `encrypt_string` (function), `decrypt_string` (function), `encrypt_mapping_fields` (function), `decrypt_mapping_fields` (function)  
+**Constructs:** 9 functions, 2 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/services/auth_service.py [hotspot] [testability: 0.85] [attention: 0.22] [domain-0]
+
+**Radar:** U=0.7 C=0.9 E=1.0 S=1.0 T=0.4  
+**Language:** python | **Complexity:** yellow (cyclomatic 15, 243 lines)
 **Exports:** `_hash_token` (function), `generate_session_token` (function), `generate_invite_token` (function), `generate_magic_link_token` (function), `create_session` (function), `validate_session` (function), `delete_session` (function), `create_invite` (function), `get_valid_invite` (function), `claim_invite` (function)  
 **Constructs:** 13 functions  
 
@@ -119,30 +146,30 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/models/moments.py [testability: 1.00] [attention: 0.15] [domain-0]
-
-**Radar:** U=0.8 C=0.9 E=1.0 S=1.0 T=0.5  
-**Language:** python | **Complexity:** green (cyclomatic 3, 136 lines)
-**Exports:** `MomentKind` (class), `MilestoneType` (class), `MomentSource` (class), `MomentVisibility` (class), `OccurredPrecision` (class), `Moment` (class), `MomentReaction` (class), `MomentComment` (class)  
-**Constructs:** 8 classes  
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/access_control.py [hotspot] [testability: 0.40] [attention: 0.34] [domain-0] [unobservable]
-
-**Radar:** U=0.4 C=0.6 E=0.5 S=0.8 T=0.6  
-**Language:** python | **Complexity:** red (cyclomatic 65, 254 lines)
-**Exports:** `can_collaborate` (function), `get_person_access` (function), `get_accessible_person_ids` (function), `can_manage_person` (function), `can_view_media` (function), `can_view_moment` (function), `can_manage_moment` (function), `can_create_moment_for_person` (function), `redact_person_detail` (function), `redact_person_summary` (function)  
-**Constructs:** 12 functions  
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
 ### app/schemas.py [hotspot] [testability: 0.70] [attention: 0.28] [CRITICAL] [domain-0] [unobservable]
 
 **Radar:** U=0.8 C=0.6 E=0.5 S=0.8 T=0.4  
 **Language:** python | **Complexity:** green (cyclomatic 3, 263 lines)
 **Exports:** `PersonCreate` (class), `PersonUpdate` (class), `PersonSummary` (class), `PersonDetail` (class), `person_to_summary` (function), `person_to_detail` (function), `ParentChildCreate` (class), `ParentChildResponse` (class), `PartnershipCreate` (class), `PartnershipUpdate` (class)  
 **Constructs:** 2 functions, 10 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/services/revision_service.py [testability: 1.00] [attention: 0.02] [domain-0] [observable]
+
+**Radar:** U=0.9 C=0.9 E=1.0 S=1.0 T=0.8  
+**Language:** python | **Complexity:** green (cyclomatic 10, 184 lines)
+**Exports:** `_serialize_datetime` (function), `_parse_datetime` (function), `serialize_person_snapshot` (function), `apply_person_snapshot` (function), `serialize_moment_snapshot` (function), `apply_moment_snapshot` (function), `record_revision` (function), `list_revisions` (function), `get_revision` (function)  
+**Constructs:** 9 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/backup/service.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.49] [domain-0] [observable]
+
+**Radar:** U=0.3 C=0.7 E=0.5 S=0.9 T=0.6  
+**Language:** python | **Complexity:** red (cyclomatic 34, 283 lines)
+**Exports:** `_backup_dir` (function), `_restore_verification_path` (function), `_load_restore_verification` (function), `_write_restore_verification` (function), `_latest_backup` (function), `_restore_supported` (function), `run_backup` (function), `create_download_zip` (function), `get_backup_health` (function), `restore_backup_archive` (function)  
+**Constructs:** 12 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -164,6 +191,15 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### app/models/revisions.py [testability: 0.70] [attention: 0.10] [domain-0]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.8  
+**Language:** python | **Complexity:** green (cyclomatic 1, 30 lines)
+**Exports:** `EntityRevision` (class)  
+**Constructs:** 1 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### app/routes/__init__.py [testability: 1.00] [attention: 0.00] [domain-0]
 
 **Radar:** U=1.0 C=0.9 E=1.0 S=1.0 T=0.7  
@@ -171,30 +207,57 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/media.py [hotspot] [testability: 0.70] [attention: 0.34] [domain-0] [endpoint]
+### app/routes/auth_routes.py [hotspot] [testability: 0.70] [attention: 0.29] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.3 C=1.0 E=1.0 S=1.0 T=0.3  
-**Language:** python | **Complexity:** red (cyclomatic 37, 257 lines)
+**Radar:** U=0.4 C=1.0 E=1.0 S=1.0 T=0.5  
+**Language:** python | **Complexity:** red (cyclomatic 21, 235 lines)
+**Exports:** `GoogleCredentialRequest` (class), `AdminInviteResponse` (class), `_set_session_cookie` (function)  
+**Constructs:** 1 functions, 2 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/routes/media.py [hotspot] [testability: 0.70] [attention: 0.37] [domain-0] [observable] [endpoint]
+
+**Radar:** U=0.4 C=1.0 E=1.0 S=1.0 T=0.4  
+**Language:** python | **Complexity:** red (cyclomatic 43, 285 lines)
 **Exports:** `_parse_tagged_person_ids` (function), `_build_tagged_people` (function), `_max_upload_size` (function)  
 **Constructs:** 3 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/moments.py [hotspot] [testability: 0.70] [attention: 0.34] [domain-0] [endpoint]
+### app/routes/moments.py [hotspot] [testability: 0.70] [attention: 0.37] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.3 C=1.0 E=1.0 S=1.0 T=0.3  
-**Language:** python | **Complexity:** red (cyclomatic 68, 548 lines)
-**Exports:** `MomentCreate` (class), `MomentUpdate` (class), `PersonBrief` (class), `MediaBrief` (class), `MomentCard` (class), `CommentCreate` (class), `CommentResponse` (class), `ReactionCreate` (class), `_build_moment_card` (function)  
-**Constructs:** 1 functions, 8 classes  
+**Radar:** U=0.3 C=1.0 E=1.0 S=1.0 T=0.4  
+**Language:** python | **Complexity:** red (cyclomatic 87, 811 lines)
+**Exports:** `MomentCreate` (class), `MomentUpdate` (class), `PersonBrief` (class), `MediaBrief` (class), `MomentCard` (class), `CommentCreate` (class), `CommentResponse` (class), `ReactionCreate` (class), `ModerateMomentRequest` (class), `_has_moment_content` (function)  
+**Constructs:** 6 functions, 9 classes  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/backup/service.py [hotspot] [filesystem] [testability: 0.35] [attention: 0.32] [domain-0] [observable]
+### app/routes/persons.py [hotspot] [testability: 0.70] [attention: 0.29] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.5 C=0.7 E=0.5 S=0.9 T=0.6  
-**Language:** python | **Complexity:** yellow (cyclomatic 13, 122 lines)
-**Exports:** `run_backup` (function), `create_download_zip` (function), `get_backup_health` (function), `_cleanup_old_backups` (function)  
-**Constructs:** 4 functions  
+**Radar:** U=0.4 C=1.0 E=1.0 S=1.0 T=0.5  
+**Language:** python | **Complexity:** red (cyclomatic 29, 333 lines)
+**Exports:** `_person_history_entries` (function)  
+**Constructs:** 1 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/routes/relationships.py [hotspot] [testability: 0.70] [attention: 0.21] [domain-0] [observable] [endpoint]
+
+**Radar:** U=0.4 C=1.0 E=1.0 S=1.0 T=0.6  
+**Language:** python | **Complexity:** red (cyclomatic 22, 233 lines)
+**Exports:** `_would_create_ancestry_cycle` (function), `_partnership_exists` (function)  
+**Constructs:** 2 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/services/moment_service.py [hotspot] [testability: 0.40] [attention: 0.39] [domain-0]
+
+**Radar:** U=0.4 C=0.7 E=0.5 S=1.0 T=0.6  
+**Language:** python | **Complexity:** red (cyclomatic 28, 244 lines)
+**Exports:** `_moment_order` (function), `_tagged_person_match` (function), `list_visible_moments` (function), `build_moment_cards` (function), `build_moment_card` (function), `build_moments_path` (function)  
+**Constructs:** 6 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -207,35 +270,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/auth_routes.py [hotspot] [testability: 0.85] [attention: 0.20] [domain-0] [endpoint]
+### app/routes/tree.py [hotspot] [testability: 0.85] [attention: 0.23] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.6 C=1.0 E=1.0 S=1.0 T=0.3  
-**Language:** python | **Complexity:** yellow (cyclomatic 17, 216 lines)
-**Exports:** `GoogleCredentialRequest` (class), `AdminInviteResponse` (class), `_set_session_cookie` (function)  
-**Constructs:** 1 functions, 2 classes  
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/routes/persons.py [hotspot] [testability: 0.55] [attention: 0.30] [domain-0] [endpoint]
-
-**Radar:** U=0.7 C=0.7 E=0.5 S=1.0 T=0.4  
-**Language:** python | **Complexity:** yellow (cyclomatic 14, 181 lines)
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/routes/relationships.py [hotspot] [testability: 0.85] [attention: 0.20] [domain-0] [endpoint]
-
-**Radar:** U=0.6 C=1.0 E=1.0 S=1.0 T=0.3  
-**Language:** python | **Complexity:** yellow (cyclomatic 20, 223 lines)
-**Exports:** `_would_create_ancestry_cycle` (function), `_partnership_exists` (function)  
-**Constructs:** 2 functions  
-
-> *(no AI briefing — run `codemap analyze --ai` to generate)*
-
-### app/routes/tree.py [hotspot] [testability: 0.55] [attention: 0.35] [domain-0] [endpoint]
-
-**Radar:** U=0.6 C=0.7 E=0.5 S=1.0 T=0.3  
-**Language:** python | **Complexity:** yellow (cyclomatic 17, 222 lines)
+**Radar:** U=0.7 C=1.0 E=1.0 S=1.0 T=0.4  
+**Language:** python | **Complexity:** yellow (cyclomatic 17, 239 lines)
 **Exports:** `TreePreferencesPayload` (class), `MapMarkerPerson` (class), `MapMarker` (class), `MapResponse` (class), `_get_or_create_tree_preferences` (function), `_filtered_tree_people` (function)  
 **Constructs:** 2 functions, 4 classes  
 
@@ -247,6 +285,15 @@
 **Language:** python | **Complexity:** yellow (cyclomatic 11, 52 lines)
 **Exports:** `GoogleAuthError` (class), `verify_google_credential` (function), `_optional_str` (function)  
 **Constructs:** 2 functions, 1 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/services/protection_service.py [hotspot] [testability: 0.85] [attention: 0.04] [domain-0] [observable] [database]
+
+**Radar:** U=0.7 C=1.0 E=1.0 S=1.0 T=0.7  
+**Language:** python | **Complexity:** yellow (cyclomatic 16, 166 lines)
+**Exports:** `_protect_person_rows` (function), `_protect_revision_rows` (function), `_assert_readable_protected_data` (function), `ensure_sensitive_person_fields_protected` (function)  
+**Constructs:** 4 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -268,10 +315,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/health.py [testability: 1.00] [attention: 0.00] [domain-0] [endpoint]
+### app/routes/health.py [testability: 1.00] [attention: 0.00] [domain-0] [observable] [endpoint]
 
-**Radar:** U=1.0 C=1.0 E=1.0 S=1.0 T=0.7  
-**Language:** python | **Complexity:** green (cyclomatic 3, 20 lines)
+**Radar:** U=1.0 C=1.0 E=1.0 S=1.0 T=0.8  
+**Language:** python | **Complexity:** green (cyclomatic 3, 25 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -302,21 +349,21 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/routes/pages.py [hotspot] [testability: 0.40] [attention: 0.51] [domain-0] [endpoint]
+### app/routes/pages.py [hotspot] [testability: 0.40] [attention: 0.51] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.3 C=0.7 E=0.5 S=1.0 T=0.3  
-**Language:** python | **Complexity:** red (cyclomatic 79, 701 lines)
-**Exports:** `_get_locale` (function), `_country_flag` (function), `_ctx` (function), `_build_moment_card_simple` (function)  
-**Constructs:** 4 functions  
+**Radar:** U=0.3 C=0.7 E=0.5 S=1.0 T=0.4  
+**Language:** python | **Complexity:** red (cyclomatic 72, 732 lines)
+**Exports:** `_get_locale` (function), `_country_flag` (function), `_ctx` (function), `_moment_people` (function), `_actor_names` (function)  
+**Constructs:** 5 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/services/media_service.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.52] [domain-0]
+### app/services/media_service.py [hotspot] [filesystem] [testability: 0.20] [attention: 0.46] [domain-0]
 
-**Radar:** U=0.2 C=0.7 E=0.5 S=0.9 T=0.3  
-**Language:** python | **Complexity:** red (cyclomatic 45, 282 lines)
-**Exports:** `_category_for_mime` (function), `_media_type_for_mime` (function), `compute_sha256` (function), `strip_exif` (function), `generate_thumbnail` (function), `get_image_dimensions` (function), `check_duplicate` (function), `save_media_file` (function), `save_media_temp_file` (function)  
-**Constructs:** 9 functions  
+**Radar:** U=0.2 C=0.7 E=0.5 S=0.9 T=0.6  
+**Language:** python | **Complexity:** red (cyclomatic 49, 296 lines)
+**Exports:** `_category_for_mime` (function), `_media_type_for_mime` (function), `compute_sha256` (function), `strip_exif` (function), `generate_thumbnail` (function), `get_image_dimensions` (function), `check_duplicate` (function), `save_media_file` (function), `save_media_temp_file` (function), `delete_media_files` (function)  
+**Constructs:** 10 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -340,8 +387,8 @@
 
 ### app/services/bootstrap_service.py [hotspot] [testability: 0.55] [attention: 0.24] [domain-0] [observable] [database]
 
-**Radar:** U=0.7 C=0.7 E=0.5 S=1.0 T=0.6  
-**Language:** python | **Complexity:** yellow (cyclomatic 11, 59 lines)
+**Radar:** U=0.7 C=0.7 E=0.5 S=1.0 T=0.7  
+**Language:** python | **Complexity:** yellow (cyclomatic 11, 60 lines)
 **Exports:** `ensure_bootstrap_admin` (function)  
 **Constructs:** 1 functions  
 
@@ -354,10 +401,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/backup/routes.py [testability: 0.70] [attention: 0.13] [domain-0] [endpoint]
+### app/backup/routes.py [testability: 0.70] [attention: 0.14] [domain-0] [observable] [endpoint]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** python | **Complexity:** green (cyclomatic 1, 40 lines)
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.8  
+**Language:** python | **Complexity:** green (cyclomatic 1, 59 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -370,10 +417,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/main.py [filesystem] [testability: 0.80] [attention: 0.14] [domain-0] [observable]
+### app/main.py [filesystem] [testability: 0.50] [attention: 0.30] [domain-0] [observable]
 
-**Radar:** U=0.7 C=1.0 E=1.0 S=0.9 T=0.6  
-**Language:** python | **Complexity:** green (cyclomatic 9, 121 lines)
+**Radar:** U=0.8 C=0.7 E=0.5 S=0.9 T=0.6  
+**Language:** python | **Complexity:** green (cyclomatic 9, 123 lines)
 **Exports:** `create_app` (function)  
 **Constructs:** 1 functions  
 
@@ -388,10 +435,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/models/__init__.py [testability: 0.70] [attention: 0.24] [domain-0]
+### app/models/__init__.py [hotspot] [testability: 0.70] [attention: 0.18] [domain-0]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
-**Language:** python | **Complexity:** green (cyclomatic 1, 43 lines)
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.6  
+**Language:** python | **Complexity:** green (cyclomatic 1, 45 lines)
 **Exports:** `Base` (function), `Person` (function), `ParentChild` (function), `Partnership` (function), `Media` (function), `Moment` (function), `MomentReaction` (function), `MomentComment` (function), `UserSession` (function), `Invite` (function)  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
@@ -521,6 +568,15 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### alembic/versions/8c1f9e6b7d11_add_sensitive_field_encryption_support.py [testability: 0.70]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.8  
+**Language:** python | **Complexity:** green (cyclomatic 3, 39 lines)
+**Exports:** `upgrade` (function), `downgrade` (function)  
+**Constructs:** 2 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### alembic/versions/9b3f4d7c1a2e_add_tree_preferences.py [testability: 0.70]
 
 **Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
@@ -534,6 +590,15 @@
 
 **Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=1.0  
 **Language:** python | **Complexity:** green (cyclomatic 3, 25 lines)
+**Exports:** `upgrade` (function), `downgrade` (function)  
+**Constructs:** 2 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### alembic/versions/f3c4b8e1a9d2_add_revisions_and_recoverable_state.py [testability: 0.70]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.8  
+**Language:** python | **Complexity:** green (cyclomatic 5, 63 lines)
 **Exports:** `upgrade` (function), `downgrade` (function)  
 **Constructs:** 2 functions  
 
@@ -602,10 +667,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/admin.html [testability: 0.70] [attention: 0.23]
+### app/templates/admin.html [hotspot] [testability: 0.70] [attention: 0.19]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.5  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 167 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 191 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -616,10 +681,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/home.html [testability: 0.70] [attention: 0.12]
+### app/templates/home.html [hotspot] [testability: 0.70] [attention: 0.24]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 175 lines)
+**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 341 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -672,10 +737,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/partials/moment_card.html [testability: 0.70] [attention: 0.23]
+### app/templates/partials/moment_card.html [hotspot] [testability: 0.70] [attention: 0.22]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.5  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 130 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 170 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -683,6 +748,13 @@
 
 **Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.7  
 **Language:** unknown | **Complexity:** green (cyclomatic 1, 24 lines)
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### app/templates/partials/person_history.html [testability: 0.70] [attention: 0.07]
+
+**Radar:** U=1.0 C=0.7 E=0.5 S=1.0 T=0.8  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 33 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -700,10 +772,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### app/templates/person.html [testability: 0.70] [attention: 0.16]
+### app/templates/person.html [hotspot] [testability: 0.70] [attention: 0.24]
 
-**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.7  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 147 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 311 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -735,17 +807,17 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### locales/en.json [hotspot] [testability: 0.70] [attention: 0.27]
+### locales/en.json [hotspot] [testability: 0.70] [attention: 0.22]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.3  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 128 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 142 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### locales/es.json [hotspot] [testability: 0.70] [attention: 0.27]
+### locales/es.json [hotspot] [testability: 0.70] [attention: 0.22]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.3  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 128 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 142 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -770,10 +842,10 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### locales/ru.json [hotspot] [testability: 0.70] [attention: 0.27]
+### locales/ru.json [hotspot] [testability: 0.70] [attention: 0.22]
 
-**Radar:** U=0.8 C=0.7 E=0.5 S=1.0 T=0.3  
-**Language:** unknown | **Complexity:** green (cyclomatic 1, 128 lines)
+**Radar:** U=0.9 C=0.7 E=0.5 S=1.0 T=0.5  
+**Language:** unknown | **Complexity:** green (cyclomatic 1, 142 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -783,15 +855,23 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### tests/test_access_control.py [domain-0]
+
+**Language:** python | **Complexity:** green (cyclomatic 1, 99 lines)
+**Exports:** `test_can_collaborate_requires_active_account` (function), `test_can_manage_person_blocks_deleted_profile` (function), `test_redact_person_detail_hides_sensitive_fields_without_profile_access` (function)  
+**Constructs:** 3 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### tests/test_api.py [hotspot] [domain-0] [service]
 
-**Language:** python | **Complexity:** green (cyclomatic 1, 536 lines)
+**Language:** python | **Complexity:** green (cyclomatic 1, 697 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
 ### tests/test_auth.py [domain-0] [service]
 
-**Language:** python | **Complexity:** green (cyclomatic 3, 276 lines)
+**Language:** python | **Complexity:** green (cyclomatic 3, 300 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -805,21 +885,21 @@
 
 ### tests/test_media.py [hotspot] [domain-0] [service]
 
-**Language:** python | **Complexity:** green (cyclomatic 2, 358 lines)
-**Exports:** `_make_test_image` (function), `_make_test_png` (function), `TestMediaUpload` (class), `TestMediaDedup` (class), `TestMediaServing` (class), `TestMediaThumbnails` (class), `TestMediaMetadata` (class)  
-**Constructs:** 2 functions, 5 classes  
+**Language:** python | **Complexity:** green (cyclomatic 2, 405 lines)
+**Exports:** `_make_test_image` (function), `_make_test_png` (function), `TestMediaUpload` (class), `TestMediaDedup` (class), `TestMediaServing` (class), `TestMediaDeletion` (class), `TestMediaThumbnails` (class), `TestMediaMetadata` (class)  
+**Constructs:** 2 functions, 6 classes  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
-### tests/test_models.py [domain-0]
+### tests/test_models.py [hotspot] [domain-0]
 
-**Language:** python | **Complexity:** green (cyclomatic 4, 188 lines)
+**Language:** python | **Complexity:** green (cyclomatic 4, 227 lines)
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
 ### tests/test_moments.py [hotspot] [service]
 
-**Language:** python | **Complexity:** green (cyclomatic 5, 277 lines)
+**Language:** python | **Complexity:** green (cyclomatic 5, 506 lines)
 **Exports:** `TestMomentsCRUD` (class), `TestMomentsFeed` (class), `TestMomentsPermissions` (class)  
 **Constructs:** 3 classes  
 
@@ -831,11 +911,43 @@
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
+### tests/test_protection_service.py [domain-0] [database]
+
+**Language:** python | **Complexity:** green (cyclomatic 5, 96 lines)
+**Exports:** `test_invalid_fernet_key_is_rejected` (function), `test_decrypt_string_raises_for_wrong_key` (function), `test_protection_contract_reports_invalid_key` (function)  
+**Constructs:** 3 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
 ### tests/test_reactions.py [service]
 
 **Language:** python | **Complexity:** green (cyclomatic 1, 133 lines)
 **Exports:** `TestReactions` (class)  
 **Constructs:** 1 classes  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### tests/test_revision_service.py [domain-0]
+
+**Language:** python | **Complexity:** green (cyclomatic 1, 39 lines)
+**Exports:** `test_person_snapshot_encrypts_sensitive_fields` (function), `test_apply_person_snapshot_restores_sensitive_fields` (function)  
+**Constructs:** 2 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### tests/test_schema_models.py [domain-0]
+
+**Language:** python | **Complexity:** green (cyclomatic 1, 54 lines)
+**Exports:** `test_person_schema_helpers_preserve_expected_fields` (function), `test_root_person_detail_redacts_name_fields` (function), `test_moment_model_list_properties_round_trip` (function)  
+**Constructs:** 3 functions  
+
+> *(no AI briefing — run `codemap analyze --ai` to generate)*
+
+### tests/test_security_guardrails.py [domain-0]
+
+**Language:** python | **Complexity:** green (cyclomatic 5, 85 lines)
+**Exports:** `_request` (function), `test_add_security_middleware_registers_expected_stack` (function), `test_rate_limit_resolve_key_prefers_session_cookie` (function)  
+**Constructs:** 3 functions  
 
 > *(no AI briefing — run `codemap analyze --ai` to generate)*
 
@@ -848,23 +960,28 @@
 - `app/auth.py`
 - `app/models/relationships.py`
 - `app/models/media.py`
-- `app/services/auth_service.py`
-- `app/models/auth.py`
 - `app/models/moments.py`
 - `app/access_control.py`
+- `app/services/field_protection.py`
+- `app/services/auth_service.py`
+- `app/models/auth.py`
 - `app/schemas.py`
+- `app/services/revision_service.py`
+- `app/backup/service.py`
 - `app/services/io_limits.py`
 - `app/models/audit.py`
+- `app/models/revisions.py`
 - `app/routes/__init__.py`
+- `app/routes/auth_routes.py`
 - `app/routes/media.py`
 - `app/routes/moments.py`
-- `app/backup/service.py`
-- `app/i18n.py`
-- `app/routes/auth_routes.py`
 - `app/routes/persons.py`
 - `app/routes/relationships.py`
+- `app/services/moment_service.py`
+- `app/i18n.py`
 - `app/routes/tree.py`
 - `app/services/google_auth.py`
+- `app/services/protection_service.py`
 - `app/models/imports.py`
 - `app/models/preferences.py`
 - `app/routes/health.py`
@@ -897,8 +1014,10 @@
 - `alembic/versions/2e7d8d8d6d4b_add_google_auth_fields.py`
 - `alembic/versions/4f3c2e1a9b7d_add_rich_profile_fields_and_tags.py`
 - `alembic/versions/75d48eb17ca2_initial_schema.py`
+- `alembic/versions/8c1f9e6b7d11_add_sensitive_field_encryption_support.py`
 - `alembic/versions/9b3f4d7c1a2e_add_tree_preferences.py`
 - `alembic/versions/c6a8d41f2b5e_add_burial_country_code.py`
+- `alembic/versions/f3c4b8e1a9d2_add_revisions_and_recoverable_state.py`
 - `app/backup/__init__.py`
 - `app/inbound/__init__.py`
 - `app/matrix/__init__.py`
@@ -920,6 +1039,7 @@
 - `app/templates/partials/media_gallery.html`
 - `app/templates/partials/moment_card.html`
 - `app/templates/partials/people_grid.html`
+- `app/templates/partials/person_history.html`
 - `app/templates/partials/person_sidebar.html`
 - `app/templates/people.html`
 - `app/templates/person.html`
@@ -934,6 +1054,7 @@
 - `locales/relationships/ru.json`
 - `locales/ru.json`
 - `tests/__init__.py`
+- `tests/test_access_control.py`
 - `tests/test_api.py`
 - `tests/test_auth.py`
 - `tests/test_comments.py`
@@ -941,8 +1062,12 @@
 - `tests/test_models.py`
 - `tests/test_moments.py`
 - `tests/test_phase1_edge_cases.py`
+- `tests/test_protection_service.py`
 - `tests/test_reactions.py`
+- `tests/test_revision_service.py`
+- `tests/test_schema_models.py`
+- `tests/test_security_guardrails.py`
 
 ---
 
-*Generated by CodeMap on 2026-03-23 22:28 UTC. Estimated tokens: ~0 (0 words × 1.3). ACE ratio: N/A.*
+*Generated by CodeMap on 2026-03-24 00:14 UTC. Estimated tokens: ~0 (0 words × 1.3). ACE ratio: N/A.*

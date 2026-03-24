@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+import logging
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +13,8 @@ from app.models.moments import Moment, MomentLifecycleState
 from app.models.person import AccountState, Person, PersonLifecycleState, Visibility
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonDetail, PersonSummary
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -33,8 +36,10 @@ async def get_person_access(
     person: Person,
 ) -> PersonAccess:
     if not can_collaborate(current_user):
+        logger.debug("Access denied for non-collaborating user")
         return PersonAccess(False, False, False, False)
     if person.lifecycle_state != PersonLifecycleState.active.value:
+        logger.debug("Access denied for inactive person %s", person.id)
         return PersonAccess(False, False, False, False)
 
     if current_user.is_admin:
@@ -56,6 +61,7 @@ async def get_person_access(
         )
 
     if person.visibility == Visibility.hidden.value:
+        logger.debug("Hidden person %s denied to user %s", person.id, current_user.id)
         return PersonAccess(False, False, False, False)
     return PersonAccess(
         can_view=True,
@@ -123,11 +129,14 @@ async def can_view_moment(
     moment: Moment,
 ) -> bool:
     if moment.lifecycle_state == MomentLifecycleState.deleted.value:
+        logger.debug("Deleted moment %s hidden from user %s", moment.id, current_user.id)
         return False
     if moment.lifecycle_state == MomentLifecycleState.moderated.value and not current_user.is_admin:
+        logger.debug("Moderated moment %s denied to non-admin %s", moment.id, current_user.id)
         return False
     if not current_user.is_admin:
         if moment.visibility in {"hidden", "admins"}:
+            logger.debug("Moment %s visibility %s denied to %s", moment.id, moment.visibility, current_user.id)
             return False
 
     result = await db.execute(select(Person).where(Person.id == moment.person_id))

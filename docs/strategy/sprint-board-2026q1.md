@@ -225,7 +225,7 @@ Make broad family collaboration trustworthy by adding inspectable edit history, 
 
 ### `S05 - Encryption and Backup Hardening Pass`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -235,15 +235,15 @@ Make Family Book credible for sensitive family data by adding a truthful protect
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 7 | FB-009 | Encryption and Backup Hardening Pass | P1 | planned |
+| 7 | FB-009 | Encryption and Backup Hardening Pass | P1 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S05-1 | Data Protection Contract | planned |
-| S05-2 | Backup and Restore Truthfulness | planned |
-| S05-3 | Operational Hardening | planned |
+| S05-1 | Data Protection Contract | done |
+| S05-2 | Backup and Restore Truthfulness | done |
+| S05-3 | Operational Hardening | done |
 
 ### Why This Sprint Next
 
@@ -254,6 +254,7 @@ Family Book now supports broad collaboration, recovery, and moderation. That mak
 - Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s05.md`
 - Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s05.md`
 - Task packet: `/Users/cheech/code/family-book/task_packets/FB-009_encryption_and_backup_hardening_pass.md`
+- Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`
 
 ## Proof Obligations for the Next Execution Cycle
 

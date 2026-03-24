@@ -113,20 +113,20 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] Family Book has a documented protection contract that distinguishes in-transit protection, deployment/disk expectations, and field-level encryption.
-- [ ] Supported sensitive person fields are encrypted through the normal persistence path and decrypted only through supported application reads.
-- [ ] Focused tests prove protected fields are not stored as plaintext values in the underlying persistence representation.
-- [ ] Backup creation and restore are both executable, documented, and validated against a usable restored app state.
-- [ ] Health/admin backup surfaces report truthful freshness and protection state for the supported deployment model.
-- [ ] Launch-default runtime hardening is verified for docs exposure, trusted hosts, authenticated cache behavior, and bounded upload/download paths.
+- [x] Family Book has a documented protection contract that distinguishes in-transit protection, deployment/disk expectations, and field-level encryption.
+- [x] Supported sensitive person fields are encrypted through the normal persistence path and decrypted only through supported application reads.
+- [x] Focused tests prove protected fields are not stored as plaintext values in the underlying persistence representation.
+- [x] Backup creation and restore are both executable, documented, and validated against a usable restored app state.
+- [x] Health/admin backup surfaces report truthful freshness and protection state for the supported deployment model.
+- [x] Launch-default runtime hardening is verified for docs exposure, trusted hosts, authenticated cache behavior, and bounded upload/download paths.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Validation evidence attached
-- [ ] At least one negative-case path proves restore or protection state fails closed instead of silently claiming success
-- [ ] Protection claims in docs/config match the code that actually runs
-- [ ] No new false-security language is introduced into README, status docs, or operator surfaces
+- [x] Acceptance criteria satisfied
+- [x] Validation evidence attached
+- [x] At least one negative-case path proves restore or protection state fails closed instead of silently claiming success
+- [x] Protection claims in docs/config match the code that actually runs
+- [x] No new false-security language is introduced into README, status docs, or operator surfaces
 
 ## Risk and Verification Notes
 

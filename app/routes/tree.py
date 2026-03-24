@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -17,6 +19,7 @@ from app.schemas import (
 )
 
 router = APIRouter(prefix="/api", tags=["tree"])
+logger = logging.getLogger(__name__)
 
 
 class TreePreferencesPayload(BaseModel):
@@ -96,6 +99,14 @@ async def get_tree(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    logger.debug(
+        "Tree requested by %s with filters branch=%s residence=%s birth=%s living=%s",
+        current_user.id,
+        branch,
+        residence_country,
+        birth_country,
+        living,
+    )
     persons = await _filtered_tree_people(
         db,
         current_user,

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -18,6 +20,7 @@ from app.services.auth_service import (
 )
 
 router = APIRouter(tags=["auth"])
+logger = logging.getLogger(__name__)
 
 
 class GoogleCredentialRequest(BaseModel):
@@ -80,6 +83,7 @@ async def authenticate_with_google(
     await db.commit()
 
     _set_session_cookie(response, session_token)
+    logger.info("Google authentication succeeded for person %s", person.id)
     return {"status": "ok", "person_id": person.id}
 
 
@@ -94,6 +98,7 @@ async def logout(
         await delete_session(db, token)
         await db.commit()
     response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+    logger.info("Session logout completed")
     return {"status": "ok"}
 
 
@@ -127,6 +132,7 @@ async def create_person_invite(
     if person.account_state != AccountState.active.value:
         person.account_state = AccountState.pending.value
     await db.commit()
+    logger.info("Invite created for person %s by admin %s", person.id, current_user.id)
 
     settings = get_settings()
     return AdminInviteResponse(
@@ -151,6 +157,7 @@ async def revoke_invite(
         raise HTTPException(status_code=404, detail="Invite not found")
     invite.revoked = True
     await db.commit()
+    logger.info("Invite %s revoked by admin %s", invite.id, current_user.id)
     return {"status": "ok", "invite_id": invite.id}
 
 
@@ -167,6 +174,7 @@ async def approve_person(
         raise HTTPException(status_code=400, detail="Deleted people cannot be approved")
     person.account_state = AccountState.active.value
     await db.commit()
+    logger.info("Person %s approved by admin %s", person.id, current_user.id)
     return {"status": "ok", "person_id": person.id}
 
 
@@ -183,6 +191,7 @@ async def suspend_person(
         raise HTTPException(status_code=400, detail="Deleted people cannot be suspended")
     person.account_state = AccountState.suspended.value
     await db.commit()
+    logger.info("Person %s suspended by admin %s", person.id, current_user.id)
     return {"status": "ok", "person_id": person.id}
 
 
@@ -199,6 +208,7 @@ async def activate_person(
         raise HTTPException(status_code=400, detail="Deleted people cannot be activated")
     person.account_state = AccountState.active.value
     await db.commit()
+    logger.info("Person %s activated by admin %s", person.id, current_user.id)
     return {"status": "ok", "person_id": person.id}
 
 
@@ -221,4 +231,5 @@ async def claim_invite_route(
     )
     await db.commit()
     _set_session_cookie(response, session_token)
+    logger.info("Invite claimed for person %s", person.id)
     return {"status": "ok", "person_id": person.id}

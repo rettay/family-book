@@ -4,6 +4,7 @@ HTML page routes — serves Jinja2 templates for the HTMX frontend.
 All data fetching happens server-side. Templates use HTMX for dynamic interactions.
 """
 
+import logging
 import os
 
 from fastapi import APIRouter, Depends, Query, Request
@@ -39,6 +40,7 @@ from app.services.moment_service import (
 from app.services.revision_service import list_revisions
 
 router = APIRouter(tags=["pages"])
+logger = logging.getLogger(__name__)
 
 _template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 templates = Jinja2Templates(directory=_template_dir)
@@ -113,6 +115,7 @@ async def home(
     db: AsyncSession = Depends(get_db),
 ):
     if not current_user:
+        logger.debug("Anonymous landing page rendered")
         return templates.TemplateResponse("landing.html", _ctx(request))
 
     moments_orm = await list_visible_moments(
@@ -397,6 +400,7 @@ async def admin_page(
     current_user: Person = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    logger.debug("Admin dashboard requested by %s", current_user.id)
     # Stats
     persons_count = (
         await db.execute(

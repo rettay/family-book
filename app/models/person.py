@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, validates
 from sqlalchemy.types import TypeDecorator
 
 from app.models.base import Base, TimestampMixin, generate_uuid
-from app.services.protection_service import (
+from app.services.field_protection import (
     contact_email_lookup_hash,
     decrypt_string,
     encrypt_string,
