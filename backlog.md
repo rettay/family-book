@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S07 - Observability and Coverage Hardening`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -63,7 +63,7 @@ Execution slices:
 - `S06-2` Admin Theme Controls
 - `S06-3` Surface Rollout and Staging Acceptance
 
-## Planned Sprint `S07 - Observability and Coverage Hardening`
+## Closed Sprint `S07 - Observability and Coverage Hardening`
 
 Sprint goal:
 - Raise the reliability floor of Family Book by adding direct tests for risky runtime plumbing, improving coverage in central modules, and reducing the remaining high-signal CodeMap warnings.
@@ -72,7 +72,7 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-010 | Observability and Coverage Hardening | P1 | planned | `task_packets/FB-010_observability_and_coverage_hardening.md` |
+| FB-010 | Observability and Coverage Hardening | P1 | done | `task_packets/FB-010_observability_and_coverage_hardening.md` |
 
 Execution slices:
 - `S07-1` Attack-Surface Test Hardening
@@ -81,16 +81,14 @@ Execution slices:
 
 ## Next Sprint
 
-- Recommended next sprint: `S07 - Observability and Coverage Hardening`
-- Primary packet: `FB-010 Observability and Coverage Hardening`
-- Sprint plan: `docs/strategy/sprint-plan-s07.md`
-- Slice plan: `docs/strategy/sprint-slices-s07.md`
-- Follow-on candidate after Sprint 07:
-  - broader browser regression expansion
-  - additional complexity cleanup where it improves maintainability without feature risk
+- Recommended next sprint: `S08 - Browser Regression Expansion and Release Confidence`
+- Primary packet candidate: `FB-011 Browser Regression Expansion and Release Confidence`
+- Follow-on candidate after Sprint 08:
+  - residual CodeMap observability cleanup in central modules
+  - deeper staging/manual acceptance workflows tied to release gating
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-010 | Observability and Coverage Hardening | P1 | planned | CodeMap warning cleanup, attack-surface tests, and core runtime observability |
+| FB-011 | Browser Regression Expansion and Release Confidence | P1 | proposed | Expand Playwright/manual acceptance depth and tighten release confidence before the next broad feature cycle |

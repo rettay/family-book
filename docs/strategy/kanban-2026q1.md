@@ -2,9 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-010 | Observability and Coverage Hardening | P1 | `task_packets/FB-010_observability_and_coverage_hardening.md` |
+None.
 
 ## In Progress
 
@@ -27,3 +25,4 @@ None.
 | FB-007 | Version History, Revert, and Moderation Controls | P1 | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
 | FB-008 | Theme Customization and Branding Controls | P2 | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
 | FB-009 | Encryption and Backup Hardening Pass | P1 | `task_packets/FB-009_encryption_and_backup_hardening_pass.md` |
+| FB-010 | Observability and Coverage Hardening | P1 | `task_packets/FB-010_observability_and_coverage_hardening.md` |

@@ -4,7 +4,7 @@
 
 ### S07-1 Attack-Surface Test Hardening
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   add direct tests for the remaining risky untrusted-input helpers
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S07-2 Critical-Module Coverage Expansion
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   add direct coverage to the central modules still flagged as under-tested
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S07-3 Observability and Complexity Hardening
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   improve diagnosis value in central paths and reduce the most justified remaining complexity warnings
