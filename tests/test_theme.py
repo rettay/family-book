@@ -1,9 +1,11 @@
 import pytest
+from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from httpx import AsyncClient
 
 from app.models.settings import AppThemeSettings
+from app.services.theme_service import ThemeSettingsPayload
 
 
 @pytest.mark.asyncio
@@ -95,3 +97,30 @@ async def test_admin_can_reset_theme_to_defaults(admin_client: AsyncClient):
     assert reset_resp.status_code == 200
     assert reset_resp.json()["brand_display_name"] == "Family Book"
     assert reset_resp.json()["primary_color"] == "#2d5016"
+
+
+def test_theme_payload_rejects_unreadable_palette():
+    with pytest.raises(ValidationError, match="contrast|readable|visible|distinguishable"):
+        ThemeSettingsPayload(
+            brand_display_name="Unreadable",
+            brand_tagline="bad palette",
+            background_color="#ffffff",
+            surface_color="#ffffff",
+            primary_color="#ffffff",
+            accent_color="#ffffff",
+            text_color="#ffffff",
+            muted_text_color="#ffffff",
+            border_color="#ffffff",
+            theme_color="#ffffff",
+        )
+
+
+@pytest.mark.asyncio
+async def test_admin_page_hides_staging_link_without_config(
+    admin_client: AsyncClient,
+    monkeypatch,
+):
+    monkeypatch.setenv("STAGING_REVIEW_URL", "")
+    resp = await admin_client.get("/admin")
+    assert resp.status_code == 200
+    assert "Open Staging" not in resp.text

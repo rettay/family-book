@@ -116,7 +116,9 @@
         <div class="flex gap-8" style="flex-wrap: wrap;">
           <button type="submit" class="btn btn--primary btn--sm">Save Theme</button>
           <button type="button" class="btn btn--secondary btn--sm" onclick="resetThemeSettings()">Reset Default Theme</button>
-          <a href="https://family-book-staging.up.railway.app" target="_blank" rel="noreferrer" class="btn btn--outline btn--sm">Open Staging</a>
+          {% if staging_review_url %}
+          <a href="{{ staging_review_url }}" target="_blank" rel="noreferrer" class="btn btn--outline btn--sm">Open Staging</a>
+          {% endif %}
         </div>
       </form>
     </div>

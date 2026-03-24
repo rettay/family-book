@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -76,10 +76,46 @@ class ThemeSettingsPayload(BaseModel):
             raise ValueError("Brand tagline is too long")
         return value
 
+    @model_validator(mode="after")
+    def _validate_readability(self) -> "ThemeSettingsPayload":
+        checks = (
+            (self.text_color, self.background_color, 4.5, "Text color must contrast with the background"),
+            (self.text_color, self.surface_color, 4.5, "Text color must contrast with surfaces"),
+            (self.muted_text_color, self.background_color, 3.0, "Muted text must remain readable on the background"),
+            (self.muted_text_color, self.surface_color, 3.0, "Muted text must remain readable on surfaces"),
+            (self.primary_color, self.background_color, 3.0, "Primary color must stay visible against the background"),
+            (self.primary_color, self.surface_color, 3.0, "Primary color must stay visible against surfaces"),
+            (self.border_color, self.surface_color, 1.15, "Border color must be distinguishable from surfaces"),
+        )
+
+        for foreground, background, minimum, message in checks:
+            if _contrast_ratio(foreground, background) < minimum:
+                raise ValueError(message)
+
+        return self
+
 
 def _hex_to_rgb_tuple(value: str) -> tuple[int, int, int]:
     value = value.lstrip("#")
     return tuple(int(value[idx : idx + 2], 16) for idx in (0, 2, 4))
+
+
+def _relative_luminance(value: str) -> float:
+    channels = [component / 255 for component in _hex_to_rgb_tuple(value)]
+
+    def to_linear(channel: float) -> float:
+        return channel / 12.92 if channel <= 0.03928 else ((channel + 0.055) / 1.055) ** 2.4
+
+    red, green, blue = [to_linear(channel) for channel in channels]
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def _contrast_ratio(color_a: str, color_b: str) -> float:
+    luminance_a = _relative_luminance(color_a)
+    luminance_b = _relative_luminance(color_b)
+    lighter = max(luminance_a, luminance_b)
+    darker = min(luminance_a, luminance_b)
+    return (lighter + 0.05) / (darker + 0.05)
 
 
 def _rgb_tuple_to_hex(rgb: tuple[int, int, int]) -> str:

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     FERNET_KEY: str
     BASE_URL: str = "http://localhost:8000"
+    STAGING_REVIEW_URL: str = ""
     ENABLE_API_DOCS: bool = False
     TRUSTED_HOSTS: str = ""
 

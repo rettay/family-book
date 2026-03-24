@@ -405,7 +405,10 @@ async def admin_page(
     current_user: Person = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.config import get_settings
+
     logger.debug("Admin dashboard requested by %s", current_user.id)
+    settings = get_settings()
     # Stats
     persons_count = (
         await db.execute(
@@ -466,6 +469,7 @@ async def admin_page(
         invites=invites,
         invite_people=invite_people,
         backup_health=get_backup_health(),
+        staging_review_url=settings.STAGING_REVIEW_URL.strip() or None,
     ))
 
 
