@@ -9,6 +9,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
+import app.models  # noqa: F401
 from app.routes.health import router as health_router
 from app.routes.auth_routes import router as auth_router
 from app.routes.persons import router as persons_router
@@ -39,8 +40,13 @@ async def lifespan(app: FastAPI):
 
     from app.services.bootstrap_service import ensure_bootstrap_admin
     from app.services.protection_service import ensure_sensitive_person_fields_protected
+    from app.services.theme_service import sync_runtime_theme
+    from app.database import async_session_factory
     await ensure_bootstrap_admin()
     await ensure_sensitive_person_fields_protected()
+    async with async_session_factory() as session:
+        await sync_runtime_theme(app, session)
+        await session.commit()
 
     # Start Matrix bot if configured
     from app.matrix.startup import start_matrix_bot, stop_matrix_bot

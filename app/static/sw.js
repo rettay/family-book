@@ -1,11 +1,10 @@
 // Family Book Service Worker
 // Provides: offline caching of viewed content, PWA installability
 
-const CACHE_NAME = 'family-book-v1';
+const CACHE_NAME = 'family-book-v2';
 const PRECACHE_URLS = [
   '/static/css/main.css',
   '/static/js/main.js',
-  '/static/manifest.json',
 ];
 
 // Install: precache shell assets
@@ -44,6 +43,11 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (request.mode === 'navigate') {
+    return;
+  }
+
+  if (url.pathname === '/static/manifest.json') {
+    event.respondWith(fetch(request));
     return;
   }
 

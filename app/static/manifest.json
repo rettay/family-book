@@ -1,6 +1,6 @@
 {
-  "name": "Family Tree",
-  "short_name": "Tree",
+  "name": "Family Book",
+  "short_name": "Family Book",
   "description": "Private family tree and archive",
   "start_url": "/",
   "display": "standalone",

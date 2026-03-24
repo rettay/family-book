@@ -8,13 +8,14 @@ import logging
 import os
 import shutil
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.auth import get_current_user
 from app.config import get_settings
 from app.models.person import Person
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
+from app.services.theme_service import get_runtime_theme_from_app
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,15 @@ router = APIRouter(tags=["pwa"])
 
 ALLOWED_MEDIA_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+@router.get("/static/manifest.json")
+async def manifest(request: Request):
+    runtime_theme = get_runtime_theme_from_app(request.app)
+    return JSONResponse(
+        runtime_theme["manifest"],
+        media_type="application/manifest+json",
+    )
 
 
 @router.post("/api/share")

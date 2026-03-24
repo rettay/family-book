@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ t('nav.settings') }} — {{ t('app.name') }}{% endblock %}
+{% block title %}{{ t('nav.settings') }} — {{ brand_display_name }}{% endblock %}
 
 {% block content %}
 <div class="container" style="padding-top: 16px;">
@@ -35,7 +35,7 @@
   <!-- About -->
   <div class="settings-section">
     <h2 class="settings-section__title">About</h2>
-    <p class="text-sm text-muted">{{ t('app.name') }} v0.1.0</p>
+    <p class="text-sm text-muted">{{ brand_display_name }} v0.1.0</p>
     <p class="text-sm text-muted mt-8">A private, self-hosted family tree and archive. No ads. No algorithms. Your data, your server.</p>
   </div>
 </div>
