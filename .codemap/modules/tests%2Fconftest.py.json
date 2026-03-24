@@ -1,19 +1,20 @@
 {
   "id": "tests/conftest.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
-  "source_hash": "5694fd7d",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "066a1447",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 11,
-    "lines": 239,
+    "lines": 245,
     "rating": "yellow"
   },
   "dependencies": {
     "imports": [
       "app/database.py",
       "app/main.py",
+      "app/models/__init__.py",
       "app/models/base.py",
       "app/models/person.py",
       "app/models/relationships.py",
@@ -34,7 +35,7 @@
       "name": "_set_sqlite_pragmas",
       "type": "function",
       "summary": null,
-      "line": 31,
+      "line": 37,
       "signature": "(dbapi_conn, connection_record)"
     }
   ],
@@ -42,33 +43,33 @@
     {
       "name": "_set_sqlite_pragmas",
       "kind": "function",
-      "line": 31,
+      "line": 37,
       "signature": "(dbapi_conn, connection_record)",
       "complexity": 1,
       "calls": [
         {
           "name": "dbapi_conn.cursor",
-          "line": 32,
+          "line": 38,
           "module_hint": null
         },
         {
           "name": "cursor.execute",
-          "line": 33,
+          "line": 39,
           "module_hint": null
         },
         {
           "name": "cursor.execute",
-          "line": 34,
+          "line": 40,
           "module_hint": null
         },
         {
           "name": "cursor.execute",
-          "line": 35,
+          "line": 41,
           "module_hint": null
         },
         {
           "name": "cursor.close",
-          "line": 36,
+          "line": 42,
           "module_hint": null
         }
       ]
@@ -77,7 +78,7 @@
   "function_audits": [
     {
       "function": "_set_sqlite_pragmas",
-      "line": 31,
+      "line": 37,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -91,16 +92,16 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 33,
-              "line_end": 33
+              "line_start": 39,
+              "line_end": 39
             },
             {
-              "line_start": 34,
-              "line_end": 34
+              "line_start": 40,
+              "line_end": 40
             },
             {
-              "line_start": 35,
-              "line_end": 35
+              "line_start": 41,
+              "line_end": 41
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -119,7 +120,7 @@
     },
     {
       "function": "engine",
-      "line": 40,
+      "line": 46,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 0,
@@ -133,28 +134,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 46,
-              "line_end": 46
+              "line_start": 51,
+              "line_end": 52
+            },
+            {
+              "line_start": 56,
+              "line_end": 57
+            },
+            {
+              "line_start": 52,
+              "line_end": 52
+            },
+            {
+              "line_start": 57,
+              "line_end": 57
             },
             {
               "line_start": 51,
               "line_end": 51
             },
             {
-              "line_start": 45,
-              "line_end": 46
-            },
-            {
-              "line_start": 50,
-              "line_end": 51
-            },
-            {
-              "line_start": 45,
-              "line_end": 45
-            },
-            {
-              "line_start": 50,
-              "line_end": 50
+              "line_start": 56,
+              "line_end": 56
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -173,7 +174,7 @@
     },
     {
       "function": "session_factory",
-      "line": 56,
+      "line": 62,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -194,7 +195,7 @@
     },
     {
       "function": "db",
-      "line": 61,
+      "line": 67,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -215,7 +216,7 @@
     },
     {
       "function": "seeded_db",
-      "line": 68,
+      "line": 74,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -229,64 +230,64 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 104,
-              "line_end": 114
+              "line_start": 136,
+              "line_end": 136
             },
             {
-              "line_start": 115,
-              "line_end": 125
+              "line_start": 137,
+              "line_end": 137
             },
             {
-              "line_start": 104,
-              "line_end": 114
+              "line_start": 139,
+              "line_end": 139
             },
             {
-              "line_start": 115,
-              "line_end": 125
+              "line_start": 110,
+              "line_end": 120
             },
             {
-              "line_start": 130,
-              "line_end": 130
-            },
-            {
-              "line_start": 131,
+              "line_start": 121,
               "line_end": 131
             },
             {
-              "line_start": 133,
-              "line_end": 133
+              "line_start": 136,
+              "line_end": 136
             },
             {
-              "line_start": 130,
-              "line_end": 130
+              "line_start": 137,
+              "line_end": 137
             },
             {
-              "line_start": 131,
+              "line_start": 139,
+              "line_end": 139
+            },
+            {
+              "line_start": 110,
+              "line_end": 120
+            },
+            {
+              "line_start": 121,
               "line_end": 131
             },
             {
-              "line_start": 133,
-              "line_end": 133
+              "line_start": 110,
+              "line_end": 120
             },
             {
-              "line_start": 104,
-              "line_end": 114
-            },
-            {
-              "line_start": 115,
-              "line_end": 125
-            },
-            {
-              "line_start": 130,
-              "line_end": 130
-            },
-            {
-              "line_start": 131,
+              "line_start": 121,
               "line_end": 131
             },
             {
-              "line_start": 133,
-              "line_end": 133
+              "line_start": 136,
+              "line_end": 136
+            },
+            {
+              "line_start": 137,
+              "line_end": 137
+            },
+            {
+              "line_start": 139,
+              "line_end": 139
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -305,7 +306,7 @@
     },
     {
       "function": "phase1_app",
-      "line": 148,
+      "line": 154,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -326,7 +327,7 @@
     },
     {
       "function": "app_under_test",
-      "line": 166,
+      "line": 172,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -347,7 +348,7 @@
     },
     {
       "function": "client",
-      "line": 179,
+      "line": 185,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 1,
@@ -368,7 +369,7 @@
     },
     {
       "function": "override_get_db",
-      "line": 182,
+      "line": 188,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 1,
@@ -389,7 +390,7 @@
     },
     {
       "function": "admin_client",
-      "line": 201,
+      "line": 207,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -410,7 +411,7 @@
     },
     {
       "function": "member_client",
-      "line": 215,
+      "line": 221,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 1,
@@ -431,7 +432,7 @@
     },
     {
       "function": "override_get_db",
-      "line": 218,
+      "line": 224,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 1,
@@ -458,33 +459,33 @@
     "is_test_file": true,
     "security_issues": [],
     "side_effects": [
-      "environment: os.environ at line 11",
-      "environment: os.environ at line 12",
       "environment: os.environ at line 13",
       "environment: os.environ at line 14",
-      "environment: os.environ at line 15"
+      "environment: os.environ at line 18",
+      "environment: os.environ at line 19",
+      "environment: os.environ at line 20"
     ],
     "purity": "environment",
     "todo_count": 0,
-    "churn_count": 4,
+    "churn_count": 8,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
     "databases": [
-      "database:psycopg2: cursor.execute() at line 33",
-      "database:psycopg2: cursor.execute() at line 34",
-      "database:psycopg2: cursor.execute() at line 35",
-      "database:sqlalchemy: session.commit() at line 186",
-      "database:sqlalchemy: session.commit() at line 222"
+      "database:psycopg2: cursor.execute() at line 39",
+      "database:psycopg2: cursor.execute() at line 40",
+      "database:psycopg2: cursor.execute() at line 41",
+      "database:sqlalchemy: session.commit() at line 192",
+      "database:sqlalchemy: session.commit() at line 228"
     ],
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 0.33,
-    "bus_factor": 1,
+    "change_velocity": 1.0,
+    "bus_factor": 2,
     "author_count": 2,
-    "last_modified": "2026-03-22T23:40:48-04:00",
+    "last_modified": "2026-03-23T22:41:19-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,

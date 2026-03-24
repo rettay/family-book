@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 05 are closed.
+Sprint 01 through Sprint 06 are closed.
 
 ## North Star
 
@@ -38,6 +38,9 @@ Sprint 01 through Sprint 05 are closed.
 - Focused Sprint 05 verification:
   - `uv run pytest tests/test_protection_service.py tests/test_revision_service.py tests/test_security_guardrails.py tests/test_schema_models.py tests/test_phase3.py tests/test_auth.py -q`
   - Result at closeout: `54 passed`
+- Focused Sprint 06 verification:
+  - `uv run pytest tests/test_theme.py tests/test_auth.py tests/test_phase3.py -q`
+  - Result at closeout: `45 passed`
 - Browser flow baseline:
   - `make test-ui-playwright`
   - Result at closeout: success
@@ -47,7 +50,7 @@ Sprint 01 through Sprint 05 are closed.
   - Result: success
 - CodeMap governance baseline:
   - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
-  - Result at Sprint 05 closeout: `16 PASS`, `0 FAIL`, `9 WARN`
+  - Result at Sprint 06 closeout: `16 PASS`, `0 FAIL`, `9 WARN`
 - Known repo-wide baseline before this sprint work:
   - `uv run pytest -q`
   - Result observed earlier: `143 passed, 2 failed, 1 xfailed`
@@ -59,10 +62,10 @@ Sprint 01 through Sprint 05 are closed.
 
 ## Current Priority Order
 
-1. Open Sprint 06 around theme customization and branding controls
-2. Expand browser-based regression coverage beyond the current core flow set
-3. Pay down remaining CodeMap observability/test warnings in core modules
-4. Reassess field-level privacy policy for medical/contact data after broader family usage
+1. Plan Sprint 07 around observability and coverage hardening
+2. Pay down remaining CodeMap observability/test warnings in core modules
+3. Expand browser-based regression coverage beyond the current core flow set
+4. Reassess where to add richer visual regression evidence beyond the current smoke flows
 
 ## Sprint State
 
@@ -72,7 +75,11 @@ Sprint 01 through Sprint 05 are closed.
   - `S03 - Timeline and Family Moments Expansion`
 - `S04 - Version History, Revert, and Moderation Controls`
 - `S05 - Encryption and Backup Hardening Pass`
-- Next recommended sprint: `S06 - Theme Customization and Branding Controls`
+- `S06 - Theme Customization and Branding Controls`
+- Next recommended sprint: `S07 - Observability and Coverage Hardening`
+- Sprint 06 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s06.md`
+- Sprint 06 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s06.md`
+- Sprint 06 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s06.md`
 - Sprint 05 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s05.md`
 - Sprint 05 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s05.md`
 - Sprint 05 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`

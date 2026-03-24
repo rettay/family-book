@@ -221,7 +221,7 @@ Make broad family collaboration trustworthy by adding inspectable edit history, 
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s04.md`
 - Task packet to author next: `FB-009 Encryption and Backup Hardening Pass`
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S05 - Encryption and Backup Hardening Pass`
 
@@ -256,29 +256,55 @@ Family Book now supports broad collaboration, recovery, and moderation. That mak
 - Task packet: `/Users/cheech/code/family-book/task_packets/FB-009_encryption_and_backup_hardening_pass.md`
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`
 
+## Closed Sprint
+
+### `S06 - Theme Customization and Branding Controls`
+
+Status: Closed
+
+### Sprint Goal
+
+Make Family Book feel owner-operated through admin-managed theme tokens, minimal branding controls, and staging-based visual acceptance before production.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 8 | FB-008 | Theme Customization and Branding Controls | P2 | done |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S06-1 | Theme Token Contract and Persistence | done |
+| S06-2 | Admin Theme Controls | done |
+| S06-3 | Surface Rollout and Staging Acceptance | done |
+
+### Why This Sprint Next
+
+Family Book now has collaboration, discovery, recovery, protection, and a working staging-to-production release lane. The next product gap is making the app feel like a real family-owned deployment rather than a hardcoded default theme.
+
+### Planning Artifacts
+
+- Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s06.md`
+- Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s06.md`
+- Task packet: `/Users/cheech/code/family-book/task_packets/FB-008_theme_customization_and_branding_controls.md`
+- Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s06.md`
+
 ## Proof Obligations for the Next Execution Cycle
 
-### FB-002
+### FB-010
 
-- Prove an invited member can enter the system without manual database work
-- Prove admins can manage accounts through supported flows
-
-### FB-003
-
-- Prove one active member can see another active member's shared content
-- Prove the media and tree surfaces follow the same sharing model
-- Prove unauthenticated users still cannot access content
-
-### FB-004
-
-- Prove the richer family-history fields and tagged content are truly persisted
-- Prove the new model is exposed through supported APIs, not only templates
+- Prove attack-surface helpers and security middleware have direct tests
+- Prove the remaining critical central modules have explicit coverage
+- Prove the next hardening sprint improves CodeMap warning count rather than only moving work around
 
 ## Open Policy Questions to Watch
 
 - Whether medical history should remain shared to all active family members long-term
 - Whether contact information needs later field-level restrictions
-- Whether broad collaborative editing requires version history in the same phase or the next
+- Whether theme controls should later expand into logo assets or stay intentionally minimal
+- How much observability should be added without overcomplicating the self-hosted runtime
 
 ## PM Instruction
 

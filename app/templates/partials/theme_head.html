@@ -1,0 +1,12 @@
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="{{ app_theme.theme_color }}">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="{{ brand_display_name }}">
+  <style id="app-theme-vars">
+    :root {
+      {% for name, value in app_theme.css_variables.items() %}
+      {{ name }}: {{ value }};
+      {% endfor %}
+    }
+  </style>

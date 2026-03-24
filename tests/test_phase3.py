@@ -411,14 +411,14 @@ class TestPWA:
         resp = await fresh_client.get("/static/manifest.json")
         assert resp.status_code == 200
         data = resp.json()
-        assert data["name"] == "Family Tree"
+        assert data["name"] == "Family Book"
         assert "share_target" in data
 
     @pytest.mark.asyncio
     async def test_service_worker_served(self, fresh_client: AsyncClient):
         resp = await fresh_client.get("/static/sw.js")
         assert resp.status_code == 200
-        assert "family-book-v1" in resp.text
+        assert "family-book-v2" in resp.text
         assert "url.pathname.startsWith('/api/')" in resp.text
         assert "cache.put(request" in resp.text
         assert "request.mode === 'navigate'" in resp.text

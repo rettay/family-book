@@ -1,13 +1,13 @@
 {
   "id": "app/main.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T23:57:08.763993+00:00",
-  "source_hash": "ebb45fc6",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "f7838d1d",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 9,
-    "lines": 123,
+    "cyclomatic": 10,
+    "lines": 133,
     "rating": "green"
   },
   "dependencies": {
@@ -15,12 +15,15 @@
       "app/backup/routes.py",
       "app/backup/scheduler.py",
       "app/config.py",
+      "app/database.py",
       "app/i18n.py",
       "app/inbound/routes.py",
       "app/matrix/startup.py",
       "app/middleware/security.py",
+      "app/models/__init__.py",
       "app/pwa/routes.py",
       "app/routes/auth_routes.py",
+      "app/routes/demo.py",
       "app/routes/health.py",
       "app/routes/media.py",
       "app/routes/moments.py",
@@ -29,19 +32,22 @@
       "app/routes/relationships.py",
       "app/routes/tree.py",
       "app/services/bootstrap_service.py",
-      "app/services/protection_service.py"
+      "app/services/protection_service.py",
+      "app/services/theme_service.py"
     ],
     "imported_by": [
       "tests/conftest.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/conftest.py"
+    ]
   },
   "exports": [
     {
       "name": "create_app",
       "type": "function",
       "summary": null,
-      "line": 60,
+      "line": 66,
       "signature": "() -> FastAPI"
     }
   ],
@@ -49,53 +55,38 @@
     {
       "name": "create_app",
       "kind": "function",
-      "line": 60,
+      "line": 66,
       "signature": "() -> FastAPI",
       "complexity": 7,
       "calls": [
         {
           "name": "get_settings",
-          "line": 61,
+          "line": 67,
           "module_hint": "app.config"
         },
         {
           "name": "FastAPI",
-          "line": 62,
+          "line": 68,
           "module_hint": "fastapi"
         },
         {
           "name": "application.include_router",
-          "line": 73,
-          "module_hint": null
-        },
-        {
-          "name": "application.include_router",
-          "line": 74,
-          "module_hint": null
-        },
-        {
-          "name": "application.include_router",
-          "line": 75,
-          "module_hint": null
-        },
-        {
-          "name": "application.include_router",
-          "line": 76,
-          "module_hint": null
-        },
-        {
-          "name": "application.include_router",
-          "line": 77,
-          "module_hint": null
-        },
-        {
-          "name": "application.include_router",
-          "line": 78,
-          "module_hint": null
-        },
-        {
-          "name": "application.include_router",
           "line": 79,
+          "module_hint": null
+        },
+        {
+          "name": "application.include_router",
+          "line": 80,
+          "module_hint": null
+        },
+        {
+          "name": "application.include_router",
+          "line": 81,
+          "module_hint": null
+        },
+        {
+          "name": "application.include_router",
+          "line": 82,
           "module_hint": null
         },
         {
@@ -105,77 +96,97 @@
         },
         {
           "name": "application.include_router",
+          "line": 84,
+          "module_hint": null
+        },
+        {
+          "name": "application.include_router",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "application.include_router",
           "line": 89,
           "module_hint": null
         },
         {
           "name": "application.include_router",
-          "line": 90,
+          "line": 95,
           "module_hint": null
         },
         {
           "name": "application.include_router",
-          "line": 91,
-          "module_hint": null
-        },
-        {
-          "name": "application.exception_handler",
           "line": 96,
           "module_hint": null
         },
         {
+          "name": "application.include_router",
+          "line": 97,
+          "module_hint": null
+        },
+        {
+          "name": "application.include_router",
+          "line": 101,
+          "module_hint": null
+        },
+        {
+          "name": "application.exception_handler",
+          "line": 106,
+          "module_hint": null
+        },
+        {
           "name": "any",
-          "line": 99,
+          "line": 109,
           "module_hint": null
         },
         {
           "name": "path.startswith",
-          "line": 99,
+          "line": 109,
           "module_hint": null
         },
         {
           "name": "RedirectResponse",
-          "line": 101,
+          "line": 111,
           "module_hint": "fastapi.responses"
         },
         {
           "name": "JSONResponse",
-          "line": 103,
+          "line": 113,
           "module_hint": null
         },
         {
           "name": "add_security_middleware",
-          "line": 110,
+          "line": 120,
           "module_hint": null
         },
         {
           "name": "load_translations",
-          "line": 114,
+          "line": 124,
           "module_hint": null
         },
         {
           "name": "os.path.join",
-          "line": 116,
+          "line": 126,
           "module_hint": null
         },
         {
           "name": "os.path.dirname",
-          "line": 116,
+          "line": 126,
           "module_hint": null
         },
         {
           "name": "os.path.isdir",
-          "line": 117,
+          "line": 127,
           "module_hint": null
         },
         {
           "name": "application.mount",
-          "line": 118,
+          "line": 128,
           "module_hint": null
         },
         {
           "name": "StaticFiles",
-          "line": 118,
+          "line": 128,
           "module_hint": "fastapi.staticfiles"
         }
       ]
@@ -184,13 +195,13 @@
   "function_audits": [
     {
       "function": "lifespan",
-      "line": 24,
+      "line": 25,
       "metrics": {
-        "cyclomatic": 3,
+        "cyclomatic": 4,
         "cognitive": 3,
-        "size": 33,
+        "size": 38,
         "nesting": 2,
-        "token_count": 170
+        "token_count": 207
       },
       "findings": [
         {
@@ -198,36 +209,36 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 27,
-              "line_end": 27
+              "line_start": 52,
+              "line_end": 52
+            },
+            {
+              "line_start": 56,
+              "line_end": 56
             },
             {
               "line_start": 28,
               "line_end": 28
             },
             {
-              "line_start": 27,
-              "line_end": 27
+              "line_start": 29,
+              "line_end": 29
             },
             {
               "line_start": 28,
               "line_end": 28
             },
             {
-              "line_start": 46,
-              "line_end": 46
-            },
-            {
-              "line_start": 50,
-              "line_end": 50
-            },
-            {
-              "line_start": 27,
-              "line_end": 27
+              "line_start": 29,
+              "line_end": 29
             },
             {
               "line_start": 28,
               "line_end": 28
+            },
+            {
+              "line_start": 29,
+              "line_end": 29
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -246,13 +257,13 @@
     },
     {
       "function": "create_app",
-      "line": 60,
+      "line": 66,
       "metrics": {
         "cyclomatic": 7,
         "cognitive": 5,
-        "size": 60,
+        "size": 64,
         "nesting": 1,
-        "token_count": 372
+        "token_count": 389
       },
       "findings": [
         {
@@ -260,48 +271,48 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 82,
-              "line_end": 82
+              "line_start": 73,
+              "line_end": 73
             },
             {
-              "line_start": 86,
-              "line_end": 86
+              "line_start": 74,
+              "line_end": 74
             },
             {
-              "line_start": 87,
-              "line_end": 87
+              "line_start": 75,
+              "line_end": 75
             },
             {
-              "line_start": 67,
-              "line_end": 67
+              "line_start": 73,
+              "line_end": 73
             },
             {
-              "line_start": 68,
-              "line_end": 68
+              "line_start": 74,
+              "line_end": 74
             },
             {
-              "line_start": 69,
-              "line_end": 69
+              "line_start": 75,
+              "line_end": 75
             },
             {
-              "line_start": 116,
-              "line_end": 116
+              "line_start": 88,
+              "line_end": 88
             },
             {
-              "line_start": 117,
-              "line_end": 117
+              "line_start": 92,
+              "line_end": 92
             },
             {
-              "line_start": 67,
-              "line_end": 67
+              "line_start": 93,
+              "line_end": 93
             },
             {
-              "line_start": 68,
-              "line_end": 68
+              "line_start": 126,
+              "line_end": 126
             },
             {
-              "line_start": 69,
-              "line_end": 69
+              "line_start": 127,
+              "line_end": 127
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -320,7 +331,7 @@
     },
     {
       "function": "http_exception_handler",
-      "line": 97,
+      "line": 107,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 1,
@@ -347,26 +358,28 @@
     "is_test_file": false,
     "security_issues": [],
     "side_effects": [
-      "filesystem: os.makedirs() at line 27",
-      "filesystem: os.makedirs() at line 28"
+      "filesystem: os.makedirs() at line 28",
+      "filesystem: os.makedirs() at line 29"
     ],
     "purity": "filesystem",
     "todo_count": 0,
-    "churn_count": 7,
+    "churn_count": 9,
     "change_risk": "medium",
     "domain": "domain-0",
     "observability_patterns": [
-      "logging: logger.warning() at line 34"
+      "logging: logger.warning() at line 35"
     ],
     "endpoints": [],
-    "databases": [],
+    "databases": [
+      "database:sqlalchemy: session.commit() at line 49"
+    ],
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 0.4,
+    "change_velocity": 0.5,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T19:38:18-04:00",
+    "last_modified": "2026-03-23T22:41:19-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -378,13 +391,13 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.5,
-  "attention_score": 0.3,
+  "testability_score": 0.8,
+  "attention_score": 0.15,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.8,
-    "changeability": 0.68,
-    "correctness": 0.5,
+    "understandability": 0.81,
+    "changeability": 0.98,
+    "correctness": 1.0,
     "security": 0.88,
     "stability": 0.55
   },
@@ -395,7 +408,7 @@
       "confidence": "medium",
       "tier": 1,
       "evidence": [
-        "create_app() at line 60"
+        "create_app() at line 66"
       ],
       "notes": ""
     }

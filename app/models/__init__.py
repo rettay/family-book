@@ -8,6 +8,7 @@ from app.models.audit import AuditLog
 from app.models.revisions import EntityRevision
 from app.models.notifications import Notification, NotificationDelivery, NotificationPreference
 from app.models.preferences import TreePreference
+from app.models.settings import AppThemeSettings
 from app.models.governance import ApprovalRequest, ApprovalVote
 from app.models.imports import (
     WhatsappImportBatch,
@@ -35,6 +36,7 @@ __all__ = [
     "NotificationDelivery",
     "NotificationPreference",
     "TreePreference",
+    "AppThemeSettings",
     "ApprovalRequest",
     "ApprovalVote",
     "WhatsappImportBatch",

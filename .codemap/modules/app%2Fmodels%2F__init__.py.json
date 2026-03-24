@@ -1,13 +1,13 @@
 {
   "id": "app/models/__init__.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T22:28:51.946063+00:00",
-  "source_hash": "b59c52e7",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "1b5c0d19",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 45,
+    "lines": 47,
     "rating": "green"
   },
   "dependencies": {
@@ -23,12 +23,17 @@
       "app/models/person.py",
       "app/models/preferences.py",
       "app/models/relationships.py",
-      "app/models/revisions.py"
+      "app/models/revisions.py",
+      "app/models/settings.py"
     ],
     "imported_by": [
-      "alembic/env.py"
+      "alembic/env.py",
+      "app/main.py",
+      "tests/conftest.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/conftest.py"
+    ]
   },
   "exports": [
     {
@@ -151,6 +156,13 @@
       "signature": null
     },
     {
+      "name": "AppThemeSettings",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
       "name": "ApprovalRequest",
       "type": "function",
       "summary": null,
@@ -211,7 +223,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 3,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -220,10 +232,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 2.0,
+    "change_velocity": 3.0,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T16:57:43-04:00",
+    "last_modified": "2026-03-23T22:41:19-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -234,15 +246,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.7,
+  "testability_score": 1.0,
   "attention_score": 0.18,
-  "centrality_score": 0.0,
+  "centrality_score": 0.14,
   "quality_radar": {
     "understandability": 0.98,
-    "changeability": 0.68,
-    "correctness": 0.5,
+    "changeability": 0.93,
+    "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.55
+    "stability": 0.3
   },
   "domain_role": "utility",
   "detected_patterns": null,

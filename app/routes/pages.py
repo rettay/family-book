@@ -38,6 +38,7 @@ from app.services.moment_service import (
     list_visible_moments,
 )
 from app.services.revision_service import list_revisions
+from app.services.theme_service import get_runtime_theme_from_app
 
 router = APIRouter(tags=["pages"])
 logger = logging.getLogger(__name__)
@@ -62,12 +63,16 @@ def _country_flag(code: str | None) -> str:
 def _ctx(request: Request, current_user: Person | None = None, **kwargs):
     """Build common template context."""
     locale = _get_locale(request)
+    app_theme = get_runtime_theme_from_app(request.app)
     return {
         "request": request,
         "current_user": current_user,
         "locale": locale,
         "t": lambda key: translate(key, locale),
         "country_flag": _country_flag,
+        "app_theme": app_theme,
+        "brand_display_name": app_theme["brand_display_name"],
+        "brand_tagline": app_theme["brand_tagline"],
         **kwargs,
     }
 
@@ -400,7 +405,10 @@ async def admin_page(
     current_user: Person = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.config import get_settings
+
     logger.debug("Admin dashboard requested by %s", current_user.id)
+    settings = get_settings()
     # Stats
     persons_count = (
         await db.execute(
@@ -461,6 +469,7 @@ async def admin_page(
         invites=invites,
         invite_people=invite_people,
         backup_health=get_backup_health(),
+        staging_review_url=settings.STAGING_REVIEW_URL.strip() or None,
     ))
 
 

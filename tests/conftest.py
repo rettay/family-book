@@ -19,6 +19,7 @@ os.environ.setdefault("BASE_URL", "http://localhost:8000")
 os.environ.setdefault("DATABASE_URL", "sqlite:///data/family.db")
 os.environ.setdefault("GOOGLE_CLIENT_ID", "test-google-client-id.apps.googleusercontent.com")
 
+import app.models  # noqa: F401
 from app.database import get_db
 from app.models.base import Base
 from app.models.person import Person, PersonSource, AccountState

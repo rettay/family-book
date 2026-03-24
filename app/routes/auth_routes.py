@@ -10,6 +10,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models.auth import AuthMethod, Invite
 from app.models.person import AccountState, Person, PersonLifecycleState
+from app.services.audit_service import log_audit
 from app.services.google_auth import GoogleAuthError, verify_google_credential
 from app.services.auth_service import (
     authenticate_google_identity,
@@ -17,6 +18,12 @@ from app.services.auth_service import (
     create_invite,
     create_session,
     delete_session,
+)
+from app.services.theme_service import (
+    DEFAULT_THEME_SETTINGS,
+    ThemeSettingsPayload,
+    get_or_create_theme_settings_record,
+    sync_runtime_theme,
 )
 
 router = APIRouter(tags=["auth"])
@@ -210,6 +217,62 @@ async def activate_person(
     await db.commit()
     logger.info("Person %s activated by admin %s", person.id, current_user.id)
     return {"status": "ok", "person_id": person.id}
+
+
+@router.get("/api/admin/theme", response_model=ThemeSettingsPayload)
+async def get_theme_settings(
+    current_user: Person = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    settings_record = await get_or_create_theme_settings_record(db)
+    return ThemeSettingsPayload(**settings_record.settings)
+
+
+@router.put("/api/admin/theme", response_model=ThemeSettingsPayload)
+async def update_theme_settings(
+    body: ThemeSettingsPayload,
+    request: Request,
+    current_user: Person = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    settings_record = await get_or_create_theme_settings_record(db)
+    old_settings = settings_record.settings
+    settings_record.settings = body.model_dump()
+    await log_audit(
+        db,
+        actor_id=current_user.id,
+        action="update",
+        entity_type="app_theme",
+        entity_id=settings_record.id,
+        old_value=old_settings,
+        new_value=settings_record.settings,
+    )
+    await sync_runtime_theme(request.app, db)
+    logger.info("Theme settings updated by admin %s", current_user.id)
+    return ThemeSettingsPayload(**settings_record.settings)
+
+
+@router.post("/api/admin/theme/reset", response_model=ThemeSettingsPayload)
+async def reset_theme_settings(
+    request: Request,
+    current_user: Person = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    settings_record = await get_or_create_theme_settings_record(db)
+    old_settings = settings_record.settings
+    settings_record.settings = DEFAULT_THEME_SETTINGS
+    await log_audit(
+        db,
+        actor_id=current_user.id,
+        action="reset",
+        entity_type="app_theme",
+        entity_id=settings_record.id,
+        old_value=old_settings,
+        new_value=settings_record.settings,
+    )
+    await sync_runtime_theme(request.app, db)
+    logger.info("Theme settings reset by admin %s", current_user.id)
+    return ThemeSettingsPayload(**settings_record.settings)
 
 
 @router.post("/invite/{token}/claim")

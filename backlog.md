@@ -1,6 +1,6 @@
 # Family Book Backlog
 
-Sprint: `S05 - Encryption and Backup Hardening Pass`
+Sprint: `S06 - Theme Customization and Branding Controls`
 Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
@@ -47,15 +47,33 @@ Execution slices:
 - `S05-2` Backup and Restore Truthfulness
 - `S05-3` Operational Hardening
 
+## Closed Sprint `S06 - Theme Customization and Branding Controls`
+
+Sprint goal:
+- Make Family Book feel owner-operated through admin-managed theme tokens, minimal branding controls, and staging-based visual acceptance.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-008 | Theme Customization and Branding Controls | P2 | done | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
+
+Execution slices:
+- `S06-1` Theme Token Contract and Persistence
+- `S06-2` Admin Theme Controls
+- `S06-3` Surface Rollout and Staging Acceptance
+
 ## Next Sprint
 
-- Recommended next sprint: `S06 - Theme Customization and Branding Controls`
-- Primary packet: `FB-008 Theme Customization and Branding Controls`
-- Follow-on candidate after `FB-008`:
+- Recommended next sprint: `S07 - Observability and Coverage Hardening`
+- Primary packet: `TBD`
+- Follow-on candidate after Sprint 06:
   - backup/observability cleanup from remaining CodeMap warnings
+  - attack-surface tests for `app/middleware/security.py` and `app/services/io_limits.py`
+  - critical-module coverage for `app/config.py`, `app/models/moments.py`, and `app/schemas.py`
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-008 | Theme Customization and Branding Controls | P2 | todo | Admin-configurable color system and surface branding |
+| FB-010 | Observability and Coverage Hardening | P1 | todo | CodeMap warning cleanup, attack-surface tests, and core runtime observability |

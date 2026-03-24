@@ -3,16 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ t('app.name') }}</title>
+  <title>{{ brand_display_name }}</title>
   <link rel="stylesheet" href="/static/css/main.css">
-  <meta name="theme-color" content="#2d5016">
+  {% include "partials/theme_head.html" %}
 </head>
 <body>
   <div class="landing">
-    <h1 class="landing__title">{{ t('app.name') }}</h1>
-    <div class="landing__actions">
-      <a href="/login" class="btn btn--primary btn--lg">{{ t('nav.login') }}</a>
-    </div>
+    <section class="landing__hero">
+      <div class="landing__icon">🌿</div>
+      <h1 class="landing__title">{{ brand_display_name }}</h1>
+      {% if brand_tagline %}
+      <p class="landing__tagline">{{ brand_tagline }}</p>
+      {% endif %}
+      <div class="landing__actions">
+        <a href="/login" class="btn btn--primary btn--lg">{{ t('nav.login') }}</a>
+      </div>
+    </section>
+    <section class="landing__features">
+      <article class="feature-card">
+        <div class="feature-card__icon">🌳</div>
+        <h2 class="feature-card__title">Shared Family Tree</h2>
+        <p class="feature-card__desc">Build a collaborative record of your family relationships and history.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-card__icon">🖼️</div>
+        <h2 class="feature-card__title">Stories and Media</h2>
+        <p class="feature-card__desc">Keep photos, audio, notes, and important family moments together.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-card__icon">🔒</div>
+        <h2 class="feature-card__title">Private by Default</h2>
+        <p class="feature-card__desc">Run a family archive with collaboration, backups, and protected sensitive data.</p>
+      </article>
+    </section>
+    <footer class="landing__footer">
+      {{ brand_display_name }} · Private family archive
+    </footer>
   </div>
 </body>
 </html>
