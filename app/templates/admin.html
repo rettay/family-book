@@ -2,7 +2,7 @@
 {% block title %}{{ t('admin.dashboard') }} — {{ brand_display_name }}{% endblock %}
 
 {% block content %}
-<div class="container-wide" style="padding-top: 16px;">
+<div class="container-wide" id="admin-page" style="padding-top: 16px;">
   <h1 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 16px;">{{ t('admin.dashboard') }}</h1>
 
   <!-- Stats -->
@@ -30,15 +30,15 @@
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Quick Actions</h2>
       <div class="flex gap-8" style="flex-wrap:wrap;">
-        <a href="/people/new" class="btn btn--primary btn--sm">+ Add Person</a>
-        <button class="btn btn--secondary btn--sm" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
-        <button class="btn btn--secondary btn--sm" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
-        <button class="btn btn--secondary btn--sm" onclick="verifyBackupRestore()">Verify Restore</button>
+        <a href="/people/new" class="btn btn--primary btn--sm" id="admin-add-person-button">+ Add Person</a>
+        <button class="btn btn--secondary btn--sm" id="admin-backup-button" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
+        <button class="btn btn--secondary btn--sm" id="admin-download-backup-button" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
+        <button class="btn btn--secondary btn--sm" id="admin-verify-restore-button" onclick="verifyBackupRestore()">Verify Restore</button>
       </div>
     </div>
   </div>
 
-  <div class="card mb-16">
+  <div class="card mb-16" id="admin-theme-card">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Protection &amp; Backup Status</h2>
       <div id="backup-status">
@@ -51,7 +51,7 @@
     </div>
   </div>
 
-  <div class="card mb-16">
+  <div class="card mb-16" id="admin-accounts-card">
     <div class="card__body">
       <div class="flex-between mb-16" style="gap: 16px; flex-wrap: wrap;">
         <div>

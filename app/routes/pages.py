@@ -255,6 +255,16 @@ async def people_page(
     ))
 
 
+@router.get("/people/new", response_class=HTMLResponse)
+async def new_person_page(
+    request: Request,
+    current_user: Person = Depends(require_auth),
+):
+    return templates.TemplateResponse("person_new.html", _ctx(
+        request, current_user, active_page="people",
+    ))
+
+
 @router.get("/people/{person_id}", response_class=HTMLResponse)
 async def person_detail_page(
     person_id: str,
@@ -363,16 +373,6 @@ async def person_edit_page(
 
     return templates.TemplateResponse("person_edit.html", _ctx(
         request, current_user, active_page="people", person=person,
-    ))
-
-
-@router.get("/people/new", response_class=HTMLResponse)
-async def new_person_page(
-    request: Request,
-    current_user: Person = Depends(require_auth),
-):
-    return templates.TemplateResponse("person_new.html", _ctx(
-        request, current_user, active_page="people",
     ))
 
 

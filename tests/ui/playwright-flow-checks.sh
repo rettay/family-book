@@ -3,8 +3,19 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ARTIFACT_DIR="${ROOT_DIR}/output/playwright/family-book-flow"
+SCREENSHOT_DIR="${ARTIFACT_DIR}/screenshots"
+TRACE_DIR="${ARTIFACT_DIR}/traces"
+SUMMARY_FILE="${ARTIFACT_DIR}/summary.md"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/family-book-pw.XXXXXX")"
-PORT="${PORT:-8766}"
+PORT="${PORT:-$(
+  python3 - <<'PY'
+import socket
+
+with socket.socket() as sock:
+    sock.bind(("127.0.0.1", 0))
+    print(sock.getsockname()[1])
+PY
+)}"
 BASE_URL="http://127.0.0.1:${PORT}"
 
 export SECRET_KEY="test-secret-key-not-for-production-use-1234567890"
@@ -21,19 +32,49 @@ export DATABASE_URL="sqlite:///${TMP_DIR}/family-book-ui.db"
 export DATA_DIR="${TMP_DIR}/data"
 export GOOGLE_CLIENT_ID="test-google-client-id.apps.googleusercontent.com"
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-export PWCLI="${CODEX_HOME}/skills/playwright/scripts/playwright_cli.sh"
+LOCAL_PWCLI="${ROOT_DIR}/tests/ui/playwright_cli.sh"
+SKILL_PWCLI="${CODEX_HOME}/skills/playwright/scripts/playwright_cli.sh"
+if [[ -x "${LOCAL_PWCLI}" ]]; then
+  export PWCLI="${LOCAL_PWCLI}"
+elif [[ -x "${SKILL_PWCLI}" ]]; then
+  export PWCLI="${SKILL_PWCLI}"
+else
+  echo "Missing Playwright CLI wrapper. Expected ${LOCAL_PWCLI} or ${SKILL_PWCLI}." >&2
+  exit 1
+fi
 export PLAYWRIGHT_CLI_SESSION="family-book-flow-${PORT}"
 export PLAYWRIGHT_DAEMON_SOCKETS_DIR="/tmp/playwright-cli"
 
 mkdir -p "${ARTIFACT_DIR}"
+mkdir -p "${SCREENSHOT_DIR}"
+mkdir -p "${TRACE_DIR}"
 mkdir -p "${DATA_DIR}"
 
+: > "${SUMMARY_FILE}"
+
+playwright_finalized=0
+
+finalize_playwright_artifacts() {
+  if (( playwright_finalized )); then
+    return
+  fi
+
+  "${PWCLI}" tracing-stop > "${TRACE_DIR}/trace-stop.txt" 2>&1 || true
+  "${PWCLI}" video-stop > "${TRACE_DIR}/video-stop.txt" 2>&1 || true
+  "${PWCLI}" close >/dev/null 2>&1 || true
+  playwright_finalized=1
+}
+
 cleanup() {
+  finalize_playwright_artifacts
+  if [[ -d "${ROOT_DIR}/.playwright-cli" ]]; then
+    cp -R "${ROOT_DIR}/.playwright-cli/." "${TRACE_DIR}/" >/dev/null 2>&1 || true
+    rm -rf "${ROOT_DIR}/.playwright-cli"
+  fi
   if [[ -n "${SERVER_PID:-}" ]]; then
     kill "${SERVER_PID}" >/dev/null 2>&1 || true
     wait "${SERVER_PID}" >/dev/null 2>&1 || true
   fi
-  "${PWCLI}" close >/dev/null 2>&1 || true
   rm -rf "${TMP_DIR}"
 }
 trap cleanup EXIT
@@ -42,11 +83,13 @@ failures=0
 
 record_failure() {
   echo "FAIL: $1"
+  echo "- FAIL: $1" >> "${SUMMARY_FILE}"
   failures=$((failures + 1))
 }
 
 record_success() {
   echo "PASS: $1"
+  echo "- PASS: $1" >> "${SUMMARY_FILE}"
 }
 
 assert_run() {
@@ -85,66 +128,115 @@ done
 
 env -u PLAYWRIGHT_CLI_SESSION "${PWCLI}" install-browser >/dev/null
 "${PWCLI}" open "${BASE_URL}/login"
+"${PWCLI}" tracing-start >/dev/null
+"${PWCLI}" video-start >/dev/null
 "${PWCLI}" resize 1440 960
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/login.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/login.png" --full-page true >/dev/null
 
 assert_run "login page renders" \
   "${PWCLI}" run-code "async page => { await page.waitForSelector('body'); if (!page.url().includes('/login')) throw new Error('not on login'); }"
 
+"${PWCLI}" goto "${BASE_URL}/people"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/redirect-login.png" --full-page true >/dev/null
+
+assert_run "protected page redirects anonymous browser to login" \
+  "${PWCLI}" run-code "async page => { if (!page.url().includes('/login')) throw new Error('expected login redirect'); }"
+
 "${PWCLI}" cookie-set session "${ADMIN_SESSION}" --domain 127.0.0.1 --path / --httpOnly true --sameSite Lax >/dev/null
 "${PWCLI}" goto "${BASE_URL}/"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Seeded family story').waitFor(); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/home-admin.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-admin.png" --full-page true >/dev/null
 
 assert_run "authenticated home feed shows seeded story" \
   "${PWCLI}" run-code "async page => { if (!await page.locator('#moments-feed').getByText('Seeded family story').count()) throw new Error('missing seeded story'); }"
 
 "${PWCLI}" run-code "async page => { await page.locator('#compose-input').fill('Playwright quick note'); await page.locator('#compose-send-button').click(); await page.waitForLoadState('networkidle'); }"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Playwright quick note').waitFor(); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/home-after-quick-post.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-after-quick-post.png" --full-page true >/dev/null
 
 assert_run "quick composer creates a visible note" \
   "${PWCLI}" run-code "async page => { if (!await page.locator('#moments-feed').getByText('Playwright quick note').count()) throw new Error('quick note missing'); }"
 
 "${PWCLI}" run-code "async page => { await page.locator('#compose-details-button').click(); await page.waitForSelector('#compose-modal:not(.hidden)'); await page.locator('#compose-kind').selectOption('story'); await page.locator('#compose-person').selectOption('${TYLER_ID}'); await page.locator('#compose-title').fill('Playwright shared story'); await page.locator('#compose-body').fill('A richer family memory captured by browser automation.'); await page.locator('#compose-occurred-at').fill('2024-07-04'); await page.locator('#compose-tagged-people').selectOption(['${MEMBER_ID}']); await page.locator('#compose-submit-button').click(); await page.waitForLoadState('networkidle'); }"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Playwright shared story').waitFor(); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/home-after-story.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-after-story.png" --full-page true >/dev/null
 
 assert_run "detailed composer creates a richer shared story" \
   "${PWCLI}" run-code "async page => { const text = await page.locator('#moments-feed').textContent(); if (!text || !text.includes('Playwright shared story') || !text.includes('Jane Martin')) throw new Error('shared story missing'); }"
 
+"${PWCLI}" goto "${BASE_URL}/people/new"
+"${PWCLI}" run-code "async page => { await page.locator('#create-person-form').waitFor(); await page.locator('#person-first-name').fill('Playwright'); await page.locator('#person-last-name').fill('Relative'); await page.locator('#person-branch').fill('playwright'); await page.locator('#person-residence-place').fill('Lisbon'); await page.locator('#person-residence-country').fill('PT'); await page.locator('#person-contact-email').fill('playwright-relative@example.com'); await page.locator('#create-btn').click(); await page.waitForLoadState('networkidle'); }"
+"${PWCLI}" run-code "async page => { await page.locator('.profile-header__name').getByText('Playwright Relative').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-created.png" --full-page true >/dev/null
+
+assert_run "admin can create a new person from the browser flow" \
+  "${PWCLI}" run-code "async page => { if (!page.url().includes('/people/')) throw new Error('create flow did not land on person page'); const name = await page.locator('.profile-header__name').textContent(); if (!name || !name.includes('Playwright Relative')) throw new Error('new person missing'); }"
+
+"${PWCLI}" goto "${BASE_URL}/admin"
+"${PWCLI}" run-code "async page => { await page.locator('#admin-page').waitFor(); await page.locator('#backup-status').getByText('Protected fields').waitFor(); await page.locator('#theme-settings-form').waitFor(); await page.locator('#admin-accounts-card').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/admin-dashboard.png" --full-page true >/dev/null
+
+assert_run "admin dashboard exposes backup status and theme controls" \
+  "${PWCLI}" run-code "async page => { const text = await page.locator('#backup-status').textContent(); if (!text || !text.includes('Protected fields')) throw new Error('backup status missing'); if (!await page.locator('#theme-settings-form').count()) throw new Error('theme form missing'); }"
+
 "${PWCLI}" cookie-set session "${MEMBER_SESSION}" --domain 127.0.0.1 --path / --httpOnly true --sameSite Lax >/dev/null
 "${PWCLI}" goto "${BASE_URL}/"
 "${PWCLI}" run-code "async page => { await page.locator('#moments-feed').getByText('Playwright shared story').waitFor(); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/home-member-view.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-member-view.png" --full-page true >/dev/null
 
 assert_run "second member sees the shared story" \
   "${PWCLI}" run-code "async page => { const text = await page.locator('#moments-feed').textContent(); if (!text || !text.includes('Playwright shared story')) throw new Error('member cannot see shared story'); }"
 
+"${PWCLI}" goto "${BASE_URL}/people"
+"${PWCLI}" run-code "async page => { await page.locator('#people-results').getByText('Playwright Relative').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/people-member-view.png" --full-page true >/dev/null
+
+assert_run "second member sees the newly created person" \
+  "${PWCLI}" run-code "async page => { const text = await page.locator('#people-results').textContent(); if (!text || !text.includes('Playwright Relative')) throw new Error('new person missing from member people view'); }"
+
 "${PWCLI}" goto "${BASE_URL}/people/${TYLER_ID}"
 "${PWCLI}" run-code "async page => { await page.locator('#person-moments').waitFor(); await page.locator('#person-moments').getByText('Playwright shared story').waitFor(); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/person-tyler.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-tyler.png" --full-page true >/dev/null
 
 assert_run "person timeline shows tagged or owned story" \
   "${PWCLI}" run-code "async page => { const text = await page.locator('#person-moments').textContent(); if (!text || !text.includes('Playwright shared story')) throw new Error('person timeline missing story'); }"
 
 "${PWCLI}" goto "${BASE_URL}/tree"
 "${PWCLI}" run-code "async page => { await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(1500); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/tree.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/tree.png" --full-page true >/dev/null
 
 assert_run "tree page renders data" \
   "${PWCLI}" run-code "async page => { const status = await page.locator('#tree-status').textContent(); if (!status || !status.match(/\\d+/)) throw new Error('tree status missing count'); }"
 
+"${PWCLI}" run-code "async page => { await page.locator('#tree-filter-branch').fill('martin'); await page.locator('#apply-tree-filters').click(); await page.waitForTimeout(1200); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/tree-filtered.png" --full-page true >/dev/null
+
+assert_run "tree filters can be applied in-browser" \
+  "${PWCLI}" run-code "async page => { const status = await page.locator('#tree-status').textContent(); if (!status || !status.match(/\\d+/)) throw new Error('filtered tree status missing count'); }"
+
 "${PWCLI}" goto "${BASE_URL}/map"
 "${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(1500); }"
-"${PWCLI}" screenshot --filename "${ARTIFACT_DIR}/map.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map.png" --full-page true >/dev/null
 
 assert_run "map page renders at least one marker" \
   "${PWCLI}" run-code "async page => { if (await page.locator('#map-svg g').count() === 0) throw new Error('no map markers'); }"
 
+"${PWCLI}" run-code "async page => { await page.locator('#map-filter-residence-country').fill('CA'); await page.locator('#apply-map-filters').click(); await page.waitForTimeout(1200); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map-filtered.png" --full-page true >/dev/null
+
+assert_run "map filters can be applied in-browser" \
+  "${PWCLI}" run-code "async page => { if (await page.locator('#map-svg g').count() === 0) throw new Error('filtered map has no markers'); }"
+
+finalize_playwright_artifacts
+
 if (( failures > 0 )); then
-  echo "Playwright flow checks completed with ${failures} failure(s). Screenshots: ${ARTIFACT_DIR}"
+  echo "Playwright flow checks completed with ${failures} failure(s). Artifacts: ${ARTIFACT_DIR}"
   exit 1
 fi
 
-echo "Playwright flow checks passed. Screenshots: ${ARTIFACT_DIR}"
+echo "" >> "${SUMMARY_FILE}"
+echo "Artifacts root: ${ARTIFACT_DIR}" >> "${SUMMARY_FILE}"
+echo "Screenshots: ${SCREENSHOT_DIR}" >> "${SUMMARY_FILE}"
+echo "Trace capture: ${TRACE_DIR}" >> "${SUMMARY_FILE}"
+
+echo "Playwright flow checks passed. Artifacts: ${ARTIFACT_DIR}"
