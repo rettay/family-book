@@ -55,5 +55,5 @@ During implementation and audit, the sprint also fixed a real route-order regres
 
 ## Recommended Next Sprint
 
-- `S09 - Architecture and Maintainability Hardening`
-- Rationale: with release confidence materially improved, the next highest-value work is reducing structural debt in central modules, especially the remaining settings/theme cycle, hidden coupling between templates and client behavior, and residual attack-surface/observability warnings.
+- `S09 - Accessibility and Interaction Hardening`
+- Rationale: with release confidence materially improved, the next highest-value work is now direct UI operability. The latest code review found concrete overlay, keyboard, HTMX-feedback, and form-usability failures in the main Family Book flows, and those issues should be fixed before lower-priority structural cleanup.

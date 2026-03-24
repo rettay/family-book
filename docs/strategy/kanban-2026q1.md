@@ -2,7 +2,10 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-012 | Accessibility and Interaction Hardening | P1 | `task_packets/FB-012_accessibility_and_interaction_hardening.md` |
+| FB-013 | Readability and Responsive Polish | P2 | `task_packets/FB-013_readability_and_responsive_polish.md` |
 
 ## In Progress
 

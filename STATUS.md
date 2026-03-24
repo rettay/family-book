@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 08 are closed.
+Sprint 01 through Sprint 08 are closed. Sprint 09 is planned around UI accessibility and interaction hardening derived from the latest code-review findings.
 
 ## North Star
 
@@ -65,15 +65,16 @@ Sprint 01 through Sprint 08 are closed.
 
 ## Current Risks
 
+- The product’s most important UI surfaces still carry concrete accessibility and operability issues in overlays, keyboard navigation, tree/map interactions, and dynamic-content feedback
 - The release-confidence lane is stronger now, but browser coverage is still a targeted confidence layer rather than a full visual/cross-browser matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and a few attack-surface modules
 
 ## Current Priority Order
 
-1. Plan Sprint 09 around architecture and maintainability hardening
-2. Remove the remaining settings/theme cycle and hidden-coupling hotspots
-3. Add direct coverage or instrumentation for the remaining attack-surface modules
-4. Reassess whether any additional browser or visual-regression depth is worth the maintenance cost
+1. Execute Sprint 09 around accessibility and interaction hardening
+2. Close the critical overlay, keyboard, HTMX-feedback, and form-usability issues found in the UI/UX review
+3. Use browser verification and staging review to prove the main Family Book flows are materially easier to operate
+4. Reassess whether the next sprint should return to maintainability/CodeMap debt or continue with lower-severity readability and responsive polish
 
 ## Sprint State
 
@@ -86,7 +87,12 @@ Sprint 01 through Sprint 08 are closed.
 - `S06 - Theme Customization and Branding Controls`
 - `S07 - Observability and Coverage Hardening`
 - `S08 - Browser Regression Expansion and Release Confidence`
-- Next recommended sprint: `S09 - Architecture and Maintainability Hardening`
+- Planned sprint:
+  - `S09 - Accessibility and Interaction Hardening`
+- Sprint 09 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s09.md`
+- Sprint 09 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s09.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-012_accessibility_and_interaction_hardening.md`
+- Follow-on packet candidate: `/Users/cheech/code/family-book/task_packets/FB-013_readability_and_responsive_polish.md`
 - Sprint 08 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
 - Sprint 08 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
 - Sprint 08 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s08.md`

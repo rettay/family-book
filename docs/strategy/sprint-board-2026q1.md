@@ -1,5 +1,50 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Planned Sprint
+
+### `S09 - Accessibility and Interaction Hardening`
+
+Status: Planned
+
+### Sprint Goal
+
+Fix the highest-severity UI/UX and accessibility issues found in the Family Book code review so the core product flows are keyboard reachable, overlays behave correctly, and dynamic/form interactions are more understandable in real use.
+
+### Why This Sprint Exists
+
+The latest review found concrete operability failures in the current UI: modal/sidebar/lightbox focus behavior, mouse-only tree and map interaction, weak dynamic-content feedback, and inconsistent form labeling. These are blocking quality issues on the main family-facing surfaces, so the next sprint should close them before returning to structural maintainability debt.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 11 | FB-012 | Accessibility and Interaction Hardening | P1 | planned |
+
+### Follow-On Candidate
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 12 | FB-013 | Readability and Responsive Polish | P2 | candidate |
+
+## Packet Sequence Rationale
+
+### FB-012 first
+
+The highest-value remaining quality gap is no longer release evidence alone; it is the fact that major Family Book surfaces still have concrete accessibility and interaction problems that affect real usage.
+
+### FB-013 after critical operability fixes
+
+Readability and responsive polish matter, but they should not dilute the more important overlay, keyboard, and dynamic-feedback work.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- the critical overlay and keyboard failures from the UI/UX review are fixed
+- HTMX-driven updates and core forms communicate state more clearly
+- browser verification demonstrates real improvement in the main flows
+- the sprint closes the highest-severity review findings without drifting into redesign work
+
 ## Closed Sprint
 
 ### `S01 - Shared Collaboration Reset`
