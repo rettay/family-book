@@ -256,11 +256,11 @@ Family Book now supports broad collaboration, recovery, and moderation. That mak
 - Task packet: `/Users/cheech/code/family-book/task_packets/FB-009_encryption_and_backup_hardening_pass.md`
 - Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S06 - Theme Customization and Branding Controls`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -270,15 +270,15 @@ Make Family Book feel owner-operated through admin-managed theme tokens, minimal
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 8 | FB-008 | Theme Customization and Branding Controls | P2 | planned |
+| 8 | FB-008 | Theme Customization and Branding Controls | P2 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S06-1 | Theme Token Contract and Persistence | planned |
-| S06-2 | Admin Theme Controls | planned |
-| S06-3 | Surface Rollout and Staging Acceptance | planned |
+| S06-1 | Theme Token Contract and Persistence | done |
+| S06-2 | Admin Theme Controls | done |
+| S06-3 | Surface Rollout and Staging Acceptance | done |
 
 ### Why This Sprint Next
 
@@ -289,20 +289,22 @@ Family Book now has collaboration, discovery, recovery, protection, and a workin
 - Sprint plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s06.md`
 - Sprint slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s06.md`
 - Task packet: `/Users/cheech/code/family-book/task_packets/FB-008_theme_customization_and_branding_controls.md`
+- Sprint closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s06.md`
 
 ## Proof Obligations for the Next Execution Cycle
 
-### FB-008
+### FB-010
 
-- Prove theme settings persist across reloads and restarts
-- Prove admins can change supported theme tokens without code edits
-- Prove key surfaces, browser theme metadata, and staging review all reflect the active theme
+- Prove attack-surface helpers and security middleware have direct tests
+- Prove the remaining critical central modules have explicit coverage
+- Prove the next hardening sprint improves CodeMap warning count rather than only moving work around
 
 ## Open Policy Questions to Watch
 
 - Whether medical history should remain shared to all active family members long-term
 - Whether contact information needs later field-level restrictions
 - Whether theme controls should later expand into logo assets or stay intentionally minimal
+- How much observability should be added without overcomplicating the self-hosted runtime
 
 ## PM Instruction
 

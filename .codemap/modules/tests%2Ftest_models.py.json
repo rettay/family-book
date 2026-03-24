@@ -1,8 +1,8 @@
 {
   "id": "tests/test_models.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T23:57:08.763993+00:00",
-  "source_hash": "662e08ed",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "da16b5bc",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -391,6 +391,22 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 173,
+              "line_end": 173
+            },
+            {
+              "line_start": 177,
+              "line_end": 177
+            },
+            {
+              "line_start": 173,
+              "line_end": 173
+            },
+            {
+              "line_start": 177,
+              "line_end": 177
+            },
+            {
               "line_start": 168,
               "line_end": 168
             },
@@ -413,22 +429,6 @@
             {
               "line_start": 169,
               "line_end": 169
-            },
-            {
-              "line_start": 173,
-              "line_end": 173
-            },
-            {
-              "line_start": 177,
-              "line_end": 177
-            },
-            {
-              "line_start": 173,
-              "line_end": 173
-            },
-            {
-              "line_start": 177,
-              "line_end": 177
             },
             {
               "line_start": 168,
@@ -592,8 +592,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 4,
-    "change_risk": "high",
+    "churn_count": 5,
+    "change_risk": "medium",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -601,7 +601,7 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 3.0,
+    "change_velocity": 1.5,
     "bus_factor": 1,
     "author_count": 2,
     "last_modified": "2026-03-23T19:38:18-04:00",

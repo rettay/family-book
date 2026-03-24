@@ -1,8 +1,8 @@
 {
   "id": "app/templates/map.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
-  "source_hash": "69a88b1b",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "d44e336f",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -27,7 +27,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 2,
     "change_risk": "medium",
     "domain": null,
     "observability_patterns": [],
@@ -36,10 +36,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 1.0,
     "bus_factor": 1,
     "author_count": 1,
-    "last_modified": "2026-03-23T11:44:52-04:00",
+    "last_modified": "2026-03-23T22:41:19-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -49,14 +49,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.12,
+  "attention_score": 0.23,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.84,
+    "understandability": 0.94,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.65
+    "stability": 0.45
   },
   "domain_role": "utility",
   "detected_patterns": null,

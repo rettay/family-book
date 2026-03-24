@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S06 - Theme Customization and Branding Controls`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-008 Theme Customization and Branding Controls`
 
 ## Sprint Goal

@@ -1,0 +1,1183 @@
+{
+  "id": "app/services/theme_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "cc290621",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 13,
+    "lines": 266,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/settings.py"
+    ],
+    "imported_by": [
+      "app/main.py",
+      "app/models/settings.py",
+      "app/pwa/routes.py",
+      "app/routes/auth_routes.py",
+      "app/routes/pages.py",
+      "tests/test_theme.py"
+    ],
+    "tested_by": [
+      "tests/test_theme.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "ThemeSettingsPayload",
+      "type": "class",
+      "summary": null,
+      "line": 29,
+      "signature": null
+    },
+    {
+      "name": "_hex_to_rgb_tuple",
+      "type": "function",
+      "summary": null,
+      "line": 98,
+      "signature": "(value: str) -> tuple[int, int, int]"
+    },
+    {
+      "name": "_relative_luminance",
+      "type": "function",
+      "summary": null,
+      "line": 103,
+      "signature": "(value: str) -> float"
+    },
+    {
+      "name": "_contrast_ratio",
+      "type": "function",
+      "summary": null,
+      "line": 113,
+      "signature": "(color_a: str, color_b: str) -> float"
+    },
+    {
+      "name": "_rgb_tuple_to_hex",
+      "type": "function",
+      "summary": null,
+      "line": 121,
+      "signature": "(rgb: tuple[int, int, int]) -> str"
+    },
+    {
+      "name": "_blend",
+      "type": "function",
+      "summary": null,
+      "line": 125,
+      "signature": "(color_a: str, color_b: str, ratio: float) -> str"
+    },
+    {
+      "name": "_darken",
+      "type": "function",
+      "summary": null,
+      "line": 134,
+      "signature": "(color: str, amount: float) -> str"
+    },
+    {
+      "name": "_lighten",
+      "type": "function",
+      "summary": null,
+      "line": 138,
+      "signature": "(color: str, amount: float) -> str"
+    },
+    {
+      "name": "_rgb_string",
+      "type": "function",
+      "summary": null,
+      "line": 142,
+      "signature": "(value: str) -> str"
+    },
+    {
+      "name": "_build_css_variables",
+      "type": "function",
+      "summary": null,
+      "line": 146,
+      "signature": "(settings: dict[str, str]) -> dict[str, str]"
+    },
+    {
+      "name": "build_runtime_theme",
+      "type": "function",
+      "summary": null,
+      "line": 185,
+      "signature": "(settings: dict[str, str] | None = None) -> dict[str, Any]"
+    },
+    {
+      "name": "get_runtime_theme_from_app",
+      "type": "function",
+      "summary": null,
+      "line": 237,
+      "signature": "(app) -> dict[str, Any]"
+    },
+    {
+      "name": "get_or_create_theme_settings_record",
+      "type": "function",
+      "summary": null,
+      "line": 241,
+      "signature": "(db: AsyncSession)"
+    },
+    {
+      "name": "load_runtime_theme",
+      "type": "function",
+      "summary": null,
+      "line": 258,
+      "signature": "(db: AsyncSession) -> dict[str, Any]"
+    },
+    {
+      "name": "sync_runtime_theme",
+      "type": "function",
+      "summary": null,
+      "line": 263,
+      "signature": "(app, db: AsyncSession) -> dict[str, Any]"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "ThemeSettingsPayload",
+      "kind": "class",
+      "line": 29,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "_hex_to_rgb_tuple",
+      "kind": "function",
+      "line": 98,
+      "signature": "(value: str) -> tuple[int, int, int]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "value.lstrip",
+          "line": 99,
+          "module_hint": null
+        },
+        {
+          "name": "tuple",
+          "line": 100,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 100,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_relative_luminance",
+      "kind": "function",
+      "line": 103,
+      "signature": "(value: str) -> float",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "_hex_to_rgb_tuple",
+          "line": 104,
+          "module_hint": null
+        },
+        {
+          "name": "to_linear",
+          "line": 109,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_contrast_ratio",
+      "kind": "function",
+      "line": 113,
+      "signature": "(color_a: str, color_b: str) -> float",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_relative_luminance",
+          "line": 114,
+          "module_hint": null
+        },
+        {
+          "name": "_relative_luminance",
+          "line": 115,
+          "module_hint": null
+        },
+        {
+          "name": "max",
+          "line": 116,
+          "module_hint": null
+        },
+        {
+          "name": "min",
+          "line": 117,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_rgb_tuple_to_hex",
+      "kind": "function",
+      "line": 121,
+      "signature": "(rgb: tuple[int, int, int]) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "\"#{:02x}{:02x}{:02x}\".format",
+          "line": 122,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_blend",
+      "kind": "function",
+      "line": 125,
+      "signature": "(color_a: str, color_b: str, ratio: float) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "max",
+          "line": 126,
+          "module_hint": null
+        },
+        {
+          "name": "min",
+          "line": 126,
+          "module_hint": null
+        },
+        {
+          "name": "_hex_to_rgb_tuple",
+          "line": 127,
+          "module_hint": null
+        },
+        {
+          "name": "_hex_to_rgb_tuple",
+          "line": 128,
+          "module_hint": null
+        },
+        {
+          "name": "_rgb_tuple_to_hex",
+          "line": 129,
+          "module_hint": null
+        },
+        {
+          "name": "tuple",
+          "line": 130,
+          "module_hint": null
+        },
+        {
+          "name": "round",
+          "line": 130,
+          "module_hint": null
+        },
+        {
+          "name": "range",
+          "line": 130,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_darken",
+      "kind": "function",
+      "line": 134,
+      "signature": "(color: str, amount: float) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_blend",
+          "line": 135,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_lighten",
+      "kind": "function",
+      "line": 138,
+      "signature": "(color: str, amount: float) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_blend",
+          "line": 139,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_rgb_string",
+      "kind": "function",
+      "line": 142,
+      "signature": "(value: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "\", \".join",
+          "line": 143,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 143,
+          "module_hint": null
+        },
+        {
+          "name": "_hex_to_rgb_tuple",
+          "line": 143,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_build_css_variables",
+      "kind": "function",
+      "line": 146,
+      "signature": "(settings: dict[str, str]) -> dict[str, str]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_rgb_string",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "_blend",
+          "line": 158,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 159,
+          "module_hint": null
+        },
+        {
+          "name": "_blend",
+          "line": 160,
+          "module_hint": null
+        },
+        {
+          "name": "_rgb_string",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "_darken",
+          "line": 164,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 165,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 166,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "_darken",
+          "line": 170,
+          "module_hint": null
+        },
+        {
+          "name": "_blend",
+          "line": 171,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 172,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 176,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 178,
+          "module_hint": null
+        },
+        {
+          "name": "_lighten",
+          "line": 180,
+          "module_hint": null
+        },
+        {
+          "name": "_rgb_string",
+          "line": 181,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_runtime_theme",
+      "kind": "function",
+      "line": 185,
+      "signature": "(settings: dict[str, str] | None = None) -> dict[str, Any]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "ThemeSettingsPayload.model_validate(\n        {**DEFAULT_THEME_SETTINGS, **(settings or {})}\n    ).model_dump",
+          "line": 186,
+          "module_hint": null
+        },
+        {
+          "name": "ThemeSettingsPayload.model_validate",
+          "line": 186,
+          "module_hint": null
+        },
+        {
+          "name": "_build_css_variables",
+          "line": 196,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_runtime_theme_from_app",
+      "kind": "function",
+      "line": 237,
+      "signature": "(app) -> dict[str, Any]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "getattr",
+          "line": 238,
+          "module_hint": null
+        },
+        {
+          "name": "build_runtime_theme",
+          "line": 238,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_or_create_theme_settings_record",
+      "kind": "function",
+      "line": 241,
+      "signature": "(db: AsyncSession)",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 244,
+          "module_hint": null
+        },
+        {
+          "name": "select(AppThemeSettings).where",
+          "line": 245,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 245,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 249,
+          "module_hint": null
+        },
+        {
+          "name": "AppThemeSettings",
+          "line": 251,
+          "module_hint": null
+        },
+        {
+          "name": "db.add",
+          "line": 253,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 254,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "load_runtime_theme",
+      "kind": "function",
+      "line": 258,
+      "signature": "(db: AsyncSession) -> dict[str, Any]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "get_or_create_theme_settings_record",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "build_runtime_theme",
+          "line": 260,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "sync_runtime_theme",
+      "kind": "function",
+      "line": 263,
+      "signature": "(app, db: AsyncSession) -> dict[str, Any]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "load_runtime_theme",
+          "line": 264,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_normalize_color",
+      "line": 55,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 6,
+        "nesting": 1,
+        "token_count": 48
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_validate_brand_display_name",
+      "line": 65,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 35
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 66,
+              "line_end": 67
+            },
+            {
+              "line_start": 68,
+              "line_end": 69
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_validate_brand_tagline",
+      "line": 74,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 19
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_validate_readability",
+      "line": 80,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 15,
+        "nesting": 2,
+        "token_count": 113
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 82,
+              "line_end": 82
+            },
+            {
+              "line_start": 83,
+              "line_end": 83
+            },
+            {
+              "line_start": 84,
+              "line_end": 84
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_hex_to_rgb_tuple",
+      "line": 98,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 34
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_relative_luminance",
+      "line": 103,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 67
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "to_linear",
+      "line": 106,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 1,
+        "nesting": 1,
+        "token_count": 18
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_contrast_ratio",
+      "line": 113,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 5,
+        "nesting": 0,
+        "token_count": 41
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_rgb_tuple_to_hex",
+      "line": 121,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_blend",
+      "line": 125,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 6,
+        "nesting": 0,
+        "token_count": 57
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_darken",
+      "line": 134,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 11
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_lighten",
+      "line": 138,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 11
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_rgb_string",
+      "line": 142,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 20
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_build_css_variables",
+      "line": 146,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 36,
+        "nesting": 0,
+        "token_count": 290
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 159,
+              "line_end": 159
+            },
+            {
+              "line_start": 164,
+              "line_end": 164
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 147,
+              "line_end": 147
+            },
+            {
+              "line_start": 148,
+              "line_end": 148
+            },
+            {
+              "line_start": 149,
+              "line_end": 149
+            },
+            {
+              "line_start": 158,
+              "line_end": 158
+            },
+            {
+              "line_start": 160,
+              "line_end": 160
+            },
+            {
+              "line_start": 171,
+              "line_end": 171
+            },
+            {
+              "line_start": 157,
+              "line_end": 157
+            },
+            {
+              "line_start": 162,
+              "line_end": 162
+            },
+            {
+              "line_start": 181,
+              "line_end": 181
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_runtime_theme",
+      "line": 185,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 0,
+        "size": 49,
+        "nesting": 0,
+        "token_count": 358
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 195,
+              "line_end": 195
+            },
+            {
+              "line_start": 203,
+              "line_end": 203
+            },
+            {
+              "line_start": 204,
+              "line_end": 204
+            },
+            {
+              "line_start": 201,
+              "line_end": 201
+            },
+            {
+              "line_start": 202,
+              "line_end": 202
+            },
+            {
+              "line_start": 205,
+              "line_end": 205
+            },
+            {
+              "line_start": 227,
+              "line_end": 227
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 227,
+              "line_end": 227
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 207,
+              "line_end": 212
+            },
+            {
+              "line_start": 213,
+              "line_end": 218
+            },
+            {
+              "line_start": 189,
+              "line_end": 189
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_runtime_theme_from_app",
+      "line": 237,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 15
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_or_create_theme_settings_record",
+      "line": 241,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 14,
+        "nesting": 1,
+        "token_count": 74
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "load_runtime_theme",
+      "line": 258,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 16
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "sync_runtime_theme",
+      "line": 263,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 3,
+        "nesting": 0,
+        "token_count": 19
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": true,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 2,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "ThemeSettingsPayload",
+      "_blend",
+      "_build_css_variables",
+      "_contrast_ratio",
+      "_darken",
+      "_hex_to_rgb_tuple",
+      "_lighten",
+      "_relative_luminance",
+      "_rgb_string",
+      "_rgb_tuple_to_hex",
+      "build_runtime_theme",
+      "get_or_create_theme_settings_record",
+      "get_runtime_theme_from_app",
+      "load_runtime_theme",
+      "sync_runtime_theme"
+    ],
+    "package": null,
+    "change_velocity": 1.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-23T22:48:23-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "class": "PascalCase",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.25,
+  "centrality_score": 1.0,
+  "quality_radar": {
+    "understandability": 0.61,
+    "changeability": 0.57,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.0
+  },
+  "domain_role": "core",
+  "detected_patterns": [
+    {
+      "pattern_name": "factory",
+      "confidence": "medium",
+      "tier": 1,
+      "evidence": [
+        "build_runtime_theme() at line 185"
+      ],
+      "notes": ""
+    }
+  ],
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

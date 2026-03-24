@@ -1,13 +1,13 @@
 {
   "id": "app/static/sw.js",
   "language": "javascript",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
-  "source_hash": "7f939382",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "37503f8a",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 7,
-    "lines": 68,
+    "cyclomatic": 8,
+    "lines": 72,
     "rating": "green"
   },
   "dependencies": {
@@ -25,26 +25,28 @@
     "is_test_file": false,
     "security_issues": [],
     "side_effects": [
-      "network: fetch() at line 57"
+      "network: fetch() at line 50",
+      "network: fetch() at line 61"
     ],
     "purity": "network",
     "todo_count": 0,
-    "churn_count": 1,
-    "change_risk": "medium",
+    "churn_count": 3,
+    "change_risk": "high",
     "domain": null,
     "observability_patterns": [],
     "endpoints": [],
     "databases": [],
     "services": [
-      "service:fetch-api: fetch() at line 57"
+      "service:fetch-api: fetch() at line 50",
+      "service:fetch-api: fetch() at line 61"
     ],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 2.0,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-16T20:24:52+01:00",
-    "recency_score": 0.96,
+    "author_count": 2,
+    "last_modified": "2026-03-23T22:41:19-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 0.0,
@@ -55,14 +57,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.5,
-  "attention_score": 0.2,
+  "attention_score": 0.34,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.78,
+    "understandability": 0.84,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,
-    "stability": 0.65
+    "stability": 0.3
   },
   "domain_role": "utility",
   "detected_patterns": null,

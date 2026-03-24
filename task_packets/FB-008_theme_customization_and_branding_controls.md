@@ -119,11 +119,11 @@ Secondary KPI:
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Validation evidence attached
-- [ ] Theme controls are admin-only
-- [ ] Theme values are validated and bounded
-- [ ] No raw CSS injection path is introduced
+- [x] Acceptance criteria satisfied
+- [x] Validation evidence attached
+- [x] Theme controls are admin-only
+- [x] Theme values are validated and bounded
+- [x] No raw CSS injection path is introduced
 
 ## Risk and Verification Notes
 

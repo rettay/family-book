@@ -4,572 +4,802 @@
     {
       "id": "alembic/README",
       "source_hash": "31595cf5",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/env.py",
       "source_hash": "cb2e6f42",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/script.py.mako",
       "source_hash": "d3892078",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/2e7d8d8d6d4b_add_google_auth_fields.py",
       "source_hash": "d1d6b545",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/4f3c2e1a9b7d_add_rich_profile_fields_and_tags.py",
       "source_hash": "06fb585a",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/75d48eb17ca2_initial_schema.py",
       "source_hash": "805b8321",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/8c1f9e6b7d11_add_sensitive_field_encryption_support.py",
       "source_hash": "d10ce43c",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/9b3f4d7c1a2e_add_tree_preferences.py",
       "source_hash": "cdf5e186",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "alembic/versions/b4d3e9a1c2f0_add_app_theme_settings.py",
+      "source_hash": "4c7d40ba",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/c6a8d41f2b5e_add_burial_country_code.py",
       "source_hash": "e766983c",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "alembic/versions/f3c4b8e1a9d2_add_revisions_and_recoverable_state.py",
       "source_hash": "8aa62362",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/access_control.py",
       "source_hash": "342f52ed",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/auth.py",
       "source_hash": "072e0b8d",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/backup/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/backup/routes.py",
       "source_hash": "522245cc",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/backup/scheduler.py",
       "source_hash": "e5182658",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/backup/service.py",
       "source_hash": "834f9635",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/config.py",
-      "source_hash": "489b560b",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "9dcb6a3a",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/database.py",
       "source_hash": "06a9b6a6",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/i18n.py",
       "source_hash": "f2c6594f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/inbound/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/inbound/routes.py",
-      "source_hash": "0e87bf10",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "89d5a68b",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/main.py",
-      "source_hash": "ebb45fc6",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "f7838d1d",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/matrix/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/matrix/client.py",
       "source_hash": "f6847491",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/matrix/handler.py",
       "source_hash": "444ec45b",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/matrix/startup.py",
       "source_hash": "89313ff1",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/middleware/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/middleware/security.py",
       "source_hash": "56d9c4a6",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/__init__.py",
-      "source_hash": "b59c52e7",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "1b5c0d19",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/audit.py",
       "source_hash": "8de2fee0",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/auth.py",
       "source_hash": "7e74b0d3",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/base.py",
       "source_hash": "56ebdc65",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/governance.py",
       "source_hash": "6a0fddb1",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/imports.py",
       "source_hash": "84cd684f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/media.py",
       "source_hash": "8a1f5686",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/moments.py",
       "source_hash": "9672948a",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/notifications.py",
       "source_hash": "b3daa878",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/person.py",
       "source_hash": "4b7e1fcc",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/preferences.py",
       "source_hash": "e9c64d52",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/relationships.py",
       "source_hash": "849090df",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/models/revisions.py",
       "source_hash": "eee00de2",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/models/settings.py",
+      "source_hash": "4379660a",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/pwa/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/pwa/routes.py",
-      "source_hash": "b6f7ccc4",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "184b8abf",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/auth_routes.py",
-      "source_hash": "fdf48598",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "853203ee",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/routes/demo.py",
+      "source_hash": "4d3e81d4",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/health.py",
       "source_hash": "8069e625",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/media.py",
       "source_hash": "8a628b66",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/moments.py",
       "source_hash": "e2fc3896",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/pages.py",
-      "source_hash": "5653b56f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "781869a2",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/persons.py",
       "source_hash": "673d98ba",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/relationships.py",
       "source_hash": "0c358070",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/routes/tree.py",
       "source_hash": "816e2952",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/schemas.py",
       "source_hash": "cd1d1b5a",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/seed.py",
       "source_hash": "471ee8f6",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/audit_service.py",
       "source_hash": "71a22432",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/auth_service.py",
       "source_hash": "f2b4a53c",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/bootstrap_service.py",
       "source_hash": "c6451302",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/field_protection.py",
       "source_hash": "1b65a123",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/geo.py",
       "source_hash": "620c7728",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/google_auth.py",
       "source_hash": "0e9034a1",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/io_limits.py",
       "source_hash": "4b423bfd",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/media_service.py",
       "source_hash": "936ecf63",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/moment_service.py",
       "source_hash": "f95d03a8",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/protection_service.py",
       "source_hash": "77508ed3",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/services/revision_service.py",
       "source_hash": "5bef529f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/services/theme_service.py",
+      "source_hash": "cc290621",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/static/css/main.css",
-      "source_hash": "64c99138",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "c30f9d0c",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/anniversary-dinner.jpg",
+      "source_hash": "5ab26521",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/art-gallery.jpg",
+      "source_hash": "08b62492",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/barcelona-gothic.jpg",
+      "source_hash": "b97a497d",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/beach-vacation.jpg",
+      "source_hash": "9c1bce81",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/birthday-celebration.jpg",
+      "source_hash": "a7dba0ab",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/birthday-tamales.jpg",
+      "source_hash": "6cc4fc2e",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/christmas-morning.jpg",
+      "source_hash": "0778d05e",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/family-dinner.jpg",
+      "source_hash": "99dabe66",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/first-day-school.jpg",
+      "source_hash": "562a3a31",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/graduation-ceremony.jpg",
+      "source_hash": "1ba1e08f",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/memorial-candle.jpg",
+      "source_hash": "e3f7326e",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/new-years-eve.jpg",
+      "source_hash": "7188bb05",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/newborn-baby.jpg",
+      "source_hash": "51e5b1c5",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-alex.jpg",
+      "source_hash": "650abb63",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-carlos.jpg",
+      "source_hash": "bb229728",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-clara.jpg",
+      "source_hash": "d082b55d",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-dmitri.jpg",
+      "source_hash": "ed2b4234",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-elena.jpg",
+      "source_hash": "a1744147",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-emilio.jpg",
+      "source_hash": "6d1e086b",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-irina.jpg",
+      "source_hash": "02184b20",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-james.jpg",
+      "source_hash": "b73f4e56",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-kenji.jpg",
+      "source_hash": "7aea8211",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-leo.jpg",
+      "source_hash": "d7a12d54",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-lily.jpg",
+      "source_hash": "7418a0ed",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-linda.jpg",
+      "source_hash": "06455767",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-maria.jpg",
+      "source_hash": "e22e425e",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-maya.jpg",
+      "source_hash": "48695be4",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-miguel.jpg",
+      "source_hash": "97f7b924",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-nadia.jpg",
+      "source_hash": "7393f0f7",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-nikolai.jpg",
+      "source_hash": "f156d405",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-patrick.jpg",
+      "source_hash": "e67e134a",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-rosa.jpg",
+      "source_hash": "9fb9cca7",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-sasha.jpg",
+      "source_hash": "36a99c53",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-sophie.jpg",
+      "source_hash": "9a39bf52",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-tatiana.jpg",
+      "source_hash": "d34f5a0d",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-viktor.jpg",
+      "source_hash": "8855b65b",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-wei.jpg",
+      "source_hash": "4cd33678",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/portrait-yuki.jpg",
+      "source_hash": "a154c2ec",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/summer-reunion.jpg",
+      "source_hash": "5342e335",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/static/demo-photos/woodworking-chair.jpg",
+      "source_hash": "170c0302",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/static/js/main.js",
       "source_hash": "66d45cfd",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/static/js/map.js",
       "source_hash": "6ae2836a",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/static/js/tree.js",
       "source_hash": "978b97a1",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/static/manifest.json",
-      "source_hash": "97acb789",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "90723b57",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/static/sw.js",
-      "source_hash": "7f939382",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "37503f8a",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/admin.html",
-      "source_hash": "ef90fe0d",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "52f89053",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/base.html",
-      "source_hash": "74f4c4cb",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "3048013a",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/home.html",
-      "source_hash": "f5807f10",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "425b96d8",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/invite.html",
-      "source_hash": "44811e78",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "1cfb1f63",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/landing.html",
-      "source_hash": "d4b2ac93",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "91e04be7",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/login.html",
-      "source_hash": "0f196b51",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "ae56c179",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/map.html",
-      "source_hash": "69a88b1b",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "d44e336f",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/audit_log.html",
       "source_hash": "296bde15",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/comments.html",
-      "source_hash": "57ddea23",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "2170a296",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/media_gallery.html",
       "source_hash": "5dab6d5c",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/moment_card.html",
       "source_hash": "3956e4d3",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/people_grid.html",
-      "source_hash": "537e40bf",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "45cc5f35",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/person_history.html",
       "source_hash": "39868760",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/partials/person_sidebar.html",
-      "source_hash": "71af71ba",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "b163f4cf",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "app/templates/partials/theme_head.html",
+      "source_hash": "f1406085",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/people.html",
-      "source_hash": "7fa3afb3",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "2e5857ac",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/person.html",
-      "source_hash": "ebcb3837",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "276fb466",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/person_edit.html",
-      "source_hash": "633fc7da",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "ccf0b6c4",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/person_new.html",
-      "source_hash": "799d64b9",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "3a13a210",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/settings.html",
-      "source_hash": "4a81dc45",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "39105b3d",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "app/templates/tree.html",
-      "source_hash": "3f91740f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "cc0d4865",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "locales/en.json",
       "source_hash": "0862f92c",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "locales/es.json",
       "source_hash": "c47717a5",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "locales/relationships/en.json",
       "source_hash": "8257927f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "locales/relationships/es.json",
       "source_hash": "75ab5f12",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "locales/relationships/ru.json",
       "source_hash": "dc54b0d1",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "locales/ru.json",
       "source_hash": "df33bb1f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/__init__.py",
       "source_hash": "e3b0c442",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/conftest.py",
-      "source_hash": "5694fd7d",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "066a1447",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_access_control.py",
       "source_hash": "1a8f46eb",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_api.py",
       "source_hash": "39c68b64",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_auth.py",
       "source_hash": "f0cf0e7a",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_comments.py",
-      "source_hash": "a241de10",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "ff00e9c4",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_media.py",
-      "source_hash": "96c19a7f",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "22604c88",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_models.py",
-      "source_hash": "662e08ed",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "da16b5bc",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_moments.py",
-      "source_hash": "6f03120e",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "96eaf02f",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_phase1_edge_cases.py",
       "source_hash": "1ac04370",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_protection_service.py",
       "source_hash": "bf125785",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_reactions.py",
-      "source_hash": "132b59e7",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "source_hash": "f5caf830",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_revision_service.py",
       "source_hash": "b4ed95ca",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_schema_models.py",
       "source_hash": "627a1739",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     },
     {
       "id": "tests/test_security_guardrails.py",
       "source_hash": "b8acdfef",
-      "analyzed_at": "2026-03-24T00:14:31.408753+00:00"
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
+    },
+    {
+      "id": "tests/test_theme.py",
+      "source_hash": "192acef6",
+      "analyzed_at": "2026-03-24T02:50:00.308251+00:00"
     }
   ]
 }

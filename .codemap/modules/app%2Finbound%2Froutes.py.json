@@ -1,8 +1,8 @@
 {
   "id": "app/inbound/routes.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
-  "source_hash": "0e87bf10",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "89d5a68b",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -146,46 +146,6 @@
               "line_end": 135
             },
             {
-              "line_start": 70,
-              "line_end": 70
-            },
-            {
-              "line_start": 71,
-              "line_end": 71
-            },
-            {
-              "line_start": 89,
-              "line_end": 89
-            },
-            {
-              "line_start": 97,
-              "line_end": 97
-            },
-            {
-              "line_start": 101,
-              "line_end": 101
-            },
-            {
-              "line_start": 129,
-              "line_end": 129
-            },
-            {
-              "line_start": 144,
-              "line_end": 144
-            },
-            {
-              "line_start": 58,
-              "line_end": 58
-            },
-            {
-              "line_start": 66,
-              "line_end": 66
-            },
-            {
-              "line_start": 80,
-              "line_end": 83
-            },
-            {
               "line_start": 62,
               "line_end": 62
             },
@@ -196,6 +156,22 @@
             {
               "line_start": 71,
               "line_end": 71
+            },
+            {
+              "line_start": 129,
+              "line_end": 129
+            },
+            {
+              "line_start": 144,
+              "line_end": 144
+            },
+            {
+              "line_start": 132,
+              "line_end": 133
+            },
+            {
+              "line_start": 134,
+              "line_end": 135
             },
             {
               "line_start": 71,
@@ -222,12 +198,16 @@
               "line_end": 83
             },
             {
-              "line_start": 133,
-              "line_end": 133
+              "line_start": 70,
+              "line_end": 70
             },
             {
-              "line_start": 135,
-              "line_end": 135
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 89,
+              "line_end": 89
             },
             {
               "line_start": 133,
@@ -246,12 +226,32 @@
               "line_end": 69
             },
             {
-              "line_start": 132,
+              "line_start": 58,
+              "line_end": 58
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 80,
+              "line_end": 83
+            },
+            {
+              "line_start": 133,
               "line_end": 133
             },
             {
-              "line_start": 134,
+              "line_start": 135,
               "line_end": 135
+            },
+            {
+              "line_start": 97,
+              "line_end": 97
+            },
+            {
+              "line_start": 101,
+              "line_end": 101
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -344,7 +344,7 @@
     ],
     "purity": "filesystem",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 3,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
@@ -365,11 +365,11 @@
       "_is_allowed_attachment_url"
     ],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 0.5,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-16T20:24:52+01:00",
-    "recency_score": 0.96,
+    "author_count": 2,
+    "last_modified": "2026-03-23T19:23:45-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -383,14 +383,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.2,
-  "attention_score": 0.41,
-  "centrality_score": 0.03,
+  "attention_score": 0.5,
+  "centrality_score": 0.14,
   "quality_radar": {
-    "understandability": 0.18,
+    "understandability": 0.28,
     "changeability": 0.68,
     "correctness": 0.5,
     "security": 0.88,
-    "stability": 0.6
+    "stability": 0.4
   },
   "domain_role": "utility",
   "detected_patterns": null,

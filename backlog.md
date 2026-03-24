@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S06 - Theme Customization and Branding Controls`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -47,7 +47,7 @@ Execution slices:
 - `S05-2` Backup and Restore Truthfulness
 - `S05-3` Operational Hardening
 
-## Planned Sprint `S06 - Theme Customization and Branding Controls`
+## Closed Sprint `S06 - Theme Customization and Branding Controls`
 
 Sprint goal:
 - Make Family Book feel owner-operated through admin-managed theme tokens, minimal branding controls, and staging-based visual acceptance.
@@ -56,7 +56,7 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-008 | Theme Customization and Branding Controls | P2 | planned | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
+| FB-008 | Theme Customization and Branding Controls | P2 | done | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
 
 Execution slices:
 - `S06-1` Theme Token Contract and Persistence
@@ -65,15 +65,15 @@ Execution slices:
 
 ## Next Sprint
 
-- Recommended next sprint: `S06 - Theme Customization and Branding Controls`
-- Primary packet: `FB-008 Theme Customization and Branding Controls`
-- Sprint plan: `docs/strategy/sprint-plan-s06.md`
-- Slice plan: `docs/strategy/sprint-slices-s06.md`
-- Follow-on candidate after `FB-008`:
+- Recommended next sprint: `S07 - Observability and Coverage Hardening`
+- Primary packet: `TBD`
+- Follow-on candidate after Sprint 06:
   - backup/observability cleanup from remaining CodeMap warnings
+  - attack-surface tests for `app/middleware/security.py` and `app/services/io_limits.py`
+  - critical-module coverage for `app/config.py`, `app/models/moments.py`, and `app/schemas.py`
 
 ## Next-Likely Follow-Ups
 
 | ID | Title | Priority | Status | Notes |
 |---|---|---:|---|---|
-| FB-008 | Theme Customization and Branding Controls | P2 | planned | Admin-configurable color system and surface branding |
+| FB-010 | Observability and Coverage Hardening | P1 | todo | CodeMap warning cleanup, attack-surface tests, and core runtime observability |

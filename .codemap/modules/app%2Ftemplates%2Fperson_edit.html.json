@@ -1,8 +1,8 @@
 {
   "id": "app/templates/person_edit.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-23T17:11:24.443401+00:00",
-  "source_hash": "633fc7da",
+  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "source_hash": "ccf0b6c4",
   "staleness": false,
   "purpose": null,
   "complexity": {
@@ -27,7 +27,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
+    "churn_count": 7,
     "change_risk": "medium",
     "domain": null,
     "observability_patterns": [],
@@ -36,12 +36,16 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 1.0,
-    "bus_factor": 2,
+    "change_velocity": 0.75,
+    "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-22T23:40:48-04:00",
+    "last_modified": "2026-03-23T22:41:19-04:00",
     "recency_score": 1.0,
-    "co_change_partners": [],
+    "co_change_partners": [
+      "app/templates/partials/people_grid.html",
+      "app/templates/partials/person_sidebar.html",
+      "app/templates/person.html"
+    ],
     "attack_surface": false,
     "convention_compliance": 1.0,
     "convention_consistency": 1.0,
@@ -49,14 +53,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.16,
+  "attention_score": 0.22,
   "centrality_score": 0.0,
   "quality_radar": {
     "understandability": 0.87,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.65
+    "stability": 0.45
   },
   "domain_role": "utility",
   "detected_patterns": null,

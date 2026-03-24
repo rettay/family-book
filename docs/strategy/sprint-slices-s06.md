@@ -4,7 +4,7 @@
 
 ### S06-1 Theme Token Contract and Persistence
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   establish the bounded theme token model and persist it safely
@@ -17,7 +17,7 @@ Status: `planned`
 
 ### S06-2 Admin Theme Controls
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   provide admin-only UI for editing and resetting the supported theme
@@ -30,7 +30,7 @@ Status: `planned`
 
 ### S06-3 Surface Rollout and Staging Acceptance
 
-Status: `planned`
+Status: `done`
 
 - Objective:
   apply theme values to shared chrome and key entry surfaces, then use staging for visual acceptance

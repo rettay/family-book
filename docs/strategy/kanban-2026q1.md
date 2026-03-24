@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-008 | Theme Customization and Branding Controls | P2 | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
+| FB-010 | Observability and Coverage Hardening | P1 | `task packet to be authored` |
 
 ## In Progress
 
@@ -25,4 +25,5 @@ None.
 | FB-005 | Tree Preferences, Filters, and Map Foundation | P2 | `task_packets/FB-005_tree_preferences_filters_and_map_foundation.md` |
 | FB-006 | Timeline and Family Moments Expansion | P1 | `task_packets/FB-006_timeline_and_family_moments_expansion.md` |
 | FB-007 | Version History, Revert, and Moderation Controls | P1 | `task_packets/FB-007_version_history_revert_and_moderation_controls.md` |
+| FB-008 | Theme Customization and Branding Controls | P2 | `task_packets/FB-008_theme_customization_and_branding_controls.md` |
 | FB-009 | Encryption and Backup Hardening Pass | P1 | `task_packets/FB-009_encryption_and_backup_hardening_pass.md` |
