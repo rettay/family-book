@@ -1,5 +1,45 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Planned Sprint
+
+### `S13 - Tree Workspace 2.0`
+
+Status: Planned
+
+### Sprint Goal
+
+Turn the tree into the place where members actively enrich family data by making metrics actionable, restructuring the sidebar into a usable workspace, and supporting tree-native stories, media, inline edits, and relationship linking.
+
+### Why This Sprint Exists
+
+The latest product assessment identified the real problem clearly: the tree is strong visually, but it still behaves like a launching pad into CRUD flows rather than the hub where work happens. Sprint 13 exists to close that gap without drifting into a full redesign or graph-editing experiment.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 16 | FB-018 | Tree Workspace Interaction Overhaul | P1 | planned |
+
+## Packet Sequence Rationale
+
+### FB-018 now
+
+The next highest-value move is to make the tree metrics, sidebar, and relationship flows genuinely actionable so users can stay in the tree for meaningful family enrichment work.
+
+### Structural cleanup after the tree workspace reset
+
+Post-integration structural cleanup still matters, but the current product bottleneck is usability and context switching, not lack of technical capability.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- tree sidebar metrics are actionable rather than decorative
+- members can add stories or media from the tree context
+- common person edits happen inline from the tree workspace
+- relationship linking scales beyond raw full-family dropdowns
+- browser, accessibility, and CodeMap baselines remain intact
+
 ## Closed Sprint
 
 ### `S12 - External Integrations and Confidence Hardening`

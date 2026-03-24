@@ -2,7 +2,9 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-018 | Tree Workspace Interaction Overhaul | P1 | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
 
 ## In Progress
 

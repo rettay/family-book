@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 12 are closed. Sprint 12 delivered the first real external integrations, pairing Google Maps and Resend with targeted confidence hardening.
+Sprint 01 through Sprint 12 are closed. Sprint 13 is now planned around turning the tree into a more complete in-context workspace for stories, media, and relationship maintenance.
 
 ## North Star
 
@@ -86,14 +86,14 @@ Sprint 01 through Sprint 12 are closed. Sprint 12 delivered the first real exter
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next major product value gap is broader product usability and feature depth now that map and invite delivery have real integrations
+- The next major product value gap is usability and in-context workflow quality inside the tree workspace
 - CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Evaluate the current product baseline and capture the next usability and feature-depth sprint clearly
-2. Preserve browser, accessibility, and staging-review confidence while the next product surface expands
-3. Reduce remaining warning-only structural debt where it directly supports release confidence
+1. Execute Sprint 13 to make the tree sidebar and metrics into a real working surface
+2. Preserve browser, accessibility, and staging-review confidence while the tree workspace expands
+3. Reduce remaining warning-only structural debt where it directly supports user-facing confidence
 4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
 
 ## Sprint State
@@ -110,12 +110,15 @@ Sprint 01 through Sprint 12 are closed. Sprint 12 delivered the first real exter
   - `S09 - Accessibility and Interaction Hardening`
   - `S10 - Readability and Responsive Polish`
   - `S11 - Tree as Primary Workspace`
-- `S12 - External Integrations and Confidence Hardening`
-- Current sprint:
-  - none active
+  - `S12 - External Integrations and Confidence Hardening`
+- Planned sprint:
+  - `S13 - Tree Workspace 2.0`
 - Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
 - Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
 - Sprint 12 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s12.md`
+- Sprint 13 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s13.md`
+- Sprint 13 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s13.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-018_tree_workspace_interaction_overhaul.md`
 - Primary packet: `/Users/cheech/code/family-book/task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md`
 - Supporting packet: `/Users/cheech/code/family-book/task_packets/FB-014_architecture_and_maintainability_hardening.md`
 - Sprint 11 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s11.md`
