@@ -2,6 +2,65 @@
 
 ## Closed Sprint
 
+### `S14 - Family Content and Relationship Authoring`
+
+Status: Closed
+
+### Sprint Goal
+
+Make the tree workspace feel like the real operating surface for family history work by deepening metric views, keeping more story/media actions in-tree, and making relationship authoring clearer and more complete.
+
+### Why This Sprint Exists
+
+Sprint 13 solved the biggest context-switching problem, but your product assessment still holds at the next layer down: the tree now opens the right doors, but some of those rooms are still shallow. Counts and empty states need to lead into richer content browsing, and relationship editing needs to feel more intentional than form mechanics.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 17 | FB-019 | Family Content and Relationship Authoring | P1 | done |
+
+## Packet Sequence Rationale
+
+### FB-019 now
+
+The highest-value next move is to complete the tree workspace loop: not just opening content from the tree, but browsing, adding, and adjusting that content in a way that feels rich enough to keep members there.
+
+### Structural cleanup remains secondary
+
+The warning-only structural debt still matters, but the product bottleneck is still workflow depth and authoring quality on the tree surface, not the absence of another backend capability.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- metric workspaces open richer in-tree content rather than shallow counters
+- members can add or review more family content from the tree without bouncing into the old fallback flows
+- relationship authoring is easier to understand, search, and maintain from tree context
+- browser, accessibility, and CodeMap baselines remain intact
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented the richer tree-content and relationship-authoring flows on `codex/s14-family-authoring`
+- Auditor accepted the sprint without requiring a follow-up defect pass
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py tests/test_moments.py tests/test_media.py -q`
+  - result: `121 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
+
+## Recommended Next Sprint
+
+- `S15 - Rich Family Storytelling and Multi-Item Authoring`
+- Focus: build on the stronger tree workspace by improving how stories, notes, and media collections are composed, reviewed, and connected across people instead of only within a single selected sidebar context
+
+## Closed Sprint
+
 ### `S13 - Tree Workspace 2.0`
 
 Status: Closed
@@ -61,6 +120,7 @@ The sprint is successful when all are true:
 
 - `S14 - Family Content and Relationship Authoring`
 - Focus: keep building on the tree workspace by making the new metric surfaces richer, reducing remaining CRUD detours, and improving content depth and relationship workflows from the same context
+
 ## Closed Sprint
 
 ### `S12 - External Integrations and Confidence Hardening`

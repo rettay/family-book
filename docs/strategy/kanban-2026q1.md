@@ -33,3 +33,4 @@ None.
 | FB-014 | Architecture and Maintainability Hardening | P1 | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
 | FB-016 | External Integrations: Google Maps and Email Delivery | P1 | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
 | FB-018 | Tree Workspace Interaction Overhaul | P1 | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
+| FB-019 | Family Content and Relationship Authoring | P1 | `task_packets/FB-019_family_content_and_relationship_authoring.md` |
