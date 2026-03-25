@@ -1798,7 +1798,8 @@
             'residence_place',
             'residence_country_code',
             'branch',
-            'bio'
+            'bio',
+            'research_notes'
           ]
         }))
       });
@@ -1925,6 +1926,192 @@
       return;
     }
     openPersonSidebar(personId, sidebarTrigger || document.activeElement);
+  }
+
+  // --- Tree Search ---
+
+  var searchInput = document.getElementById('tree-search-input');
+  var searchResults = document.getElementById('tree-search-results');
+  var searchSelectedIndex = -1;
+  var searchMatches = [];
+
+  function searchTree(query) {
+    if (!treeData || !treeData.persons || !query || query.length < 1) {
+      return [];
+    }
+    var lower = query.toLowerCase();
+    return treeData.persons.filter(function(person) {
+      var name = (person.display_name || '').toLowerCase();
+      var nick = (person.nickname || '').toLowerCase();
+      var branch = (person.branch || '').toLowerCase();
+      return name.indexOf(lower) !== -1 || nick.indexOf(lower) !== -1 || branch.indexOf(lower) !== -1;
+    }).slice(0, 20);
+  }
+
+  function renderSearchResults(matches) {
+    searchMatches = matches;
+    searchSelectedIndex = -1;
+    clearNode(searchResults);
+
+    if (matches.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'tree-search-empty';
+      empty.textContent = root.dataset.treeSearchNoResults || 'No matching people found';
+      searchResults.appendChild(empty);
+      searchResults.hidden = false;
+      searchInput.setAttribute('aria-expanded', 'true');
+      return;
+    }
+
+    matches.forEach(function(person, idx) {
+      var item = document.createElement('div');
+      item.className = 'tree-search-result';
+      item.setAttribute('role', 'option');
+      item.setAttribute('id', 'tree-search-result-' + idx);
+      item.setAttribute('aria-selected', 'false');
+      item.dataset.personId = person.id;
+
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'tree-search-result__name';
+      nameSpan.textContent = person.display_name;
+      item.appendChild(nameSpan);
+
+      var meta = [];
+      if (person.nickname) meta.push('"' + person.nickname + '"');
+      if (person.branch) meta.push(person.branch);
+      if (person.birth_date_raw) meta.push(person.birth_date_raw);
+      if (meta.length) {
+        var metaSpan = document.createElement('span');
+        metaSpan.className = 'tree-search-result__meta';
+        metaSpan.textContent = meta.join(' · ');
+        item.appendChild(metaSpan);
+      }
+
+      item.addEventListener('click', function() {
+        selectSearchResult(person.id);
+      });
+      searchResults.appendChild(item);
+    });
+
+    searchResults.hidden = false;
+    searchInput.setAttribute('aria-expanded', 'true');
+  }
+
+  function hideSearchResults() {
+    searchResults.hidden = true;
+    searchInput.setAttribute('aria-expanded', 'false');
+    searchInput.removeAttribute('aria-activedescendant');
+    searchSelectedIndex = -1;
+    searchMatches = [];
+  }
+
+  function selectSearchResult(personId) {
+    searchInput.value = '';
+    hideSearchResults();
+    zoomToNode(personId);
+    openPersonSidebar(personId, document.querySelector('#tree-svg [data-id="' + personId + '"]'));
+  }
+
+  function updateSearchSelection(newIndex) {
+    var items = searchResults.querySelectorAll('[role="option"]');
+    if (items.length === 0) return;
+
+    if (newIndex < 0) newIndex = items.length - 1;
+    if (newIndex >= items.length) newIndex = 0;
+
+    Array.prototype.forEach.call(items, function(item, i) {
+      item.setAttribute('aria-selected', i === newIndex ? 'true' : 'false');
+    });
+
+    searchSelectedIndex = newIndex;
+    searchInput.setAttribute('aria-activedescendant', 'tree-search-result-' + newIndex);
+    items[newIndex].scrollIntoView({block: 'nearest'});
+  }
+
+  function zoomToNode(personId) {
+    if (!svg || !zoom || !treeData) return;
+
+    var nodeEl = g.select('[data-id="' + personId + '"]');
+    if (nodeEl.empty()) return;
+
+    var transform = nodeEl.attr('transform');
+    var match = transform && transform.match(/translate\(\s*([\d.-]+)\s*,\s*([\d.-]+)\s*\)/);
+    if (!match) return;
+
+    var nx = parseFloat(match[1]);
+    var ny = parseFloat(match[2]);
+    var container = document.getElementById('tree-page');
+    var w = container.clientWidth;
+    var h = container.clientHeight;
+    var scale = 1.2;
+    var tx = w / 2 - nx * scale;
+    var ty = h / 2 - ny * scale;
+
+    svg.transition()
+      .duration(600)
+      .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+
+    // Flash highlight
+    var circle = nodeEl.select('.photo-clip');
+    if (!circle.empty()) {
+      var origStroke = circle.attr('stroke');
+      var origWidth = circle.attr('stroke-width');
+      circle
+        .attr('stroke', '#e67e22')
+        .attr('stroke-width', 4);
+      setTimeout(function() {
+        circle.attr('stroke', origStroke || null).attr('stroke-width', origWidth || null);
+      }, 1500);
+    }
+  }
+
+  if (searchInput) {
+    var searchDebounce;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchDebounce);
+      var query = searchInput.value.trim();
+      if (!query) {
+        hideSearchResults();
+        return;
+      }
+      searchDebounce = setTimeout(function() {
+        var matches = searchTree(query);
+        renderSearchResults(matches);
+      }, 150);
+    });
+
+    searchInput.addEventListener('keydown', function(event) {
+      if (searchResults.hidden) return;
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        updateSearchSelection(searchSelectedIndex + 1);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        updateSearchSelection(searchSelectedIndex - 1);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (searchSelectedIndex >= 0 && searchMatches[searchSelectedIndex]) {
+          selectSearchResult(searchMatches[searchSelectedIndex].id);
+        }
+      } else if (event.key === 'Escape') {
+        hideSearchResults();
+        searchInput.blur();
+      }
+    });
+
+    searchInput.addEventListener('focus', function() {
+      var query = searchInput.value.trim();
+      if (query && treeData) {
+        renderSearchResults(searchTree(query));
+      }
+    });
+
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('#tree-search')) {
+        hideSearchResults();
+      }
+    });
   }
 
   window.treeZoomIn = function() {

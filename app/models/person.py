@@ -105,6 +105,7 @@ class Person(Base, TimestampMixin):
 
     _languages: Mapped[str | None] = mapped_column("languages", Text, default="[]")
     bio: Mapped[str | None] = mapped_column(String(2000), default=None)
+    research_notes: Mapped[str | None] = mapped_column(Text, default=None)
     medical_history: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
 
     contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)

@@ -38,6 +38,7 @@ PERSON_MUTABLE_FIELDS = [
     "burial_cemetery_name",
     "burial_plot_number",
     "bio",
+    "research_notes",
     "medical_history",
     "contact_whatsapp",
     "contact_telegram",

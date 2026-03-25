@@ -2,7 +2,9 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | `task_packets/FB-024_completeness_and_detail_depth.md` |
 
 ## In Progress
 
@@ -35,4 +37,5 @@ None.
 | FB-018 | Tree Workspace Interaction Overhaul | P1 | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
 | FB-019 | Family Content and Relationship Authoring | P1 | `task_packets/FB-019_family_content_and_relationship_authoring.md` |
 | FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |
+| FB-022 | Tree Discovery and Research Foundation | P1 | `task_packets/FB-022_tree_discovery_and_research_foundation.md` |
 | FB-021 | Tree Graph Editing and Relationship Modeling | P1 | `task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md` |

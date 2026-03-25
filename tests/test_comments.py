@@ -2,7 +2,7 @@
 import pytest
 
 
-ADMIN_ID = "alex-000-0000-0000-000000000002"
+ADMIN_ID = "tyler-000-0000-0000-000000000002"
 MEMBER_ID = "member-00-0000-0000-000000000005"
 
 
@@ -28,7 +28,7 @@ class TestComments:
         body = resp.json()
         assert body["body"] == "Great post!"
         assert body["person_id"] == ADMIN_ID
-        assert body["person_name"] == "Alex Rivera"
+        assert body["person_name"] == "Tyler Martin"
         assert body["moment_id"] == moment_id
 
     async def test_create_comment_requires_auth(self, client):

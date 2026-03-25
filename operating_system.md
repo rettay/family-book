@@ -24,6 +24,7 @@ The operating objective is to maximize **Collaborative Family Loop Success Rate 
 - Product vision: `/Users/cheech/code/family-book/foundation/PRODUCT_VISION.md`
 - V1 requirements: `/Users/cheech/code/family-book/foundation/V1_PRODUCT_REQUIREMENTS.md`
 - Collaboration and privacy contract: `/Users/cheech/code/family-book/foundation/COLLABORATION_AND_PRIVACY.md`
+- UX North Star: `/Users/cheech/code/family-book/foundation/UX_NORTH_STAR.md`
 - Codebase briefing: `/Users/cheech/code/family-book/docs/CODEBASE_BRIEFING.md`
 - Backlog queue: `/Users/cheech/code/family-book/backlog.md`
 - Task packets: `/Users/cheech/code/family-book/task_packets/`

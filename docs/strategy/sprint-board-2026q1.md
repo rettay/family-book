@@ -1,8 +1,136 @@
 # Family Book Sprint Board - 2026 Q1
 
-## No Active Planned Sprint
+## Planned Sprint
 
-Sprint 16 is closed. Sprint 17 is not yet defined.
+### `S18 - Completeness Prompts and Sidebar Detail Depth`
+
+Status: Planning
+
+### Sprint Goal
+
+Turn missing data into contribution invitations and make the tree sidebar the complete editing surface so members rarely need to detour to the full edit page.
+
+### Why This Sprint Exists
+
+Sprint 17 added tree search, content hierarchy improvements, and research notes. The next bottleneck is that members see empty fields without actionable prompts, and the tree sidebar Details tab still requires navigating to the full edit page for common fields (gender, death date, patronymic, burial details, languages, contact info). Sprint 18 closes both gaps: completeness prompts motivate contribution, and sidebar detail expansion reduces page-navigation friction.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 22 | FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | todo |
+
+### Execution Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S18-1 | Per-Person Completeness Prompts in Sidebar | todo |
+| S18-2 | Sidebar Details Tab Field Expansion | todo |
+| S18-3 | Family-Level Completeness Summary API | todo |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- the sidebar overview tab shows actionable prompts for missing birth date, photo, bio, and stories
+- the sidebar Details tab supports editing gender, death date, patronymic, birth last name, languages, burial details, and is_living
+- a family-level completeness API endpoint returns aggregated gap counts across all accessible persons
+- browser, accessibility, and CodeMap baselines remain intact
+
+### Context
+
+- UX North Star: `foundation/UX_NORTH_STAR.md`
+- Gap triage: `docs/strategy/genealogy-review-triage.md` (G-04, G-05)
+- Primary packet: `task_packets/FB-024_completeness_and_detail_depth.md`
+
+## Candidate Sprints
+
+### `S19 - External Record Integration Foundation` (candidate)
+
+Status: Candidate — packet written, not yet committed
+
+### Sprint Goal
+
+Give Family Book the ability to import existing family trees via GEDCOM and search free external genealogy databases (FamilySearch, newspapers, NARA, Antenati, CEMLA) so the app becomes a research workspace for families with roots in the USA, Australia, Argentina, and Italy.
+
+### Why This Sprint Exists
+
+Research identified that all major genealogy APIs relevant to the family's four countries are free. GEDCOM import is the single most important onboarding path for users with existing research. External record search turns the app from a display layer into the place where research happens. CEMLA covers the specific Italian-Argentine immigration connection that no other tool integrates.
+
+### Candidate Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 21 | FB-023 | External Record Integration Foundation | P1 | candidate |
+
+### Planned Execution Slices
+
+| Slice | Title |
+|---|---|
+| S19-1 | GEDCOM Import |
+| S19-2 | External Record Search Panel |
+| S19-3 | CEMLA Immigration Record Search |
+
+### Sprint Exit Criteria (draft)
+
+The sprint is successful when all are true:
+
+- users can upload a GEDCOM file and see imported persons and relationships appear in the tree
+- users can search external records for any person from the tree sidebar and see results from multiple free APIs
+- CEMLA immigration records are searchable from within the app or gracefully fall back to a direct link
+- all external API interactions have rate limiting, caching, and graceful error handling
+- browser, accessibility, and CodeMap baselines remain intact
+
+### Context
+
+- Integration packet: `task_packets/FB-023_external_record_integration_foundation.md`
+- Gap triage: `docs/strategy/genealogy-review-triage.md` (G-10, G-17, G-18)
+- Decision #11: External integration strategy
+
+---
+
+## Closed Sprint
+
+### `S17 - Tree Discovery and Research Foundation`
+
+Status: Closed
+
+### Sprint Goal
+
+Make the family tree navigable at scale and establish research-workflow support so genealogy-focused family members can use Family Book as their primary working tool rather than a display layer for research done elsewhere.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 20 | FB-022 | Tree Discovery and Research Foundation | P1 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S17-1 | Tree Search and Navigate-to-Node | done |
+| S17-2 | Person Page Content Hierarchy | done |
+| S17-3 | Research Notes Per Person | done |
+
+### Exit Result
+
+- Exit result: `pass with follow-ups`
+- Builder implemented Sprint 17 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS — all 21 acceptance criteria met, no P0/P1 findings
+- Follow-ups: F-04 (medium) content hierarchy section order differs from packet prescription (Moments at position ~8 vs prescribed position 3) — follow-up for S18 content tuning
+- Test fixes included: fixed test_comments.py wrong ADMIN_ID, fixed xfail for empty names validation
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `262 passed, 0 failed, 0 xfailed`
+  - `uv run pytest tests/test_api.py tests/test_pages.py -q`
+  - result: `70 passed`
+  - `uv run pytest tests/test_moments.py tests/test_media.py -q`
+  - result: `55 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
 
 ## Closed Sprint
 

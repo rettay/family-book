@@ -47,6 +47,13 @@
   </div>
   {% endif %}
 
+  {% if person.research_notes %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">Research Notes</h3>
+    <p class="profile-section__copy" style="white-space: pre-line;">{{ person.research_notes }}</p>
+  </div>
+  {% endif %}
+
   {% if person.medical_history %}
   <div class="profile-section">
     <h3 class="profile-section__title">Medical History</h3>
@@ -120,36 +127,6 @@
     </div>
   </div>
 
-  <!-- Media gallery -->
-  <div class="profile-section">
-    <h3 class="profile-section__title">Photos &amp; Media</h3>
-    <div id="person-media"
-         hx-get="/partials/media-gallery?person_id={{ person.id }}"
-         hx-trigger="load"
-         hx-swap="innerHTML"
-         aria-live="polite"
-         aria-busy="false">
-      <div class="spinner" style="margin: 16px auto;"></div>
-    </div>
-  </div>
-
-  <div class="profile-section">
-    <div class="flex-between section-header" style="gap:12px; align-items:center;">
-      <h3 class="profile-section__title">Version History</h3>
-      {% if current_user.is_admin %}
-      <span class="text-sm text-muted">Admin revert enabled</span>
-      {% endif %}
-    </div>
-    <div id="person-history"
-         hx-get="/partials/person-history?person_id={{ person.id }}"
-         hx-trigger="load"
-         hx-swap="innerHTML"
-         aria-live="polite"
-         aria-busy="false">
-      <div class="spinner" style="margin: 16px auto;"></div>
-    </div>
-  </div>
-
   <!-- Moments by this person -->
   <div class="profile-section">
     <div class="flex-between section-header" style="gap:12px; align-items:center;">
@@ -210,6 +187,36 @@
     </form>
     <div id="person-moments"
          hx-get="/partials/moments?person={{ person.id }}"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         aria-live="polite"
+         aria-busy="false">
+      <div class="spinner" style="margin: 16px auto;"></div>
+    </div>
+  </div>
+
+  <!-- Media gallery -->
+  <div class="profile-section">
+    <h3 class="profile-section__title">Photos &amp; Media</h3>
+    <div id="person-media"
+         hx-get="/partials/media-gallery?person_id={{ person.id }}"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         aria-live="polite"
+         aria-busy="false">
+      <div class="spinner" style="margin: 16px auto;"></div>
+    </div>
+  </div>
+
+  <div class="profile-section">
+    <div class="flex-between section-header" style="gap:12px; align-items:center;">
+      <h3 class="profile-section__title">Version History</h3>
+      {% if current_user.is_admin %}
+      <span class="text-sm text-muted">Admin revert enabled</span>
+      {% endif %}
+    </div>
+    <div id="person-history"
+         hx-get="/partials/person-history?person_id={{ person.id }}"
          hx-trigger="load"
          hx-swap="innerHTML"
          aria-live="polite"

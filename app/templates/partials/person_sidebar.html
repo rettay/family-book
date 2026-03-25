@@ -273,6 +273,10 @@
           {{ t('person.bio') }}
           <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
         </label>
+        <label>
+          Research Notes
+          <textarea class="form-textarea" name="research_notes" rows="4" placeholder="Working notes about genealogy research...">{{ person.research_notes or '' }}</textarea>
+        </label>
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}

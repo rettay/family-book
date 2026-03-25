@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 # --- Person ---
 
 class PersonCreate(BaseModel):
-    first_name: str = Field(max_length=200)
-    last_name: str = Field(max_length=200)
+    first_name: str = Field(min_length=1, max_length=200)
+    last_name: str = Field(min_length=1, max_length=200)
     patronymic: str | None = Field(None, max_length=200)
     birth_last_name: str | None = Field(None, max_length=200)
     nickname: str | None = Field(None, max_length=100)
@@ -29,6 +29,7 @@ class PersonCreate(BaseModel):
     burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] = []
     bio: str | None = Field(None, max_length=2000)
+    research_notes: str | None = Field(None, max_length=5000)
     medical_history: str | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
@@ -63,6 +64,7 @@ class PersonUpdate(BaseModel):
     burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] | None = None
     bio: str | None = Field(None, max_length=2000)
+    research_notes: str | None = Field(None, max_length=5000)
     medical_history: str | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
@@ -110,6 +112,7 @@ class PersonDetail(PersonSummary):
     burial_plot_number: str | None = None
     languages: list[str] = []
     bio: str | None = None
+    research_notes: str | None = None
     medical_history: str | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
@@ -192,6 +195,7 @@ def person_to_detail(person) -> PersonDetail:
         burial_plot_number=person.burial_plot_number,
         languages=person.languages,
         bio=person.bio,
+        research_notes=person.research_notes,
         medical_history=person.medical_history,
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,

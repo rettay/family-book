@@ -160,6 +160,7 @@ async def create_person(
         burial_cemetery_name=body.burial_cemetery_name,
         burial_plot_number=body.burial_plot_number,
         bio=body.bio,
+        research_notes=body.research_notes,
         medical_history=body.medical_history,
         contact_whatsapp=body.contact_whatsapp,
         contact_telegram=body.contact_telegram,

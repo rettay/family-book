@@ -82,6 +82,50 @@
     align-items: center;
     gap: 0.4rem;
   }
+  .tree-search {
+    position: relative;
+  }
+  .tree-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    max-height: 280px;
+    overflow-y: auto;
+    background: #fffdf8;
+    border: 1px solid rgba(45, 80, 22, 0.15);
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 8px 20px rgba(45, 80, 22, 0.1);
+  }
+  .tree-search-result {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(45, 80, 22, 0.06);
+  }
+  .tree-search-result:hover,
+  .tree-search-result[aria-selected="true"] {
+    background: rgba(217, 234, 201, 0.5);
+  }
+  .tree-search-result__name {
+    font-weight: 600;
+    color: #2d5016;
+  }
+  .tree-search-result__meta {
+    font-size: 0.82rem;
+    color: #6b6054;
+  }
+  .tree-search-empty {
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6b6054;
+  }
   @media (max-width: 900px) {
     .tree-layout {
       grid-template-columns: 1fr;
@@ -172,8 +216,29 @@
   data-tree-open-create-link="{{ t('tree.create_in_tree') }}"
   data-tree-replace-on-tree="{{ t('tree.replace_on_tree') }}"
   data-tree-remove-confirm="{{ t('tree.remove_relationship_confirm') }}"
+  data-tree-search-no-results="No matching people found"
+  data-tree-search-hint="Type a name to search"
 >
   <aside class="tree-panel">
+    <section class="tree-panel__group">
+      <h2 class="tree-panel__title">Search Tree</h2>
+      <div class="tree-search" id="tree-search">
+        <input
+          type="search"
+          class="form-input"
+          id="tree-search-input"
+          placeholder="Search by name..."
+          autocomplete="off"
+          aria-label="Search tree by person name"
+          aria-controls="tree-search-results"
+          aria-expanded="false"
+          role="combobox"
+          aria-autocomplete="list"
+        >
+        <div class="tree-search-results" id="tree-search-results" role="listbox" hidden></div>
+      </div>
+    </section>
+
     <section class="tree-panel__group">
       <h2 class="tree-panel__title">{{ t('tree.display_preferences') }}</h2>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-names"> {{ t('tree.show_names') }}</label>

@@ -49,3 +49,68 @@ The launch assumption, based on current product direction, is that active family
 - encryption in transit and at rest.
 
 If that assumption changes later, it should become an explicit new decision and packet sequence.
+
+### 8. The UX North Star is a canonical launch contract
+
+The experience-design contract (`foundation/UX_NORTH_STAR.md`) defines how Family Book should feel to use. It complements the product vision (what the app does) and V1 requirements (what capabilities exist) by defining the interaction model. Key principles:
+
+- The tree is the workspace, not a visualization
+- In-context editing over page-navigation detours
+- Progressive disclosure over form walls
+- Empty states are invitations, not dead labels
+- Content (stories, media) over chrome (version history, admin metadata)
+- Research-friendly data entry (partial info, confidence, provenance)
+
+### 9. Genealogy-researcher persona is a first-class user
+
+Family Book serves both casual family members and genealogy-focused power users. The genealogy researcher who actively tracks family history, records provenance, and motivates others to contribute is critical to the collaborative loop — they're the one who keeps the family record alive. Features should support their workflow without making the app inaccessible to casual contributors.
+
+### 10. Research notes are shared family knowledge, not sensitive PII
+
+Research notes (per-person working notes about genealogy research progress) are visible to all active family members. They are not encrypted. They exist to support collaborative research, not to store private information. Sensitive findings should go in the bio or medical history fields, which have appropriate protection.
+
+### 11. External integration strategy: free APIs only, GEDCOM as universal connector
+
+Family Book integrates exclusively with free, public genealogy APIs and data sources. No paid API subscriptions. The integration tier:
+
+- **GEDCOM import** is the universal onboarding path — it bridges Ancestry, FamilySearch, MyHeritage, Gramps, and every other platform that exports .ged files.
+- **FamilySearch API** (free, OAuth 2) is the single highest-value live integration — it covers USA, Australia, Argentina, and Italy.
+- **Newspaper APIs** (Chronicling America for USA, Trove for Australia) are the easiest integrations — free, no auth, high discoverability.
+- **NARA Catalog API** and **DPLA API** cover US federal records and cross-institutional archives.
+- **Antenati IIIF** provides access to Italian civil records (71M+ images) via standard image viewer protocol.
+- **CEMLA** (Argentine immigration, 4.4M records, no API) is integrated via HTML parsing with graceful fallback to link-out behavior.
+
+This strategy maximizes coverage across the family's four countries (USA, Australia, Argentina, Italy) without incurring subscription costs or depending on platforms that restrict API access.
+
+### 12. Family calendar is a natural extension of existing data
+
+A family calendar surface auto-populated from Person birth/death dates, Partnership dates, and Moment timestamps is a planned feature. It rewards data entry (every date you add makes the calendar richer), gives members a reason to visit regularly, and surfaces family knowledge without requiring active search. Calendar events use existing data models — no new entity type needed for auto-populated dates. Manually-added recurring dates (family traditions, immigration anniversaries) can use the existing Moments system.
+
+### 13. Family Book is a full multimedia archive, not photo-only
+
+The backend already supports video (100MB), audio (25MB), and image uploads. The frontend must catch up: HTML5 video/audio players, document (PDF) support, and media-type-aware rendering across all surfaces. Voice recordings, home videos, scanned documents, and old letters are core family history content. This also lays the groundwork for the long-horizon AI memorial feature (G-21).
+
+### 14. AI family memorial is a long-horizon goal
+
+Creating an AI-powered conversational memorial of a family member — using stored voice recordings, biographical data, stories, and research notes — is a compelling long-term vision. It requires: (a) voice recording storage (G-19), (b) rich biographical content including life story fields (G-22), (c) genetic/health context (G-23), (d) AI/ML integrations, and (e) an ethical consent framework. The groundwork is being laid across S17-S22 (research notes, multimedia support, life story fields, genetic profile, source citations). Not scheduled for implementation but explicitly recognized as a north-star feature that justifies the depth of data collection the app encourages.
+
+### 15. Person records should capture full life context, not just genealogy skeleton
+
+Genealogy tools typically store names, dates, places, and relationships. Family Book goes deeper by also capturing: obituaries (often the richest single-source document), education history, career/profession history, organizational memberships (churches, clubs, fraternal orders, military units), physical attributes, expanded contact info, and detailed notes. These are stored as structured JSON arrays on Person (same pattern as `languages`) for add/remove editing. Obituaries are a dedicated long-text field. All are included in revision snapshots.
+
+### 17. Physical attributes use metric storage with locale-aware display
+
+Height (cm), weight (kg), and shoe size are stored internally in a single standard unit. Display conversion to imperial (feet/inches, pounds) or other systems is controlled by a locale preference at the family or user level. This avoids data ambiguity while supporting international families. Eye color, hair color, and other descriptive attributes are free-text or light enum fields.
+
+### 18. Contact info is structured and encrypted
+
+Phone numbers are stored as a JSON array with type labels (mobile, home, work) in E.164 format. Addresses are stored as structured JSON with components (street, city, state, postal code, country). Both are encrypted at rest, consistent with the existing treatment of WhatsApp, Telegram, Signal, and email contact fields.
+
+### 16. Genetic and medical data requires structured storage and encryption
+
+The existing `medical_history` field is a single encrypted text blob — adequate for notes but insufficient for cross-family health pattern analysis. The planned expansion (G-23) adds:
+- Structured medical conditions (condition, onset, severity, treatment, inherited flag, hereditary line)
+- Genetic profile (maternal/paternal haplogroups, admixture percentages, DNA test provider)
+- Family health dashboard for cross-person condition aggregation
+
+All genetic and medical data is encrypted at rest. Visibility policy for health/genetic data across family members requires an explicit decision before implementation — the current flat-access model may need a per-field or per-person opt-in for this category.
