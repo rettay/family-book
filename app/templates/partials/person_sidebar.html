@@ -156,7 +156,7 @@
         <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('places')">No birth place — add it?</button>
         {% endif %}
         {% if not person.gender %}
-        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('dates')">No gender — set it?</button>
+        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('identity')">No gender — set it?</button>
         {% endif %}
       </div>
     </section>
@@ -253,7 +253,7 @@
       <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
         <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" open>
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="identity" open>
           <summary>Identity</summary>
           <div class="tree-inline-form__row">
             <label>
