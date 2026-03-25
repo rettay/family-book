@@ -2,9 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-018 | Tree Workspace Interaction Overhaul | P1 | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
+None.
 
 ## In Progress
 
@@ -34,3 +32,4 @@ None.
 | FB-015 | Tree as Primary Workspace | P1 | `task_packets/FB-015_tree_as_primary_workspace.md` |
 | FB-014 | Architecture and Maintainability Hardening | P1 | `task_packets/FB-014_architecture_and_maintainability_hardening.md` |
 | FB-016 | External Integrations: Google Maps and Email Delivery | P1 | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
+| FB-018 | Tree Workspace Interaction Overhaul | P1 | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |

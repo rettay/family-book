@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S13 - Tree Workspace 2.0`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,7 +18,7 @@ The latest product assessment identified the real problem clearly: the tree is s
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 16 | FB-018 | Tree Workspace Interaction Overhaul | P1 | planned |
+| 16 | FB-018 | Tree Workspace Interaction Overhaul | P1 | done |
 
 ## Packet Sequence Rationale
 
@@ -40,6 +40,27 @@ The sprint is successful when all are true:
 - relationship linking scales beyond raw full-family dropdowns
 - browser, accessibility, and CodeMap baselines remain intact
 
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented the full tree workspace overhaul and Auditor required one small follow-up pass for metric-state correctness and note feedback copy
+- Builder corrected the moments-metric reset behavior, added note-specific success feedback, and extended browser coverage for the story-to-moments state transition before final audit signoff
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py tests/test_moments.py tests/test_media.py -q`
+  - result: `120 passed`
+  - `uv run pytest tests/test_pages.py -q`
+  - result: `16 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
+
+## Recommended Next Sprint
+
+- `S14 - Family Content and Relationship Authoring`
+- Focus: keep building on the tree workspace by making the new metric surfaces richer, reducing remaining CRUD detours, and improving content depth and relationship workflows from the same context
 ## Closed Sprint
 
 ### `S12 - External Integrations and Confidence Hardening`

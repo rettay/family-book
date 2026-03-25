@@ -78,6 +78,7 @@ async def test_tree_page_renders_sidebar_dialog_and_labeled_controls(member_clie
     assert 'aria-label="' in resp.text
     assert 'id="tree-status" role="status" aria-live="polite"' in resp.text
     assert 'data-saved-message="' in resp.text
+    assert 'data-tree-story-created="' in resp.text
 
 
 @pytest.mark.asyncio
@@ -132,6 +133,28 @@ async def test_person_edit_page_renders_labeled_fields_and_inline_error_containe
     assert 'for="edit-first-name"' in resp.text
     assert 'id="edit-first-name"' in resp.text
     assert 'class="form-section-title"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_tree_person_card_renders_workspace_tabs_and_tree_native_sections(member_client: AsyncClient):
+    resp = await member_client.get(f"/people/{TYLER_ID}/card")
+
+    assert resp.status_code == 200
+    assert 'data-tree-sidebar-tab="overview"' in resp.text
+    assert 'data-tree-sidebar-tab="moments"' in resp.text
+    assert 'id="tree-sidebar-moments"' in resp.text
+    assert 'id="tree-sidebar-media"' in resp.text
+    assert 'id="tree-sidebar-people-options"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_tree_person_card_uses_search_picker_not_raw_relationship_selects(member_client: AsyncClient):
+    resp = await member_client.get(f"/people/{TYLER_ID}/card")
+
+    assert resp.status_code == 200
+    assert 'data-tree-picker' in resp.text
+    assert 'placeholder="Search family members"' in resp.text
+    assert 'select class="form-select" name="related_person_id"' not in resp.text
 
 
 @pytest.mark.asyncio

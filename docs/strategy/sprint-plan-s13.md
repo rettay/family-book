@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S13 - Tree Workspace 2.0`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-018 Tree Workspace Interaction Overhaul`
 - Follow-on packet candidates:
   - `FB-017 Post-Integration Structural Cleanup`

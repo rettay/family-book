@@ -3,6 +3,8 @@ import io
 
 from PIL import Image
 
+ADMIN_ID = "tyler-000-0000-0000-000000000002"
+
 
 def _make_test_image(width=100, height=100, fmt="JPEG") -> bytes:
     """Create a minimal test image with EXIF-like data."""
@@ -41,7 +43,7 @@ class TestMediaUpload:
         image_data = _make_test_image()
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("test.jpg", image_data, "image/jpeg")},
         )
         assert resp.status_code == 201
@@ -75,7 +77,7 @@ class TestMediaUpload:
     async def test_upload_rejects_unsupported_type(self, admin_client):
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("test.txt", b"hello", "text/plain")},
         )
         assert resp.status_code == 400
@@ -139,7 +141,7 @@ class TestMediaDedup:
         )
 
         image_data = _make_test_image()
-        person_id = "alex-000-0000-0000-000000000002"
+        person_id = ADMIN_ID
 
         # First upload
         resp1 = await admin_client.post(
@@ -180,7 +182,7 @@ class TestMediaServing:
         image_data = _make_test_image()
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("photo.jpg", image_data, "image/jpeg")},
         )
         media_id = resp.json()["id"]
@@ -283,7 +285,7 @@ class TestMediaThumbnails:
         image_data = _make_test_image(width=800, height=600)
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("big.jpg", image_data, "image/jpeg")},
         )
         media_id = resp.json()["id"]
@@ -311,7 +313,7 @@ class TestMediaMetadata:
         resp = await admin_client.post(
             "/api/media",
             data={
-                "person_id": "alex-000-0000-0000-000000000002",
+                "person_id": ADMIN_ID,
                 "caption": "Test caption",
             },
             files={"file": ("test.jpg", image_data, "image/jpeg")},
@@ -322,7 +324,7 @@ class TestMediaMetadata:
         assert resp2.status_code == 200
         body = resp2.json()
         assert body["caption"] == "Test caption"
-        assert body["person_id"] == "alex-000-0000-0000-000000000002"
+        assert body["person_id"] == ADMIN_ID
 
     async def test_list_media_for_person(self, admin_client, tmp_path, monkeypatch):
         from app.config import Settings
@@ -332,7 +334,7 @@ class TestMediaMetadata:
         )
         monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
 
-        person_id = "alex-000-0000-0000-000000000002"
+        person_id = ADMIN_ID
         image_data = _make_test_image()
         await admin_client.post(
             "/api/media",

@@ -1,4 +1,15 @@
-<div class="tree-sidebar-card">
+<div
+  class="tree-sidebar-card"
+  data-tree-sidebar-person-id="{{ person.id }}"
+  data-tree-sidebar-default-tab="overview"
+  data-tree-sidebar-moment-count="{{ person_metrics.moment_count }}"
+  data-tree-sidebar-story-count="{{ person_metrics.story_count }}"
+  data-tree-sidebar-media-count="{{ person_metrics.media_count }}"
+  data-tree-sidebar-parent-count="{{ parent_people|length }}"
+  data-tree-sidebar-child-count="{{ child_people|length }}"
+  data-tree-sidebar-partner-count="{{ partner_people|length }}"
+  data-tree-sidebar-can-manage="{{ 'true' if can_manage else 'false' }}"
+>
   <div class="tree-sidebar-card__header">
     <div class="avatar avatar--xl tree-sidebar-card__avatar">
       {% if person.photo_url and (person.photo_url.startswith('http') or person.photo_url.startswith('/')) %}
@@ -25,215 +36,477 @@
     </div>
   </div>
 
-  <section class="tree-sidebar-card__section">
-    <h3 class="tree-sidebar-card__section-title">{{ t('tree.richness') }}</h3>
-    <div class="tree-sidebar-metrics">
-      <div class="tree-sidebar-metric">
-        <span class="tree-sidebar-metric__label">{{ t('tree.moments_count') }}</span>
-        <strong class="tree-sidebar-metric__value">{{ person_metrics.moment_count }}</strong>
-      </div>
-      <div class="tree-sidebar-metric">
-        <span class="tree-sidebar-metric__label">{{ t('tree.stories_count') }}</span>
-        <strong class="tree-sidebar-metric__value">{{ person_metrics.story_count }}</strong>
-      </div>
-      <div class="tree-sidebar-metric">
-        <span class="tree-sidebar-metric__label">{{ t('tree.media_count') }}</span>
-        <strong class="tree-sidebar-metric__value">{{ person_metrics.media_count }}</strong>
+  <nav class="tree-sidebar-tabs" aria-label="{{ t('tree.workspace_sections') }}">
+    <button
+      type="button"
+      class="tree-sidebar-tab tree-sidebar-tab--active"
+      data-tree-sidebar-tab="overview"
+      aria-pressed="true"
+      onclick="switchTreeSidebarTab('overview')"
+    >
+      {{ t('tree.overview') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="details"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('details')"
+    >
+      {{ t('tree.details') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="relationships"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('relationships')"
+    >
+      {{ t('tree.relationships') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="moments"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('moments')"
+    >
+      {{ t('nav.moments') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="media"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('media')"
+    >
+      {{ t('tree.media_count') }}
+    </button>
+  </nav>
+
+  <section class="tree-sidebar-panel tree-sidebar-panel--active" data-tree-sidebar-panel="overview">
+    <div class="tree-sidebar-card__section">
+      <h3 class="tree-sidebar-card__section-title">{{ t('tree.richness') }}</h3>
+      <div class="tree-sidebar-metrics">
+        <button
+          type="button"
+          class="tree-sidebar-metric tree-sidebar-metric--button"
+          data-tree-metric="moments"
+          onclick="switchTreeSidebarTab('moments', 'all')"
+        >
+          <span class="tree-sidebar-metric__label">{{ t('tree.moments_count') }}</span>
+          <strong class="tree-sidebar-metric__value">{{ person_metrics.moment_count }}</strong>
+          <span class="tree-sidebar-metric__hint">
+            {% if person_metrics.moment_count %}
+            {{ t('tree.view_items') }}
+            {% else %}
+            {{ t('tree.add_first_moment') }}
+            {% endif %}
+          </span>
+        </button>
+        <button
+          type="button"
+          class="tree-sidebar-metric tree-sidebar-metric--button"
+          data-tree-metric="stories"
+          onclick="switchTreeSidebarTab('moments', 'story')"
+        >
+          <span class="tree-sidebar-metric__label">{{ t('tree.stories_count') }}</span>
+          <strong class="tree-sidebar-metric__value">{{ person_metrics.story_count }}</strong>
+          <span class="tree-sidebar-metric__hint">
+            {% if person_metrics.story_count %}
+            {{ t('tree.view_items') }}
+            {% else %}
+            {{ t('tree.add_first_story') }}
+            {% endif %}
+          </span>
+        </button>
+        <button
+          type="button"
+          class="tree-sidebar-metric tree-sidebar-metric--button"
+          data-tree-metric="media"
+          onclick="switchTreeSidebarTab('media')"
+        >
+          <span class="tree-sidebar-metric__label">{{ t('tree.media_count') }}</span>
+          <strong class="tree-sidebar-metric__value">{{ person_metrics.media_count }}</strong>
+          <span class="tree-sidebar-metric__hint">
+            {% if person_metrics.media_count %}
+            {{ t('tree.view_items') }}
+            {% else %}
+            {{ t('tree.add_first_photo') }}
+            {% endif %}
+          </span>
+        </button>
       </div>
     </div>
-  </section>
 
-  {% if person.bio %}
-  <section class="tree-sidebar-card__section">
-    <h3 class="tree-sidebar-card__section-title">{{ t('person.bio') }}</h3>
-    <p class="tree-sidebar-card__copy">{{ person.bio }}</p>
-  </section>
-  {% endif %}
+    {% if person.bio %}
+    <section class="tree-sidebar-card__section">
+      <h3 class="tree-sidebar-card__section-title">{{ t('person.bio') }}</h3>
+      <p class="tree-sidebar-card__copy">{{ person.bio }}</p>
+    </section>
+    {% endif %}
 
-  <section class="tree-sidebar-card__section">
-    <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
-    <div class="tree-rel-grid">
-      <div>
-        <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
-        {% if parent_people %}
-        <ul class="tree-rel-list">
-          {% for related in parent_people %}
-          <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+    <section class="tree-sidebar-card__section">
+      <h3 class="tree-sidebar-card__section-title">{{ t('tree.workspace_prompts') }}</h3>
+      <div class="tree-sidebar-prompts">
+        {% if can_manage and person_metrics.story_count == 0 %}
+        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('moments', 'story')">
+          {{ t('tree.add_first_story') }}
+        </button>
+        {% endif %}
+        {% if can_manage and person_metrics.media_count == 0 %}
+        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('media')">
+          {{ t('tree.add_first_photo') }}
+        </button>
+        {% endif %}
+        {% if can_manage and parent_people|length == 0 %}
+        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('relationships', 'parent')">
+          {{ t('tree.add_parent') }}
+        </button>
+        {% endif %}
+        {% if can_manage and child_people|length == 0 %}
+        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('relationships', 'child')">
+          {{ t('tree.add_child') }}
+        </button>
+        {% endif %}
+        {% if can_manage and partner_people|length == 0 %}
+        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('relationships', 'partner')">
+          {{ t('tree.add_partner') }}
+        </button>
         {% endif %}
       </div>
-      <div>
-        <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
-        {% if child_people %}
-        <ul class="tree-rel-list">
-          {% for related in child_people %}
-          <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
-        {% endif %}
+      {% if person_metrics.story_count or person_metrics.media_count or parent_people or child_people or partner_people %}
+      <p class="tree-sidebar-card__muted">{{ t('tree.workspace_ready') }}</p>
+      {% endif %}
+    </section>
+
+    <section class="tree-sidebar-card__section">
+      <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+      <div class="tree-rel-grid">
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
+          {% if parent_people %}
+          <ul class="tree-rel-list">
+            {% for related in parent_people %}
+            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
+          {% if child_people %}
+          <ul class="tree-rel-list">
+            {% for related in child_people %}
+            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
+          {% if partner_people %}
+          <ul class="tree-rel-list">
+            {% for related in partner_people %}
+            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+          {% endif %}
+        </div>
       </div>
-      <div>
-        <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
-        {% if partner_people %}
-        <ul class="tree-rel-list">
-          {% for related in partner_people %}
-          <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
-          {% endfor %}
-        </ul>
-        {% else %}
-        <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
-        {% endif %}
+    </section>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="details" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <h3 class="tree-sidebar-card__section-title">{{ t('tree.quick_edit') }}</h3>
+      {% if can_manage %}
+      <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
+        <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
+        <div class="tree-inline-form__row">
+          <label>
+            {{ t('person.first_name') }}
+            <input class="form-input" type="text" name="first_name" value="{{ person.first_name or '' }}">
+          </label>
+          <label>
+            {{ t('person.last_name') }}
+            <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}">
+          </label>
+        </div>
+        <div class="tree-inline-form__row">
+          <label>
+            {{ t('person.nickname') }}
+            <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}">
+          </label>
+          <label>
+            {{ t('tree.filter_branch') }}
+            <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+          </label>
+        </div>
+        <div class="tree-inline-form__row">
+          <label>
+            {{ t('person.birth_date') }}
+            <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}">
+          </label>
+          <label>
+            {{ t('person.birth_place') }}
+            <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}">
+          </label>
+        </div>
+        <div class="tree-inline-form__row">
+          <label>
+            {{ t('person.residence') }}
+            <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}">
+          </label>
+          <label>
+            {{ t('tree.filter_residence_country') }}
+            <input class="form-input" type="text" name="residence_country_code" maxlength="2" value="{{ person.residence_country_code or '' }}">
+          </label>
+        </div>
+        <label>
+          {{ t('person.bio') }}
+          <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
+        </label>
+        <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
+      </form>
+      {% else %}
+      <p class="tree-sidebar-card__muted">{{ t('tree.view_only_details') }}</p>
+      {% endif %}
+    </section>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="relationships" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+      <div id="tree-relationship-error" class="form-error hidden" role="status" aria-live="polite"></div>
+
+      <div class="tree-rel-grid tree-rel-grid--workspace">
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
+          {% if parent_people %}
+          <ul class="tree-rel-list">
+            {% for related in parent_people %}
+            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.no_parents_prompt') }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
+          {% if child_people %}
+          <ul class="tree-rel-list">
+            {% for related in child_people %}
+            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.no_children_prompt') }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
+          {% if partner_people %}
+          <ul class="tree-rel-list">
+            {% for related in partner_people %}
+            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.no_partners_prompt') }}</p>
+          {% endif %}
+        </div>
       </div>
-    </div>
+
+      {% if can_manage %}
+      <div class="tree-sidebar-action-groups">
+        <details class="tree-sidebar-disclosure" data-tree-relationship-group="parent">
+          <summary>{{ t('tree.add_parent') }}</summary>
+          <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'parent')">
+            <label>
+              {{ t('tree.link_existing_parent') }}
+              <div class="tree-picker" data-tree-picker>
+                <input
+                  class="form-input tree-picker__input"
+                  type="search"
+                  placeholder="{{ t('tree.search_people_placeholder') }}"
+                  data-tree-picker-input
+                  autocomplete="off"
+                >
+                <input type="hidden" name="related_person_id" data-tree-picker-value>
+                <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
+              </div>
+            </label>
+            <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_parent') }}</button>
+          </form>
+          <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'parent')">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.first_name') }}
+                <input class="form-input" type="text" name="first_name" required>
+              </label>
+              <label>
+                {{ t('person.last_name') }}
+                <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
+              </label>
+            </div>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+            <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_parent') }}</button>
+          </form>
+        </details>
+
+        <details class="tree-sidebar-disclosure" data-tree-relationship-group="child">
+          <summary>{{ t('tree.add_child') }}</summary>
+          <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'child')">
+            <label>
+              {{ t('tree.link_existing_child') }}
+              <div class="tree-picker" data-tree-picker>
+                <input
+                  class="form-input tree-picker__input"
+                  type="search"
+                  placeholder="{{ t('tree.search_people_placeholder') }}"
+                  data-tree-picker-input
+                  autocomplete="off"
+                >
+                <input type="hidden" name="related_person_id" data-tree-picker-value>
+                <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
+              </div>
+            </label>
+            <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_child') }}</button>
+          </form>
+          <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'child')">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.first_name') }}
+                <input class="form-input" type="text" name="first_name" required>
+              </label>
+              <label>
+                {{ t('person.last_name') }}
+                <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
+              </label>
+            </div>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+            <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_child') }}</button>
+          </form>
+        </details>
+
+        <details class="tree-sidebar-disclosure" data-tree-relationship-group="partner">
+          <summary>{{ t('tree.add_partner') }}</summary>
+          <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'partner')">
+            <label>
+              {{ t('tree.link_existing_partner') }}
+              <div class="tree-picker" data-tree-picker>
+                <input
+                  class="form-input tree-picker__input"
+                  type="search"
+                  placeholder="{{ t('tree.search_people_placeholder') }}"
+                  data-tree-picker-input
+                  autocomplete="off"
+                >
+                <input type="hidden" name="related_person_id" data-tree-picker-value>
+                <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
+              </div>
+            </label>
+            <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_partner') }}</button>
+          </form>
+          <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'partner')">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.first_name') }}
+                <input class="form-input" type="text" name="first_name" required>
+              </label>
+              <label>
+                {{ t('person.last_name') }}
+                <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
+              </label>
+            </div>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+            <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_partner') }}</button>
+          </form>
+        </details>
+      </div>
+      {% endif %}
+    </section>
   </section>
 
-  {% if can_manage %}
-  <section class="tree-sidebar-card__section">
-    <h3 class="tree-sidebar-card__section-title">{{ t('tree.quick_edit') }}</h3>
-    <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
-      <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
-      <label>
-        {{ t('person.first_name') }}
-        <input class="form-input" type="text" name="first_name" value="{{ person.first_name or '' }}">
-      </label>
-      <label>
-        {{ t('person.last_name') }}
-        <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}">
-      </label>
-      <label>
-        {{ t('person.nickname') }}
-        <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}">
-      </label>
-      <label>
-        {{ t('person.birth_date') }}
-        <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}">
-      </label>
-      <label>
-        {{ t('person.birth_place') }}
-        <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}">
-      </label>
-      <label>
-        {{ t('person.residence') }}
-        <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}">
-      </label>
-      <label>
-        {{ t('tree.filter_residence_country') }}
-        <input class="form-input" type="text" name="residence_country_code" maxlength="2" value="{{ person.residence_country_code or '' }}">
-      </label>
-      <label>
-        {{ t('tree.filter_branch') }}
-        <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
-      </label>
-      <label>
-        {{ t('person.bio') }}
-        <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
-      </label>
-      <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
-    </form>
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="moments" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <div class="tree-sidebar-section-header">
+        <h3 class="tree-sidebar-card__section-title">{{ t('nav.moments') }}</h3>
+        <div class="tree-sidebar-chip-row">
+          <button type="button" class="tree-sidebar-chip tree-sidebar-chip--active" data-tree-moment-filter="all" onclick="setTreeMomentFilter('all')">
+            {{ t('tree.all_activity') }}
+          </button>
+          <button type="button" class="tree-sidebar-chip" data-tree-moment-filter="story" onclick="setTreeMomentFilter('story')">
+            {{ t('moments.story') }}
+          </button>
+        </div>
+      </div>
+
+      {% if can_manage %}
+      <form class="tree-inline-form tree-inline-form--compact" id="tree-moment-form" onsubmit="submitTreeMoment(event, '{{ person.id }}')">
+        <div id="tree-moment-error" class="form-error hidden" role="status" aria-live="polite"></div>
+        <label>
+          {{ t('moments.type') }}
+          <select class="form-select" name="kind" onchange="toggleTreeMomentFields(this.value)">
+            <option value="story">{{ t('moments.story') }}</option>
+            <option value="text">{{ t('moments.note') }}</option>
+          </select>
+        </label>
+        <label>
+          {{ t('moments.title') }}
+          <input class="form-input" type="text" name="title" maxlength="300">
+        </label>
+        <label>
+          {{ t('moments.story_prompt') }}
+          <textarea class="form-textarea" name="body" rows="4" placeholder="{{ t('moments.story_prompt') }}"></textarea>
+        </label>
+        <button type="submit" class="btn btn--primary btn--block">{{ t('tree.add_from_tree') }}</button>
+      </form>
+      {% endif %}
+
+      <div id="tree-sidebar-moments" class="tree-sidebar-stream" aria-live="polite" aria-busy="false"></div>
+    </section>
   </section>
 
-  <section class="tree-sidebar-card__section">
-    <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="media" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <h3 class="tree-sidebar-card__section-title">{{ t('tree.media_count') }}</h3>
 
-    <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'parent')">
-      <label>
-        {{ t('tree.link_existing_parent') }}
-        <select class="form-select" name="related_person_id">
-          <option value="">{{ t('tree.select_person') }}</option>
-          {% for option in people_options %}
-          <option value="{{ option.id }}">{{ option.display_name }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_parent') }}</button>
-    </form>
+      {% if can_manage %}
+      <form class="tree-inline-form tree-inline-form--compact" id="tree-media-form" onsubmit="uploadTreeMedia(event, '{{ person.id }}')">
+        <div id="tree-media-error" class="form-error hidden" role="status" aria-live="polite"></div>
+        <label>
+          {{ t('tree.upload_media') }}
+          <input class="form-input" type="file" name="file" accept="image/*,video/*" required>
+        </label>
+        <label>
+          {{ t('moments.title') }}
+          <input class="form-input" type="text" name="caption" maxlength="300" placeholder="{{ t('tree.media_caption_placeholder') }}">
+        </label>
+        <button type="submit" class="btn btn--primary btn--block">{{ t('tree.upload_media') }}</button>
+      </form>
+      {% endif %}
 
-    <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'child')">
-      <label>
-        {{ t('tree.link_existing_child') }}
-        <select class="form-select" name="related_person_id">
-          <option value="">{{ t('tree.select_person') }}</option>
-          {% for option in people_options %}
-          <option value="{{ option.id }}">{{ option.display_name }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_child') }}</button>
-    </form>
-
-    <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'partner')">
-      <label>
-        {{ t('tree.link_existing_partner') }}
-        <select class="form-select" name="related_person_id">
-          <option value="">{{ t('tree.select_person') }}</option>
-          {% for option in people_options %}
-          <option value="{{ option.id }}">{{ option.display_name }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_partner') }}</button>
-    </form>
-
-    <div id="tree-relationship-error" class="form-error hidden" role="status" aria-live="polite"></div>
+      <div id="tree-sidebar-media" class="tree-sidebar-stream" aria-live="polite" aria-busy="false"></div>
+    </section>
   </section>
-
-  <section class="tree-sidebar-card__section">
-    <h3 class="tree-sidebar-card__section-title">{{ t('tree.new_relative') }}</h3>
-
-    <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'parent')">
-      <label>
-        {{ t('person.first_name') }}
-        <input class="form-input" type="text" name="first_name" required>
-      </label>
-      <label>
-        {{ t('person.last_name') }}
-        <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
-      </label>
-      <label>
-        {{ t('tree.filter_branch') }}
-        <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
-      </label>
-      <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.create_and_link_parent') }}</button>
-    </form>
-
-    <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'child')">
-      <label>
-        {{ t('person.first_name') }}
-        <input class="form-input" type="text" name="first_name" required>
-      </label>
-      <label>
-        {{ t('person.last_name') }}
-        <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
-      </label>
-      <label>
-        {{ t('tree.filter_branch') }}
-        <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
-      </label>
-      <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.create_and_link_child') }}</button>
-    </form>
-
-    <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'partner')">
-      <label>
-        {{ t('person.first_name') }}
-        <input class="form-input" type="text" name="first_name" required>
-      </label>
-      <label>
-        {{ t('person.last_name') }}
-        <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
-      </label>
-      <label>
-        {{ t('tree.filter_branch') }}
-        <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
-      </label>
-      <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.create_and_link_partner') }}</button>
-    </form>
-  </section>
-  {% endif %}
 
   <div class="tree-sidebar-card__footer">
     <a href="/people/{{ person.id }}" class="btn btn--primary btn--block">{{ t('tree.full_profile') }}</a>
@@ -241,4 +514,10 @@
     <a href="/people/{{ person.id }}/edit" class="btn btn--ghost btn--block">{{ t('tree.advanced_edit') }}</a>
     {% endif %}
   </div>
+
+  <script type="application/json" id="tree-sidebar-people-options">[
+    {% for option in people_options %}
+    {"id": {{ option.id|tojson }}, "display_name": {{ option.display_name|tojson }}}{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]</script>
 </div>

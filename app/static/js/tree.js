@@ -9,6 +9,12 @@
   var treeData;
   var sidebarTrigger = null;
   var currentSidebarPersonId = null;
+  var sidebarState = {
+    activeTab: 'overview',
+    momentFilter: 'all',
+    relationshipGroup: '',
+    peopleOptions: []
+  };
   var preferences = {
     show_names: true,
     show_birth_dates: false,
@@ -64,10 +70,345 @@
     statusNode.textContent = text;
   }
 
+  function escapeHTML(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function clearNode(node) {
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+  }
+
   function showToastMessage(message) {
     if (typeof window.showToast === 'function') {
       window.showToast(message);
     }
+  }
+
+  function getSidebarCard() {
+    return sidebarContent.querySelector('[data-tree-sidebar-person-id]');
+  }
+
+  function getSidebarPersonId() {
+    var card = getSidebarCard();
+    return card ? card.dataset.treeSidebarPersonId : currentSidebarPersonId;
+  }
+
+  function getSidebarCanManage() {
+    var card = getSidebarCard();
+    return !!(card && card.dataset.treeSidebarCanManage === 'true');
+  }
+
+  function parseSidebarPeopleOptions() {
+    var scriptNode = sidebarContent.querySelector('#tree-sidebar-people-options');
+    if (!scriptNode) {
+      sidebarState.peopleOptions = [];
+      return;
+    }
+    try {
+      sidebarState.peopleOptions = JSON.parse(scriptNode.textContent || '[]');
+    } catch (err) {
+      sidebarState.peopleOptions = [];
+    }
+  }
+
+  function openRelationshipDisclosure(groupName) {
+    if (!groupName) {
+      return;
+    }
+    var disclosures = sidebarContent.querySelectorAll('[data-tree-relationship-group]');
+    Array.prototype.forEach.call(disclosures, function(disclosure) {
+      disclosure.open = disclosure.dataset.treeRelationshipGroup === groupName;
+    });
+  }
+
+  function chooseDefaultSidebarTab() {
+    var card = getSidebarCard();
+    if (!card) {
+      return 'overview';
+    }
+    if (sidebarState.activeTab && sidebarContent.querySelector('[data-tree-sidebar-panel="' + sidebarState.activeTab + '"]')) {
+      return sidebarState.activeTab;
+    }
+    var canManage = card.dataset.treeSidebarCanManage === 'true';
+    var storyCount = Number(card.dataset.treeSidebarStoryCount || 0);
+    var mediaCount = Number(card.dataset.treeSidebarMediaCount || 0);
+    var relationCount = Number(card.dataset.treeSidebarParentCount || 0) +
+      Number(card.dataset.treeSidebarChildCount || 0) +
+      Number(card.dataset.treeSidebarPartnerCount || 0);
+    if (canManage && storyCount === 0) {
+      sidebarState.momentFilter = 'story';
+      return 'moments';
+    }
+    if (canManage && mediaCount === 0) {
+      return 'media';
+    }
+    if (canManage && relationCount === 0) {
+      sidebarState.relationshipGroup = 'parent';
+      return 'relationships';
+    }
+    return card.dataset.treeSidebarDefaultTab || 'overview';
+  }
+
+  function renderEmptyTreeStream(container, text, actionLabel, actionHandler) {
+    clearNode(container);
+    var wrapper = document.createElement('div');
+    wrapper.className = 'tree-sidebar-stream-empty';
+    var copy = document.createElement('p');
+    copy.textContent = text;
+    wrapper.appendChild(copy);
+    if (actionLabel && typeof actionHandler === 'function') {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'btn btn--secondary btn--sm';
+      button.textContent = actionLabel;
+      button.addEventListener('click', actionHandler);
+      wrapper.appendChild(button);
+    }
+    container.appendChild(wrapper);
+  }
+
+  function createMomentNode(moment) {
+    var article = document.createElement('article');
+    article.className = 'tree-sidebar-moment';
+
+    var meta = document.createElement('div');
+    meta.className = 'tree-sidebar-moment__meta';
+    meta.textContent = moment.kind === 'story'
+      ? root.dataset.treeStoryLabel
+      : root.dataset.treeMomentLabel;
+    if (moment.occurred_at) {
+      meta.textContent += ' · ' + String(moment.occurred_at).slice(0, 10);
+    }
+    article.appendChild(meta);
+
+    if (moment.title) {
+      var title = document.createElement('h4');
+      title.className = 'tree-sidebar-moment__title';
+      title.textContent = moment.title;
+      article.appendChild(title);
+    }
+
+    if (moment.body) {
+      var body = document.createElement('p');
+      body.className = 'tree-sidebar-moment__body';
+      body.textContent = moment.body;
+      article.appendChild(body);
+    }
+    return article;
+  }
+
+  function renderTreeMoments(moments) {
+    var container = document.getElementById('tree-sidebar-moments');
+    if (!container) {
+      return;
+    }
+    container.setAttribute('aria-busy', 'false');
+    if (!moments.length) {
+      renderEmptyTreeStream(
+        container,
+        sidebarState.momentFilter === 'story' ? root.dataset.emptyStoryMoments : root.dataset.emptyMoments,
+        getSidebarCanManage() ? (sidebarState.momentFilter === 'story' ? root.dataset.addFirstStory : null) : null,
+        function() {
+          var bodyInput = document.querySelector('#tree-moment-form textarea[name="body"]');
+          if (bodyInput) {
+            bodyInput.focus();
+          }
+        }
+      );
+      return;
+    }
+    clearNode(container);
+    moments.forEach(function(moment) {
+      container.appendChild(createMomentNode(moment));
+    });
+  }
+
+  function createMediaNode(media) {
+    var item = document.createElement('div');
+    item.className = 'tree-sidebar-media-item';
+    var trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.addEventListener('click', function() {
+      if (typeof window.openLightbox === 'function') {
+        window.openLightbox('/api/media/' + media.id + '/file', media.caption || 'Family media');
+      } else {
+        window.location.href = '/api/media/' + media.id + '/file';
+      }
+    });
+    var img = document.createElement('img');
+    img.src = '/api/media/' + media.id + '/thumbnail';
+    img.alt = media.caption || 'Family media';
+    img.loading = 'lazy';
+    img.onerror = function() {
+      img.src = '/api/media/' + media.id + '/file';
+    };
+    trigger.appendChild(img);
+    item.appendChild(trigger);
+    if (media.caption) {
+      var caption = document.createElement('p');
+      caption.textContent = media.caption;
+      item.appendChild(caption);
+    }
+    return item;
+  }
+
+  function renderTreeMedia(mediaItems) {
+    var container = document.getElementById('tree-sidebar-media');
+    if (!container) {
+      return;
+    }
+    container.setAttribute('aria-busy', 'false');
+    if (!mediaItems.length) {
+      renderEmptyTreeStream(
+        container,
+        root.dataset.emptyMedia,
+        getSidebarCanManage() ? root.dataset.addFirstPhoto : null,
+        function() {
+          var input = document.querySelector('#tree-media-form input[type="file"]');
+          if (input) {
+            input.click();
+          }
+        }
+      );
+      return;
+    }
+    clearNode(container);
+    var grid = document.createElement('div');
+    grid.className = 'tree-sidebar-media-grid';
+    mediaItems.forEach(function(media) {
+      grid.appendChild(createMediaNode(media));
+    });
+    container.appendChild(grid);
+  }
+
+  async function loadTreeSidebarMoments(personId) {
+    var container = document.getElementById('tree-sidebar-moments');
+    if (!container) {
+      return;
+    }
+    container.setAttribute('aria-busy', 'true');
+    try {
+      var url = '/api/moments?person=' + encodeURIComponent(personId) + '&limit=8';
+      if (sidebarState.momentFilter === 'story') {
+        url += '&kind=story';
+      }
+      var resp = await fetch(url);
+      if (!resp.ok) {
+        throw new Error(root.dataset.momentsError);
+      }
+      var data = await resp.json();
+      renderTreeMoments(data);
+    } catch (err) {
+      renderEmptyTreeStream(container, err.message || root.dataset.momentsError);
+    }
+  }
+
+  async function loadTreeSidebarMedia(personId) {
+    var container = document.getElementById('tree-sidebar-media');
+    if (!container) {
+      return;
+    }
+    container.setAttribute('aria-busy', 'true');
+    try {
+      var resp = await fetch('/api/media?person_id=' + encodeURIComponent(personId));
+      if (!resp.ok) {
+        throw new Error(root.dataset.mediaError);
+      }
+      var data = await resp.json();
+      renderTreeMedia(data);
+    } catch (err) {
+      renderEmptyTreeStream(container, err.message || root.dataset.mediaError);
+    }
+  }
+
+  function setTreeMomentFilter(filterName) {
+    sidebarState.momentFilter = filterName || 'all';
+    var chips = sidebarContent.querySelectorAll('[data-tree-moment-filter]');
+    Array.prototype.forEach.call(chips, function(chip) {
+      var active = chip.dataset.treeMomentFilter === sidebarState.momentFilter;
+      chip.classList.toggle('tree-sidebar-chip--active', active);
+    });
+    var personId = getSidebarPersonId();
+    if (personId) {
+      loadTreeSidebarMoments(personId);
+    }
+  }
+
+  function initializeTreePickers() {
+    var pickers = sidebarContent.querySelectorAll('[data-tree-picker]');
+    Array.prototype.forEach.call(pickers, function(picker) {
+      var input = picker.querySelector('[data-tree-picker-input]');
+      var valueNode = picker.querySelector('[data-tree-picker-value]');
+      var resultsNode = picker.querySelector('[data-tree-picker-results]');
+      if (!input || !valueNode || !resultsNode) {
+        return;
+      }
+
+      function closeResults() {
+        resultsNode.classList.add('hidden');
+        clearNode(resultsNode);
+      }
+
+      function renderResults(matches) {
+        clearNode(resultsNode);
+        if (!matches.length) {
+          var empty = document.createElement('div');
+          empty.className = 'tree-picker__empty';
+          empty.textContent = root.dataset.pickerEmpty;
+          resultsNode.appendChild(empty);
+          resultsNode.classList.remove('hidden');
+          return;
+        }
+        matches.slice(0, 8).forEach(function(option) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'tree-picker__result';
+          button.setAttribute('role', 'option');
+          button.textContent = option.display_name;
+          button.addEventListener('click', function() {
+            input.value = option.display_name;
+            valueNode.value = option.id;
+            closeResults();
+          });
+          resultsNode.appendChild(button);
+        });
+        resultsNode.classList.remove('hidden');
+      }
+
+      input.addEventListener('input', function() {
+        var query = input.value.trim().toLowerCase();
+        valueNode.value = '';
+        if (!query) {
+          closeResults();
+          return;
+        }
+        var matches = sidebarState.peopleOptions.filter(function(option) {
+          return String(option.display_name || '').toLowerCase().indexOf(query) !== -1;
+        });
+        renderResults(matches);
+      });
+
+      input.addEventListener('blur', function() {
+        setTimeout(closeResults, 120);
+      });
+
+      input.form.addEventListener('reset', function() {
+        closeResults();
+      });
+    });
+  }
+
+  function initializeTreeSidebar(personId) {
+    parseSidebarPeopleOptions();
+    initializeTreePickers();
+    switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup || sidebarState.momentFilter);
   }
 
   function resolvePhotoHref(photoUrl) {
@@ -174,6 +515,7 @@
     var html = await resp.text();
     window.replaceNodeChildrenFromHTML(sidebarContent, html);
     sidebarContent.setAttribute('aria-busy', 'false');
+    initializeTreeSidebar(personId);
   }
 
   async function init() {
@@ -505,10 +847,55 @@
   }
 
   async function openPersonSidebar(personId, triggerNode) {
+    if (currentSidebarPersonId && currentSidebarPersonId !== personId) {
+      sidebarState.activeTab = '';
+      sidebarState.relationshipGroup = '';
+      sidebarState.momentFilter = 'all';
+    }
     sidebarTrigger = triggerNode || document.activeElement;
     sidebar.classList.add('person-sidebar--open');
     window.openAccessibleOverlay(sidebar, {initialFocus: '.person-sidebar__close'});
     await renderSidebar(personId);
+  }
+
+  function switchTreeSidebarTab(tabName, context) {
+    sidebarState.activeTab = tabName || 'overview';
+    if (tabName === 'moments') {
+      if (context === 'story' || context === 'all') {
+        sidebarState.momentFilter = context;
+      } else if (!context) {
+        sidebarState.momentFilter = 'all';
+      }
+    }
+    if (tabName === 'relationships' && (context === 'parent' || context === 'child' || context === 'partner')) {
+      sidebarState.relationshipGroup = context;
+    }
+
+    var tabs = sidebarContent.querySelectorAll('[data-tree-sidebar-tab]');
+    Array.prototype.forEach.call(tabs, function(tab) {
+      var active = tab.dataset.treeSidebarTab === sidebarState.activeTab;
+      tab.classList.toggle('tree-sidebar-tab--active', active);
+      tab.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    var panels = sidebarContent.querySelectorAll('[data-tree-sidebar-panel]');
+    Array.prototype.forEach.call(panels, function(panel) {
+      var active = panel.dataset.treeSidebarPanel === sidebarState.activeTab;
+      panel.hidden = !active;
+    });
+
+    if (sidebarState.activeTab === 'relationships') {
+      openRelationshipDisclosure(sidebarState.relationshipGroup || context);
+    }
+    if (sidebarState.activeTab === 'moments') {
+      setTreeMomentFilter(sidebarState.momentFilter || 'all');
+    }
+    if (sidebarState.activeTab === 'media') {
+      var personId = getSidebarPersonId();
+      if (personId) {
+        loadTreeSidebarMedia(personId);
+      }
+    }
   }
 
   function countryFlag(code) {
@@ -524,6 +911,86 @@
     if (personId) {
       await renderSidebar(personId);
     }
+  }
+
+  function toggleTreeMomentFields(kind) {
+    sidebarState.momentFilter = kind === 'story' ? 'story' : 'all';
+  }
+
+  async function submitTreeMoment(event, personId) {
+    event.preventDefault();
+    setError('tree-moment-error', '');
+    var form = event.target;
+    var button = form.querySelector('button[type="submit"]');
+    var originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = root.dataset.savingLabel;
+
+    try {
+      var payload = formDataToJson(form);
+      payload.person_id = personId;
+      var resp = await fetch('/api/moments', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.updateError);
+      }
+      form.reset();
+      sidebarState.activeTab = 'moments';
+      sidebarState.momentFilter = payload.kind === 'story' ? 'story' : 'all';
+      await refreshTreeWorkspace(personId);
+      showToastMessage(payload.kind === 'story' ? root.dataset.treeStoryCreated : root.dataset.treeNoteCreated);
+    } catch (err) {
+      setError('tree-moment-error', err.message || root.dataset.updateError);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
+    return false;
+  }
+
+  async function uploadTreeMedia(event, personId) {
+    event.preventDefault();
+    setError('tree-media-error', '');
+    var form = event.target;
+    var fileInput = form.querySelector('input[type="file"]');
+    var button = form.querySelector('button[type="submit"]');
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+      setError('tree-media-error', root.dataset.mediaError);
+      return false;
+    }
+
+    var originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = root.dataset.uploadLabel;
+
+    try {
+      var fd = new FormData();
+      fd.append('file', fileInput.files[0]);
+      fd.append('person_id', personId);
+      var captionInput = form.querySelector('input[name="caption"]');
+      if (captionInput && captionInput.value.trim()) {
+        fd.append('caption', captionInput.value.trim());
+      }
+      var resp = await fetch('/api/media', {method: 'POST', body: fd});
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.mediaError);
+      }
+      form.reset();
+      sidebarState.activeTab = 'media';
+      await refreshTreeWorkspace(personId);
+      showToastMessage(root.dataset.treeMediaUploaded);
+    } catch (err) {
+      setError('tree-media-error', err.message || root.dataset.mediaError);
+    } finally {
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
+    return false;
   }
 
   async function saveTreePerson(event, personId) {
@@ -555,6 +1022,7 @@
       if (!resp.ok) {
         throw new Error(data.detail || root.dataset.updateError);
       }
+      sidebarState.activeTab = 'details';
       await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.savedMessage);
     } catch (err) {
@@ -588,6 +1056,8 @@
         throw new Error(data.detail || root.dataset.relationshipError);
       }
       form.reset();
+      sidebarState.activeTab = 'relationships';
+      sidebarState.relationshipGroup = mode;
       await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.relationshipMessage);
     } catch (err) {
@@ -628,6 +1098,8 @@
       }
 
       form.reset();
+      sidebarState.activeTab = 'overview';
+      sidebarState.relationshipGroup = '';
       await loadTree();
       await openPersonSidebar(created.id, sidebarTrigger);
       showToastMessage(root.dataset.createdMessage);
@@ -670,6 +1142,11 @@
   window.saveTreePerson = saveTreePerson;
   window.linkTreeRelationship = linkTreeRelationship;
   window.createTreeRelative = createTreeRelative;
+  window.switchTreeSidebarTab = switchTreeSidebarTab;
+  window.setTreeMomentFilter = setTreeMomentFilter;
+  window.submitTreeMoment = submitTreeMoment;
+  window.uploadTreeMedia = uploadTreeMedia;
+  window.toggleTreeMomentFields = toggleTreeMomentFields;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
   document.getElementById('apply-tree-filters').addEventListener('click', function() {

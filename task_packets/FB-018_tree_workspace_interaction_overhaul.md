@@ -102,15 +102,15 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] Tree sidebar metrics for moments, stories, and media are interactive rather than decorative.
-- [ ] A member can add a story or note for a person directly from the tree sidebar without leaving `/tree`.
-- [ ] A member can start media upload from the tree sidebar without leaving `/tree`.
-- [ ] The tree sidebar no longer shows all edit/link/create forms at once; it uses progressive disclosure or sectioning.
-- [ ] Core person fields can be edited inline from the tree workspace.
-- [ ] Relationship linking from the tree uses searchable selection instead of a raw full-family dropdown.
+- [x] Tree sidebar metrics for moments, stories, and media are interactive rather than decorative.
+- [x] A member can add a story or note for a person directly from the tree sidebar without leaving `/tree`.
+- [x] A member can start media upload from the tree sidebar without leaving `/tree`.
+- [x] The tree sidebar no longer shows all edit/link/create forms at once; it uses progressive disclosure or sectioning.
+- [x] Core person fields can be edited inline from the tree workspace.
+- [x] Relationship linking from the tree uses searchable selection instead of a raw full-family dropdown.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Browser verification covers metric interaction, inline editing, and in-tree story/media creation
-- [ ] The deep profile/edit pages remain available as secondary/detail surfaces
+- [x] Acceptance criteria satisfied
+- [x] Browser verification covers metric interaction, inline editing, and in-tree story/media creation
+- [x] The deep profile/edit pages remain available as secondary/detail surfaces

@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 12 are closed. Sprint 13 is now planned around turning the tree into a more complete in-context workspace for stories, media, and relationship maintenance.
+Sprint 01 through Sprint 13 are closed. Sprint 13 completed the second-stage tree workspace reset so members can enrich stories, media, and relationships without leaving the tree context.
 
 ## North Star
 
@@ -72,6 +72,15 @@ Sprint 01 through Sprint 12 are closed. Sprint 13 is now planned around turning 
   - Result at closeout: success
   - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
   - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
+- Focused Sprint 13 verification:
+  - `uv run pytest tests/test_pages.py tests/test_api.py tests/test_moments.py tests/test_media.py -q`
+  - Result during implementation: `120 passed`
+  - `uv run pytest tests/test_pages.py -q`
+  - Result after audit follow-up: `16 passed`
+  - `make test-ui-playwright`
+  - Result at closeout: success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
 - Syntax smoke check:
   - `uv run python -m compileall app tests`
   - Result: success
@@ -86,13 +95,13 @@ Sprint 01 through Sprint 12 are closed. Sprint 13 is now planned around turning 
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next major product value gap is usability and in-context workflow quality inside the tree workspace
+- The next major product value gap is relationship-heavy authoring and deeper family-content workflows that still feel secondary even after the tree workspace reset
 - CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Execute Sprint 13 to make the tree sidebar and metrics into a real working surface
-2. Preserve browser, accessibility, and staging-review confidence while the tree workspace expands
+1. Decide and execute Sprint 14 based on the next highest-value family authoring and usability gaps
+2. Preserve browser, accessibility, and staging-review confidence while expanding the tree workspace further
 3. Reduce remaining warning-only structural debt where it directly supports user-facing confidence
 4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
 
@@ -111,13 +120,15 @@ Sprint 01 through Sprint 12 are closed. Sprint 13 is now planned around turning 
   - `S10 - Readability and Responsive Polish`
   - `S11 - Tree as Primary Workspace`
   - `S12 - External Integrations and Confidence Hardening`
-- Planned sprint:
-  - `S13 - Tree Workspace 2.0`
+- `S13 - Tree Workspace 2.0`
+- Next sprint:
+  - `TBD - Sprint 14`
 - Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
 - Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
 - Sprint 12 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s12.md`
 - Sprint 13 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s13.md`
 - Sprint 13 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s13.md`
+- Sprint 13 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s13.md`
 - Primary packet: `/Users/cheech/code/family-book/task_packets/FB-018_tree_workspace_interaction_overhaul.md`
 - Primary packet: `/Users/cheech/code/family-book/task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md`
 - Supporting packet: `/Users/cheech/code/family-book/task_packets/FB-014_architecture_and_maintainability_hardening.md`

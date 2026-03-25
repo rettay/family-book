@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S13 - Tree Workspace 2.0`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -133,7 +133,7 @@ Execution slices:
 |---|---|---:|---|---|
 | FB-017 | Post-Integration Structural Cleanup | P2 | candidate | Continue deeper cycle, coupling, and ownership cleanup after Sprint 12 lands the external integrations and targeted hardening |
 
-## Planned Sprint `S13 - Tree Workspace 2.0`
+## Closed Sprint `S13 - Tree Workspace 2.0`
 
 Sprint goal:
 - Turn the tree sidebar and adjacent tree interactions into the primary enrichment workspace so members can act on missing stories, media, and relationships without leaving the tree context.
@@ -142,7 +142,7 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-018 | Tree Workspace Interaction Overhaul | P1 | planned | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
+| FB-018 | Tree Workspace Interaction Overhaul | P1 | done | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
 
 Execution slices:
 - `S13-1` Metric Actions and Sidebar Structure
