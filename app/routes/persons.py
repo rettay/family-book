@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import (
@@ -15,6 +15,8 @@ from app.access_control import (
 )
 from app.auth import require_admin, require_auth
 from app.database import get_db
+from app.models.media import Media
+from app.models.moments import Moment, MomentLifecycleState
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.schemas import (
     PersonCreate,
@@ -112,6 +114,70 @@ async def list_persons(
         if access.can_view:
             summaries.append(redact_person_summary(person, access))
     return summaries
+
+
+@router.get("/completeness")
+async def get_completeness(
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    accessible_ids = await get_accessible_person_ids(db, current_user)
+    query = select(Person).where(
+        Person.id.in_(accessible_ids),
+        Person.is_root.is_(False),
+        Person.lifecycle_state == PersonLifecycleState.active.value,
+        Person.visibility != Visibility.hidden.value,
+    )
+    result = await db.execute(query)
+    persons = result.scalars().all()
+
+    person_ids = [p.id for p in persons]
+
+    # Count persons who have at least one moment/story/media
+    persons_with_stories = set()
+    persons_with_media = set()
+    if person_ids:
+        story_rows = await db.execute(
+            select(Moment.person_id).where(
+                Moment.person_id.in_(person_ids),
+                Moment.lifecycle_state == MomentLifecycleState.active.value,
+            ).group_by(Moment.person_id)
+        )
+        persons_with_stories = {row[0] for row in story_rows.all()}
+
+        media_rows = await db.execute(
+            select(Media.person_id).where(
+                Media.person_id.in_(person_ids),
+            ).group_by(Media.person_id)
+        )
+        persons_with_media = {row[0] for row in media_rows.all()}
+
+    gaps = {
+        "no_birth_date": 0,
+        "no_photo": 0,
+        "no_bio": 0,
+        "no_birth_place": 0,
+        "no_gender": 0,
+        "no_stories": 0,
+        "no_media": 0,
+    }
+    for person in persons:
+        if not person.birth_date_raw:
+            gaps["no_birth_date"] += 1
+        if not person.photo_url:
+            gaps["no_photo"] += 1
+        if not person.bio:
+            gaps["no_bio"] += 1
+        if not person.birth_place:
+            gaps["no_birth_place"] += 1
+        if not person.gender:
+            gaps["no_gender"] += 1
+        if person.id not in persons_with_stories:
+            gaps["no_stories"] += 1
+        if person.id not in persons_with_media:
+            gaps["no_media"] += 1
+
+    return {"total_persons": len(persons), "gaps": gaps}
 
 
 @router.get("/{person_id}", response_model=PersonDetail)

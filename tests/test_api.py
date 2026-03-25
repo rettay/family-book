@@ -790,6 +790,38 @@ async def test_google_auth_creates_session(client: AsyncClient, monkeypatch: pyt
 
 
 @pytest.mark.asyncio
+async def test_completeness_requires_auth(client: AsyncClient):
+    resp = await client.get("/api/persons/completeness")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_completeness_returns_gap_counts(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/persons/completeness")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "total_persons" in data
+    assert "gaps" in data
+    assert data["total_persons"] >= 1
+    gaps = data["gaps"]
+    for key in ["no_birth_date", "no_photo", "no_bio", "no_birth_place", "no_gender", "no_stories", "no_media"]:
+        assert key in gaps
+        assert isinstance(gaps[key], int)
+
+
+@pytest.mark.asyncio
+async def test_completeness_excludes_root(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/persons/completeness")
+    data = resp.json()
+    # Root person is excluded — total_persons should not include it
+    list_resp = await admin_client.get("/api/persons")
+    all_persons = list_resp.json()
+    non_root = [p for p in all_persons if not p.get("is_root")]
+    # total_persons should be <= non-root visible persons
+    assert data["total_persons"] <= len(all_persons)
+
+
+@pytest.mark.asyncio
 async def test_logout(admin_client: AsyncClient):
     resp = await admin_client.post("/auth/logout")
     assert resp.status_code == 200

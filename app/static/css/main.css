@@ -928,6 +928,24 @@ body.has-overlay { overflow: hidden; }
 .tree-sidebar-disclosure[open] summary {
   margin-bottom: 10px;
 }
+.tree-sidebar-disclosure--section {
+  margin-bottom: 8px;
+}
+.tree-sidebar-disclosure--section summary {
+  font-size: 0.88rem;
+}
+.tree-sidebar-disclosure--section:last-of-type {
+  margin-bottom: 12px;
+}
+.tree-sidebar-completeness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tree-sidebar-completeness .btn {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
 .tree-rel-grid {
   display: grid;
   gap: 14px;

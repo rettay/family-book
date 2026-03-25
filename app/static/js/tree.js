@@ -1444,6 +1444,18 @@
     applyRelationshipHighlights();
   }
 
+  function openSidebarDetailsSection(sectionName) {
+    switchTreeSidebarTab('details');
+    setTimeout(function() {
+      var section = sidebarContent.querySelector('[data-tree-details-section="' + sectionName + '"]');
+      if (section) {
+        section.open = true;
+        var firstInput = section.querySelector('input, select, textarea');
+        if (firstInput) firstInput.focus();
+      }
+    }, 50);
+  }
+
   function relationshipDeleteEndpoint(relId, relationshipType) {
     return relationshipType === 'partnership'
       ? '/api/relationships/partnership/' + relId
@@ -1787,21 +1799,48 @@
     button.textContent = root.dataset.savingLabel;
 
     try {
-      var resp = await fetch('/api/persons/' + personId, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(formDataToJson(form, {
+      var payload = formDataToJson(form, {
           nullableFields: [
             'nickname',
             'birth_date_raw',
+            'birth_date_precision',
+            'death_date_raw',
+            'death_date_precision',
             'birth_place',
+            'birth_country_code',
             'residence_place',
             'residence_country_code',
+            'burial_place',
+            'burial_country_code',
+            'burial_cemetery_name',
+            'burial_plot_number',
             'branch',
             'bio',
-            'research_notes'
+            'research_notes',
+            'patronymic',
+            'birth_last_name',
+            'gender',
+            'contact_whatsapp',
+            'contact_telegram',
+            'contact_signal',
+            'contact_email'
           ]
-        }))
+        });
+      // Handle is_living checkbox (unchecked = not in FormData)
+      var livingCheckbox = form.querySelector('[name="is_living"]');
+      if (livingCheckbox) {
+        payload.is_living = livingCheckbox.checked;
+      }
+      // Handle languages as array
+      var langInput = form.querySelector('[name="languages"]');
+      if (langInput) {
+        var langVal = langInput.value.trim();
+        payload.languages = langVal ? langVal.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+      }
+      var resp = await fetch('/api/persons/' + personId, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
       });
       var data = await resp.json().catch(function() { return {}; });
       if (!resp.ok) {
@@ -2153,6 +2192,7 @@
   window.replaceTreeRelationship = replaceTreeRelationship;
   window.openTreeSidebarPerson = openTreeSidebarPerson;
   window.switchTreeSidebarTab = switchTreeSidebarTab;
+  window.openSidebarDetailsSection = openSidebarDetailsSection;
   window.setTreeMomentFilter = setTreeMomentFilter;
   window.submitTreeMoment = submitTreeMoment;
   window.uploadTreeMedia = uploadTreeMedia;

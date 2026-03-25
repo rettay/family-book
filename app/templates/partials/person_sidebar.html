@@ -139,6 +139,29 @@
       </div>
     </div>
 
+    {% if can_manage and (not person.birth_date_raw or not person.photo_url or not person.bio or not person.birth_place or not person.gender) %}
+    <section class="tree-sidebar-card__section">
+      <h3 class="tree-sidebar-card__section-title">Complete this profile</h3>
+      <div class="tree-sidebar-completeness">
+        {% if not person.birth_date_raw %}
+        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('dates')">No birth date — add one?</button>
+        {% endif %}
+        {% if not person.photo_url %}
+        <button type="button" class="btn btn--ghost btn--sm" onclick="switchTreeSidebarTab('media')">No photo — add one?</button>
+        {% endif %}
+        {% if not person.bio %}
+        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('notes')">No bio — write one?</button>
+        {% endif %}
+        {% if not person.birth_place %}
+        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('places')">No birth place — add it?</button>
+        {% endif %}
+        {% if not person.gender %}
+        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('dates')">No gender — set it?</button>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
     {% if person.bio %}
     <section class="tree-sidebar-card__section">
       <h3 class="tree-sidebar-card__section-title">{{ t('person.bio') }}</h3>
@@ -229,54 +252,190 @@
       {% if can_manage %}
       <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
         <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
-        <div class="tree-inline-form__row">
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" open>
+          <summary>Identity</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.first_name') }}
+              <input class="form-input" type="text" name="first_name" value="{{ person.first_name or '' }}">
+            </label>
+            <label>
+              {{ t('person.last_name') }}
+              <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.nickname') }}
+              <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}">
+            </label>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Patronymic
+              <input class="form-input" type="text" name="patronymic" value="{{ person.patronymic or '' }}">
+            </label>
+            <label>
+              Birth Last Name
+              <input class="form-input" type="text" name="birth_last_name" value="{{ person.birth_last_name or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Gender
+              <select class="form-input" name="gender">
+                <option value="">—</option>
+                <option value="male"{% if person.gender == 'male' %} selected{% endif %}>Male</option>
+                <option value="female"{% if person.gender == 'female' %} selected{% endif %}>Female</option>
+                <option value="other"{% if person.gender == 'other' %} selected{% endif %}>Other</option>
+              </select>
+            </label>
+            <label>
+              Name Order
+              <select class="form-input" name="name_display_order">
+                <option value="western"{% if person.name_display_order == 'western' %} selected{% endif %}>Western</option>
+                <option value="eastern"{% if person.name_display_order == 'eastern' %} selected{% endif %}>Eastern</option>
+                <option value="patronymic"{% if person.name_display_order == 'patronymic' %} selected{% endif %}>Patronymic</option>
+              </select>
+            </label>
+          </div>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="dates">
+          <summary>Dates</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.birth_date') }}
+              <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}" placeholder="e.g. about 1920">
+            </label>
+            <label>
+              Precision
+              <select class="form-input" name="birth_date_precision">
+                <option value="">—</option>
+                <option value="exact"{% if person.birth_date_precision == 'exact' %} selected{% endif %}>Exact</option>
+                <option value="month"{% if person.birth_date_precision == 'month' %} selected{% endif %}>Month</option>
+                <option value="year"{% if person.birth_date_precision == 'year' %} selected{% endif %}>Year</option>
+                <option value="decade"{% if person.birth_date_precision == 'decade' %} selected{% endif %}>Decade</option>
+                <option value="approximate"{% if person.birth_date_precision == 'approximate' %} selected{% endif %}>Approximate</option>
+              </select>
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Death Date
+              <input class="form-input" type="text" name="death_date_raw" value="{{ person.death_date_raw or '' }}" placeholder="e.g. 15 Mar 1987">
+            </label>
+            <label>
+              Precision
+              <select class="form-input" name="death_date_precision">
+                <option value="">—</option>
+                <option value="exact"{% if person.death_date_precision == 'exact' %} selected{% endif %}>Exact</option>
+                <option value="month"{% if person.death_date_precision == 'month' %} selected{% endif %}>Month</option>
+                <option value="year"{% if person.death_date_precision == 'year' %} selected{% endif %}>Year</option>
+                <option value="decade"{% if person.death_date_precision == 'decade' %} selected{% endif %}>Decade</option>
+                <option value="approximate"{% if person.death_date_precision == 'approximate' %} selected{% endif %}>Approximate</option>
+              </select>
+            </label>
+          </div>
+          <label class="tree-toggle">
+            <input type="checkbox" name="is_living" value="true"{% if person.is_living %} checked{% endif %}>
+            Living
+          </label>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="places">
+          <summary>Places</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.birth_place') }}
+              <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}">
+            </label>
+            <label>
+              Birth Country
+              <input class="form-input" type="text" name="birth_country_code" maxlength="2" value="{{ person.birth_country_code or '' }}" placeholder="US">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.residence') }}
+              <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}">
+            </label>
+            <label>
+              {{ t('tree.filter_residence_country') }}
+              <input class="form-input" type="text" name="residence_country_code" maxlength="2" value="{{ person.residence_country_code or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Burial Place
+              <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}">
+            </label>
+            <label>
+              Burial Country
+              <input class="form-input" type="text" name="burial_country_code" maxlength="2" value="{{ person.burial_country_code or '' }}" placeholder="US">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Cemetery Name
+              <input class="form-input" type="text" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
+            </label>
+            <label>
+              Plot Number
+              <input class="form-input" type="text" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
+            </label>
+          </div>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="notes">
+          <summary>Notes</summary>
           <label>
-            {{ t('person.first_name') }}
-            <input class="form-input" type="text" name="first_name" value="{{ person.first_name or '' }}">
+            {{ t('person.bio') }}
+            <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
           </label>
           <label>
-            {{ t('person.last_name') }}
-            <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}">
+            Research Notes
+            <textarea class="form-textarea" name="research_notes" rows="4" placeholder="Working notes about genealogy research...">{{ person.research_notes or '' }}</textarea>
           </label>
-        </div>
-        <div class="tree-inline-form__row">
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="contact">
+          <summary>Contact</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              WhatsApp
+              <input class="form-input" type="text" name="contact_whatsapp" value="{{ person.contact_whatsapp or '' }}">
+            </label>
+            <label>
+              Telegram
+              <input class="form-input" type="text" name="contact_telegram" value="{{ person.contact_telegram or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Signal
+              <input class="form-input" type="text" name="contact_signal" value="{{ person.contact_signal or '' }}">
+            </label>
+            <label>
+              Email
+              <input class="form-input" type="email" name="contact_email" value="{{ person.contact_email or '' }}">
+            </label>
+          </div>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="languages">
+          <summary>Languages</summary>
           <label>
-            {{ t('person.nickname') }}
-            <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}">
+            Languages (comma-separated: en, es, ru)
+            <input class="form-input" type="text" name="languages" value="{{ person.languages | join(', ') }}">
           </label>
-          <label>
-            {{ t('tree.filter_branch') }}
-            <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
-          </label>
-        </div>
-        <div class="tree-inline-form__row">
-          <label>
-            {{ t('person.birth_date') }}
-            <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}">
-          </label>
-          <label>
-            {{ t('person.birth_place') }}
-            <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}">
-          </label>
-        </div>
-        <div class="tree-inline-form__row">
-          <label>
-            {{ t('person.residence') }}
-            <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}">
-          </label>
-          <label>
-            {{ t('tree.filter_residence_country') }}
-            <input class="form-input" type="text" name="residence_country_code" maxlength="2" value="{{ person.residence_country_code or '' }}">
-          </label>
-        </div>
-        <label>
-          {{ t('person.bio') }}
-          <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
-        </label>
-        <label>
-          Research Notes
-          <textarea class="form-textarea" name="research_notes" rows="4" placeholder="Working notes about genealogy research...">{{ person.research_notes or '' }}</textarea>
-        </label>
+        </details>
+
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}
