@@ -145,6 +145,8 @@ async def test_tree_person_card_renders_workspace_tabs_and_tree_native_sections(
     assert 'id="tree-sidebar-moments"' in resp.text
     assert 'id="tree-sidebar-media"' in resp.text
     assert 'id="tree-sidebar-people-options"' in resp.text
+    assert 'class="tree-sidebar-inline-actions"' in resp.text
+    assert 'class="tree-sidebar-pill-row"' in resp.text
 
 
 @pytest.mark.asyncio
@@ -155,6 +157,16 @@ async def test_tree_person_card_uses_search_picker_not_raw_relationship_selects(
     assert 'data-tree-picker' in resp.text
     assert 'placeholder="Search family members"' in resp.text
     assert 'select class="form-select" name="related_person_id"' not in resp.text
+
+
+@pytest.mark.asyncio
+async def test_admin_tree_person_card_renders_relationship_cards_with_maintenance_actions(admin_client: AsyncClient):
+    resp = await admin_client.get(f"/people/{TYLER_ID}/card")
+
+    assert resp.status_code == 200
+    assert 'class="tree-related-card"' in resp.text
+    assert "openTreeSidebarPerson('" in resp.text
+    assert "removeTreeRelationship('" in resp.text
 
 
 @pytest.mark.asyncio

@@ -99,14 +99,14 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] Tree metric panels for moments, stories, and media feel like richer workspaces instead of shallow counters.
-- [ ] A member can add and then immediately review a story or note from the tree workspace without leaving `/tree`.
-- [ ] A member can add media from the tree workspace and see a clearer updated media state there.
-- [ ] Relationship authoring from the tree is easier to understand and maintain than the Sprint 13 baseline.
-- [ ] Missing content or relationships are represented as action-oriented prompts instead of passive emptiness.
+- [x] Tree metric panels for moments, stories, and media feel like richer workspaces instead of shallow counters.
+- [x] A member can add and then immediately review a story or note from the tree workspace without leaving `/tree`.
+- [x] A member can add media from the tree workspace and see a clearer updated media state there.
+- [x] Relationship authoring from the tree is easier to understand and maintain than the Sprint 13 baseline.
+- [x] Missing content or relationships are represented as action-oriented prompts instead of passive emptiness.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Browser verification covers richer metric usage, content creation/review, and relationship authoring from the tree
-- [ ] The tree remains keyboard reachable and does not regress into another dense form dump
+- [x] Acceptance criteria satisfied
+- [x] Browser verification covers richer metric usage, content creation/review, and relationship authoring from the tree
+- [x] The tree remains keyboard reachable and does not regress into another dense form dump

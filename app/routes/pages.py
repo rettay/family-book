@@ -425,10 +425,14 @@ async def person_card(
     media_count_query = select(func.count(Media.id)).where(Media.person_id == person.id)
 
     parent_result = await db.execute(
-        select(Person).join(ParentChild, ParentChild.parent_id == Person.id).where(ParentChild.child_id == person_id)
+        select(ParentChild, Person)
+        .join(Person, ParentChild.parent_id == Person.id)
+        .where(ParentChild.child_id == person_id)
     )
     child_result = await db.execute(
-        select(Person).join(ParentChild, ParentChild.child_id == Person.id).where(ParentChild.parent_id == person_id)
+        select(ParentChild, Person)
+        .join(Person, ParentChild.child_id == Person.id)
+        .where(ParentChild.parent_id == person_id)
     )
     partnership_result = await db.execute(
         select(Partnership).where(
@@ -436,8 +440,8 @@ async def person_card(
         )
     )
 
-    parent_people = parent_result.scalars().all()
-    child_people = child_result.scalars().all()
+    parent_rows = parent_result.all()
+    child_rows = child_result.all()
     partnership_rows = partnership_result.scalars().all()
     partner_ids = {
         rel.person_b_id if rel.person_a_id == person_id else rel.person_a_id
@@ -470,22 +474,51 @@ async def person_card(
     }
 
     visible_parents = []
-    for parent in parent_people:
+    for relationship, parent in parent_rows:
         parent_access = await get_person_access(db, current_user, parent)
         if parent_access.can_view:
-            visible_parents.append(redact_person_summary(parent, parent_access))
+            summary = redact_person_summary(parent, parent_access)
+            visible_parents.append(
+                {
+                    **summary.model_dump(),
+                    "relationship_id": relationship.id,
+                    "relationship_kind": relationship.kind,
+                }
+            )
 
     visible_children = []
-    for child in child_people:
+    for relationship, child in child_rows:
         child_access = await get_person_access(db, current_user, child)
         if child_access.can_view:
-            visible_children.append(redact_person_summary(child, child_access))
+            summary = redact_person_summary(child, child_access)
+            visible_children.append(
+                {
+                    **summary.model_dump(),
+                    "relationship_id": relationship.id,
+                    "relationship_kind": relationship.kind,
+                }
+            )
 
     visible_partners = []
+    partnerships_by_partner_id = {
+        (
+            rel.person_b_id if rel.person_a_id == person_id else rel.person_a_id
+        ): rel
+        for rel in partnership_rows
+    }
     for partner in partner_people:
         partner_access = await get_person_access(db, current_user, partner)
         if partner_access.can_view:
-            visible_partners.append(redact_person_summary(partner, partner_access))
+            summary = redact_person_summary(partner, partner_access)
+            relationship = partnerships_by_partner_id.get(partner.id)
+            visible_partners.append(
+                {
+                    **summary.model_dump(),
+                    "relationship_id": relationship.id if relationship else None,
+                    "relationship_kind": relationship.kind if relationship else None,
+                    "relationship_status": relationship.status if relationship else None,
+                }
+            )
 
     return templates.TemplateResponse("partials/person_sidebar.html", _ctx(
         request,

@@ -283,46 +283,133 @@
 
   <section class="tree-sidebar-panel" data-tree-sidebar-panel="relationships" hidden>
     <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
-      <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.relationships_workspace_subtitle') }}</p>
+        </div>
+        <div class="tree-sidebar-pill-row">
+          <span class="tree-sidebar-pill">{{ parent_people|length }} {{ t('tree.parents_label') }}</span>
+          <span class="tree-sidebar-pill">{{ child_people|length }} {{ t('tree.children_label') }}</span>
+          <span class="tree-sidebar-pill">{{ partner_people|length }} {{ t('tree.partners_label') }}</span>
+        </div>
+      </div>
       <div id="tree-relationship-error" class="form-error hidden" role="status" aria-live="polite"></div>
 
       <div class="tree-rel-grid tree-rel-grid--workspace">
-        <div>
+        <section class="tree-relationship-group-card">
           <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
           {% if parent_people %}
-          <ul class="tree-rel-list">
+          <div class="tree-relationship-list">
             {% for related in parent_people %}
-            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            <article class="tree-related-card" data-tree-related-person="{{ related.id }}">
+              <div class="tree-related-card__body">
+                <div class="avatar avatar--sm tree-related-card__avatar">
+                  {% if related.photo_url and (related.photo_url.startswith('http') or related.photo_url.startswith('/')) %}
+                  <img src="{{ related.photo_url }}" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% elif related.photo_url %}
+                  <img src="/api/media/{{ related.photo_url }}/file" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                  {{ related.display_name[:2] }}
+                  {% endif %}
+                </div>
+                <div class="tree-related-card__identity">
+                  <strong class="tree-related-card__name">{{ related.display_name }}</strong>
+                  {% if related.relationship_kind %}
+                  <span class="tree-related-card__meta">{{ related.relationship_kind|title }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="tree-related-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
+                <a href="/people/{{ related.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+                {% if current_user.is_admin and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationship('{{ related.relationship_id }}', 'parent-child', '{{ person.id }}', 'parent')">{{ t('tree.remove_relationship') }}</button>
+                {% endif %}
+              </div>
+            </article>
             {% endfor %}
-          </ul>
+          </div>
           {% else %}
           <p class="tree-sidebar-card__muted">{{ t('tree.no_parents_prompt') }}</p>
           {% endif %}
-        </div>
-        <div>
+        </section>
+        <section class="tree-relationship-group-card">
           <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
           {% if child_people %}
-          <ul class="tree-rel-list">
+          <div class="tree-relationship-list">
             {% for related in child_people %}
-            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            <article class="tree-related-card" data-tree-related-person="{{ related.id }}">
+              <div class="tree-related-card__body">
+                <div class="avatar avatar--sm tree-related-card__avatar">
+                  {% if related.photo_url and (related.photo_url.startswith('http') or related.photo_url.startswith('/')) %}
+                  <img src="{{ related.photo_url }}" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% elif related.photo_url %}
+                  <img src="/api/media/{{ related.photo_url }}/file" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                  {{ related.display_name[:2] }}
+                  {% endif %}
+                </div>
+                <div class="tree-related-card__identity">
+                  <strong class="tree-related-card__name">{{ related.display_name }}</strong>
+                  {% if related.relationship_kind %}
+                  <span class="tree-related-card__meta">{{ related.relationship_kind|title }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="tree-related-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
+                <a href="/people/{{ related.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+                {% if current_user.is_admin and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationship('{{ related.relationship_id }}', 'parent-child', '{{ person.id }}', 'child')">{{ t('tree.remove_relationship') }}</button>
+                {% endif %}
+              </div>
+            </article>
             {% endfor %}
-          </ul>
+          </div>
           {% else %}
           <p class="tree-sidebar-card__muted">{{ t('tree.no_children_prompt') }}</p>
           {% endif %}
-        </div>
-        <div>
+        </section>
+        <section class="tree-relationship-group-card">
           <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
           {% if partner_people %}
-          <ul class="tree-rel-list">
+          <div class="tree-relationship-list">
             {% for related in partner_people %}
-            <li><a href="/people/{{ related.id }}">{{ related.display_name }}</a></li>
+            <article class="tree-related-card" data-tree-related-person="{{ related.id }}">
+              <div class="tree-related-card__body">
+                <div class="avatar avatar--sm tree-related-card__avatar">
+                  {% if related.photo_url and (related.photo_url.startswith('http') or related.photo_url.startswith('/')) %}
+                  <img src="{{ related.photo_url }}" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% elif related.photo_url %}
+                  <img src="/api/media/{{ related.photo_url }}/file" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                  {{ related.display_name[:2] }}
+                  {% endif %}
+                </div>
+                <div class="tree-related-card__identity">
+                  <strong class="tree-related-card__name">{{ related.display_name }}</strong>
+                  {% if related.relationship_status %}
+                  <span class="tree-related-card__meta">{{ related.relationship_status|title }}</span>
+                  {% elif related.relationship_kind %}
+                  <span class="tree-related-card__meta">{{ related.relationship_kind|title }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="tree-related-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
+                <a href="/people/{{ related.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+                {% if current_user.is_admin and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationship('{{ related.relationship_id }}', 'partnership', '{{ person.id }}', 'partner')">{{ t('tree.remove_relationship') }}</button>
+                {% endif %}
+              </div>
+            </article>
             {% endfor %}
-          </ul>
+          </div>
           {% else %}
           <p class="tree-sidebar-card__muted">{{ t('tree.no_partners_prompt') }}</p>
           {% endif %}
-        </div>
+        </section>
       </div>
 
       {% if can_manage %}
@@ -448,7 +535,10 @@
   <section class="tree-sidebar-panel" data-tree-sidebar-panel="moments" hidden>
     <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
       <div class="tree-sidebar-section-header">
-        <h3 class="tree-sidebar-card__section-title">{{ t('nav.moments') }}</h3>
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('nav.moments') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.moments_workspace_subtitle') }}</p>
+        </div>
         <div class="tree-sidebar-chip-row">
           <button type="button" class="tree-sidebar-chip tree-sidebar-chip--active" data-tree-moment-filter="all" onclick="setTreeMomentFilter('all')">
             {{ t('tree.all_activity') }}
@@ -471,23 +561,35 @@
         </label>
         <label>
           {{ t('moments.title') }}
-          <input class="form-input" type="text" name="title" maxlength="300">
+          <input class="form-input" type="text" name="title" maxlength="300" placeholder="{{ t('tree.story_title_placeholder') }}" data-tree-moment-title-input>
         </label>
         <label>
-          {{ t('moments.story_prompt') }}
-          <textarea class="form-textarea" name="body" rows="4" placeholder="{{ t('moments.story_prompt') }}"></textarea>
+          <span data-tree-moment-body-label>{{ t('tree.story_prompt_label') }}</span>
+          <textarea class="form-textarea" name="body" rows="4" placeholder="{{ t('moments.story_prompt') }}" data-tree-moment-body-input></textarea>
         </label>
-        <button type="submit" class="btn btn--primary btn--block">{{ t('tree.add_from_tree') }}</button>
+        <button type="submit" class="btn btn--primary btn--block" data-tree-moment-submit>{{ t('tree.add_story') }}</button>
       </form>
       {% endif %}
 
+      <div class="tree-sidebar-inline-actions">
+        <a href="/moments?person={{ person.id }}" class="btn btn--ghost btn--sm">{{ t('tree.open_in_moments') }}</a>
+        <a href="/people/{{ person.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+      </div>
       <div id="tree-sidebar-moments" class="tree-sidebar-stream" aria-live="polite" aria-busy="false"></div>
     </section>
   </section>
 
   <section class="tree-sidebar-panel" data-tree-sidebar-panel="media" hidden>
     <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
-      <h3 class="tree-sidebar-card__section-title">{{ t('tree.media_count') }}</h3>
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('tree.media_count') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.media_workspace_subtitle') }}</p>
+        </div>
+        <div class="tree-sidebar-pill-row">
+          <span class="tree-sidebar-pill">{{ person_metrics.media_count }} {{ t('tree.media_count') }}</span>
+        </div>
+      </div>
 
       {% if can_manage %}
       <form class="tree-inline-form tree-inline-form--compact" id="tree-media-form" onsubmit="uploadTreeMedia(event, '{{ person.id }}')">
@@ -496,6 +598,7 @@
           {{ t('tree.upload_media') }}
           <input class="form-input" type="file" name="file" accept="image/*,video/*" required>
         </label>
+        <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" id="tree-media-file-name">{{ t('tree.media_file_pending') }}</p>
         <label>
           {{ t('moments.title') }}
           <input class="form-input" type="text" name="caption" maxlength="300" placeholder="{{ t('tree.media_caption_placeholder') }}">
@@ -504,6 +607,9 @@
       </form>
       {% endif %}
 
+      <div class="tree-sidebar-inline-actions">
+        <a href="/people/{{ person.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+      </div>
       <div id="tree-sidebar-media" class="tree-sidebar-stream" aria-live="polite" aria-busy="false"></div>
     </section>
   </section>

@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S14 - Family Content and Relationship Authoring`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,7 +18,7 @@ Sprint 13 solved the biggest context-switching problem, but your product assessm
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 17 | FB-019 | Family Content and Relationship Authoring | P1 | planned |
+| 17 | FB-019 | Family Content and Relationship Authoring | P1 | done |
 
 ## Packet Sequence Rationale
 
@@ -38,6 +38,26 @@ The sprint is successful when all are true:
 - members can add or review more family content from the tree without bouncing into the old fallback flows
 - relationship authoring is easier to understand, search, and maintain from tree context
 - browser, accessibility, and CodeMap baselines remain intact
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented the richer tree-content and relationship-authoring flows on `codex/s14-family-authoring`
+- Auditor accepted the sprint without requiring a follow-up defect pass
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py tests/test_moments.py tests/test_media.py -q`
+  - result: `121 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
+
+## Recommended Next Sprint
+
+- `S15 - Rich Family Storytelling and Multi-Item Authoring`
+- Focus: build on the stronger tree workspace by improving how stories, notes, and media collections are composed, reviewed, and connected across people instead of only within a single selected sidebar context
 
 ## Closed Sprint
 

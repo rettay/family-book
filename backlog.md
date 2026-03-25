@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S14 - Family Content and Relationship Authoring`
-Status: Planned
+Status: Closed
 
 ## Closed Sprint `S04 - Version History, Revert, and Moderation Controls`
 
@@ -133,7 +133,7 @@ Execution slices:
 |---|---|---:|---|---|
 | FB-017 | Post-Integration Structural Cleanup | P2 | candidate | Continue deeper cycle, coupling, and ownership cleanup after Sprint 12 lands the external integrations and targeted hardening |
 
-## Planned Sprint `S14 - Family Content and Relationship Authoring`
+## Closed Sprint `S14 - Family Content and Relationship Authoring`
 
 Sprint goal:
 - Make the tree workspace feel complete by turning metric views into richer content surfaces, keeping more story/media work in-tree, and improving relationship authoring beyond basic link/create detours.
@@ -142,7 +142,7 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-019 | Family Content and Relationship Authoring | P1 | planned | `task_packets/FB-019_family_content_and_relationship_authoring.md` |
+| FB-019 | Family Content and Relationship Authoring | P1 | done | `task_packets/FB-019_family_content_and_relationship_authoring.md` |
 
 Execution slices:
 - `S14-1` Rich Metric Workspaces and Content Browsing
