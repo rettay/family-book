@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of the tree workspace with grouped story-and-media memories, richer shared-event flows, and safer multi-file authoring behavior while keeping the tree as the primary working surface. Sprint 16 is the next planning discussion.
+Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of the tree workspace with grouped story-and-media memories, richer shared-event flows, and safer multi-file authoring behavior while keeping the tree as the primary working surface. Sprint 16 is now planned to make the tree editable at the graph level, with direct relationship operations, graph-aware person creation, and clearer correction flows.
 
 ## North Star
 
@@ -102,13 +102,13 @@ Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next product decision is where to take the tree workspace next after Sprint 15: deeper family authoring, stronger graph-editing affordances, or broader workflow polish
+- The next delivery risk is making graph-editing powerful without making the tree interaction model confusing or destructive
 - CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Plan Sprint 16 around the next highest-value tree workspace or family-history workflow gap
-2. Preserve browser, accessibility, and staging-review confidence while expanding the product surface further
+1. Execute Sprint 16 to make relationship editing and person connection flows work directly on the tree
+2. Preserve browser, accessibility, and staging-review confidence while expanding the tree workspace further
 3. Reduce remaining warning-only structural debt where it directly supports user-facing confidence
 4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
 
@@ -130,12 +130,14 @@ Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of
   - `S13 - Tree Workspace 2.0`
   - `S14 - Family Content and Relationship Authoring`
   - `S15 - Rich Family Storytelling and Multi-Item Authoring`
-- Next sprint:
-  - `Sprint 16 - to be defined`
+- Planned sprint:
+  - `S16 - Tree Graph Editing and Relationship Modeling`
+- Sprint 16 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s16.md`
+- Sprint 16 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s16.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md`
 - Sprint 15 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s15.md`
 - Sprint 15 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s15.md`
 - Sprint 15 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s15.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md`
 - Sprint 14 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s14.md`
 - Sprint 14 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s14.md`
 - Sprint 14 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s14.md`

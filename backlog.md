@@ -1,7 +1,23 @@
 # Family Book Backlog
 
-Sprint: `Sprint 16 planning pending`
-Status: Closed
+Sprint: `S16 - Tree Graph Editing and Relationship Modeling`
+Status: Planned
+
+## Planned Sprint `S16 - Tree Graph Editing and Relationship Modeling`
+
+Sprint goal:
+- Make the family tree editable at the graph level so members can create, connect, and correct core family relationships directly from the tree workspace with less sidebar/form friction.
+
+Committed packet:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-021 | Tree Graph Editing and Relationship Modeling | P1 | planned | `task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md` |
+
+Execution slices:
+- `S16-1` Direct Relationship Editing from the Tree
+- `S16-2` Graph-Aware Person Creation and Connection
+- `S16-3` Relationship Review, Correction, and Confidence
 
 ## Closed Sprint `S15 - Rich Family Storytelling and Multi-Item Authoring`
 
