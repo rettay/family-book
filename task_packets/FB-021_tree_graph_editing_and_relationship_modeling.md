@@ -96,14 +96,14 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] A member can add a parent, child, or partner from the tree without leaving `/tree`.
-- [ ] A member can link an existing person into the graph from the tree through a searchable, graph-aware workflow.
-- [ ] A member can create a new relative and connect them into the graph as one coherent tree-native task.
-- [ ] A member can review, correct, or remove a mistaken relationship from tree context with clear feedback and guardrails.
-- [ ] The browser regression lane proves common graph-editing flows from the tree.
+- [x] A member can add a parent, child, or partner from the tree without leaving `/tree`.
+- [x] A member can link an existing person into the graph from the tree through a searchable, graph-aware workflow.
+- [x] A member can create a new relative and connect them into the graph as one coherent tree-native task.
+- [x] A member can review, correct, or remove a mistaken relationship from tree context with clear feedback and guardrails.
+- [x] The browser regression lane proves common graph-editing flows from the tree.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Browser verification covers relationship add/link/create/correct flows from the tree
-- [ ] The tree remains keyboard reachable and does not regress into a confusing graph-editing surface
+- [x] Acceptance criteria satisfied
+- [x] Browser verification covers relationship add/link/create/correct flows from the tree
+- [x] The tree remains keyboard reachable and does not regress into a confusing graph-editing surface

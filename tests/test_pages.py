@@ -79,6 +79,8 @@ async def test_tree_page_renders_sidebar_dialog_and_labeled_controls(member_clie
     assert 'id="tree-status" role="status" aria-live="polite"' in resp.text
     assert 'data-saved-message="' in resp.text
     assert 'data-tree-story-created="' in resp.text
+    assert 'data-tree-graph-prompt-link="' in resp.text
+    assert 'data-tree-graph-confirm-replace="' in resp.text
 
 
 @pytest.mark.asyncio
@@ -179,7 +181,10 @@ async def test_admin_tree_person_card_renders_relationship_cards_with_maintenanc
     assert resp.status_code == 200
     assert 'class="tree-related-card"' in resp.text
     assert "openTreeSidebarPerson('" in resp.text
-    assert "removeTreeRelationship('" in resp.text
+    assert "removeTreeRelationship(" in resp.text
+    assert "startTreeGraphMode('" in resp.text
+    assert "replaceTreeRelationship(" in resp.text
+    assert 'id="tree-graph-mode-banner"' in resp.text
 
 
 @pytest.mark.asyncio

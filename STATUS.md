@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of the tree workspace with grouped story-and-media memories, richer shared-event flows, and safer multi-file authoring behavior while keeping the tree as the primary working surface. Sprint 16 is now planned to make the tree editable at the graph level, with direct relationship operations, graph-aware person creation, and clearer correction flows.
+Sprint 01 through Sprint 16 are closed. Sprint 16 made the tree structurally editable with direct graph-mode relationship linking, create-and-connect relative flows, and safer correction/removal behavior while keeping the tree as the primary working surface.
 
 ## North Star
 
@@ -88,6 +88,17 @@ Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of
   - Result at closeout: success
   - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
   - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
+- Focused Sprint 16 verification:
+  - `uv run python -m compileall app tests`
+  - Result at closeout: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py -q`
+  - Result at closeout: `70 passed`
+  - `uv run pytest tests/test_moments.py tests/test_media.py -q`
+  - Result during implementation: `55 passed`
+  - `make test-ui-playwright`
+  - Result at closeout: success
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
 - Syntax smoke check:
   - `uv run python -m compileall app tests`
   - Result: success
@@ -102,12 +113,12 @@ Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next delivery risk is making graph-editing powerful without making the tree interaction model confusing or destructive
+- The next delivery risk is deciding what the next layer above graph editing should be without reopening context-switching or confidence gaps
 - CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Execute Sprint 16 to make relationship editing and person connection flows work directly on the tree
+1. Define Sprint 17 based on the next highest-value tree or family-history workflow gap
 2. Preserve browser, accessibility, and staging-review confidence while expanding the tree workspace further
 3. Reduce remaining warning-only structural debt where it directly supports user-facing confidence
 4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
@@ -130,10 +141,11 @@ Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of
   - `S13 - Tree Workspace 2.0`
   - `S14 - Family Content and Relationship Authoring`
   - `S15 - Rich Family Storytelling and Multi-Item Authoring`
-- Planned sprint:
   - `S16 - Tree Graph Editing and Relationship Modeling`
+- No active planned sprint yet
 - Sprint 16 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s16.md`
 - Sprint 16 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s16.md`
+- Sprint 16 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s16.md`
 - Primary packet: `/Users/cheech/code/family-book/task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md`
 - Sprint 15 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s15.md`
 - Sprint 15 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s15.md`

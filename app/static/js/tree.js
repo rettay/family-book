@@ -15,7 +15,9 @@
     relationshipGroup: '',
     peopleOptions: [],
     highlightMomentId: '',
-    highlightMediaId: ''
+    highlightMediaId: '',
+    highlightRelatedPersonId: '',
+    graphMode: null
   };
   var preferences = {
     show_names: true,
@@ -79,6 +81,12 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  function formatTemplate(template, values) {
+    return String(template || '').replace(/\{([^}]+)\}/g, function(_, key) {
+      return Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : '';
+    });
   }
 
   function clearNode(node) {
@@ -146,6 +154,11 @@
     return !!(card && card.dataset.treeSidebarCanManage === 'true');
   }
 
+  function getSidebarPersonName() {
+    var titleNode = sidebarContent.querySelector('.tree-sidebar-card__title');
+    return titleNode ? titleNode.textContent.trim() : '';
+  }
+
   function parseSidebarPeopleOptions() {
     var scriptNode = sidebarContent.querySelector('#tree-sidebar-people-options');
     if (!scriptNode) {
@@ -167,6 +180,72 @@
     Array.prototype.forEach.call(disclosures, function(disclosure) {
       disclosure.open = disclosure.dataset.treeRelationshipGroup === groupName;
     });
+  }
+
+  function relationshipSingularLabel(mode) {
+    if (mode === 'parent') {
+      return root.dataset.treeParentSingular;
+    }
+    if (mode === 'child') {
+      return root.dataset.treeChildSingular;
+    }
+    return root.dataset.treePartnerSingular;
+  }
+
+  function graphModeSummary(modeState) {
+    if (!modeState) {
+      return {title: '', description: ''};
+    }
+    var values = {
+      name: modeState.sourcePersonName || getSidebarPersonName(),
+      relationship: relationshipSingularLabel(modeState.mode),
+      current: modeState.currentRelatedName || ''
+    };
+    return {
+      title: modeState.action === 'replace'
+        ? root.dataset.treeReplaceOnTree
+        : root.dataset.treeGraphPickOnTree,
+      description: formatTemplate(
+        modeState.action === 'replace'
+          ? root.dataset.treeGraphPromptReplace
+          : root.dataset.treeGraphPromptLink,
+        values
+      )
+    };
+  }
+
+  function updateGraphModeBanner() {
+    var banner = document.getElementById('tree-graph-mode-banner');
+    if (!banner) {
+      return;
+    }
+    var titleNode = document.getElementById('tree-graph-mode-title');
+    var descriptionNode = document.getElementById('tree-graph-mode-description');
+    if (!sidebarState.graphMode) {
+      banner.classList.add('hidden');
+      if (titleNode) titleNode.textContent = '';
+      if (descriptionNode) descriptionNode.textContent = '';
+      return;
+    }
+    var summary = graphModeSummary(sidebarState.graphMode);
+    banner.classList.remove('hidden');
+    if (titleNode) titleNode.textContent = summary.title;
+    if (descriptionNode) descriptionNode.textContent = summary.description;
+    setStatus(summary.description);
+  }
+
+  function applyRelationshipHighlights() {
+    var cards = sidebarContent.querySelectorAll('[data-tree-related-person]');
+    Array.prototype.forEach.call(cards, function(card) {
+      var active = !!(sidebarState.highlightRelatedPersonId && card.dataset.treeRelatedPerson === sidebarState.highlightRelatedPersonId);
+      card.classList.toggle('tree-related-card--highlight', active);
+    });
+  }
+
+  function restoreDefaultStatus() {
+    if (treeData && treeData.persons) {
+      setStatus(root.dataset.statusTemplate.replace('{count}', String(treeData.persons.length)));
+    }
   }
 
   function chooseDefaultSidebarTab() {
@@ -810,6 +889,8 @@
     initializeTreeMomentComposer();
     initializeTreeMediaComposer();
     switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup || sidebarState.momentFilter);
+    applyRelationshipHighlights();
+    updateGraphModeBanner();
   }
 
   function resolvePhotoHref(photoUrl) {
@@ -822,22 +903,54 @@
     return '/api/media/' + photoUrl + '/file';
   }
 
-  function relationshipPayload(personId, relatedId, mode) {
+  function relationshipPayload(personId, relatedId, mode, relationshipMeta) {
+    var meta = relationshipMeta || {};
     if (mode === 'parent') {
       return {
         endpoint: '/api/relationships/parent-child',
-        body: {parent_id: relatedId, child_id: personId, kind: 'biological'}
+        body: {
+          parent_id: relatedId,
+          child_id: personId,
+          kind: meta.kind || 'biological',
+          confidence: meta.confidence,
+          source: meta.source,
+          source_detail: meta.source_detail,
+          notes: meta.notes,
+          start_date: meta.start_date,
+          end_date: meta.end_date
+        }
       };
     }
     if (mode === 'child') {
       return {
         endpoint: '/api/relationships/parent-child',
-        body: {parent_id: personId, child_id: relatedId, kind: 'biological'}
+        body: {
+          parent_id: personId,
+          child_id: relatedId,
+          kind: meta.kind || 'biological',
+          confidence: meta.confidence,
+          source: meta.source,
+          source_detail: meta.source_detail,
+          notes: meta.notes,
+          start_date: meta.start_date,
+          end_date: meta.end_date
+        }
       };
     }
     return {
       endpoint: '/api/relationships/partnership',
-      body: {person_a_id: personId, person_b_id: relatedId, kind: 'married'}
+      body: {
+        person_a_id: personId,
+        person_b_id: relatedId,
+        kind: meta.kind || 'married',
+        status: meta.status || 'active',
+        start_date: meta.start_date,
+        start_date_precision: meta.start_date_precision,
+        end_date: meta.end_date,
+        end_date_precision: meta.end_date_precision,
+        source: meta.source,
+        notes: meta.notes
+      }
     };
   }
 
@@ -911,12 +1024,20 @@
 
   async function renderSidebar(personId) {
     currentSidebarPersonId = personId;
+    var clearedGraphMode = false;
+    if (sidebarState.graphMode && sidebarState.graphMode.sourcePersonId !== personId) {
+      sidebarState.graphMode = null;
+      clearedGraphMode = true;
+    }
     sidebarContent.setAttribute('aria-busy', 'true');
     var resp = await fetch('/people/' + personId + '/card');
     var html = await resp.text();
     window.replaceNodeChildrenFromHTML(sidebarContent, html);
     sidebarContent.setAttribute('aria-busy', 'false');
     initializeTreeSidebar(personId);
+    if (clearedGraphMode && treeData) {
+      render();
+    }
   }
 
   async function init() {
@@ -1083,13 +1204,20 @@
   }
 
   function renderNode(node, person) {
+    var isGraphSource = !!(sidebarState.graphMode && sidebarState.graphMode.sourcePersonId === person.id);
+    var isGraphCandidate = !!(sidebarState.graphMode && sidebarState.graphMode.sourcePersonId !== person.id);
     var nodeGroup = g.append('g')
-      .attr('class', 'person-node' + (person.branch ? ' person-node--branch-' + person.branch : ''))
+      .attr('class', 'person-node' +
+        (person.branch ? ' person-node--branch-' + person.branch : '') +
+        (isGraphSource ? ' person-node--graph-source' : '') +
+        (isGraphCandidate ? ' person-node--graph-candidate' : ''))
       .attr('data-id', person.id)
       .attr('transform', 'translate(' + node.x + ',' + node.y + ')')
       .attr('tabindex', '0')
       .attr('role', 'button')
-      .attr('aria-label', 'Open details for ' + person.display_name)
+      .attr('aria-label', sidebarState.graphMode
+        ? 'Select ' + person.display_name + ' as ' + relationshipSingularLabel(sidebarState.graphMode.mode)
+        : 'Open details for ' + person.display_name)
       .style('cursor', 'pointer');
 
     var showPhoto = preferences.show_photos && person.photo_url;
@@ -1162,16 +1290,28 @@
     addMetricPill(nodeGroup, person, nextTextY);
 
     nodeGroup.on('click', function() {
+      if (sidebarState.graphMode) {
+        handleGraphNodeSelection(person.id);
+        return;
+      }
       openPersonSidebar(person.id, this);
     });
 
-    nodeGroup.on('dblclick', function() {
+    nodeGroup.on('dblclick', function(event) {
+      if (sidebarState.graphMode) {
+        event.preventDefault();
+        return;
+      }
       window.location.href = '/people/' + person.id;
     });
 
     nodeGroup.on('keydown', function(event) {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
+        if (sidebarState.graphMode) {
+          handleGraphNodeSelection(person.id);
+          return;
+        }
         openPersonSidebar(person.id, this);
       }
     });
@@ -1245,6 +1385,7 @@
     svg.call(zoom.transform, d3.zoomIdentity.translate(dx, dy).scale(scale));
 
     setStatus(root.dataset.statusTemplate.replace('{count}', String(treeData.persons.length)));
+    updateGraphModeBanner();
   }
 
   async function openPersonSidebar(personId, triggerNode) {
@@ -1298,6 +1439,166 @@
       if (personId) {
         loadTreeSidebarMedia(personId);
       }
+    }
+    updateGraphModeBanner();
+    applyRelationshipHighlights();
+  }
+
+  function relationshipDeleteEndpoint(relId, relationshipType) {
+    return relationshipType === 'partnership'
+      ? '/api/relationships/partnership/' + relId
+      : '/api/relationships/parent-child/' + relId;
+  }
+
+  async function deleteRelationshipByType(relId, relationshipType) {
+    return fetch(relationshipDeleteEndpoint(relId, relationshipType), {method: 'DELETE'});
+  }
+
+  function startTreeGraphMode(personId, mode, options) {
+    var opts = options || {};
+    setError('tree-relationship-error', '');
+    sidebarState.activeTab = 'relationships';
+    sidebarState.relationshipGroup = mode;
+    sidebarState.highlightRelatedPersonId = opts.currentRelatedId || '';
+    sidebarState.graphMode = {
+      sourcePersonId: personId,
+      sourcePersonName: getSidebarPersonName(),
+      mode: mode,
+      action: opts.action || 'link',
+      relationshipId: opts.relationshipId || '',
+      relationshipType: opts.relationshipType || (mode === 'partner' ? 'partnership' : 'parent-child'),
+      currentRelatedId: opts.currentRelatedId || '',
+      currentRelatedName: opts.currentRelatedName || '',
+      relationshipMeta: opts.relationshipMeta || {}
+    };
+    switchTreeSidebarTab('relationships', mode);
+    if (treeData) {
+      render();
+    }
+  }
+
+  function cancelTreeGraphMode(silent) {
+    sidebarState.graphMode = null;
+    sidebarState.highlightRelatedPersonId = '';
+    updateGraphModeBanner();
+    if (treeData) {
+      render();
+    } else {
+      restoreDefaultStatus();
+    }
+    if (!silent) {
+      showToastMessage(root.dataset.treeGraphCancelled);
+    }
+  }
+
+  function openTreeRelationshipSearch(groupName) {
+    if (sidebarState.graphMode) {
+      cancelTreeGraphMode(true);
+    }
+    sidebarState.activeTab = 'relationships';
+    sidebarState.relationshipGroup = groupName;
+    switchTreeSidebarTab('relationships', groupName);
+    openRelationshipDisclosure(groupName);
+    var input = sidebarContent.querySelector('[data-tree-link-form="' + groupName + '"] [data-tree-picker-input]');
+    if (input) {
+      input.focus();
+    }
+  }
+
+  function openTreeRelationshipCreate(groupName) {
+    if (sidebarState.graphMode) {
+      cancelTreeGraphMode(true);
+    }
+    sidebarState.activeTab = 'relationships';
+    sidebarState.relationshipGroup = groupName;
+    switchTreeSidebarTab('relationships', groupName);
+    openRelationshipDisclosure(groupName);
+    var input = sidebarContent.querySelector('[data-tree-create-form="' + groupName + '"] input[name="first_name"]');
+    if (input) {
+      input.focus();
+    }
+  }
+
+  async function executeRelationshipRequest(request) {
+    var resp = await fetch(request.endpoint, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(request.body)
+    });
+    var data = await resp.json().catch(function() { return {}; });
+    if (!resp.ok) {
+      throw new Error(data.detail || root.dataset.relationshipError);
+    }
+    return data;
+  }
+
+  async function handleGraphNodeSelection(targetPersonId) {
+    if (!sidebarState.graphMode) {
+      return;
+    }
+    var modeState = sidebarState.graphMode;
+    if (targetPersonId === modeState.sourcePersonId || targetPersonId === modeState.currentRelatedId) {
+      setError('tree-relationship-error', root.dataset.treeGraphSelectOther);
+      return;
+    }
+
+    var targetPerson = (treeData && treeData.persons || []).find(function(person) {
+      return person.id === targetPersonId;
+    });
+    if (!targetPerson) {
+      setError('tree-relationship-error', root.dataset.relationshipError);
+      return;
+    }
+
+    var confirmMessage = formatTemplate(
+      modeState.action === 'replace'
+        ? root.dataset.treeGraphConfirmReplace
+        : root.dataset.treeGraphConfirmLink,
+      {
+        target: targetPerson.display_name,
+        name: modeState.sourcePersonName || getSidebarPersonName(),
+        relationship: relationshipSingularLabel(modeState.mode),
+        current: modeState.currentRelatedName || ''
+      }
+    );
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setError('tree-relationship-error', '');
+    try {
+      var createdRelationship = await executeRelationshipRequest(
+        relationshipPayload(
+          modeState.sourcePersonId,
+          targetPersonId,
+          modeState.mode,
+          modeState.relationshipMeta
+        )
+      );
+
+      if (modeState.action === 'replace' && modeState.relationshipId) {
+        var deleteResp = await deleteRelationshipByType(modeState.relationshipId, modeState.relationshipType);
+        if (!deleteResp.ok) {
+          await deleteRelationshipByType(createdRelationship.id, modeState.relationshipType).catch(function() {
+            return null;
+          });
+          var deleteData = await deleteResp.json().catch(function() { return {}; });
+          throw new Error(deleteData.detail || root.dataset.relationshipError);
+        }
+      }
+
+      sidebarState.graphMode = null;
+      sidebarState.activeTab = 'relationships';
+      sidebarState.relationshipGroup = modeState.mode;
+      sidebarState.highlightRelatedPersonId = targetPersonId;
+      await refreshTreeWorkspace(modeState.sourcePersonId);
+      showToastMessage(
+        modeState.action === 'replace'
+          ? root.dataset.treeRelationshipReplaced
+          : root.dataset.relationshipMessage
+      );
+    } catch (err) {
+      setError('tree-relationship-error', err.message || root.dataset.relationshipError);
     }
   }
 
@@ -1528,19 +1829,11 @@
     }
 
     try {
-      var request = relationshipPayload(personId, relatedId, mode);
-      var resp = await fetch(request.endpoint, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(request.body)
-      });
-      var data = await resp.json().catch(function() { return {}; });
-      if (!resp.ok) {
-        throw new Error(data.detail || root.dataset.relationshipError);
-      }
+      await executeRelationshipRequest(relationshipPayload(personId, relatedId, mode));
       form.reset();
       sidebarState.activeTab = 'relationships';
       sidebarState.relationshipGroup = mode;
+      sidebarState.highlightRelatedPersonId = relatedId;
       await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.relationshipMessage);
     } catch (err) {
@@ -1569,22 +1862,13 @@
         throw new Error(created.detail || root.dataset.updateError);
       }
 
-      var request = relationshipPayload(personId, created.id, mode);
-      var linkResp = await fetch(request.endpoint, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(request.body)
-      });
-      var linkData = await linkResp.json().catch(function() { return {}; });
-      if (!linkResp.ok) {
-        throw new Error(linkData.detail || root.dataset.relationshipError);
-      }
+      await executeRelationshipRequest(relationshipPayload(personId, created.id, mode));
 
       form.reset();
-      sidebarState.activeTab = 'overview';
-      sidebarState.relationshipGroup = '';
-      await loadTree();
-      await openPersonSidebar(created.id, sidebarTrigger);
+      sidebarState.activeTab = 'relationships';
+      sidebarState.relationshipGroup = mode;
+      sidebarState.highlightRelatedPersonId = created.id;
+      await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.createdMessage);
     } catch (err) {
       setError('tree-relationship-error', err.message || root.dataset.relationshipError);
@@ -1595,19 +1879,37 @@
     return false;
   }
 
-  async function removeTreeRelationship(relId, relationshipType, personId, groupName) {
+  async function replaceTreeRelationship(relId, relationshipType, personId, groupName, relatedId, relatedName, relationshipMeta) {
     setError('tree-relationship-error', '');
+    startTreeGraphMode(personId, groupName, {
+      action: 'replace',
+      relationshipId: relId,
+      relationshipType: relationshipType,
+      currentRelatedId: relatedId,
+      currentRelatedName: relatedName,
+      relationshipMeta: relationshipMeta || {}
+    });
+    return false;
+  }
+
+  async function removeTreeRelationship(relId, relationshipType, personId, groupName, relatedName) {
+    setError('tree-relationship-error', '');
+    var confirmed = window.confirm(formatTemplate(root.dataset.treeRemoveConfirm, {
+      name: relatedName || '',
+      relationship: relationshipSingularLabel(groupName || 'partner')
+    }));
+    if (!confirmed) {
+      return false;
+    }
     try {
-      var endpoint = relationshipType === 'partnership'
-        ? '/api/relationships/partnership/' + relId
-        : '/api/relationships/parent-child/' + relId;
-      var resp = await fetch(endpoint, {method: 'DELETE'});
+      var resp = await deleteRelationshipByType(relId, relationshipType);
       if (!resp.ok) {
         var data = await resp.json().catch(function() { return {}; });
         throw new Error(data.detail || root.dataset.relationshipError);
       }
       sidebarState.activeTab = 'relationships';
       sidebarState.relationshipGroup = groupName || '';
+      sidebarState.highlightRelatedPersonId = '';
       await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.treeRelationshipRemoved);
     } catch (err) {
@@ -1646,7 +1948,12 @@
   window.closeSidebar = function() {
     sidebar.classList.remove('person-sidebar--open');
     currentSidebarPersonId = null;
+    sidebarState.graphMode = null;
+    sidebarState.highlightRelatedPersonId = '';
     window.closeAccessibleOverlay(sidebar);
+    if (treeData) {
+      render();
+    }
     if (sidebarTrigger && typeof sidebarTrigger.focus === 'function') {
       sidebarTrigger.focus();
     }
@@ -1656,12 +1963,17 @@
   window.linkTreeRelationship = linkTreeRelationship;
   window.createTreeRelative = createTreeRelative;
   window.removeTreeRelationship = removeTreeRelationship;
+  window.replaceTreeRelationship = replaceTreeRelationship;
   window.openTreeSidebarPerson = openTreeSidebarPerson;
   window.switchTreeSidebarTab = switchTreeSidebarTab;
   window.setTreeMomentFilter = setTreeMomentFilter;
   window.submitTreeMoment = submitTreeMoment;
   window.uploadTreeMedia = uploadTreeMedia;
   window.toggleTreeMomentFields = toggleTreeMomentFields;
+  window.startTreeGraphMode = startTreeGraphMode;
+  window.cancelTreeGraphMode = cancelTreeGraphMode;
+  window.openTreeRelationshipSearch = openTreeRelationshipSearch;
+  window.openTreeRelationshipCreate = openTreeRelationshipCreate;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
   document.getElementById('apply-tree-filters').addEventListener('click', function() {

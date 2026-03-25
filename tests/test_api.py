@@ -466,6 +466,49 @@ async def test_member_can_create_relationships_for_visible_people(member_client:
 
 
 @pytest.mark.asyncio
+async def test_member_can_remove_relationships_for_manageable_people(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Removable",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    created_partner = await member_client.post("/api/persons", json={
+        "first_name": "Removable",
+        "last_name": "Partner",
+        "branch": "martin",
+    })
+    assert created_partner.status_code == 201
+    partner_id = created_partner.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    partnership_link = await member_client.post("/api/relationships/partnership", json={
+        "person_a_id": "member-00-0000-0000-000000000005",
+        "person_b_id": partner_id,
+        "kind": "married",
+    })
+    assert partnership_link.status_code == 201
+
+    delete_parent = await member_client.delete(
+        f"/api/relationships/parent-child/{parent_link.json()['id']}"
+    )
+    assert delete_parent.status_code == 204
+
+    delete_partner = await member_client.delete(
+        f"/api/relationships/partnership/{partnership_link.json()['id']}"
+    )
+    assert delete_partner.status_code == 204
+
+
+@pytest.mark.asyncio
 async def test_create_parent_child_self_ref_rejected(admin_client: AsyncClient):
     resp = await admin_client.post("/api/relationships/parent-child", json={
         "parent_id": "tyler-000-0000-0000-000000000002",

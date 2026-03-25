@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S16 - Tree Graph Editing and Relationship Modeling`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-021 Tree Graph Editing and Relationship Modeling`
 - Follow-on packet candidates:
   - `FB-017 Post-Integration Structural Cleanup`
