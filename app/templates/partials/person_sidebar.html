@@ -295,10 +295,26 @@
         </div>
       </div>
       <div id="tree-relationship-error" class="form-error hidden" role="status" aria-live="polite"></div>
+      <div id="tree-graph-mode-banner" class="tree-graph-mode-banner hidden" role="status" aria-live="polite">
+        <div class="tree-graph-mode-banner__copy">
+          <strong id="tree-graph-mode-title"></strong>
+          <p id="tree-graph-mode-description"></p>
+        </div>
+        <div class="tree-graph-mode-banner__actions">
+          <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeGraphMode()">{{ t('common.cancel') }}</button>
+        </div>
+      </div>
 
       <div class="tree-rel-grid tree-rel-grid--workspace">
-        <section class="tree-relationship-group-card">
+        <section class="tree-relationship-group-card" data-tree-relationship-card="parent">
           <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
+          {% if can_manage %}
+          <div class="tree-related-group-actions">
+            <button type="button" class="btn btn--secondary btn--sm" onclick="startTreeGraphMode('{{ person.id }}', 'parent')">{{ t('tree.pick_on_tree') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipSearch('parent')">{{ t('tree.search_and_link') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipCreate('parent')">{{ t('tree.create_in_tree') }}</button>
+          </div>
+          {% endif %}
           {% if parent_people %}
           <div class="tree-relationship-list">
             {% for related in parent_people %}
@@ -323,8 +339,9 @@
               <div class="tree-related-card__actions">
                 <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
                 <a href="/people/{{ related.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
-                {% if current_user.is_admin and related.relationship_id %}
-                <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationship('{{ related.relationship_id }}', 'parent-child', '{{ person.id }}', 'parent')">{{ t('tree.remove_relationship') }}</button>
+                {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
                 {% endif %}
               </div>
             </article>
@@ -334,8 +351,15 @@
           <p class="tree-sidebar-card__muted">{{ t('tree.no_parents_prompt') }}</p>
           {% endif %}
         </section>
-        <section class="tree-relationship-group-card">
+        <section class="tree-relationship-group-card" data-tree-relationship-card="child">
           <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
+          {% if can_manage %}
+          <div class="tree-related-group-actions">
+            <button type="button" class="btn btn--secondary btn--sm" onclick="startTreeGraphMode('{{ person.id }}', 'child')">{{ t('tree.pick_on_tree') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipSearch('child')">{{ t('tree.search_and_link') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipCreate('child')">{{ t('tree.create_in_tree') }}</button>
+          </div>
+          {% endif %}
           {% if child_people %}
           <div class="tree-relationship-list">
             {% for related in child_people %}
@@ -360,8 +384,9 @@
               <div class="tree-related-card__actions">
                 <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
                 <a href="/people/{{ related.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
-                {% if current_user.is_admin and related.relationship_id %}
-                <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationship('{{ related.relationship_id }}', 'parent-child', '{{ person.id }}', 'child')">{{ t('tree.remove_relationship') }}</button>
+                {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
                 {% endif %}
               </div>
             </article>
@@ -371,8 +396,15 @@
           <p class="tree-sidebar-card__muted">{{ t('tree.no_children_prompt') }}</p>
           {% endif %}
         </section>
-        <section class="tree-relationship-group-card">
+        <section class="tree-relationship-group-card" data-tree-relationship-card="partner">
           <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
+          {% if can_manage %}
+          <div class="tree-related-group-actions">
+            <button type="button" class="btn btn--secondary btn--sm" onclick="startTreeGraphMode('{{ person.id }}', 'partner')">{{ t('tree.pick_on_tree') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipSearch('partner')">{{ t('tree.search_and_link') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipCreate('partner')">{{ t('tree.create_in_tree') }}</button>
+          </div>
+          {% endif %}
           {% if partner_people %}
           <div class="tree-relationship-list">
             {% for related in partner_people %}
@@ -399,8 +431,9 @@
               <div class="tree-related-card__actions">
                 <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
                 <a href="/people/{{ related.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
-                {% if current_user.is_admin and related.relationship_id %}
-                <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationship('{{ related.relationship_id }}', 'partnership', '{{ person.id }}', 'partner')">{{ t('tree.remove_relationship') }}</button>
+                {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "status": related.relationship_status, "start_date": related.relationship_start_date, "start_date_precision": related.relationship_start_date_precision, "end_date": related.relationship_end_date, "end_date_precision": related.relationship_end_date_precision, "source": related.relationship_source, "notes": related.relationship_notes}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
                 {% endif %}
               </div>
             </article>
@@ -416,7 +449,7 @@
       <div class="tree-sidebar-action-groups">
         <details class="tree-sidebar-disclosure" data-tree-relationship-group="parent">
           <summary>{{ t('tree.add_parent') }}</summary>
-          <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'parent')">
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-link-form="parent" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'parent')">
             <label>
               {{ t('tree.link_existing_parent') }}
               <div class="tree-picker" data-tree-picker>
@@ -433,7 +466,7 @@
             </label>
             <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_parent') }}</button>
           </form>
-          <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'parent')">
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="parent" onsubmit="createTreeRelative(event, '{{ person.id }}', 'parent')">
             <div class="tree-inline-form__row">
               <label>
                 {{ t('person.first_name') }}
@@ -454,7 +487,7 @@
 
         <details class="tree-sidebar-disclosure" data-tree-relationship-group="child">
           <summary>{{ t('tree.add_child') }}</summary>
-          <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'child')">
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-link-form="child" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'child')">
             <label>
               {{ t('tree.link_existing_child') }}
               <div class="tree-picker" data-tree-picker>
@@ -471,7 +504,7 @@
             </label>
             <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_child') }}</button>
           </form>
-          <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'child')">
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="child" onsubmit="createTreeRelative(event, '{{ person.id }}', 'child')">
             <div class="tree-inline-form__row">
               <label>
                 {{ t('person.first_name') }}
@@ -492,7 +525,7 @@
 
         <details class="tree-sidebar-disclosure" data-tree-relationship-group="partner">
           <summary>{{ t('tree.add_partner') }}</summary>
-          <form class="tree-inline-form tree-inline-form--compact" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'partner')">
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-link-form="partner" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'partner')">
             <label>
               {{ t('tree.link_existing_partner') }}
               <div class="tree-picker" data-tree-picker>
@@ -509,7 +542,7 @@
             </label>
             <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_partner') }}</button>
           </form>
-          <form class="tree-inline-form tree-inline-form--compact" onsubmit="createTreeRelative(event, '{{ person.id }}', 'partner')">
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="partner" onsubmit="createTreeRelative(event, '{{ person.id }}', 'partner')">
             <div class="tree-inline-form__row">
               <label>
                 {{ t('person.first_name') }}

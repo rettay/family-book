@@ -1,30 +1,64 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Next Sprint
+## No Active Planned Sprint
 
-### `Sprint 16 - to be defined`
+Sprint 16 is closed. Sprint 17 is not yet defined.
 
-Status: Planning pending
+## Closed Sprint
+
+### `S16 - Tree Graph Editing and Relationship Modeling`
+
+Status: Closed
 
 ### Sprint Goal
 
-To be defined from the next product assessment and PM discussion.
+Make the tree editable at the graph level so members can create, connect, correct, and understand family relationships directly from the tree workspace without falling back to older detour flows.
 
 ### Why This Sprint Exists
 
-Sprint 15 is closed. Sprint 16 has not been committed yet and should be scoped from the next round of product feedback rather than assumed prematurely.
+Sprint 13 through Sprint 15 made the tree a credible content and authoring workspace around one selected person. The next product gap is graph editing itself. Users can now enrich people and stories from the tree, but core relationship changes still feel more mechanical than direct. Sprint 16 exists to make the tree itself feel like the place where family structure gets edited and corrected.
 
 ### Committed Packet
 
-None yet.
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 19 | FB-021 | Tree Graph Editing and Relationship Modeling | P1 | done |
 
 ## Packet Sequence Rationale
 
-Sprint 16 should be selected after the next product discussion, with preference for the highest-value user-facing workflow gap over standalone cleanup.
+### FB-021 now
+
+The next highest-value move is to make family-graph editing feel direct and trustworthy from the tree itself, rather than only improving content around already-existing people.
+
+### Cleanup remains secondary
+
+The warning-only structural debt still matters, but the stronger product bottleneck is relationship editing friction, graph correction friction, and the remaining need to leave the tree for structural changes.
 
 ## Sprint Exit Criteria
 
-To be defined when Sprint 16 is planned.
+The sprint is successful when all are true:
+
+- members can add and connect people from the tree with less sidebar/form friction
+- members can create or correct parent, child, and partner relationships directly from tree context
+- relationship review and correction flows are understandable and safer than today’s add-only mechanics
+- browser, accessibility, and CodeMap baselines remain intact
+
+## Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 16 on `codex/s16-tree-graph-editing`
+- Auditor found three graph-editing defects in replace semantics and graph-mode state handling, and the builder corrected them before final signoff
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py -q`
+  - result: `70 passed`
+  - `uv run pytest tests/test_moments.py tests/test_media.py -q`
+  - result during implementation: `55 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
 
 ## Closed Sprint
 

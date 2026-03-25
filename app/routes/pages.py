@@ -483,6 +483,12 @@ async def person_card(
                     **summary.model_dump(),
                     "relationship_id": relationship.id,
                     "relationship_kind": relationship.kind,
+                    "relationship_confidence": relationship.confidence,
+                    "relationship_source": relationship.source,
+                    "relationship_source_detail": relationship.source_detail,
+                    "relationship_notes": relationship.notes,
+                    "relationship_start_date": relationship.start_date,
+                    "relationship_end_date": relationship.end_date,
                 }
             )
 
@@ -496,6 +502,12 @@ async def person_card(
                     **summary.model_dump(),
                     "relationship_id": relationship.id,
                     "relationship_kind": relationship.kind,
+                    "relationship_confidence": relationship.confidence,
+                    "relationship_source": relationship.source,
+                    "relationship_source_detail": relationship.source_detail,
+                    "relationship_notes": relationship.notes,
+                    "relationship_start_date": relationship.start_date,
+                    "relationship_end_date": relationship.end_date,
                 }
             )
 
@@ -517,6 +529,12 @@ async def person_card(
                     "relationship_id": relationship.id if relationship else None,
                     "relationship_kind": relationship.kind if relationship else None,
                     "relationship_status": relationship.status if relationship else None,
+                    "relationship_start_date": relationship.start_date if relationship else None,
+                    "relationship_start_date_precision": relationship.start_date_precision if relationship else None,
+                    "relationship_end_date": relationship.end_date if relationship else None,
+                    "relationship_end_date_precision": relationship.end_date_precision if relationship else None,
+                    "relationship_source": relationship.source if relationship else None,
+                    "relationship_notes": relationship.notes if relationship else None,
                 }
             )
 

@@ -684,6 +684,18 @@ body.has-overlay { overflow: hidden; }
   stroke-width: 3;
   filter: drop-shadow(0 2px 8px rgba(45,80,22,0.25));
 }
+.person-node--graph-source circle.photo-clip {
+  stroke: var(--amber);
+  stroke-width: 4;
+  filter: drop-shadow(0 4px 12px rgba(183,126,45,0.28));
+}
+.person-node--graph-candidate circle.tap-target {
+  fill: rgba(45, 80, 22, 0.08);
+}
+.person-node--graph-candidate:hover circle.photo-clip,
+.person-node--graph-candidate:focus-visible circle.photo-clip {
+  stroke: var(--amber);
+}
 .person-node--branch-rivera circle.photo-clip { fill: #dce8d4; }
 .person-node--branch-santos circle.photo-clip { fill: #d4dce8; }
 .person-node--branch-maternal circle.photo-clip { fill: #e8d4dc; }
@@ -928,6 +940,39 @@ body.has-overlay { overflow: hidden; }
   border-radius: var(--radius-md);
   background: var(--warm-white);
   padding: 12px;
+}
+.tree-related-group-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.tree-graph-mode-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(183, 126, 45, 0.24);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 248, 230, 0.95), rgba(255, 253, 248, 0.95));
+}
+.tree-graph-mode-banner__copy {
+  display: grid;
+  gap: 4px;
+}
+.tree-graph-mode-banner__copy strong {
+  color: var(--green-deep);
+  font-size: 0.9rem;
+}
+.tree-graph-mode-banner__copy p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+.tree-graph-mode-banner__actions {
+  flex-shrink: 0;
 }
 .tree-rel-grid__title {
   margin: 0 0 6px;
@@ -1275,7 +1320,11 @@ body.has-overlay { overflow: hidden; }
     align-items: flex-start;
     flex-direction: column;
   }
+  .tree-graph-mode-banner {
+    flex-direction: column;
+  }
   .tree-related-card__actions,
+  .tree-related-group-actions,
   .tree-sidebar-item-actions,
   .tree-sidebar-inline-actions {
     flex-direction: column;
