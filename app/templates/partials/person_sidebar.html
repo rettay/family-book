@@ -546,6 +546,9 @@
           <button type="button" class="tree-sidebar-chip" data-tree-moment-filter="story" onclick="setTreeMomentFilter('story')">
             {{ t('moments.story') }}
           </button>
+          <button type="button" class="tree-sidebar-chip" data-tree-moment-filter="shared" onclick="setTreeMomentFilter('shared')">
+            {{ t('tree.shared_events') }}
+          </button>
         </div>
       </div>
 
@@ -553,8 +556,15 @@
       <form class="tree-inline-form tree-inline-form--compact" id="tree-moment-form" onsubmit="submitTreeMoment(event, '{{ person.id }}')">
         <div id="tree-moment-error" class="form-error hidden" role="status" aria-live="polite"></div>
         <label>
+          {{ t('tree.story_focus_label') }}
+          <select class="form-select" name="authoring_scope" onchange="toggleTreeMomentFields(this.form.querySelector('select[name=&quot;kind&quot;]').value, this.value)">
+            <option value="person">{{ t('tree.story_focus_person') }}</option>
+            <option value="shared">{{ t('tree.story_focus_shared') }}</option>
+          </select>
+        </label>
+        <label>
           {{ t('moments.type') }}
-          <select class="form-select" name="kind" onchange="toggleTreeMomentFields(this.value)">
+          <select class="form-select" name="kind" onchange="toggleTreeMomentFields(this.value, this.form.querySelector('select[name=&quot;authoring_scope&quot;]').value)">
             <option value="story">{{ t('moments.story') }}</option>
             <option value="text">{{ t('moments.note') }}</option>
           </select>
@@ -567,6 +577,34 @@
           <span data-tree-moment-body-label>{{ t('tree.story_prompt_label') }}</span>
           <textarea class="form-textarea" name="body" rows="4" placeholder="{{ t('moments.story_prompt') }}" data-tree-moment-body-input></textarea>
         </label>
+        <label>
+          {{ t('moments.when') }}
+          <input class="form-input" type="date" name="occurred_at">
+        </label>
+        <div class="tree-composer-advanced" data-tree-story-extras>
+          <label>
+            {{ t('tree.story_attachments_label') }}
+            <input class="form-input" type="file" name="story_files" accept="image/*,video/*" multiple data-tree-story-files>
+          </label>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" id="tree-story-files-summary">{{ t('tree.story_attachments_pending') }}</p>
+          <div class="tree-composer-token-list" id="tree-story-files-list" aria-live="polite"></div>
+          <label>
+            {{ t('tree.shared_people_label') }}
+            <div class="tree-picker tree-picker--multi" data-tree-multi-picker>
+              <input
+                class="form-input tree-picker__input"
+                type="search"
+                placeholder="{{ t('tree.story_people_placeholder') }}"
+                data-tree-multi-picker-input
+                autocomplete="off"
+              >
+              <input type="hidden" name="tagged_person_ids" value="[]" data-tree-multi-picker-value>
+              <div class="tree-composer-token-list" data-tree-multi-picker-selected aria-live="polite"></div>
+              <div class="tree-picker__results hidden" data-tree-multi-picker-results role="listbox"></div>
+            </div>
+          </label>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-tree-story-mode-hint>{{ t('tree.story_focus_person_hint') }}</p>
+        </div>
         <button type="submit" class="btn btn--primary btn--block" data-tree-moment-submit>{{ t('tree.add_story') }}</button>
       </form>
       {% endif %}
@@ -596,9 +634,10 @@
         <div id="tree-media-error" class="form-error hidden" role="status" aria-live="polite"></div>
         <label>
           {{ t('tree.upload_media') }}
-          <input class="form-input" type="file" name="file" accept="image/*,video/*" required>
+          <input class="form-input" type="file" name="file" accept="image/*,video/*" required multiple>
         </label>
         <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" id="tree-media-file-name">{{ t('tree.media_file_pending') }}</p>
+        <div class="tree-composer-token-list" id="tree-media-file-list" aria-live="polite"></div>
         <label>
           {{ t('moments.title') }}
           <input class="form-input" type="text" name="caption" maxlength="300" placeholder="{{ t('tree.media_caption_placeholder') }}">

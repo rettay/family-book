@@ -31,6 +31,7 @@ async def list_visible_moments(
     person_id: str | None = None,
     branch: str | None = None,
     kind: str | None = None,
+    tagged_only: bool = False,
     year: int | None = None,
 ) -> list[Moment]:
     accessible_person_ids = await get_accessible_person_ids(db, current_user)
@@ -79,6 +80,9 @@ async def list_visible_moments(
 
     if kind:
         query = query.where(Moment.kind == kind)
+
+    if tagged_only:
+        query = query.where(Moment._tagged_person_ids != "[]")
 
     if year:
         query = query.where(extract("year", Moment.occurred_at) == year)

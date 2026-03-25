@@ -2,9 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |
+None.
 
 ## In Progress
 
@@ -36,3 +34,4 @@ None.
 | FB-016 | External Integrations: Google Maps and Email Delivery | P1 | `task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md` |
 | FB-018 | Tree Workspace Interaction Overhaul | P1 | `task_packets/FB-018_tree_workspace_interaction_overhaul.md` |
 | FB-019 | Family Content and Relationship Authoring | P1 | `task_packets/FB-019_family_content_and_relationship_authoring.md` |
+| FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |

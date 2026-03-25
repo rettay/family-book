@@ -3,7 +3,7 @@
 ## Sprint
 
 - Name: `S15 - Rich Family Storytelling and Multi-Item Authoring`
-- Status: Planned
+- Status: Closed
 - Primary packet: `FB-020 Rich Family Storytelling and Multi-Item Authoring`
 - Follow-on packet candidates:
   - `FB-017 Post-Integration Structural Cleanup`

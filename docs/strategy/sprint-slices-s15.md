@@ -6,6 +6,12 @@
 2. `S15-2 Multi-Item Media and Story Grouping`
 3. `S15-3 Cross-Person Family Event Authoring`
 
+## Delivery Status
+
+- `S15-1` done
+- `S15-2` done
+- `S15-3` done
+
 ## `S15-1 Rich Story Composition in Tree Context`
 
 ### Goal

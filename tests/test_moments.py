@@ -1,6 +1,7 @@
 """Tests for Moments API — CRUD, feed, permissions."""
 
 import re
+from pathlib import Path
 
 
 ADMIN_ID = "tyler-000-0000-0000-000000000002"
@@ -75,6 +76,74 @@ class TestMomentsCRUD:
             "display_name": "Jane Martin",
             "photo_url": None,
         }]
+
+    async def test_create_story_moment_with_multiple_uploaded_media(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+
+        settings = Settings(
+            SECRET_KEY="test",
+            FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        photo_paths = [
+            Path(__file__).resolve().parents[1] / "app/static/demo-photos/family-dinner.jpg",
+            Path(__file__).resolve().parents[1] / "app/static/demo-photos/summer-reunion.jpg",
+        ]
+        media_ids = []
+        for photo_path in photo_paths:
+            with photo_path.open("rb") as handle:
+                upload_resp = await admin_client.post(
+                    "/api/media",
+                    data={"person_id": TYLER_ID},
+                    files={"file": (photo_path.name, handle.read(), "image/jpeg")},
+                )
+            assert upload_resp.status_code == 201
+            media_ids.append(upload_resp.json()["id"])
+
+        resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "A richer memory with multiple photos.",
+            "title": "Family reunion album",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+            "media_ids": media_ids,
+        })
+        assert resp.status_code == 201
+        body = resp.json()
+        assert body["title"] == "Family reunion album"
+        assert len(body["media"]) == 2
+        assert {item["id"] for item in body["media"]} == set(media_ids)
+        assert body["tagged_people"][0]["id"] == MEMBER_ID
+
+    async def test_shared_event_filter_applies_before_limit_for_person_feed(self, admin_client):
+        shared_resp = await admin_client.post("/api/moments", json={
+            "kind": "story",
+            "body": "Older shared event",
+            "title": "Shared Event Anchor",
+            "person_id": TYLER_ID,
+            "tagged_person_ids": [MEMBER_ID],
+            "occurred_at": "2001-01-01T12:00:00Z",
+        })
+        assert shared_resp.status_code == 201
+
+        for day in range(1, 22):
+            resp = await admin_client.post("/api/moments", json={
+                "kind": "text",
+                "body": f"Recent personal note {day}",
+                "person_id": TYLER_ID,
+                "occurred_at": f"2024-02-{day:02d}T12:00:00Z",
+            })
+            assert resp.status_code == 201
+
+        feed_resp = await admin_client.get(f"/api/moments?person={TYLER_ID}&limit=20&shared=true")
+        assert feed_resp.status_code == 200
+        payload = feed_resp.json()
+        titles = [item["title"] for item in payload]
+        assert "Shared Event Anchor" in titles
+        assert all(item["tagged_people"] for item in payload)
 
     async def test_create_rejects_empty_moment(self, admin_client):
         resp = await admin_client.post("/api/moments", json={

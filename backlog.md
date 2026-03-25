@@ -1,9 +1,9 @@
 # Family Book Backlog
 
-Sprint: `S15 - Rich Family Storytelling and Multi-Item Authoring`
-Status: Planned
+Sprint: `Sprint 16 planning pending`
+Status: Closed
 
-## Planned Sprint `S15 - Rich Family Storytelling and Multi-Item Authoring`
+## Closed Sprint `S15 - Rich Family Storytelling and Multi-Item Authoring`
 
 Sprint goal:
 - Make the tree workspace capable of richer family-history creation by supporting multi-item story composition, better grouped media/story workflows, and clearer shared family event authoring.
@@ -12,7 +12,7 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | planned | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |
+| FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | done | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |
 
 Execution slices:
 - `S15-1` Rich Story Composition in Tree Context

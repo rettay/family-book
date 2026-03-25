@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so metric panels, in-tree content review, and relationship maintenance now feel closer to a primary operating surface instead of thin wrappers around older routes. Sprint 15 is now planned to deepen the authoring side of that same workspace with richer stories, grouped media, and clearer shared event flows.
+Sprint 01 through Sprint 15 are closed. Sprint 15 deepened the authoring side of the tree workspace with grouped story-and-media memories, richer shared-event flows, and safer multi-file authoring behavior while keeping the tree as the primary working surface. Sprint 16 is the next planning discussion.
 
 ## North Star
 
@@ -102,13 +102,13 @@ Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next major product value gap is broader family authoring depth beyond the current tree sidebar: richer cross-person storytelling, better multi-item content workflows, and clearer shared family event authoring still sit ahead of the current tree workspace
+- The next product decision is where to take the tree workspace next after Sprint 15: deeper family authoring, stronger graph-editing affordances, or broader workflow polish
 - CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Execute Sprint 15 to deepen rich tree-native storytelling, grouped media handling, and shared family event authoring
-2. Preserve browser, accessibility, and staging-review confidence while expanding the tree workspace further
+1. Plan Sprint 16 around the next highest-value tree workspace or family-history workflow gap
+2. Preserve browser, accessibility, and staging-review confidence while expanding the product surface further
 3. Reduce remaining warning-only structural debt where it directly supports user-facing confidence
 4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
 
@@ -129,10 +129,12 @@ Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so
   - `S12 - External Integrations and Confidence Hardening`
   - `S13 - Tree Workspace 2.0`
   - `S14 - Family Content and Relationship Authoring`
-- Planned sprint:
   - `S15 - Rich Family Storytelling and Multi-Item Authoring`
+- Next sprint:
+  - `Sprint 16 - to be defined`
 - Sprint 15 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s15.md`
 - Sprint 15 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s15.md`
+- Sprint 15 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s15.md`
 - Primary packet: `/Users/cheech/code/family-book/task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md`
 - Sprint 14 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s14.md`
 - Sprint 14 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s14.md`

@@ -93,6 +93,21 @@
     }
   }
 
+  function parseJsonArray(rawValue) {
+    if (!rawValue) {
+      return [];
+    }
+    try {
+      var parsed = JSON.parse(rawValue);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean);
+      }
+    } catch (err) {
+      return [];
+    }
+    return [];
+  }
+
   function formatDateLabel(value) {
     if (!value) {
       return '';
@@ -212,6 +227,30 @@
       .join(', ');
   }
 
+  function formatAttachmentSummary(count) {
+    if (!count) {
+      return root.dataset.treeStoryAttachmentsPending;
+    }
+    return root.dataset.treeStoryAttachmentsCount.replace('{count}', String(count));
+  }
+
+  function renderComposerFiles(fileInput, summaryNode, listNode) {
+    var files = fileInput && fileInput.files ? Array.prototype.slice.call(fileInput.files) : [];
+    if (summaryNode) {
+      summaryNode.textContent = formatAttachmentSummary(files.length);
+    }
+    if (!listNode) {
+      return;
+    }
+    clearNode(listNode);
+    files.forEach(function(file) {
+      var chip = document.createElement('span');
+      chip.className = 'tree-composer-token';
+      chip.textContent = file.name;
+      listNode.appendChild(chip);
+    });
+  }
+
   function createMomentNode(moment) {
     var article = document.createElement('article');
     article.className = 'tree-sidebar-moment';
@@ -219,11 +258,16 @@
       article.classList.add('tree-sidebar-moment--highlight');
     }
 
+    var isSharedEvent = !!(moment.tagged_people && moment.tagged_people.length);
+
     var meta = document.createElement('div');
     meta.className = 'tree-sidebar-moment__meta';
     meta.textContent = moment.kind === 'story'
       ? root.dataset.treeStoryLabel
       : root.dataset.treeMomentLabel;
+    if (isSharedEvent) {
+      meta.textContent = root.dataset.treeSharedEventLabel + ' · ' + meta.textContent;
+    }
     if (moment.occurred_at) {
       meta.textContent += ' · ' + formatDateLabel(moment.occurred_at);
     }
@@ -251,6 +295,19 @@
     }
 
     if (moment.media && moment.media.length) {
+      if (moment.media.length > 1) {
+        var bundle = document.createElement('div');
+        bundle.className = 'tree-sidebar-bundle';
+        var bundleLabel = document.createElement('strong');
+        bundleLabel.className = 'tree-sidebar-bundle__title';
+        bundleLabel.textContent = root.dataset.treeBundleLabel;
+        bundle.appendChild(bundleLabel);
+        var bundleMeta = document.createElement('span');
+        bundleMeta.className = 'tree-sidebar-bundle__meta';
+        bundleMeta.textContent = root.dataset.treeBundleItemsLabel.replace('{count}', String(moment.media.length));
+        bundle.appendChild(bundleMeta);
+        article.appendChild(bundle);
+      }
       var mediaStrip = document.createElement('div');
       mediaStrip.className = 'tree-sidebar-moment__media-strip';
       moment.media.slice(0, 3).forEach(function(media) {
@@ -313,13 +370,35 @@
       return;
     }
     container.setAttribute('aria-busy', 'false');
+    if (sidebarState.momentFilter === 'shared') {
+      moments = moments.filter(function(moment) {
+        return moment.tagged_people && moment.tagged_people.length;
+      });
+    }
     if (!moments.length) {
       renderEmptyTreeStream(
         container,
-        sidebarState.momentFilter === 'story' ? root.dataset.emptyStoryMoments : root.dataset.emptyMoments,
-        getSidebarCanManage() ? (sidebarState.momentFilter === 'story' ? root.dataset.addFirstStory : null) : null,
+        sidebarState.momentFilter === 'story'
+          ? root.dataset.emptyStoryMoments
+          : (sidebarState.momentFilter === 'shared' ? root.dataset.emptySharedEvents : root.dataset.emptyMoments),
+        getSidebarCanManage() ? (
+          sidebarState.momentFilter === 'story'
+            ? root.dataset.addFirstStory
+            : (sidebarState.momentFilter === 'shared' ? root.dataset.addEventLabel : null)
+        ) : null,
         function() {
-          var bodyInput = document.querySelector('#tree-moment-form textarea[name="body"]');
+          var form = document.getElementById('tree-moment-form');
+          if (!form) {
+            return;
+          }
+          if (sidebarState.momentFilter === 'shared') {
+            var scopeSelect = form.querySelector('select[name="authoring_scope"]');
+            if (scopeSelect) {
+              scopeSelect.value = 'shared';
+              toggleTreeMomentFields(form.querySelector('select[name="kind"]').value, 'shared');
+            }
+          }
+          var bodyInput = form.querySelector('textarea[name="body"]');
           if (bodyInput) {
             bodyInput.focus();
           }
@@ -417,9 +496,12 @@
     }
     container.setAttribute('aria-busy', 'true');
     try {
-      var url = '/api/moments?person=' + encodeURIComponent(personId) + '&limit=8';
+      var limit = sidebarState.momentFilter === 'shared' ? 20 : 8;
+      var url = '/api/moments?person=' + encodeURIComponent(personId) + '&limit=' + limit;
       if (sidebarState.momentFilter === 'story') {
         url += '&kind=story';
+      } else if (sidebarState.momentFilter === 'shared') {
+        url += '&shared=true';
       }
       var resp = await fetch(url);
       if (!resp.ok) {
@@ -527,32 +609,178 @@
     });
   }
 
+  function initializeTreeMultiPickers() {
+    var pickers = sidebarContent.querySelectorAll('[data-tree-multi-picker]');
+    Array.prototype.forEach.call(pickers, function(picker) {
+      var input = picker.querySelector('[data-tree-multi-picker-input]');
+      var valueNode = picker.querySelector('[data-tree-multi-picker-value]');
+      var selectedNode = picker.querySelector('[data-tree-multi-picker-selected]');
+      var resultsNode = picker.querySelector('[data-tree-multi-picker-results]');
+      if (!input || !valueNode || !selectedNode || !resultsNode) {
+        return;
+      }
+
+      function readSelectedIds() {
+        return parseJsonArray(valueNode.value);
+      }
+
+      function writeSelectedIds(ids) {
+        valueNode.value = JSON.stringify(ids);
+        renderSelected(ids);
+      }
+
+      function closeResults() {
+        resultsNode.classList.add('hidden');
+        clearNode(resultsNode);
+      }
+
+      function renderSelected(ids) {
+        clearNode(selectedNode);
+        ids.forEach(function(id) {
+          var option = sidebarState.peopleOptions.find(function(candidate) {
+            return candidate.id === id;
+          });
+          if (!option) {
+            return;
+          }
+          var token = document.createElement('span');
+          token.className = 'tree-composer-token';
+          var label = document.createElement('span');
+          label.textContent = option.display_name;
+          token.appendChild(label);
+          var remove = document.createElement('button');
+          remove.type = 'button';
+          remove.className = 'tree-composer-token__remove';
+          remove.setAttribute('aria-label', root.dataset.treeMultiPickerRemove + ' ' + option.display_name);
+          remove.textContent = '×';
+          remove.addEventListener('click', function() {
+            writeSelectedIds(readSelectedIds().filter(function(selectedId) {
+              return selectedId !== id;
+            }));
+          });
+          token.appendChild(remove);
+          selectedNode.appendChild(token);
+        });
+      }
+
+      function renderResults(matches) {
+        clearNode(resultsNode);
+        if (!matches.length) {
+          var empty = document.createElement('div');
+          empty.className = 'tree-picker__empty';
+          empty.textContent = root.dataset.pickerEmpty;
+          resultsNode.appendChild(empty);
+          resultsNode.classList.remove('hidden');
+          return;
+        }
+        matches.slice(0, 8).forEach(function(option) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'tree-picker__result';
+          button.setAttribute('role', 'option');
+          button.textContent = option.display_name;
+          button.addEventListener('click', function() {
+            var ids = readSelectedIds();
+            if (ids.indexOf(option.id) === -1) {
+              ids.push(option.id);
+              writeSelectedIds(ids);
+            }
+            input.value = '';
+            closeResults();
+            input.focus();
+          });
+          resultsNode.appendChild(button);
+        });
+        resultsNode.classList.remove('hidden');
+      }
+
+      input.addEventListener('input', function() {
+        var query = input.value.trim().toLowerCase();
+        if (!query) {
+          closeResults();
+          return;
+        }
+        var selectedIds = readSelectedIds();
+        var matches = sidebarState.peopleOptions.filter(function(option) {
+          return selectedIds.indexOf(option.id) === -1 &&
+            String(option.display_name || '').toLowerCase().indexOf(query) !== -1;
+        });
+        renderResults(matches);
+      });
+
+      input.addEventListener('blur', function() {
+        setTimeout(closeResults, 120);
+      });
+
+      input.form.addEventListener('reset', function() {
+        setTimeout(function() {
+          writeSelectedIds([]);
+          closeResults();
+        }, 0);
+      });
+
+      writeSelectedIds(readSelectedIds());
+    });
+  }
+
   function initializeTreeMomentComposer() {
     var form = document.getElementById('tree-moment-form');
     if (!form) {
       return;
     }
+    if (form.dataset.treeComposerBound === 'true') {
+      if (typeof form._syncTreeMomentComposer === 'function') {
+        form._syncTreeMomentComposer();
+      }
+      return;
+    }
     var kindSelect = form.querySelector('select[name="kind"]');
+    var scopeSelect = form.querySelector('select[name="authoring_scope"]');
     var titleInput = form.querySelector('[data-tree-moment-title-input]');
     var bodyLabel = form.querySelector('[data-tree-moment-body-label]');
     var bodyInput = form.querySelector('[data-tree-moment-body-input]');
     var submitButton = form.querySelector('[data-tree-moment-submit]');
-    if (!kindSelect || !titleInput || !bodyLabel || !bodyInput || !submitButton) {
+    var fileInput = form.querySelector('[data-tree-story-files]');
+    var fileSummary = document.getElementById('tree-story-files-summary');
+    var fileList = document.getElementById('tree-story-files-list');
+    var modeHint = form.querySelector('[data-tree-story-mode-hint]');
+    if (!kindSelect || !scopeSelect || !titleInput || !bodyLabel || !bodyInput || !submitButton) {
       return;
     }
 
-    function syncMomentComposer(kind) {
+    function syncMomentComposer(kind, scope) {
       var isStory = kind === 'story';
+      var isShared = scope === 'shared';
       bodyLabel.textContent = isStory ? root.dataset.storyPromptLabel : root.dataset.notePromptLabel;
       bodyInput.placeholder = isStory ? root.dataset.storyPromptLabel : root.dataset.notePromptLabel;
       titleInput.placeholder = isStory ? root.dataset.storyTitlePlaceholder : root.dataset.noteTitlePlaceholder;
-      submitButton.textContent = isStory ? root.dataset.addStoryLabel : root.dataset.addNoteLabel;
+      submitButton.textContent = isShared
+        ? root.dataset.addEventLabel
+        : (isStory ? root.dataset.addStoryLabel : root.dataset.addNoteLabel);
+      if (modeHint) {
+        modeHint.textContent = isShared
+          ? root.dataset.treeStoryFocusSharedHint
+          : root.dataset.treeStoryFocusPersonHint;
+      }
     }
+    form._syncTreeMomentComposer = function() {
+      syncMomentComposer(kindSelect.value, scopeSelect.value);
+    };
 
     kindSelect.addEventListener('change', function() {
-      syncMomentComposer(kindSelect.value);
+      syncMomentComposer(kindSelect.value, scopeSelect.value);
     });
-    syncMomentComposer(kindSelect.value);
+    scopeSelect.addEventListener('change', function() {
+      syncMomentComposer(kindSelect.value, scopeSelect.value);
+    });
+    if (fileInput) {
+      fileInput.addEventListener('change', function() {
+        renderComposerFiles(fileInput, fileSummary, fileList);
+      });
+      renderComposerFiles(fileInput, fileSummary, fileList);
+    }
+    form.dataset.treeComposerBound = 'true';
+    syncMomentComposer(kindSelect.value, scopeSelect.value);
   }
 
   function initializeTreeMediaComposer() {
@@ -567,9 +795,8 @@
     }
 
     function syncMediaFileName() {
-      nameNode.textContent = fileInput.files && fileInput.files[0]
-        ? fileInput.files[0].name
-        : root.dataset.mediaFilePending;
+      var listNode = document.getElementById('tree-media-file-list');
+      renderComposerFiles(fileInput, nameNode, listNode);
     }
 
     fileInput.addEventListener('change', syncMediaFileName);
@@ -579,6 +806,7 @@
   function initializeTreeSidebar(personId) {
     parseSidebarPeopleOptions();
     initializeTreePickers();
+    initializeTreeMultiPickers();
     initializeTreeMomentComposer();
     initializeTreeMediaComposer();
     switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup || sidebarState.momentFilter);
@@ -1088,8 +1316,68 @@
     }
   }
 
-  function toggleTreeMomentFields(kind) {
-    sidebarState.momentFilter = kind === 'story' ? 'story' : 'all';
+  function toggleTreeMomentFields(kind, scope) {
+    if (scope === 'shared') {
+      sidebarState.momentFilter = 'shared';
+    } else {
+      sidebarState.momentFilter = kind === 'story' ? 'story' : 'all';
+    }
+    var form = document.getElementById('tree-moment-form');
+    if (form && typeof form._syncTreeMomentComposer === 'function') {
+      form._syncTreeMomentComposer();
+    }
+  }
+
+  function normalizeOccurredAt(rawValue) {
+    if (!rawValue) {
+      return null;
+    }
+    if (rawValue.indexOf('T') !== -1) {
+      return rawValue;
+    }
+    return rawValue + 'T12:00:00Z';
+  }
+
+  async function uploadTreeFiles(files, personId, options) {
+    var opts = options || {};
+    var uploaded = [];
+    try {
+      for (var index = 0; index < files.length; index += 1) {
+        var fd = new FormData();
+        fd.append('file', files[index]);
+        fd.append('person_id', personId);
+        if (opts.caption) {
+          fd.append('caption', opts.caption);
+        }
+        if (opts.taggedPersonIds && opts.taggedPersonIds.length) {
+          fd.append('tagged_person_ids', JSON.stringify(opts.taggedPersonIds));
+        }
+        var resp = await fetch('/api/media', {method: 'POST', body: fd});
+        var data = await resp.json().catch(function() { return {}; });
+        if (!resp.ok) {
+          throw new Error(data.detail || root.dataset.mediaError);
+        }
+        uploaded.push(data);
+      }
+    } catch (err) {
+      await cleanupUploadedTreeMedia(uploaded);
+      throw err;
+    }
+    return uploaded;
+  }
+
+  async function cleanupUploadedTreeMedia(uploadedItems) {
+    if (!uploadedItems || !uploadedItems.length) {
+      return;
+    }
+    var createdItems = uploadedItems.filter(function(item) {
+      return item && item.id && !item.is_duplicate;
+    });
+    await Promise.all(createdItems.map(function(item) {
+      return fetch('/api/media/' + item.id, {method: 'DELETE'}).catch(function() {
+        return null;
+      });
+    }));
   }
 
   async function submitTreeMoment(event, personId) {
@@ -1100,10 +1388,27 @@
     var originalLabel = button.textContent;
     button.disabled = true;
     button.textContent = root.dataset.savingLabel;
+    var uploadedFiles = [];
 
     try {
       var payload = formDataToJson(form);
+      var authoringScope = payload.authoring_scope || 'person';
+      delete payload.authoring_scope;
       payload.person_id = personId;
+      payload.occurred_at = normalizeOccurredAt(payload.occurred_at);
+      var taggedPersonIds = parseJsonArray(payload.tagged_person_ids);
+      payload.tagged_person_ids = taggedPersonIds;
+      if (authoringScope === 'shared' && !taggedPersonIds.length) {
+        throw new Error(root.dataset.treeSharedEventRequiresPeople);
+      }
+      var fileInput = form.querySelector('[data-tree-story-files]');
+      if (fileInput && fileInput.files && fileInput.files.length) {
+        uploadedFiles = await uploadTreeFiles(fileInput.files, personId, {
+          caption: payload.title || '',
+          taggedPersonIds: taggedPersonIds
+        });
+        payload.media_ids = uploadedFiles.map(function(item) { return item.id; });
+      }
       var resp = await fetch('/api/moments', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -1115,11 +1420,18 @@
       }
       form.reset();
       sidebarState.activeTab = 'moments';
-      sidebarState.momentFilter = payload.kind === 'story' ? 'story' : 'all';
+      sidebarState.momentFilter = authoringScope === 'shared'
+        ? 'shared'
+        : (payload.kind === 'story' ? 'story' : 'all');
       sidebarState.highlightMomentId = data.id || '';
       await refreshTreeWorkspace(personId);
-      showToastMessage(payload.kind === 'story' ? root.dataset.treeStoryCreated : root.dataset.treeNoteCreated);
+      showToastMessage(
+        authoringScope === 'shared'
+          ? root.dataset.treeEventCreated
+          : (payload.kind === 'story' ? root.dataset.treeStoryCreated : root.dataset.treeNoteCreated)
+      );
     } catch (err) {
+      await cleanupUploadedTreeMedia(uploadedFiles);
       setError('tree-moment-error', err.message || root.dataset.updateError);
     } finally {
       button.disabled = false;
@@ -1142,26 +1454,20 @@
     var originalLabel = button.textContent;
     button.disabled = true;
     button.textContent = root.dataset.uploadLabel;
+    var uploads = [];
 
     try {
-      var fd = new FormData();
-      fd.append('file', fileInput.files[0]);
-      fd.append('person_id', personId);
       var captionInput = form.querySelector('input[name="caption"]');
-      if (captionInput && captionInput.value.trim()) {
-        fd.append('caption', captionInput.value.trim());
-      }
-      var resp = await fetch('/api/media', {method: 'POST', body: fd});
-      var data = await resp.json().catch(function() { return {}; });
-      if (!resp.ok) {
-        throw new Error(data.detail || root.dataset.mediaError);
-      }
+      uploads = await uploadTreeFiles(fileInput.files, personId, {
+        caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : ''
+      });
       form.reset();
       sidebarState.activeTab = 'media';
-      sidebarState.highlightMediaId = data.id || '';
+      sidebarState.highlightMediaId = uploads.length ? uploads[uploads.length - 1].id : '';
       await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.treeMediaUploaded);
     } catch (err) {
+      await cleanupUploadedTreeMedia(uploads);
       setError('tree-media-error', err.message || root.dataset.mediaError);
     } finally {
       button.disabled = false;

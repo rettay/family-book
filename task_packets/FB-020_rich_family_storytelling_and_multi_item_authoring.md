@@ -100,14 +100,14 @@ Secondary KPI:
 
 ## Acceptance Criteria
 
-- [ ] A member can create a tree-native story that includes multiple media items without leaving `/tree`.
-- [ ] Story-linked media is presented as a coherent grouped memory in the tree workspace rather than a flat disconnected upload list.
-- [ ] A member can author a shared family event from the tree and attach multiple tagged people with clear feedback about who the event involves.
-- [ ] The tree sidebar makes it obvious whether the current authoring flow is person-specific or a broader family event.
-- [ ] The browser regression lane proves richer story creation, multi-item attachment, and cross-person event visibility from the tree.
+- [x] A member can create a tree-native story that includes multiple media items without leaving `/tree`.
+- [x] Story-linked media is presented as a coherent grouped memory in the tree workspace rather than a flat disconnected upload list.
+- [x] A member can author a shared family event from the tree and attach multiple tagged people with clear feedback about who the event involves.
+- [x] The tree sidebar makes it obvious whether the current authoring flow is person-specific or a broader family event.
+- [x] The browser regression lane proves richer story creation, multi-item attachment, and cross-person event visibility from the tree.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria satisfied
-- [ ] Browser verification covers rich story composition, grouped media attachment, and shared-event authoring from the tree
-- [ ] The tree remains keyboard reachable and does not regress into a dense multi-step form wall
+- [x] Acceptance criteria satisfied
+- [x] Browser verification covers rich story composition, grouped media attachment, and shared-event authoring from the tree
+- [x] The tree remains keyboard reachable and does not regress into a dense multi-step form wall
