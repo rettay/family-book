@@ -1,5 +1,44 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Planned Sprint
+
+### `S15 - Rich Family Storytelling and Multi-Item Authoring`
+
+Status: Planned
+
+### Sprint Goal
+
+Make the tree workspace capable of richer family-history capture by supporting better in-tree story composition, grouped media/story workflows, and clearer shared family event authoring.
+
+### Why This Sprint Exists
+
+Sprint 13 and Sprint 14 made the tree a believable place to work, but the next product gap is the richness of what can be created there. Real family memories often involve multiple photos, multiple people, and a stronger shared-event context than a one-item note or upload. Sprint 15 exists to make the tree better at capturing those richer memory units without falling back into the older disconnected flows.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 18 | FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | planned |
+
+## Packet Sequence Rationale
+
+### FB-020 now
+
+The next highest-value move is to make tree-native storytelling deeper and more cohesive so members can capture richer family history as one task instead of multiple disconnected actions.
+
+### Structural cleanup still stays behind user-facing workflow value
+
+The remaining warning-only structural debt still matters, but the product bottleneck is still content-authoring depth and quality inside the tree workspace rather than another internal cleanup sprint.
+
+## Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- members can create richer stories from the tree with more than one media item
+- grouped story/media review feels coherent in the tree sidebar
+- shared family event authoring is clearer and more first-class than tagged-person afterthoughts
+- browser, accessibility, and CodeMap baselines remain intact
+
 ## Closed Sprint
 
 ### `S14 - Family Content and Relationship Authoring`

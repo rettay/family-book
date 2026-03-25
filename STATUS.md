@@ -6,7 +6,7 @@ Family Book is in **shared-collaboration rebuild**.
 
 The product contract reset is complete, and the first four implementation sprints now align the runtime with the intended collaborative family-wiki model: invite-based onboarding, flat shared visibility for active members, richer persisted family-history content, discovery surfaces, a usable shared timeline layer, and recoverable collaboration controls.
 
-Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so metric panels, in-tree content review, and relationship maintenance now feel closer to a primary operating surface instead of thin wrappers around older routes.
+Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so metric panels, in-tree content review, and relationship maintenance now feel closer to a primary operating surface instead of thin wrappers around older routes. Sprint 15 is now planned to deepen the authoring side of that same workspace with richer stories, grouped media, and clearer shared event flows.
 
 ## North Star
 
@@ -102,12 +102,12 @@ Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so
 
 - Browser coverage is now materially stronger, but it is still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
 - CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The next major product value gap is broader family authoring depth beyond the current tree sidebar: richer cross-person storytelling, better multi-item content workflows, and more expressive relationship modeling still sit ahead of the current tree workspace
+- The next major product value gap is broader family authoring depth beyond the current tree sidebar: richer cross-person storytelling, better multi-item content workflows, and clearer shared family event authoring still sit ahead of the current tree workspace
 - CodeMap still points to structural warning-only debt in observability, ownership concentration, hidden coupling, and the settings/theme-service cycle even though governance remains passing
 
 ## Current Priority Order
 
-1. Decide and execute Sprint 15 based on the next highest-value family authoring and workflow gaps
+1. Execute Sprint 15 to deepen rich tree-native storytelling, grouped media handling, and shared family event authoring
 2. Preserve browser, accessibility, and staging-review confidence while expanding the tree workspace further
 3. Reduce remaining warning-only structural debt where it directly supports user-facing confidence
 4. Keep broader architecture cleanup behind user-facing value unless it blocks product progress
@@ -126,44 +126,21 @@ Sprint 01 through Sprint 14 are closed. Sprint 14 deepened the tree workspace so
   - `S09 - Accessibility and Interaction Hardening`
   - `S10 - Readability and Responsive Polish`
   - `S11 - Tree as Primary Workspace`
-- `S12 - External Integrations and Confidence Hardening`
-- `S13 - Tree Workspace 2.0`
-- Next sprint:
-  - `TBD - Sprint 15`
-- Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
-- Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
-- Sprint 12 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s12.md`
-- Sprint 13 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s13.md`
-- Sprint 13 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s13.md`
-- Sprint 13 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s13.md`
+  - `S12 - External Integrations and Confidence Hardening`
+  - `S13 - Tree Workspace 2.0`
+  - `S14 - Family Content and Relationship Authoring`
+- Planned sprint:
+  - `S15 - Rich Family Storytelling and Multi-Item Authoring`
+- Sprint 15 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s15.md`
+- Sprint 15 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s15.md`
+- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md`
 - Sprint 14 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s14.md`
 - Sprint 14 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s14.md`
 - Sprint 14 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s14.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-019_family_content_and_relationship_authoring.md`
-- Previous packet: `/Users/cheech/code/family-book/task_packets/FB-018_tree_workspace_interaction_overhaul.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-016_external_integrations_google_maps_and_email_delivery.md`
-- Supporting packet: `/Users/cheech/code/family-book/task_packets/FB-014_architecture_and_maintainability_hardening.md`
-- Sprint 11 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s11.md`
-- Sprint 10 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s10.md`
-- Sprint 10 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s10.md`
-- Sprint 10 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s10.md`
-- Sprint 09 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s09.md`
-- Sprint 09 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s09.md`
-- Sprint 09 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s09.md`
-- Sprint 08 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s08.md`
-- Sprint 08 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s08.md`
-- Sprint 08 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s08.md`
-- Sprint 07 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s07.md`
-- Sprint 07 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s07.md`
-- Sprint 07 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s07.md`
-- Sprint 06 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s06.md`
-- Sprint 06 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s06.md`
-- Sprint 06 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s06.md`
-- Sprint 05 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s05.md`
-- Sprint 05 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s05.md`
-- Sprint 05 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s05.md`
-- Sprint 04 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s04.md`
-- Sprint 04 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s04.md`
-- Sprint 04 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s04.md`
-- Sprint 03 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s03.md`
+- Sprint 13 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s13.md`
+- Sprint 13 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s13.md`
+- Sprint 13 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s13.md`
+- Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
+- Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
+- Sprint 12 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s12.md`
 - See `/Users/cheech/code/family-book/backlog.md` and `/Users/cheech/code/family-book/docs/strategy/kanban-2026q1.md`.

@@ -2,7 +2,9 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |
 
 ## In Progress
 
