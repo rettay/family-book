@@ -2,52 +2,9 @@
 
 ## Planned Sprint
 
-### `S18 - Completeness Prompts and Sidebar Detail Depth`
+### `S19 - External Record Integration Foundation`
 
 Status: Planning
-
-### Sprint Goal
-
-Turn missing data into contribution invitations and make the tree sidebar the complete editing surface so members rarely need to detour to the full edit page.
-
-### Why This Sprint Exists
-
-Sprint 17 added tree search, content hierarchy improvements, and research notes. The next bottleneck is that members see empty fields without actionable prompts, and the tree sidebar Details tab still requires navigating to the full edit page for common fields (gender, death date, patronymic, burial details, languages, contact info). Sprint 18 closes both gaps: completeness prompts motivate contribution, and sidebar detail expansion reduces page-navigation friction.
-
-### Committed Packet
-
-| Order | ID | Title | Priority | Status |
-|---|---|---|---:|---|
-| 22 | FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | todo |
-
-### Execution Slices
-
-| Slice | Title | Status |
-|---|---|---|
-| S18-1 | Per-Person Completeness Prompts in Sidebar | todo |
-| S18-2 | Sidebar Details Tab Field Expansion | todo |
-| S18-3 | Family-Level Completeness Summary API | todo |
-
-### Sprint Exit Criteria
-
-The sprint is successful when all are true:
-
-- the sidebar overview tab shows actionable prompts for missing birth date, photo, bio, and stories
-- the sidebar Details tab supports editing gender, death date, patronymic, birth last name, languages, burial details, and is_living
-- a family-level completeness API endpoint returns aggregated gap counts across all accessible persons
-- browser, accessibility, and CodeMap baselines remain intact
-
-### Context
-
-- UX North Star: `foundation/UX_NORTH_STAR.md`
-- Gap triage: `docs/strategy/genealogy-review-triage.md` (G-04, G-05)
-- Primary packet: `task_packets/FB-024_completeness_and_detail_depth.md`
-
-## Candidate Sprints
-
-### `S19 - External Record Integration Foundation` (candidate)
-
-Status: Candidate — packet written, not yet committed
 
 ### Sprint Goal
 
@@ -55,23 +12,23 @@ Give Family Book the ability to import existing family trees via GEDCOM and sear
 
 ### Why This Sprint Exists
 
-Research identified that all major genealogy APIs relevant to the family's four countries are free. GEDCOM import is the single most important onboarding path for users with existing research. External record search turns the app from a display layer into the place where research happens. CEMLA covers the specific Italian-Argentine immigration connection that no other tool integrates.
+Sprint 18 closed completeness prompts and sidebar detail expansion. The next bottleneck is onboarding and research workflow: users with years of research in Ancestry or FamilySearch have no way to bring their data into Family Book, and researchers working on specific ancestors must leave the app to search external databases. GEDCOM import is the single most important onboarding accelerator. External record search turns the app from a display layer into the place where research happens. CEMLA covers the specific Italian-Argentine immigration connection that no other tool integrates.
 
-### Candidate Packet
+### Committed Packet
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 21 | FB-023 | External Record Integration Foundation | P1 | candidate |
+| 23 | FB-023 | External Record Integration Foundation | P1 | todo |
 
-### Planned Execution Slices
+### Execution Slices
 
-| Slice | Title |
-|---|---|
-| S19-1 | GEDCOM Import |
-| S19-2 | External Record Search Panel |
-| S19-3 | CEMLA Immigration Record Search |
+| Slice | Title | Status |
+|---|---|---|
+| S19-1 | GEDCOM Import | todo |
+| S19-2 | External Record Search Panel | todo |
+| S19-3 | CEMLA Immigration Record Search | todo |
 
-### Sprint Exit Criteria (draft)
+### Sprint Exit Criteria
 
 The sprint is successful when all are true:
 
@@ -86,6 +43,42 @@ The sprint is successful when all are true:
 - Integration packet: `task_packets/FB-023_external_record_integration_foundation.md`
 - Gap triage: `docs/strategy/genealogy-review-triage.md` (G-10, G-17, G-18)
 - Decision #11: External integration strategy
+
+## Closed Sprint
+
+### `S18 - Completeness Prompts and Sidebar Detail Depth`
+
+Status: Closed
+
+### Sprint Goal
+
+Turn missing data into contribution invitations and make the tree sidebar the complete editing surface so members rarely need to detour to the full edit page.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 22 | FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S18-1 | Per-Person Completeness Prompts in Sidebar | done |
+| S18-2 | Sidebar Details Tab Field Expansion | done |
+| S18-3 | Family-Level Completeness Summary API | done |
+
+### Exit Result
+
+- Exit result: `pass with follow-ups`
+- Builder implemented Sprint 18 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS — all 21 acceptance criteria met, no P0/P1 findings
+- Follow-up F-01 (P2): gender completeness prompt navigated to wrong sidebar section — fixed and pushed before closeout
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `265 passed, 0 failed`
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
 
 ---
 

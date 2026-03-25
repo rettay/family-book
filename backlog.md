@@ -1,29 +1,28 @@
 # Family Book Backlog
 
-Sprint: `S18 - Completeness Prompts and Sidebar Detail Depth`
+Sprint: `S19 - External Record Integration Foundation`
 Status: Planning
 
-## Current Sprint `S18 - Completeness Prompts and Sidebar Detail Depth`
+## Current Sprint `S19 - External Record Integration Foundation`
 
 Sprint goal:
-- Turn missing data into contribution invitations and make the tree sidebar the complete editing surface so members rarely need to detour to the full edit page.
+- Give Family Book the ability to import existing family trees via GEDCOM and search free external genealogy databases so the app becomes a research workspace rather than a display layer.
 
 Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | todo | `task_packets/FB-024_completeness_and_detail_depth.md` |
+| FB-023 | External Record Integration Foundation | P1 | todo | `task_packets/FB-023_external_record_integration_foundation.md` |
 
 Execution slices:
-- `S18-1` Per-Person Completeness Prompts in Sidebar
-- `S18-2` Sidebar Details Tab Field Expansion
-- `S18-3` Family-Level Completeness Summary API
+- `S19-1` GEDCOM Import
+- `S19-2` External Record Search Panel
+- `S19-3` CEMLA Immigration Record Search
 
 ## Planned Follow-Up Sprints
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S19 | External Record Integration Foundation | G-10 (GEDCOM import), G-17 (external record search), G-18 (CEMLA) | candidate |
 | S20 | Family Calendar and Relationship Intelligence | G-16 (family calendar), G-06 (relationship calculator), G-15 (visual relationship types) | candidate |
 | S21 | Multimedia, Timeline, and Life Story Depth | G-19 (multimedia + docs), G-08/G-20 (timeline + branch filter), G-22 (life story fields) | candidate |
 | S22 | Genetic Profile and Family Health Intelligence | G-23 (genetic profile, structured medical, health dashboard) | candidate |
@@ -32,6 +31,22 @@ Execution slices:
 Long horizon: G-21 (AI family memorial) — requires G-19 + G-22 + G-23 + rich content foundation
 
 Gap triage: `docs/strategy/genealogy-review-triage.md`
+
+## Closed Sprint `S18 - Completeness Prompts and Sidebar Detail Depth`
+
+Sprint goal:
+- Turn missing data into contribution invitations and make the tree sidebar the complete editing surface so members rarely need to detour to the full edit page.
+
+Committed packet:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | done | `task_packets/FB-024_completeness_and_detail_depth.md` |
+
+Execution slices:
+- `S18-1` Per-Person Completeness Prompts in Sidebar
+- `S18-2` Sidebar Details Tab Field Expansion
+- `S18-3` Family-Level Completeness Summary API
 
 ## Closed Sprint `S17 - Tree Discovery and Research Foundation`
 

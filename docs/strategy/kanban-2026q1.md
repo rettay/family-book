@@ -4,7 +4,7 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | `task_packets/FB-024_completeness_and_detail_depth.md` |
+| FB-023 | External Record Integration Foundation | P1 | `task_packets/FB-023_external_record_integration_foundation.md` |
 
 ## In Progress
 
@@ -18,6 +18,7 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | `task_packets/FB-024_completeness_and_detail_depth.md` |
 | FB-001 | Product Contract and Operating System Bootstrap | P0 | `task_packets/FB-001_product_contract_and_operating_system_bootstrap.md` |
 | FB-002 | Account, Invite, and Admin Foundation | P0 | `task_packets/FB-002_account_invite_and_admin_foundation.md` |
 | FB-003 | Flat Family Access and Shared Visibility Reset | P0 | `task_packets/FB-003_flat_family_access_and_shared_visibility_reset.md` |

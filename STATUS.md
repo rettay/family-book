@@ -2,9 +2,9 @@
 
 ## Overall State
 
-Family Book is in **genealogy-workflow expansion**.
+Family Book is in **external integration and research-workspace expansion**.
 
-The product contract reset and tree-workspace foundation are complete (Sprints 01-17). The tree is the primary workspace with tabbed sidebar, moments/media authoring, graph-mode relationship editing, rich storytelling, in-tree search with zoom-to-node, research notes per person, and improved person page content hierarchy. Sprint 17 delivered tree discovery and research foundation. Sprint 18 is in planning, targeting completeness prompts and sidebar detail expansion.
+The product contract reset, tree-workspace foundation, and completeness/detail-depth work are complete (Sprints 01-18). The tree is the primary workspace with tabbed sidebar, moments/media authoring, graph-mode relationship editing, rich storytelling, in-tree search with zoom-to-node, research notes per person, completeness prompts in sidebar, expanded collapsible detail sections (Identity, Dates, Places, Notes, Contact, Languages), and a family-level completeness API. Sprint 18 delivered completeness prompts and sidebar detail depth. Sprint 19 is in planning, targeting GEDCOM import, external record search, and CEMLA integration.
 
 ## North Star
 
@@ -108,6 +108,11 @@ The product contract reset and tree-workspace foundation are complete (Sprints 0
   - Result at closeout: success
   - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
   - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
+- Focused Sprint 18 verification:
+  - `uv run pytest -q`
+  - Result at closeout: `265 passed, 0 failed`
+  - `uv run --directory ~/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - Result at closeout: `17 PASS`, `0 FAIL`, `8 WARN`
 - Syntax smoke check:
   - `uv run python -m compileall app tests`
   - Result: success
@@ -131,9 +136,9 @@ The product contract reset and tree-workspace foundation are complete (Sprints 0
 
 ## Current Priority Order
 
-1. Execute Sprint 18 (completeness prompts, sidebar detail expansion)
+1. Execute Sprint 19 (GEDCOM import, external record search, CEMLA) — the integration foundation
 2. Preserve browser, accessibility, and staging-review confidence while expanding research-workflow support
-4. Execute Sprint 19 (GEDCOM import, external record search, CEMLA) — the integration foundation
+3. Execute Sprint 20 (family calendar, relationship calculator) once S19 lands
 5. Execute Sprint 20 (family calendar, relationship calculator) once S19 lands
 6. Execute Sprint 21 (multimedia playback, timeline, branch filtering) — completes the archive story and enables voice recordings for AI memorial
 7. Keep architecture cleanup behind user-facing genealogy-workflow value unless it blocks product progress
@@ -158,8 +163,9 @@ The product contract reset and tree-workspace foundation are complete (Sprints 0
   - `S15 - Rich Family Storytelling and Multi-Item Authoring`
   - `S16 - Tree Graph Editing and Relationship Modeling`
   - `S17 - Tree Discovery and Research Foundation`
-- Planning: `S18 - Completeness Prompts and Sidebar Detail Depth`
-- Candidate: `S19 - External Record Integration Foundation`
+  - `S18 - Completeness Prompts and Sidebar Detail Depth`
+- Planning: `S19 - External Record Integration Foundation`
+- Candidate: `S20 - Family Calendar and Relationship Intelligence`
 - Primary integration packet: `/Users/cheech/code/family-book/task_packets/FB-023_external_record_integration_foundation.md`
 - Sprint 16 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s16.md`
 - Sprint 16 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s16.md`
