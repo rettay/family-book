@@ -255,6 +255,7 @@ async def list_moments(
     person: str | None = Query(None),
     branch: str | None = Query(None),
     kind: str | None = Query(None),
+    shared: bool = Query(False),
     year: int | None = Query(None),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
@@ -277,6 +278,7 @@ async def list_moments(
         person_id=person,
         branch=branch,
         kind=kind,
+        tagged_only=shared,
         year=year,
     )
     return await build_moment_cards(db, moments, current_user)

@@ -1,5 +1,91 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Next Sprint
+
+### `Sprint 16 - to be defined`
+
+Status: Planning pending
+
+### Sprint Goal
+
+To be defined from the next product assessment and PM discussion.
+
+### Why This Sprint Exists
+
+Sprint 15 is closed. Sprint 16 has not been committed yet and should be scoped from the next round of product feedback rather than assumed prematurely.
+
+### Committed Packet
+
+None yet.
+
+## Packet Sequence Rationale
+
+Sprint 16 should be selected after the next product discussion, with preference for the highest-value user-facing workflow gap over standalone cleanup.
+
+## Sprint Exit Criteria
+
+To be defined when Sprint 16 is planned.
+
+## Closed Sprint
+
+### `S15 - Rich Family Storytelling and Multi-Item Authoring`
+
+Status: Closed
+
+### Sprint Goal
+
+Make the tree workspace strong enough for richer family-history capture by supporting better in-tree story composition, grouped media/story workflows, and clearer shared family event authoring.
+
+### Why This Sprint Exists
+
+Sprint 13 and Sprint 14 fixed the biggest context-switching and shallow-workspace problems. The next bottleneck was richer family-history composition. Many real memories are not a single text post or a single upload; they are a story with a few photos, a set of people, and a shared event context. Sprint 15 existed to make the tree better at capturing those richer units without drifting into a full editor rewrite or a brand-new content model.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 18 | FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | done |
+
+### Packet Sequence Rationale
+
+#### FB-020 now
+
+The next highest-value move was to make tree-native storytelling deeper and more cohesive so members could capture richer family history as one task instead of multiple disconnected actions.
+
+#### Structural cleanup still stays behind user-facing workflow value
+
+The remaining warning-only structural debt still matters, but the product bottleneck was still content-authoring depth and quality inside the tree workspace rather than another internal cleanup sprint.
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- members can create richer stories from the tree with more than one media item
+- grouped story/media review feels coherent in the tree sidebar
+- shared family event authoring is clearer and more first-class than tagged-person afterthoughts
+- browser, accessibility, and CodeMap baselines remain intact
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 15 on `codex/s15-rich-storytelling`
+- Auditor found three correctness defects in failure and shared-event review paths, and the builder corrected them before final signoff
+- Focused closeout baseline:
+  - `uv run python -m compileall app tests`
+  - result: success
+  - `uv run pytest tests/test_pages.py tests/test_api.py tests/test_moments.py tests/test_media.py -q`
+  - result during implementation: `123 passed`
+  - `uv run pytest tests/test_moments.py tests/test_pages.py tests/test_media.py -q`
+  - result after audit follow-up: `73 passed`
+  - `make test-ui-playwright`
+  - result: success
+  - `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json`
+  - result: `17 PASS`, `0 FAIL`, `8 WARN`
+
+### Recommended Next Sprint
+
+- `Sprint 16 - to be defined`
+- Focus: choose the next highest-value product improvement after the richer tree storytelling baseline established in Sprint 15
 ## Closed Sprint
 
 ### `S14 - Family Content and Relationship Authoring`
