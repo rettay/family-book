@@ -10,15 +10,14 @@ None.
 
 ## In Review
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-031 | Research Tools UX Overhaul | P1 | `task_packets/FB-031_research_tools_ux_overhaul.md` |
-| FB-032 | i18n Test Parity | P2 | `task_packets/FB-032_i18n_test_parity.md` |
+None.
 
 ## Done
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-031 | Research Tools UX Overhaul | P1 | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+| FB-032 | i18n Test Parity | P2 | `task_packets/FB-032_i18n_test_parity.md` |
 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |
 | FB-030 | Person Wiki Pages | P1 | `task_packets/FB-030_person_wiki_pages.md` |
 | FB-028 | Source Citations, Evidence, and Date Intelligence | P1 | `task_packets/FB-028_source_citations_evidence_and_date_intelligence.md` |

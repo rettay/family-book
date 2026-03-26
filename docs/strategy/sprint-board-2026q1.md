@@ -1,10 +1,48 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Current Sprint
+## Next Sprint Candidate
+
+### `S26 - Platform Completeness and Power User Tools`
+
+Status: Candidate
+
+### Sprint Goal
+
+Add power-user tools that complete the platform beyond V1: a fan/pedigree chart view for ancestor-focused browsing, duplicate person detection and merge to maintain data quality at scale, and print/export family sheets for offline research sessions.
+
+### Why This Sprint Next
+
+S25 closed the last genealogy-researcher persona gap (research UX). All V1 product requirements are met. All Tier 1 and Tier 2 gaps from the genealogy review are complete. The remaining Tier 3 gaps (G-11, G-12, G-14) are platform completeness features that make Family Book competitive with dedicated genealogy tools. These are the highest-value improvements available for users who have already built substantial family trees.
+
+### Candidate Packets
+
+| Gap | Title | Priority | Notes |
+|---|---|---:|---|
+| G-11 | Fan Chart / Pedigree View | P2 | Alternative D3 layout, ancestor-focused |
+| G-12 | Duplicate Person Detection and Merge | P2 | Fuzzy matching, merge UI, relationship re-linking |
+| G-14 | Print / Export Family Sheet | P3 | PDF generation or print CSS for offline use |
+
+### Candidate Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S26-1 | Fan Chart / Pedigree View (G-11) | candidate |
+| S26-2 | Duplicate Person Detection and Merge (G-12) | candidate |
+| S26-3 | Print / Export Family Sheet (G-14) | candidate |
+
+### Open Questions
+
+- Should G-12 (duplicate detection) be combined with a data-quality dashboard?
+- What PDF library to use for G-14 — server-side (weasyprint, reportlab) or print CSS?
+- Should G-11 include a descendant fan chart or only ancestor pedigree?
+
+---
+
+## Closed Sprint
 
 ### `S25 - Research UX Overhaul and Test Infrastructure`
 
-Status: In Review
+Status: Closed
 
 ### Sprint Goal
 
@@ -47,20 +85,27 @@ The sprint is successful when all are true:
 - a test exists that validates all 3 locale files have matching key sets
 - test baselines remain intact, i18n parity maintained
 
-### Builder Implementation Notes
+### Exit Result
 
+- Exit result: `pass`
 - Builder implemented Sprint 25 on `main`
-- 4 slices delivered: research index page, saved records API, cross-links, i18n tests
-- New files: `app/routes/research.py`, `app/services/research_service.py`, `app/models/saved_record.py`, `app/templates/research.html`, `tests/test_research.py`, `tests/test_i18n.py`
-- Migration: `alembic/versions/08f77a386981_add_saved_records_table.py`
-- 7 sources configured (chronicling_america, nara, trove, dpla, familysearch, antenati, cemla)
-- Cross-links from person profile and wiki page to `/research?person_id={id}`
-- Root person restrictions enforced (no research link, no prefill)
-- i18n parity test with `ALLOWED_EMPTY_KEYS` for intentionally blank `app.tagline`
-- Focused build baseline:
+- Auditor issued PASS WITH FOLLOW-UPS — all acceptance criteria evaluated, 2 findings:
+  - S25-F01 (P1): Root person name leak in research template — `/research?person_id={root_id}` exposed root person's real first_name/last_name. Fixed by nulling `person_context` when `is_root`.
+  - S25-F02 (P2): Hardcoded "Researching:" string not i18n'd — replaced with `{{ t('research.researching') }}` key in all 3 locales.
+- All fixes re-audited: PASS — no remaining findings
+- Focused closeout baseline:
   - `uv run pytest -q`
   - result: `475 passed, 0 failed`
   - 15 new tests added (up from 460 baseline)
+  - i18n parity: all 3 locales (en, es, ru) have matching key sets
+  - Migration: `alembic/versions/08f77a386981_add_saved_records_table.py`
+
+### Context
+
+- Task packets: `task_packets/FB-031_research_tools_ux_overhaul.md`, `task_packets/FB-032_i18n_test_parity.md`
+- Research routes: `app/routes/research.py`
+- Research service: `app/services/research_service.py`
+- SavedRecord model: `app/models/saved_record.py`
 
 ---
 
