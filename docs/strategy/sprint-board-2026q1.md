@@ -1,10 +1,10 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Planned Sprint
+## Closed Sprint
 
 ### `S20 - Family Calendar and Relationship Intelligence`
 
-Status: Planning
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,9 +18,9 @@ Sprint 19 landed GEDCOM import, external record search, and CEMLA integration �
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 25 | FB-025 | Family Calendar and Relationship Intelligence | P1 | in progress |
+| 25 | FB-025 | Family Calendar and Relationship Intelligence | P1 | done |
 
-### Execution Slices
+### Delivered Slices
 
 | Slice | Title | Status |
 |---|---|---|
@@ -38,10 +38,29 @@ The sprint is successful when all are true:
 - root person redaction is maintained across all new surfaces
 - browser, accessibility, and test baselines remain intact
 
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 20 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS on initial review — all 28 acceptance criteria evaluated (27 PASS, 1 PARTIAL on dark theme)
+- Builder fixed all follow-up defects before closeout:
+  - P2: i18n gaps in calendar templates — added 25 calendar keys across 3 locales (en, es, ru), updated all templates to use `{{ t() }}`
+  - P3: Jump-to-month selector missing — added `<select>` with HTMX month navigation
+  - P3: Dark theme edge colors hardcoded — extracted 10 CSS custom properties in `:root` for edge and calendar dot colors
+  - P3: Missing tests for date precision edge cases and moment events — added 5 new tests
+  - P3: Graph adjacency not cached — deferred, acceptable for launch (O(n) where n is family size)
+- Final re-audit: PASS — all defect fixes verified, adversarial probes clear
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `344 passed, 0 failed`
+  - i18n parity: `273 keys, 3 locales, 0 mismatches`
+  - Playwright (pre-existing): `31 PASS, 0 FAIL`
+
 ### Context
 
 - Task packet: `task_packets/FB-025_family_calendar_and_relationship_intelligence.md`
 - Gap triage: `docs/strategy/genealogy-review-triage.md` (G-16, G-06, G-15)
+- Decision #12: Family calendar auto-populated from existing dates
 
 ## Closed Sprint
 

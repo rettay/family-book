@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Calendar — {{ brand_display_name }}{% endblock %}
+{% block title %}{{ t('calendar.title') }} — {{ brand_display_name }}{% endblock %}
 
 {% block content %}
 <div class="calendar-page" id="calendar-page">
   <div class="calendar-page__header">
-    <h1 class="calendar-page__title">Family Calendar</h1>
+    <h1 class="calendar-page__title">{{ t('calendar.title') }}</h1>
   </div>
 
   <div id="calendar-grid-container">

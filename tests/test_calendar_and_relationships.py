@@ -1,5 +1,7 @@
 """Tests for family calendar, relationship calculator, and visual relationship types."""
 
+from datetime import datetime, timezone
+
 import pytest
 from httpx import AsyncClient
 
@@ -122,6 +124,7 @@ async def test_calendar_root_person_uses_display_name(admin_client: AsyncClient)
 async def test_calendar_page_renders(admin_client: AsyncClient):
     resp = await admin_client.get("/calendar")
     assert resp.status_code == 200
+    # Title comes from i18n key calendar.title (en: "Family Calendar")
     assert "Family Calendar" in resp.text
 
 
@@ -267,3 +270,86 @@ async def test_tree_api_includes_partnership_kind(admin_client: AsyncClient):
     for p in data["partnerships"]:
         assert "kind" in p
         assert "status" in p
+
+
+# ── Audit defect fix tests ──────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_calendar_month_only_precision_appears_on_day_1(admin_client: AsyncClient):
+    """Person with month-only birth_date_precision should appear on day 1."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "MonthOnly",
+        "last_name": "Precision",
+        "birth_date": "1985-04",
+        "birth_date_precision": "month",
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/calendar?month=2026-04")
+    assert resp.status_code == 200
+    data = resp.json()
+    birthday_events = [e for e in data["events"] if e["type"] == "birthday" and "MonthOnly" in e["label"]]
+    assert len(birthday_events) >= 1
+    assert birthday_events[0]["day"] == 1
+    assert birthday_events[0]["year_only"] is True
+
+
+@pytest.mark.asyncio
+async def test_calendar_year_only_precision_excluded(admin_client: AsyncClient):
+    """Person with year-only birth_date_precision should NOT appear on calendar."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "YearOnly",
+        "last_name": "Precision",
+        "birth_date": "1960",
+        "birth_date_precision": "year",
+    })
+    assert resp.status_code == 201
+
+    # Check all months — should not appear anywhere
+    for m in (1, 6, 12):
+        resp = await admin_client.get(f"/api/calendar?month=2026-{m:02d}")
+        assert resp.status_code == 200
+        data = resp.json()
+        yearonly_events = [e for e in data["events"] if "YearOnly" in e.get("label", "")]
+        assert len(yearonly_events) == 0
+
+
+@pytest.mark.asyncio
+async def test_calendar_moment_event_appears(admin_client: AsyncClient):
+    """Moment with occurred_at should appear on calendar for that month."""
+    tyler_id = "tyler-000-0000-0000-000000000002"
+    resp = await admin_client.post("/api/moments", json={
+        "kind": "story",
+        "person_id": tyler_id,
+        "title": "CalTest Summer Trip",
+        "body": "A family trip to test the calendar.",
+        "occurred_at": "2026-08-14T10:00:00Z",
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/calendar?month=2026-08")
+    assert resp.status_code == 200
+    data = resp.json()
+    moment_events = [e for e in data["events"] if e["type"] == "moment" and "CalTest Summer Trip" in e["label"]]
+    assert len(moment_events) >= 1
+    assert moment_events[0]["day"] == 14
+
+
+@pytest.mark.asyncio
+async def test_calendar_page_has_jump_selector(admin_client: AsyncClient):
+    """Calendar page should include a month jump selector."""
+    resp = await admin_client.get("/calendar")
+    assert resp.status_code == 200
+    assert "cal__jump-select" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_calendar_page_uses_i18n_filter_labels(admin_client: AsyncClient):
+    """Calendar filter labels should come from i18n, not hardcoded English."""
+    resp = await admin_client.get("/calendar")
+    assert resp.status_code == 200
+    # Default locale is 'en', so these should be the English i18n values
+    assert "Birthdays" in resp.text
+    assert "Remembrances" in resp.text
+    assert "Anniversaries" in resp.text

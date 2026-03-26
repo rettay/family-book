@@ -5,32 +5,38 @@
             hx-get="/partials/calendar-grid?month={{ prev_month }}"
             hx-target="#calendar-grid-container"
             hx-swap="innerHTML"
-            aria-label="Previous month">&larr;</button>
+            aria-label="{{ t('calendar.previous_month') }}">&larr;</button>
     <h2 class="cal__month-title">{{ month_name }} {{ year }}</h2>
+    <select class="cal__jump-select" aria-label="{{ t('calendar.jump_to_month') }}"
+            onchange="if(this.value) htmx.ajax('GET','/partials/calendar-grid?month='+this.value,{target:'#calendar-grid-container',swap:'innerHTML'})">
+      {% for m in range(1, 13) %}
+      <option value="{{ year }}-{{ '%02d' % m }}" {% if m == month %}selected{% endif %}>{{ t('calendar.month_' + m|string) }}</option>
+      {% endfor %}
+    </select>
     <button class="btn btn--sm cal__nav-btn"
             hx-get="/partials/calendar-grid?month={{ next_month }}"
             hx-target="#calendar-grid-container"
             hx-swap="innerHTML"
-            aria-label="Next month">&rarr;</button>
+            aria-label="{{ t('calendar.next_month') }}">&rarr;</button>
   </div>
 
   {# Event type filter #}
   <div class="cal__filters" role="group" aria-label="Event type filters">
     <label class="cal__filter">
       <input type="checkbox" checked onchange="toggleCalFilter('birthday', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--birthday"></span> Birthdays
+      <span class="cal__filter-dot cal__filter-dot--birthday"></span> {{ t('calendar.birthdays') }}
     </label>
     <label class="cal__filter">
       <input type="checkbox" checked onchange="toggleCalFilter('remembrance', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--remembrance"></span> Remembrances
+      <span class="cal__filter-dot cal__filter-dot--remembrance"></span> {{ t('calendar.remembrances') }}
     </label>
     <label class="cal__filter">
       <input type="checkbox" checked onchange="toggleCalFilter('anniversary', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--anniversary"></span> Anniversaries
+      <span class="cal__filter-dot cal__filter-dot--anniversary"></span> {{ t('calendar.anniversaries') }}
     </label>
     <label class="cal__filter">
       <input type="checkbox" checked onchange="toggleCalFilter('moment', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--moment"></span> Moments
+      <span class="cal__filter-dot cal__filter-dot--moment"></span> {{ t('calendar.moments_filter') }}
     </label>
   </div>
 
@@ -84,7 +90,7 @@
     </div>
     {% endfor %}
     {% else %}
-    <p class="cal__empty">No events this month.</p>
+    <p class="cal__empty">{{ t('calendar.no_events') }}</p>
     {% endif %}
   </div>
 
@@ -103,6 +109,7 @@
   // Store events for day detail panel
   var calEvents = {{ events | tojson }};
   var monthName = {{ month_name | tojson }};
+  var noEventsLabel = {{ t('calendar.no_events_day') | tojson }};
 
   window.showDayDetail = function(day) {
     var detail = document.getElementById('cal-day-detail');
@@ -112,7 +119,7 @@
     title.textContent = monthName + ' ' + day;
     body.innerHTML = '';
     if (dayEvents.length === 0) {
-      body.innerHTML = '<p class="text-muted">No events</p>';
+      body.innerHTML = '<p class="text-muted">' + noEventsLabel + '</p>';
     } else {
       dayEvents.forEach(function(ev) {
         var div = document.createElement('div');

@@ -27,7 +27,11 @@ MONTH_NAMES = [
     "", "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
 ]
-DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+DAY_HEADER_KEYS = [
+    "calendar.day_mon", "calendar.day_tue", "calendar.day_wed",
+    "calendar.day_thu", "calendar.day_fri", "calendar.day_sat",
+    "calendar.day_sun",
+]
 
 
 def _get_locale(request: Request) -> str:
@@ -135,17 +139,22 @@ async def calendar_page(
     else:
         next_month = f"{year:04d}-{mon + 1:02d}"
 
+    locale = _get_locale(request)
+    t = lambda key: translate(key, locale)
+    month_name = t(f"calendar.month_{mon}")
+    day_headers = [t(k) for k in DAY_HEADER_KEYS]
+
     return templates.TemplateResponse("calendar.html", _ctx(
         request,
         current_user,
         active_page="calendar",
         year=year,
         month=mon,
-        month_name=MONTH_NAMES[mon],
+        month_name=month_name,
         grid=grid,
         events=events,
         events_by_day=events_by_day,
-        day_headers=DAY_HEADERS,
+        day_headers=day_headers,
         today_day=today.day if today.year == year and today.month == mon else None,
         prev_month=prev_month,
         next_month=next_month,
@@ -186,16 +195,21 @@ async def partial_calendar_grid(
     else:
         next_month = f"{year:04d}-{mon + 1:02d}"
 
+    locale = _get_locale(request)
+    t = lambda key: translate(key, locale)
+    month_name = t(f"calendar.month_{mon}")
+    day_headers = [t(k) for k in DAY_HEADER_KEYS]
+
     return templates.TemplateResponse("partials/calendar_grid.html", _ctx(
         request,
         current_user,
         year=year,
         month=mon,
-        month_name=MONTH_NAMES[mon],
+        month_name=month_name,
         grid=grid,
         events=events,
         events_by_day=events_by_day,
-        day_headers=DAY_HEADERS,
+        day_headers=day_headers,
         today_day=today.day if today.year == year and today.month == mon else None,
         prev_month=prev_month,
         next_month=next_month,

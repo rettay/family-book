@@ -6,9 +6,7 @@ None.
 
 ## In Progress
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-025 | Family Calendar and Relationship Intelligence | P1 | `task_packets/FB-025_family_calendar_and_relationship_intelligence.md` |
+None.
 
 ## In Review
 
@@ -41,3 +39,4 @@ None.
 | FB-020 | Rich Family Storytelling and Multi-Item Authoring | P1 | `task_packets/FB-020_rich_family_storytelling_and_multi_item_authoring.md` |
 | FB-022 | Tree Discovery and Research Foundation | P1 | `task_packets/FB-022_tree_discovery_and_research_foundation.md` |
 | FB-021 | Tree Graph Editing and Relationship Modeling | P1 | `task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md` |
+| FB-025 | Family Calendar and Relationship Intelligence | P1 | `task_packets/FB-025_family_calendar_and_relationship_intelligence.md` |

@@ -2087,14 +2087,15 @@ body.has-overlay { overflow: hidden; }
 .cal__nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .cal__month-title { font-size: 1.25rem; font-weight: 600; }
 .cal__nav-btn { min-width: 36px; }
+.cal__jump-select { font-size: 0.85rem; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface, #fff); color: inherit; cursor: pointer; }
 .cal__filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; font-size: 0.85rem; }
 .cal__filter { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .cal__filter input { margin: 0; }
 .cal__filter-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 .cal__filter-dot--birthday { background: var(--accent, #2563eb); }
-.cal__filter-dot--remembrance { background: #6b7280; }
-.cal__filter-dot--anniversary { background: #d97706; }
-.cal__filter-dot--moment { background: #059669; }
+.cal__filter-dot--remembrance { background: var(--edge-cal-remembrance); }
+.cal__filter-dot--anniversary { background: var(--edge-cal-anniversary); }
+.cal__filter-dot--moment { background: var(--edge-cal-moment); }
 .cal__grid { display: none; }
 .cal__grid-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.78rem; font-weight: 600; color: var(--text-light); margin-bottom: 4px; }
 .cal__grid-header-cell { padding: 4px; }
@@ -2109,9 +2110,9 @@ body.has-overlay { overflow: hidden; }
 .cal__grid-dots { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
 .cal__dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .cal__dot--birthday { background: var(--accent, #2563eb); }
-.cal__dot--remembrance { background: #6b7280; }
-.cal__dot--anniversary { background: #d97706; }
-.cal__dot--moment { background: #059669; }
+.cal__dot--remembrance { background: var(--edge-cal-remembrance); }
+.cal__dot--anniversary { background: var(--edge-cal-anniversary); }
+.cal__dot--moment { background: var(--edge-cal-moment); }
 .cal__dot-more { font-size: 0.7rem; color: var(--text-light); }
 .cal__list { display: block; }
 .cal__list-date { font-weight: 600; font-size: 0.9rem; margin: 16px 0 4px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
@@ -2130,30 +2131,44 @@ body.has-overlay { overflow: hidden; }
   .cal__day-detail--open { display: block; }
 }
 
+/* ── Relationship Edge Color Tokens ──────────────────────────────── */
+:root {
+  --edge-biological: var(--text-light, #6b7280);
+  --edge-adoptive: #7c3aed;
+  --edge-step: #0891b2;
+  --edge-foster: #ca8a04;
+  --edge-guardian: #9ca3af;
+  --edge-unknown: #d1d5db;
+  --edge-partnership: #dc2626;
+  --edge-cal-remembrance: #6b7280;
+  --edge-cal-anniversary: #d97706;
+  --edge-cal-moment: #059669;
+}
+
 /* ── Relationship Legend ──────────────────────────────────────────── */
 .tree-legend { margin: 8px 0; border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; }
 .tree-legend summary { padding: 6px 10px; cursor: pointer; font-weight: 500; color: var(--text-light); }
 .tree-legend__list { list-style: none; padding: 4px 10px 8px; margin: 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .tree-legend__item { display: flex; align-items: center; gap: 4px; }
 .tree-legend__line { width: 24px; height: 0; border-top-width: 2px; border-top-style: solid; display: inline-block; }
-.tree-legend__line--biological { border-top-color: var(--text-light, #6b7280); border-top-style: solid; }
-.tree-legend__line--adoptive { border-top-color: #7c3aed; border-top-style: dashed; }
-.tree-legend__line--step { border-top-color: #0891b2; border-top-style: dotted; }
-.tree-legend__line--foster { border-top-color: #ca8a04; border-top-style: dashed; border-top-width: 1px; }
-.tree-legend__line--guardian { border-top-color: #9ca3af; border-top-style: dashed; border-top-width: 1px; }
-.tree-legend__line--married { border-top-color: #dc2626; border-top-style: solid; }
-.tree-legend__line--domestic_partner { border-top-color: #dc2626; border-top-style: dashed; }
-.tree-legend__line--co_parent { border-top-color: #dc2626; border-top-style: dotted; }
+.tree-legend__line--biological { border-top-color: var(--edge-biological); border-top-style: solid; }
+.tree-legend__line--adoptive { border-top-color: var(--edge-adoptive); border-top-style: dashed; }
+.tree-legend__line--step { border-top-color: var(--edge-step); border-top-style: dotted; }
+.tree-legend__line--foster { border-top-color: var(--edge-foster); border-top-style: dashed; border-top-width: 1px; }
+.tree-legend__line--guardian { border-top-color: var(--edge-guardian); border-top-style: dashed; border-top-width: 1px; }
+.tree-legend__line--married { border-top-color: var(--edge-partnership); border-top-style: solid; }
+.tree-legend__line--domestic_partner { border-top-color: var(--edge-partnership); border-top-style: dashed; }
+.tree-legend__line--co_parent { border-top-color: var(--edge-partnership); border-top-style: dotted; }
 
 /* ── Tree Edge Styles (SVG) ──────────────────────────────────────── */
-.parent-child-line { fill: none; stroke: var(--text-light, #6b7280); stroke-width: 2; }
-.parent-child-line--biological { stroke: var(--text-light, #6b7280); stroke-dasharray: none; }
-.parent-child-line--adoptive { stroke: #7c3aed; stroke-dasharray: 8 4; }
-.parent-child-line--step { stroke: #0891b2; stroke-dasharray: 3 3; }
-.parent-child-line--foster { stroke: #ca8a04; stroke-dasharray: 8 4; stroke-width: 1.5; }
-.parent-child-line--guardian { stroke: #9ca3af; stroke-dasharray: 6 3; stroke-width: 1.5; }
-.parent-child-line--unknown { stroke: #d1d5db; }
-.partnership-line { stroke: #dc2626; stroke-width: 1.5; stroke-opacity: 0.6; }
+.parent-child-line { fill: none; stroke: var(--edge-biological); stroke-width: 2; }
+.parent-child-line--biological { stroke: var(--edge-biological); stroke-dasharray: none; }
+.parent-child-line--adoptive { stroke: var(--edge-adoptive); stroke-dasharray: 8 4; }
+.parent-child-line--step { stroke: var(--edge-step); stroke-dasharray: 3 3; }
+.parent-child-line--foster { stroke: var(--edge-foster); stroke-dasharray: 8 4; stroke-width: 1.5; }
+.parent-child-line--guardian { stroke: var(--edge-guardian); stroke-dasharray: 6 3; stroke-width: 1.5; }
+.parent-child-line--unknown { stroke: var(--edge-unknown); }
+.partnership-line { stroke: var(--edge-partnership); stroke-width: 1.5; stroke-opacity: 0.6; }
 .partnership-line--married { stroke-dasharray: none; }
 .partnership-line--domestic_partner { stroke-dasharray: 6 4; }
 .partnership-line--co_parent { stroke-dasharray: 3 3; }
