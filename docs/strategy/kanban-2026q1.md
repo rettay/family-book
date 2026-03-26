@@ -16,6 +16,7 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-026 | Multimedia, Timeline, and Life Story Depth | P1 | S21 plan: `.claude/plans/spicy-bouncing-llama.md` |
 | FB-023 | External Record Integration Foundation | P1 | `task_packets/FB-023_external_record_integration_foundation.md` |
 | FB-024 | Completeness Prompts and Sidebar Detail Depth | P1 | `task_packets/FB-024_completeness_and_detail_depth.md` |
 | FB-001 | Product Contract and Operating System Bootstrap | P0 | `task_packets/FB-001_product_contract_and_operating_system_bootstrap.md` |

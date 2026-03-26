@@ -2,6 +2,78 @@
 
 ## Closed Sprint
 
+### `S21 - Multimedia, Timeline, and Life Story Depth`
+
+Status: Closed
+
+### Sprint Goal
+
+Close the content depth gaps so Family Book becomes a full multimedia family archive with narrative history: play video/audio, view documents, browse a chronological family timeline, and capture structured life-story data on person records.
+
+### Why This Sprint Exists
+
+Sprint 20 shipped the family calendar, relationship calculator, and visual edge types. The next product bottleneck was content depth: the backend accepted video/audio but the frontend couldn't play them, there was no chronological timeline view, and person records lacked structured life-story fields. Sprint 21 closes these gaps.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 26 | FB-026 | Multimedia, Timeline, and Life Story Depth | P1 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S21-1 | Rich Multimedia Playback | done |
+| S21-2 | Family Timeline with Branch Filtering | done |
+| S21-3 | Life Story Fields | done |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- video and audio media play inline in gallery, moments, sidebar, and lightbox
+- PDF documents can be uploaded and linked from media surfaces
+- a timeline page shows birth, death, marriage, and moment events chronologically with filters
+- timeline supports branch and lineage filtering (ancestor/descendant)
+- person records support obituary, education, career, and organizations as structured fields
+- life story fields are validated with typed sub-models and max_length constraints
+- access control enforced: hidden persons and admin-only moments excluded from member timeline
+- root person redaction maintained across all new surfaces
+- test baselines remain intact
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 21 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS on initial review — 5 findings:
+  - F-1 (P2): Missing member_client timeline tests
+  - F-2 (P2): Life story JSON arrays unconstrained (list[dict])
+  - F-3 (P2): Obituary field no max_length
+  - F-4 (P3): Timeline total was post-pagination count
+  - F-5 (P3): Partnership query loaded all rows, filtered in Python
+- Builder fixed all 5 defect findings before closeout:
+  - F-1: Added 4 new tests (member access, hidden person exclusion, admin-only moment exclusion, pre-pagination total)
+  - F-2: Created typed Pydantic sub-models (EducationEntry, CareerEntry, OrganizationEntry) with field-level max_length
+  - F-3: Added max_length=10000 to obituary in PersonCreate and PersonUpdate
+  - F-4: Changed get_timeline_events to return tuple with pre-pagination total
+  - F-5: Added DB-level .where() filtering on partnerships
+- Final re-audit: PASS — all defect fixes verified, one cosmetic finding (unused or_ import, cleaned)
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `376 passed, 0 failed`
+  - i18n parity: all 3 locales (en, es, ru) have matching key sets
+  - Playwright (pre-existing): `31 PASS, 0 FAIL`
+
+### Context
+
+- Plan file: `.claude/plans/spicy-bouncing-llama.md`
+- Gap triage: `docs/strategy/genealogy-review-triage.md` (G-19, G-08, G-20, G-22)
+
+---
+
+## Closed Sprint
+
 ### `S20 - Family Calendar and Relationship Intelligence`
 
 Status: Closed
