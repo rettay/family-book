@@ -1,9 +1,22 @@
 # Family Book Backlog
 
-Sprint: `S23 - Source Citations, Evidence, and Date Intelligence`
-Status: Planning
+Sprint: `S24 - Tree Photo Headshots, Person Wiki Pages, and Research UX`
+Status: Candidate
 
-## Current Sprint `S23 - Source Citations, Evidence, and Date Intelligence`
+## Planned Follow-Up Sprint `S24 - Tree Photo Headshots, Person Wiki Pages, and Research UX`
+
+Sprint goal:
+- Enrich the visual and narrative experience by adding photo prompts on tree nodes, Wikipedia-style person pages, and a polished research tools surface.
+
+Candidate packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | candidate | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |
+| FB-030 | Person Wiki Pages | P1 | candidate | `task_packets/FB-030_person_wiki_pages.md` |
+| FB-031 | Research Tools UX Overhaul | P1 | candidate | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+
+## Closed Sprint `S23 - Source Citations, Evidence, and Date Intelligence`
 
 Sprint goal:
 - Make Family Book credible for serious genealogy research by adding per-person source citations with confidence levels, distinguishing documentary evidence from memory media, and computing age context at life events.
@@ -12,7 +25,7 @@ Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-028 | Source Citations, Evidence, and Date Intelligence | P1 | todo | `task_packets/FB-028_source_citations_evidence_and_date_intelligence.md` |
+| FB-028 | Source Citations, Evidence, and Date Intelligence | P1 | done | `task_packets/FB-028_source_citations_evidence_and_date_intelligence.md` |
 
 Execution slices:
 - `S23-1` Source Citations and Confidence
@@ -23,7 +36,6 @@ Execution slices:
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S24 | Tree Photo Headshots, Person Wiki Pages, and Research UX | FB-029, FB-030, FB-031 | candidate |
 | S25 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
 
 Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done). Concrete user-facing features (S24) come first.

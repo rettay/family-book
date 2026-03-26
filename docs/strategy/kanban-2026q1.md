@@ -20,6 +20,7 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-028 | Source Citations, Evidence, and Date Intelligence | P1 | `task_packets/FB-028_source_citations_evidence_and_date_intelligence.md` |
 | FB-027 | Genetic Profile, Physical Attributes, and Family Health Intelligence | P1 | S22 plan: `.claude/plans/spicy-bouncing-llama.md` |
 | FB-026 | Multimedia, Timeline, and Life Story Depth | P1 | S21 plan: `.claude/plans/spicy-bouncing-llama.md` |
 | FB-023 | External Record Integration Foundation | P1 | `task_packets/FB-023_external_record_integration_foundation.md` |

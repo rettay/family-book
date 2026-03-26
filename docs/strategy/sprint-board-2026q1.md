@@ -46,6 +46,70 @@ The sprint is successful when all are true:
 
 ## Closed Sprint
 
+### `S23 - Source Citations, Evidence, and Date Intelligence`
+
+Status: Closed
+
+### Sprint Goal
+
+Make Family Book credible for serious genealogy research by adding per-person source citations with confidence levels, distinguishing documentary evidence from memory media, and computing age context at life events.
+
+### Why This Sprint Exists
+
+Sprint 22 completed the person-model depth expansion (physical attributes, genetic profile, medical conditions, health dashboard). The next product gap was research credibility: genealogy researchers need to cite their sources, classify media as evidence vs. memory, and see computed ages at life events. Sprint 23 addresses gaps G-07 (source citations), G-09 (evidence classification), and G-13 (date intelligence).
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 28 | FB-028 | Source Citations, Evidence, and Date Intelligence | P1 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S23-1 | Source Citations and Confidence | done |
+| S23-2 | Media Purpose Classification | done |
+| S23-3 | Date Intelligence and Age Display | done |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- person records support source_detail (free-text provenance) and confidence (confirmed/probable/uncertain/unknown)
+- confidence field is validated with proper 422 on invalid values
+- media uploads support purpose classification (memory/document/evidence) with default and PATCH update
+- invalid purpose values return 422
+- person detail API returns computed current_age for living persons and age_at_death for deceased persons
+- year-only precision dates do not compute age (returns null)
+- timeline birth/death event labels include age context
+- revision snapshots include source_detail and confidence
+- root person redaction maintained for new fields
+- i18n parity across all 3 locales
+- test baselines remain intact
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 23 on `main`
+- 1 defect found during test run: revision snapshot missing source_detail/confidence — fixed before commit
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `439 passed, 0 failed`
+  - 35 new tests added (up from 404 baseline)
+  - i18n parity: all 3 locales (en, es, ru) have matching key sets
+
+### Context
+
+- Plan file: `.claude/plans/s23-source-citations-evidence-date-intelligence.md`
+- Task packet: `task_packets/FB-028_source_citations_evidence_and_date_intelligence.md`
+- Migration: `alembic/versions/9e0aa75cb010_add_source_citation_confidence_and_.py`
+- Date intelligence service: `app/services/date_intelligence_service.py`
+
+---
+
+## Closed Sprint
+
 ### `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`
 
 Status: Closed
