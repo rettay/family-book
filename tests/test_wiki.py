@@ -232,3 +232,48 @@ async def test_wiki_cross_links_in_person_page(admin_client: AsyncClient):
     resp = await admin_client.get(f"/people/{person_id}")
     assert resp.status_code == 200
     assert f"/wiki/{slug}" in resp.text
+
+
+# ── Audit Follow-up Tests: Access Control ─────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_wiki_index_excludes_hidden(admin_client: AsyncClient, member_client: AsyncClient):
+    """Hidden persons do not appear in wiki index for non-admin members."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "HiddenWiki",
+        "last_name": "Person",
+    })
+    assert resp.status_code == 201
+    slug = resp.json()["slug"]
+    person_id = resp.json()["id"]
+
+    # Admin sets visibility to hidden
+    resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "visibility": "hidden",
+    })
+    assert resp.status_code == 200
+
+    # Member should NOT see hidden person in wiki index
+    resp = await member_client.get("/wiki")
+    assert resp.status_code == 200
+    assert slug not in resp.text
+
+    # Admin SHOULD still see hidden person
+    resp = await admin_client.get("/wiki")
+    assert resp.status_code == 200
+    assert slug in resp.text
+
+
+@pytest.mark.asyncio
+async def test_wiki_edit_unauthorized(client: AsyncClient):
+    """Unauthenticated user cannot access wiki edit endpoints."""
+    # Auth check happens before slug lookup, so any slug works
+    resp = await client.get("/wiki/any-slug/edit/summary")
+    assert resp.status_code in (302, 401)
+
+    resp = await client.post(
+        "/wiki/any-slug/edit/summary",
+        data={"bio": "Hacked bio"},
+    )
+    assert resp.status_code in (302, 401)

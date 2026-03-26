@@ -110,7 +110,7 @@ async def wiki_person(
         raise HTTPException(status_code=403, detail="Not visible")
 
     sections = await assemble_wiki_sections(db, person, current_user)
-    can_edit = access.can_edit if hasattr(access, "can_edit") else current_user.is_admin
+    can_edit = access.can_manage
 
     return templates.TemplateResponse("wiki_person.html", _ctx(
         request,
