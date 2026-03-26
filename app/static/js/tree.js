@@ -2417,6 +2417,25 @@
 
   // ── GEDCOM Upload ─────────────────────────────────────────────────
 
+  function _buildProgressBar(container) {
+    clearNode(container);
+    var wrap = document.createElement('div');
+    wrap.className = 'tree-gedcom-progress';
+    var bar = document.createElement('div');
+    bar.className = 'tree-gedcom-progress__bar';
+    var fill = document.createElement('div');
+    fill.className = 'tree-gedcom-progress__fill';
+    fill.style.width = '0%';
+    bar.appendChild(fill);
+    var label = document.createElement('div');
+    label.className = 'tree-gedcom-progress__label';
+    label.textContent = 'Uploading…';
+    wrap.appendChild(bar);
+    wrap.appendChild(label);
+    container.appendChild(wrap);
+    return { fill: fill, label: label };
+  }
+
   async function uploadGedcom(event) {
     event.preventDefault();
     var form = event.target;
@@ -2441,17 +2460,37 @@
     var formData = new FormData();
     formData.append('file', file);
 
-    if (resultsEl) resultsEl.textContent = 'Importing…';
+    // Build progress bar
+    var progress = resultsEl ? _buildProgressBar(resultsEl) : null;
 
-    try {
-      var resp = await fetch('/api/import/gedcom', {
-        method: 'POST',
-        body: formData
+    // Use XHR for upload progress events
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/import/gedcom');
+
+    if (progress) {
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+          var pct = Math.round((e.loaded / e.total) * 100);
+          progress.fill.style.width = pct + '%';
+          progress.label.textContent = 'Uploading… ' + pct + '%';
+        }
       });
-      var data = await resp.json();
+      xhr.upload.addEventListener('load', function() {
+        progress.fill.style.width = '100%';
+        progress.label.textContent = 'Processing GEDCOM…';
+        progress.fill.classList.add('tree-gedcom-progress__fill--processing');
+      });
+    }
 
-      if (!resp.ok) {
-        if (errorEl) { errorEl.textContent = data.detail || 'Import failed'; errorEl.classList.remove('hidden'); }
+    xhr.onload = function() {
+      var data;
+      try { data = JSON.parse(xhr.responseText); } catch (_e) { data = null; }
+
+      if (xhr.status !== 200 || !data) {
+        if (errorEl) {
+          errorEl.textContent = (data && data.detail) || 'Import failed';
+          errorEl.classList.remove('hidden');
+        }
         if (resultsEl) clearNode(resultsEl);
         return;
       }
@@ -2463,19 +2502,238 @@
         summary.innerHTML =
           '<p><strong>' + escapeHTML(data.persons_created) + '</strong> persons created</p>' +
           '<p><strong>' + escapeHTML(data.relationships_created) + '</strong> relationships created</p>' +
-          (data.duplicates_skipped ? '<p><strong>' + escapeHTML(data.duplicates_skipped) + '</strong> duplicates skipped</p>' : '') +
-          (data.errors && data.errors.length ? '<p class="form-error">' + escapeHTML(data.errors.join('; ')) + '</p>' : '');
+          (data.duplicates_skipped ? '<p><strong>' + escapeHTML(data.duplicates_skipped) + '</strong> duplicates skipped</p>' : '');
+
+        if (data.duplicate_candidates && data.duplicate_candidates.length) {
+          var dupeList = '<details class="tree-sidebar-disclosure"><summary>' +
+            escapeHTML(data.duplicate_candidates.length) + ' potential duplicates detected</summary><ul class="tree-gedcom-duplicates">';
+          data.duplicate_candidates.forEach(function(d) {
+            dupeList += '<li><strong>' + escapeHTML(d.gedcom_name) + '</strong> matches <em>' +
+              escapeHTML(d.existing_name) + '</em> (' + escapeHTML(d.match_reason) + ')</li>';
+          });
+          dupeList += '</ul></details>';
+          summary.innerHTML += dupeList;
+        }
+
+        if (data.errors && data.errors.length) {
+          summary.innerHTML += '<p class="form-error">' + escapeHTML(data.errors.join('; ')) + '</p>';
+        }
         resultsEl.appendChild(summary);
       }
 
       // Reload the tree to show new persons
       if (typeof loadTree === 'function') loadTree();
       showToastMessage('GEDCOM import complete: ' + data.persons_created + ' persons, ' + data.relationships_created + ' relationships');
+    };
 
-    } catch (e) {
-      if (errorEl) { errorEl.textContent = 'Import failed: ' + e.message; errorEl.classList.remove('hidden'); }
+    xhr.onerror = function() {
+      if (errorEl) { errorEl.textContent = 'Import failed: network error'; errorEl.classList.remove('hidden'); }
       if (resultsEl) clearNode(resultsEl);
+    };
+
+    xhr.send(formData);
+  }
+
+  // ── GEDCOM Preview (two-phase import) ──────────────────────────────
+
+  // Store the selected file between preview and confirm
+  var _gedcomPendingFile = null;
+
+  async function previewGedcom(event) {
+    event.preventDefault();
+    var form = event.target;
+    var errorEl = document.getElementById('tree-gedcom-error');
+    var previewEl = document.getElementById('tree-gedcom-preview');
+    var resultsEl = document.getElementById('tree-gedcom-results');
+
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+    if (previewEl) clearNode(previewEl);
+    if (resultsEl) clearNode(resultsEl);
+
+    var fileInput = form.querySelector('[name="gedcom_file"]');
+    if (!fileInput || !fileInput.files || !fileInput.files.length) {
+      if (errorEl) { errorEl.textContent = 'Please select a GEDCOM file.'; errorEl.classList.remove('hidden'); }
+      return;
     }
+
+    var file = fileInput.files[0];
+    if (file.size > 10 * 1024 * 1024) {
+      if (errorEl) { errorEl.textContent = 'File exceeds 10MB limit.'; errorEl.classList.remove('hidden'); }
+      return;
+    }
+
+    _gedcomPendingFile = file;
+    if (previewEl) previewEl.textContent = 'Analyzing file…';
+
+    try {
+      var formData = new FormData();
+      formData.append('file', file);
+      var resp = await fetch('/api/import/gedcom/preview', { method: 'POST', body: formData });
+      var data = await resp.json();
+
+      if (!resp.ok) {
+        if (errorEl) { errorEl.textContent = data.detail || 'Preview failed'; errorEl.classList.remove('hidden'); }
+        if (previewEl) clearNode(previewEl);
+        return;
+      }
+
+      renderGedcomPreview(previewEl, data);
+    } catch (e) {
+      if (errorEl) { errorEl.textContent = 'Preview failed: ' + e.message; errorEl.classList.remove('hidden'); }
+      if (previewEl) clearNode(previewEl);
+    }
+  }
+
+  function renderGedcomPreview(container, data) {
+    clearNode(container);
+    var wrap = document.createElement('div');
+    wrap.className = 'tree-gedcom-preview';
+
+    // Summary line
+    var summary = document.createElement('p');
+    summary.innerHTML = 'Found <strong>' + escapeHTML(data.individuals_count) +
+      '</strong> individuals and <strong>' + escapeHTML(data.families_count) + '</strong> families.';
+    wrap.appendChild(summary);
+
+    // Duplicate candidates section
+    var dupes = (data.individuals || []).filter(function(i) { return i.is_duplicate; });
+    if (dupes.length > 0) {
+      var dupeSection = document.createElement('div');
+      dupeSection.className = 'tree-gedcom-preview__dupes';
+      var heading = document.createElement('p');
+      heading.innerHTML = '<strong>' + escapeHTML(dupes.length) +
+        '</strong> potential duplicate(s) detected — these will be skipped:';
+      dupeSection.appendChild(heading);
+
+      var dupeList = document.createElement('ul');
+      dupeList.className = 'tree-gedcom-duplicates';
+      dupes.forEach(function(d) {
+        var li = document.createElement('li');
+        li.innerHTML = '<strong>' + escapeHTML(d.name) + '</strong>';
+        if (d.duplicate_match) {
+          li.innerHTML += ' matches <em>' + escapeHTML(d.duplicate_match.existing_name) +
+            '</em> (' + escapeHTML(d.duplicate_match.match_reason) + ')';
+        }
+        dupeList.appendChild(li);
+      });
+      dupeSection.appendChild(dupeList);
+      wrap.appendChild(dupeSection);
+    }
+
+    // New individuals to be created
+    var newIndividuals = (data.individuals || []).filter(function(i) { return !i.is_duplicate; });
+    if (newIndividuals.length > 0) {
+      var newSection = document.createElement('details');
+      newSection.className = 'tree-sidebar-disclosure';
+      var newSummary = document.createElement('summary');
+      newSummary.textContent = newIndividuals.length + ' new person(s) to create';
+      newSection.appendChild(newSummary);
+      var newList = document.createElement('ul');
+      newList.className = 'tree-gedcom-duplicates';
+      newIndividuals.forEach(function(n) {
+        var li = document.createElement('li');
+        var text = escapeHTML(n.name);
+        if (n.birth_date) text += ' (b. ' + escapeHTML(n.birth_date) + ')';
+        li.innerHTML = text;
+        newList.appendChild(li);
+      });
+      newSection.appendChild(newList);
+      wrap.appendChild(newSection);
+    }
+
+    // Confirm / Cancel buttons
+    var actions = document.createElement('div');
+    actions.className = 'tree-gedcom-preview__actions';
+    actions.style.marginTop = '10px';
+    actions.style.display = 'flex';
+    actions.style.gap = '8px';
+
+    var confirmBtn = document.createElement('button');
+    confirmBtn.type = 'button';
+    confirmBtn.className = 'btn btn--primary';
+    confirmBtn.textContent = 'Confirm Import';
+    confirmBtn.addEventListener('click', function() { confirmGedcomImport(); });
+    actions.appendChild(confirmBtn);
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'btn btn--ghost';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', function() {
+      clearNode(container);
+      _gedcomPendingFile = null;
+    });
+    actions.appendChild(cancelBtn);
+
+    wrap.appendChild(actions);
+    container.appendChild(wrap);
+  }
+
+  function confirmGedcomImport() {
+    if (!_gedcomPendingFile) return;
+    // Simulate a form submit event for uploadGedcom
+    var errorEl = document.getElementById('tree-gedcom-error');
+    var previewEl = document.getElementById('tree-gedcom-preview');
+    var resultsEl = document.getElementById('tree-gedcom-results');
+
+    if (previewEl) clearNode(previewEl);
+
+    var formData = new FormData();
+    formData.append('file', _gedcomPendingFile);
+    _gedcomPendingFile = null;
+
+    // Build progress bar
+    var progress = resultsEl ? _buildProgressBar(resultsEl) : null;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/import/gedcom');
+
+    if (progress) {
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+          var pct = Math.round((e.loaded / e.total) * 100);
+          progress.fill.style.width = pct + '%';
+          progress.label.textContent = 'Uploading… ' + pct + '%';
+        }
+      });
+      xhr.upload.addEventListener('load', function() {
+        progress.fill.style.width = '100%';
+        progress.label.textContent = 'Processing GEDCOM…';
+        progress.fill.classList.add('tree-gedcom-progress__fill--processing');
+      });
+    }
+
+    xhr.onload = function() {
+      var data;
+      try { data = JSON.parse(xhr.responseText); } catch (_e) { data = null; }
+
+      if (xhr.status !== 200 || !data) {
+        if (errorEl) { errorEl.textContent = (data && data.detail) || 'Import failed'; errorEl.classList.remove('hidden'); }
+        if (resultsEl) clearNode(resultsEl);
+        return;
+      }
+
+      if (resultsEl) {
+        clearNode(resultsEl);
+        var summary = document.createElement('div');
+        summary.className = 'tree-gedcom-summary';
+        summary.innerHTML =
+          '<p><strong>' + escapeHTML(data.persons_created) + '</strong> persons created</p>' +
+          '<p><strong>' + escapeHTML(data.relationships_created) + '</strong> relationships created</p>' +
+          (data.duplicates_skipped ? '<p><strong>' + escapeHTML(data.duplicates_skipped) + '</strong> duplicates skipped</p>' : '');
+        resultsEl.appendChild(summary);
+      }
+
+      if (typeof loadTree === 'function') loadTree();
+      showToastMessage('GEDCOM import complete: ' + data.persons_created + ' persons, ' + data.relationships_created + ' relationships');
+    };
+
+    xhr.onerror = function() {
+      if (errorEl) { errorEl.textContent = 'Import failed: network error'; errorEl.classList.remove('hidden'); }
+      if (resultsEl) clearNode(resultsEl);
+    };
+
+    xhr.send(formData);
   }
 
   window.saveTreePerson = saveTreePerson;
@@ -2498,6 +2756,8 @@
   window.searchExternalSource = searchExternalSource;
   window.searchCemla = searchCemla;
   window.uploadGedcom = uploadGedcom;
+  window.previewGedcom = previewGedcom;
+  window.confirmGedcomImport = confirmGedcomImport;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
   document.getElementById('apply-tree-filters').addEventListener('click', function() {

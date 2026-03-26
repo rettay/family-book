@@ -93,6 +93,7 @@ async def import_gedcom(
     parsed: GedcomParseResult,
     actor_id: str,
     skip_duplicates: bool = True,
+    batch_id: str | None = None,
 ) -> ImportResult:
     """Import parsed GEDCOM data into the database.
 
@@ -230,13 +231,17 @@ async def import_gedcom(
 
     await db.flush()
 
+    audit_value = {
+        "persons_created": result.persons_created,
+        "relationships_created": result.relationships_created,
+        "duplicates_skipped": result.duplicates_skipped,
+    }
+    if batch_id:
+        audit_value["batch_id"] = batch_id
+
     await log_audit(
-        db, actor_id, "create", "gedcom_import", "batch",
-        new_value={
-            "persons_created": result.persons_created,
-            "relationships_created": result.relationships_created,
-            "duplicates_skipped": result.duplicates_skipped,
-        },
+        db, actor_id, "create", "gedcom_import", batch_id or "batch",
+        new_value=audit_value,
     )
 
     logger.info(

@@ -867,6 +867,9 @@
         </div>
       </div>
 
+      {% if person.is_root %}
+      <p class="tree-sidebar-card__muted">External record searches are not available for this person.</p>
+      {% else %}
       <div class="tree-external-records-controls">
         <button type="button" class="btn btn--primary btn--block" onclick="searchAllExternalRecords('{{ person.id }}')">
           Search All Sources
@@ -911,18 +914,20 @@
         </form>
         <div id="tree-cemla-results" aria-live="polite"></div>
       </details>
+      {% endif %}
 
       <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section">
         <summary>Import GEDCOM File</summary>
-        <form class="tree-inline-form tree-inline-form--compact" onsubmit="uploadGedcom(event)">
+        <form class="tree-inline-form tree-inline-form--compact" onsubmit="previewGedcom(event)">
           <div id="tree-gedcom-error" class="form-error hidden" role="status" aria-live="polite"></div>
           <label>
             GEDCOM File (.ged)
             <input class="form-input" type="file" name="gedcom_file" accept=".ged,.gedcom" required>
           </label>
           <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">Upload a GEDCOM 5.5.1 file exported from Ancestry, FamilySearch, Gramps, or other genealogy software. Max 10MB.</p>
-          <button type="submit" class="btn btn--secondary btn--block">Import GEDCOM</button>
+          <button type="submit" class="btn btn--secondary btn--block">Preview Import</button>
         </form>
+        <div id="tree-gedcom-preview" aria-live="polite"></div>
         <div id="tree-gedcom-results" aria-live="polite"></div>
       </details>
     </section>

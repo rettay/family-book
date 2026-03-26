@@ -96,6 +96,70 @@ async def test_gedcom_upload_success(admin_client: AsyncClient):
     assert data["relationships_created"] >= 3  # 1 partnership + 2 parent-child
     assert isinstance(data["duplicate_candidates"], list)
     assert isinstance(data["errors"], list)
+    assert "batch_id" in data  # Import batch tracking
+
+
+@pytest.mark.asyncio
+async def test_gedcom_preview_returns_individuals(admin_client: AsyncClient):
+    resp = await admin_client.post(
+        "/api/import/gedcom/preview",
+        files={"file": ("family.ged", io.BytesIO(VALID_GEDCOM), "application/octet-stream")},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["ok"] is True
+    assert data["individuals_count"] == 3
+    assert data["families_count"] == 1
+    assert len(data["individuals"]) == 3
+    # Verify individual preview entries have expected fields
+    for indi in data["individuals"]:
+        assert "xref" in indi
+        assert "name" in indi
+        assert "is_duplicate" in indi
+
+
+@pytest.mark.asyncio
+async def test_gedcom_preview_detects_duplicates(admin_client: AsyncClient):
+    # First import
+    resp1 = await admin_client.post(
+        "/api/import/gedcom",
+        files={"file": ("family.ged", io.BytesIO(VALID_GEDCOM), "application/octet-stream")},
+    )
+    assert resp1.status_code == 200
+
+    # Preview same file — should flag duplicates
+    resp2 = await admin_client.post(
+        "/api/import/gedcom/preview",
+        files={"file": ("family2.ged", io.BytesIO(VALID_GEDCOM), "application/octet-stream")},
+    )
+    assert resp2.status_code == 200
+    data = resp2.json()
+    assert data["duplicates_count"] >= 3
+    dupes = [i for i in data["individuals"] if i["is_duplicate"]]
+    assert len(dupes) >= 3
+    # Each duplicate should show match info
+    for d in dupes:
+        assert "duplicate_match" in d
+        assert "existing_name" in d["duplicate_match"]
+        assert "match_reason" in d["duplicate_match"]
+
+
+@pytest.mark.asyncio
+async def test_gedcom_preview_does_not_create_records(admin_client: AsyncClient):
+    # Get current person count
+    persons_before = await admin_client.get("/api/persons")
+    count_before = len(persons_before.json())
+
+    # Preview only
+    await admin_client.post(
+        "/api/import/gedcom/preview",
+        files={"file": ("family.ged", io.BytesIO(VALID_GEDCOM), "application/octet-stream")},
+    )
+
+    # Person count should not change
+    persons_after = await admin_client.get("/api/persons")
+    count_after = len(persons_after.json())
+    assert count_after == count_before
 
 
 @pytest.mark.asyncio
@@ -194,6 +258,16 @@ async def test_external_records_person_not_found(admin_client: AsyncClient):
         "/api/external-records/search?person_id=nonexistent-0000-0000"
     )
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_external_records_blocks_root_person(admin_client: AsyncClient):
+    """Root person's real name must never be sent to external APIs."""
+    resp = await admin_client.get(
+        "/api/external-records/search?person_id=root-0000-0000-0000-000000000001"
+    )
+    assert resp.status_code == 403
+    assert "not available" in resp.json()["detail"].lower()
 
 
 # ── CEMLA Endpoint ───────────────────────────────────────────────────

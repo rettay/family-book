@@ -1433,6 +1433,41 @@ body.has-overlay { overflow: hidden; }
   font-size: 0.85rem;
   margin-bottom: 4px;
 }
+.tree-gedcom-duplicates {
+  font-size: 0.82rem;
+  padding-left: 1.2rem;
+  margin: 6px 0;
+}
+.tree-gedcom-duplicates li {
+  margin-bottom: 4px;
+}
+.tree-gedcom-progress {
+  padding: 12px 0;
+}
+.tree-gedcom-progress__bar {
+  height: 6px;
+  background: var(--color-border, #ddd);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.tree-gedcom-progress__fill {
+  height: 100%;
+  background: var(--color-primary, #2563eb);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.tree-gedcom-progress__fill--processing {
+  animation: gedcom-pulse 1.5s ease-in-out infinite;
+}
+@keyframes gedcom-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.tree-gedcom-progress__label {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #666);
+  margin-top: 4px;
+}
 
 /* ===== Auth Pages ===== */
 .auth-page {

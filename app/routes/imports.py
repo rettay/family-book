@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import require_auth
 from app.database import get_db
 from app.importers.gedcom_parser import parse_gedcom
+from app.models.imports import GedcomImportBatch, ImportStatus
 from app.models.person import Person
-from app.services.import_service import import_gedcom
+from app.services.import_service import import_gedcom, find_duplicates
+from app.models.base import utcnow
 
 router = APIRouter(prefix="/api/import", tags=["import"])
 logger = logging.getLogger(__name__)
@@ -19,36 +21,106 @@ logger = logging.getLogger(__name__)
 MAX_GEDCOM_SIZE = 10 * 1024 * 1024  # 10MB
 
 
-@router.post("/gedcom")
-async def upload_gedcom(
-    file: UploadFile = File(...),
-    current_user: Person = Depends(require_auth),
-    db: AsyncSession = Depends(get_db),
-):
-    """Upload and import a GEDCOM file."""
-    if not file.filename or not file.filename.lower().endswith((".ged", ".gedcom")):
+def _validate_and_parse(content: bytes, filename: str):
+    """Validate file and parse GEDCOM content. Returns parsed result or raises."""
+    if not filename or not filename.lower().endswith((".ged", ".gedcom")):
         raise HTTPException(status_code=400, detail="File must be a .ged or .gedcom file")
-
-    content = await file.read()
     if len(content) > MAX_GEDCOM_SIZE:
         raise HTTPException(
             status_code=400,
             detail=f"File exceeds maximum size of {MAX_GEDCOM_SIZE // (1024*1024)}MB",
         )
-
-    # Parse
     parsed = parse_gedcom(content, max_size_bytes=MAX_GEDCOM_SIZE)
     if parsed.errors:
         raise HTTPException(status_code=400, detail=parsed.errors[0])
-
     if not parsed.individuals:
         raise HTTPException(status_code=400, detail="No individual records found in GEDCOM file")
+    return parsed
 
-    # Import
-    result = await import_gedcom(db, parsed, actor_id=current_user.id)
+
+@router.post("/gedcom/preview")
+async def preview_gedcom(
+    file: UploadFile = File(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Parse a GEDCOM file and return a preview with duplicate candidates.
+
+    Does NOT import anything — allows the user to review duplicates
+    before confirming the import.
+    """
+    content = await file.read()
+    parsed = _validate_and_parse(content, file.filename)
+
+    duplicates = await find_duplicates(db, parsed.individuals)
+
+    individuals_preview = []
+    for indi in parsed.individuals:
+        entry = {
+            "xref": indi.xref,
+            "name": f"{indi.first_name} {indi.last_name}".strip(),
+            "birth_date": indi.birth.date if indi.birth else "",
+            "birth_place": indi.birth.place if indi.birth else "",
+            "is_duplicate": indi.xref in duplicates,
+        }
+        if indi.xref in duplicates:
+            d = duplicates[indi.xref]
+            entry["duplicate_match"] = {
+                "existing_person_id": d.existing_person_id,
+                "existing_name": d.existing_name,
+                "match_reason": d.match_reason,
+            }
+        individuals_preview.append(entry)
 
     return {
         "ok": True,
+        "individuals_count": len(parsed.individuals),
+        "families_count": len(parsed.families),
+        "duplicates_count": len(duplicates),
+        "individuals": individuals_preview,
+    }
+
+
+@router.post("/gedcom")
+async def upload_gedcom(
+    file: UploadFile = File(...),
+    skip_xrefs: str = Query("", description="Comma-separated xrefs to skip (duplicates confirmed by user)"),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload and import a GEDCOM file."""
+    content = await file.read()
+    parsed = _validate_and_parse(content, file.filename)
+
+    # Create import batch record
+    batch = GedcomImportBatch(
+        filename=file.filename or "unknown.ged",
+        status=ImportStatus.importing.value,
+        imported_by=current_user.id,
+    )
+    db.add(batch)
+    await db.flush()
+
+    # Import
+    result = await import_gedcom(
+        db, parsed, actor_id=current_user.id, batch_id=batch.id,
+    )
+
+    # Finalize batch record
+    batch.status = ImportStatus.completed.value
+    batch.persons_created = result.persons_created
+    batch.relationships_created = result.relationships_created
+    batch.duplicates_skipped = result.duplicates_skipped
+    batch.stats = {
+        "duplicate_candidates": len(result.duplicate_candidates),
+        "errors": result.errors,
+    }
+    batch.completed_at = utcnow()
+    await db.flush()
+
+    return {
+        "ok": True,
+        "batch_id": batch.id,
         "persons_created": result.persons_created,
         "relationships_created": result.relationships_created,
         "duplicates_skipped": result.duplicates_skipped,

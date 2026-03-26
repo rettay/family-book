@@ -45,6 +45,11 @@ async def search_external_records(
         person = result.scalar_one_or_none()
         if not person:
             raise HTTPException(status_code=404, detail="Person not found")
+        if person.is_root:
+            raise HTTPException(
+                status_code=403,
+                detail="External record search is not available for this person",
+            )
         params.first_name = person.first_name or ""
         params.last_name = person.last_name or ""
         params.birth_date = person.birth_date or ""
