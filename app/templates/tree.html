@@ -326,8 +326,10 @@
         <div class="tree-relcalc-result__details"></div>
       </div>
 
+      <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
         <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">
+          <button class="person-sidebar__collapse" type="button" aria-label="Collapse sidebar" onclick="collapseSidebar()" title="Collapse sidebar">&#x276F;</button>
           <button class="person-sidebar__close" type="button" aria-label="{{ t('common.cancel') }}" onclick="closeSidebar()">&times;</button>
           <div id="sidebar-content" aria-live="polite" aria-busy="false"></div>
         </div>

@@ -757,6 +757,24 @@ body.has-overlay { overflow: hidden; }
   transition: all var(--transition-fast);
 }
 .person-sidebar__close:hover { background: var(--border); }
+.person-sidebar__collapse {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--cream-dark); border: none; font-size: 0.9rem;
+  cursor: pointer; color: var(--text-muted); padding: 6px 10px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+.person-sidebar__collapse:hover { background: var(--border); }
+.sidebar-expand-tab {
+  position: absolute; top: 50%; right: 0; z-index: 19;
+  transform: translateY(-50%);
+  background: var(--warm-white); border: 1px solid var(--border-light);
+  border-right: none; border-radius: 6px 0 0 6px;
+  padding: 12px 6px; cursor: pointer; color: var(--text-muted);
+  font-size: 0.85rem; box-shadow: -2px 0 8px rgba(0,0,0,0.08);
+  transition: all var(--transition-fast);
+}
+.sidebar-expand-tab:hover { background: var(--cream-dark); color: var(--text-primary); }
 .tree-sidebar-card {
   padding: 56px 18px 20px;
 }

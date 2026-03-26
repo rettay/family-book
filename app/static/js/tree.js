@@ -2250,11 +2250,29 @@
     sidebarState.graphMode = null;
     sidebarState.highlightRelatedPersonId = '';
     window.closeAccessibleOverlay(sidebar);
+    var expandTab = document.getElementById('sidebar-expand-tab');
+    if (expandTab) expandTab.hidden = true;
     if (treeData) {
       render();
     }
     if (sidebarTrigger && typeof sidebarTrigger.focus === 'function') {
       sidebarTrigger.focus();
+    }
+  };
+
+  window.collapseSidebar = function() {
+    sidebar.classList.remove('person-sidebar--open');
+    window.closeAccessibleOverlay(sidebar);
+    var expandTab = document.getElementById('sidebar-expand-tab');
+    if (expandTab) expandTab.hidden = false;
+  };
+
+  window.expandSidebar = function() {
+    var expandTab = document.getElementById('sidebar-expand-tab');
+    if (expandTab) expandTab.hidden = true;
+    if (currentSidebarPersonId) {
+      sidebar.classList.add('person-sidebar--open');
+      window.openAccessibleOverlay(sidebar, {initialFocus: '.person-sidebar__close'});
     }
   };
 
