@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # --- Life story entry sub-models ---
@@ -91,12 +91,21 @@ class PersonCreate(BaseModel):
     dna_test_provider: str | None = Field(None, max_length=200)
     admixture: list[AdmixtureEntry] = []
     medical_conditions: list[MedicalConditionEntry] = []
+    source_detail: str | None = Field(None, max_length=500)
+    confidence: str | None = Field(None, max_length=20)
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
     contact_email: str | None = None
     branch: str | None = Field(None, max_length=100)
     source: str = "manual"
+
+    @field_validator("confidence")
+    @classmethod
+    def validate_confidence(cls, v):
+        if v is not None and v not in ("confirmed", "probable", "uncertain", "unknown"):
+            raise ValueError("confidence must be one of: confirmed, probable, uncertain, unknown")
+        return v
 
 
 class PersonUpdate(BaseModel):
@@ -141,12 +150,21 @@ class PersonUpdate(BaseModel):
     dna_test_provider: str | None = Field(None, max_length=200)
     admixture: list[AdmixtureEntry] | None = None
     medical_conditions: list[MedicalConditionEntry] | None = None
+    source_detail: str | None = Field(None, max_length=500)
+    confidence: str | None = Field(None, max_length=20)
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
     contact_email: str | None = None
     branch: str | None = Field(None, max_length=100)
     visibility: str | None = None
+
+    @field_validator("confidence")
+    @classmethod
+    def validate_confidence(cls, v):
+        if v is not None and v not in ("confirmed", "probable", "uncertain", "unknown"):
+            raise ValueError("confidence must be one of: confirmed, probable, uncertain, unknown")
+        return v
 
 
 class PersonSummary(BaseModel):
@@ -204,6 +222,10 @@ class PersonDetail(PersonSummary):
     dna_test_provider: str | None = None
     admixture: list[dict] = []
     medical_conditions: list[dict] = []
+    source_detail: str | None = None
+    confidence: str | None = None
+    current_age: int | None = None
+    age_at_death: int | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -302,6 +324,8 @@ def person_to_detail(person) -> PersonDetail:
         dna_test_provider=person.dna_test_provider,
         admixture=person.admixture,
         medical_conditions=person.medical_conditions,
+        source_detail=person.source_detail,
+        confidence=person.confidence,
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,

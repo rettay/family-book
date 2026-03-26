@@ -53,17 +53,28 @@ async def get_timeline_events(
 
     events: list[dict] = []
 
+    from app.services.date_intelligence_service import compute_age_at_death, compute_current_age
+
     # Birth events
     if event_type is None or event_type == "birth":
         for person in persons:
             if person.birth_date:
                 bd = _parse_date(person.birth_date)
                 if bd and _in_year_range(bd.year, year_from, year_to):
+                    label = f"{person.display_name} born"
+                    if person.is_living:
+                        age = compute_current_age(person.birth_date, person.birth_date_precision)
+                        if age is not None:
+                            label += f" (age {age})"
+                    else:
+                        age = compute_current_age(person.birth_date, person.birth_date_precision)
+                        if age is not None:
+                            label += f" (would be {age} today)"
                     events.append({
                         "date": person.birth_date,
                         "year": bd.year,
                         "type": "birth",
-                        "label": f"{person.display_name} born",
+                        "label": label,
                         "person_id": person.id,
                         "person_name": person.display_name,
                         "detail": person.birth_place or "",
@@ -75,11 +86,18 @@ async def get_timeline_events(
             if person.death_date:
                 dd = _parse_date(person.death_date)
                 if dd and _in_year_range(dd.year, year_from, year_to):
+                    label = f"{person.display_name} passed away"
+                    age = compute_age_at_death(
+                        person.birth_date, person.death_date,
+                        person.birth_date_precision, person.death_date_precision,
+                    )
+                    if age is not None:
+                        label += f" (age {age})"
                     events.append({
                         "date": person.death_date,
                         "year": dd.year,
                         "type": "death",
-                        "label": f"{person.display_name} passed away",
+                        "label": label,
                         "person_id": person.id,
                         "person_name": person.display_name,
                         "detail": person.burial_place or "",

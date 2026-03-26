@@ -1890,7 +1890,9 @@
             'blood_type',
             'maternal_haplogroup',
             'paternal_haplogroup',
-            'dna_test_provider'
+            'dna_test_provider',
+            'source_detail',
+            'confidence'
           ]
         });
       // Collect JSON array fields (education, career, organizations, admixture, medical_conditions)

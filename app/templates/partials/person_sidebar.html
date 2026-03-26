@@ -313,6 +313,24 @@
               </select>
             </label>
           </div>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.source_detail') }}
+              <textarea class="form-input" name="source_detail" rows="2" placeholder="e.g. 1940 US Census via Ancestry.com">{{ person.source_detail or '' }}</textarea>
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.confidence') }}
+              <select class="form-input" name="confidence">
+                <option value="">—</option>
+                <option value="confirmed"{% if person.confidence == 'confirmed' %} selected{% endif %}>{{ t('person.confidence_confirmed') }}</option>
+                <option value="probable"{% if person.confidence == 'probable' %} selected{% endif %}>{{ t('person.confidence_probable') }}</option>
+                <option value="uncertain"{% if person.confidence == 'uncertain' %} selected{% endif %}>{{ t('person.confidence_uncertain') }}</option>
+                <option value="unknown"{% if person.confidence == 'unknown' %} selected{% endif %}>{{ t('person.confidence_unknown') }}</option>
+              </select>
+            </label>
+          </div>
         </details>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="dates">

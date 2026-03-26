@@ -130,6 +130,10 @@ class Person(Base, TimestampMixin):
     # Structured medical conditions (encrypted at rest)
     _medical_conditions: Mapped[str | None] = mapped_column("medical_conditions", EncryptedText(), default="[]")
 
+    # Source citations (NOT encrypted — research data)
+    source_detail: Mapped[str | None] = mapped_column(String(500), default=None)
+    confidence: Mapped[str | None] = mapped_column(String(20), default=None)
+
     contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_telegram: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)

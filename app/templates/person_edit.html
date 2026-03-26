@@ -214,6 +214,22 @@
         <textarea class="form-textarea" id="edit-medical-conditions" name="medical_conditions" rows="3">{{ person.medical_conditions | tojson }}</textarea>
       </div>
 
+      <h3 class="form-section-title">{{ t('person.source_citation') }}</h3>
+      <div class="form-group">
+        <label for="edit-source-detail">{{ t('person.source_detail') }}</label>
+        <textarea class="form-textarea" id="edit-source-detail" name="source_detail" rows="2">{{ person.source_detail or '' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-confidence">{{ t('person.confidence') }}</label>
+        <select class="form-select" id="edit-confidence" name="confidence">
+          <option value="">—</option>
+          <option value="confirmed" {% if person.confidence == 'confirmed' %}selected{% endif %}>{{ t('person.confidence_confirmed') }}</option>
+          <option value="probable" {% if person.confidence == 'probable' %}selected{% endif %}>{{ t('person.confidence_probable') }}</option>
+          <option value="uncertain" {% if person.confidence == 'uncertain' %}selected{% endif %}>{{ t('person.confidence_uncertain') }}</option>
+          <option value="unknown" {% if person.confidence == 'unknown' %}selected{% endif %}>{{ t('person.confidence_unknown') }}</option>
+        </select>
+      </div>
+
       <h3 class="form-section-title">{{ t('person.contact') }}</h3>
 
       <div class="form-row">

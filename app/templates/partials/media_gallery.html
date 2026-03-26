@@ -1,6 +1,9 @@
 {% if media_list %}
 <div class="media-gallery">
   {% for m in media_list %}
+  {% if m.purpose is defined and m.purpose and m.purpose != 'memory' %}
+  <span class="media-gallery__purpose-badge">{{ m.purpose | capitalize }}</span>
+  {% endif %}
   {% if m.media_type == 'video' %}
   <div class="media-gallery__item media-gallery__item--video">
     <button type="button" class="media-gallery__video-thumb" onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or "Family media")|tojson }}, "video")'>

@@ -241,6 +241,8 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "dna_test_provider": _profile_value(person.dna_test_provider, access),
         "admixture": _profile_list(person.admixture, access),
         "medical_conditions": _profile_list(person.medical_conditions, access),
+        "source_detail": _profile_value(person.source_detail, access),
+        "confidence": _profile_value(person.confidence, access),
     }
 
 

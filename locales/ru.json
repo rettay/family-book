@@ -90,7 +90,23 @@
     "condition_treatment": "Лечение",
     "condition_hereditary_line": "Наследственная линия",
     "condition_notes": "Заметки",
-    "add_condition": "Добавить состояние"
+    "add_condition": "Добавить состояние",
+    "source_citation": "Цитата источника",
+    "source_detail": "Детали источника",
+    "confidence": "Достоверность",
+    "confidence_confirmed": "Подтверждено",
+    "confidence_probable": "Вероятно",
+    "confidence_uncertain": "Неопределённо",
+    "confidence_unknown": "Неизвестно",
+    "age": "возраст",
+    "current_age": "Текущий возраст",
+    "age_at_death": "Возраст на момент смерти"
+  },
+  "media": {
+    "purpose": "Назначение",
+    "purpose_memory": "Воспоминание",
+    "purpose_document": "Документ",
+    "purpose_evidence": "Свидетельство"
   },
   "relationships": {
     "parents": "Родители",

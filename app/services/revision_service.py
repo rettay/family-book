@@ -55,6 +55,8 @@ PERSON_MUTABLE_FIELDS = [
     "maternal_haplogroup",
     "paternal_haplogroup",
     "dna_test_provider",
+    "source_detail",
+    "confidence",
     "photo_url",
     "branch",
     "visibility",

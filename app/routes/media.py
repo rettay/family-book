@@ -58,12 +58,17 @@ async def upload_media(
     person_id: str = Form(...),
     caption: str | None = Form(None),
     tagged_person_ids: str | None = Form(None),
+    purpose: str = Form("memory"),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     """Upload a media file. Deduplicates by SHA-256 hash."""
     if not file.content_type or file.content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}")
+
+    valid_purposes = ("memory", "document", "evidence")
+    if purpose not in valid_purposes:
+        raise HTTPException(status_code=422, detail=f"purpose must be one of: {', '.join(valid_purposes)}")
 
     # Verify person exists
     result = await db.execute(select(Person).where(Person.id == person_id))
@@ -104,6 +109,10 @@ async def upload_media(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    if purpose != "memory":
+        media.purpose = purpose
+        await db.flush()
+
     tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
     logger.info("Media %s uploaded for person %s by %s", media.id, person_id, current_user.id)
     return {
@@ -115,6 +124,7 @@ async def upload_media(
         "height": media.height,
         "file_size_bytes": media.file_size_bytes,
         "caption": media.caption,
+        "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
         "is_duplicate": is_duplicate,
@@ -148,6 +158,7 @@ async def get_media_metadata(
         "height": media.height,
         "file_size_bytes": media.file_size_bytes,
         "caption": media.caption,
+        "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
         "created_at": str(media.created_at),
@@ -247,12 +258,47 @@ async def list_media_for_person(
                 "media_type": media.media_type,
                 "mime_type": media.mime_type,
                 "caption": media.caption,
+                "purpose": media.purpose,
                 "tagged_person_ids": media.tagged_person_ids,
                 "tagged_people": await _build_tagged_people(db, media.tagged_person_ids),
                 "created_at": str(media.created_at),
             }
         )
     return response
+
+
+@router.patch("/{media_id}")
+async def update_media(
+    media_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+    caption: str | None = Form(None),
+    purpose: str | None = Form(None),
+):
+    """Update media metadata (caption, purpose)."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    if not current_user.is_admin and media.uploaded_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    if purpose is not None:
+        valid_purposes = ("memory", "document", "evidence")
+        if purpose not in valid_purposes:
+            raise HTTPException(status_code=422, detail=f"purpose must be one of: {', '.join(valid_purposes)}")
+        media.purpose = purpose
+
+    if caption is not None:
+        media.caption = caption
+
+    await db.flush()
+    return {
+        "id": media.id,
+        "caption": media.caption,
+        "purpose": media.purpose,
+    }
 
 
 @router.delete("/{media_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -19,7 +19,7 @@
     <span>{{ country_flag(person.residence_country_code) }} {{ person.residence_place or '' }}</span>
     {% endif %}
     {% if person.birth_date_raw %}
-    <span>{{ person.birth_date_raw }}</span>
+    <span>{{ person.birth_date_raw }}{% if person.current_age %} ({{ t('person.age') }} {{ person.current_age }}){% elif person.age_at_death %} ({{ t('person.age') }} {{ person.age_at_death }}){% endif %}</span>
     {% endif %}
     {% if not person.is_living %}
     <span>{{ t('person.deceased') }}</span>
@@ -51,6 +51,18 @@
   <div class="profile-section">
     <h3 class="profile-section__title">Research Notes</h3>
     <p class="profile-section__copy" style="white-space: pre-line;">{{ person.research_notes }}</p>
+  </div>
+  {% endif %}
+
+  {% if person.source_detail or person.confidence %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.source_citation') }}</h3>
+    {% if person.source_detail %}
+    <p class="profile-section__copy">{{ person.source_detail }}</p>
+    {% endif %}
+    {% if person.confidence %}
+    <p class="text-sm text-muted">{{ t('person.confidence') }}: {{ person.confidence }}</p>
+    {% endif %}
   </div>
   {% endif %}
 

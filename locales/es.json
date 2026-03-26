@@ -90,7 +90,23 @@
     "condition_treatment": "Tratamiento",
     "condition_hereditary_line": "Línea Hereditaria",
     "condition_notes": "Notas",
-    "add_condition": "Agregar Condición"
+    "add_condition": "Agregar Condición",
+    "source_citation": "Citación de Fuente",
+    "source_detail": "Detalle de Fuente",
+    "confidence": "Confianza",
+    "confidence_confirmed": "Confirmado",
+    "confidence_probable": "Probable",
+    "confidence_uncertain": "Incierto",
+    "confidence_unknown": "Desconocido",
+    "age": "edad",
+    "current_age": "Edad Actual",
+    "age_at_death": "Edad al Fallecer"
+  },
+  "media": {
+    "purpose": "Propósito",
+    "purpose_memory": "Recuerdo",
+    "purpose_document": "Documento",
+    "purpose_evidence": "Evidencia"
   },
   "relationships": {
     "parents": "Padres",

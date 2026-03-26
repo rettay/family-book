@@ -88,6 +88,8 @@ async def _person_history_entries(
                     "blood_type": snapshot.get("blood_type"),
                     "admixture": snapshot.get("admixture", []),
                     "medical_conditions": snapshot.get("medical_conditions", []),
+                    "source_detail": snapshot.get("source_detail"),
+                    "confidence": snapshot.get("confidence"),
                 },
             }
         )
@@ -214,7 +216,11 @@ async def get_person(
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
         raise HTTPException(status_code=403, detail="Not visible")
-    return redact_person_detail(person, access)
+    detail = redact_person_detail(person, access)
+    detail_dict = detail.model_dump()
+    from app.services.date_intelligence_service import enrich_person_ages
+    enrich_person_ages(detail_dict)
+    return PersonDetail(**detail_dict)
 
 
 @router.post("", response_model=PersonDetail, status_code=status.HTTP_201_CREATED)
@@ -263,6 +269,8 @@ async def create_person(
         maternal_haplogroup=body.maternal_haplogroup,
         paternal_haplogroup=body.paternal_haplogroup,
         dna_test_provider=body.dna_test_provider,
+        source_detail=body.source_detail,
+        confidence=body.confidence,
         branch=body.branch,
         source=body.source,
         created_by=current_user.id,

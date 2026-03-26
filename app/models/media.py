@@ -54,6 +54,7 @@ class Media(Base):
     taken_date: Mapped[str | None] = mapped_column(String(10), default=None)
     _tagged_person_ids: Mapped[str | None] = mapped_column("tagged_person_ids", Text, default="[]")
     source: Mapped[str] = mapped_column(String(30), default=MediaSource.manual.value)
+    purpose: Mapped[str | None] = mapped_column(String(20), default="memory")
     is_profile: Mapped[bool] = mapped_column(Boolean, default=False)
     uploaded_by: Mapped[str | None] = mapped_column(String(36), default=None)
     created_at: Mapped[datetime] = mapped_column(
