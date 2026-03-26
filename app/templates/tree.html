@@ -252,6 +252,31 @@
     </section>
 
     <section class="tree-panel__group">
+      <h2 class="tree-panel__title">Relationship Calculator</h2>
+      <p class="tree-panel__hint" style="margin-top:0">Select two people on the tree to see how they are related.</p>
+      <div class="tree-panel__actions">
+        <button class="btn btn--primary" onclick="startRelationshipCalc()" id="tree-relcalc-start">Calculate Relationship</button>
+        <button class="btn btn--secondary" onclick="cancelRelationshipCalc()" id="tree-relcalc-cancel" hidden>Cancel</button>
+      </div>
+    </section>
+
+    <section class="tree-panel__group">
+      <details class="tree-legend">
+        <summary>Relationship Types Legend</summary>
+        <ul class="tree-legend__list">
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--biological"></span> Biological</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--adoptive"></span> Adoptive</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--step"></span> Step</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--foster"></span> Foster</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--guardian"></span> Guardian</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--married"></span> Married</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--domestic_partner"></span> Partner</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--co_parent"></span> Co-parent</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="tree-panel__group">
       <h2 class="tree-panel__title">{{ t('tree.filters') }}</h2>
       <label>
         {{ t('tree.filter_living') }}
@@ -288,8 +313,18 @@
         <button type="button" onclick="treeReset()" title="{{ t('tree.reset_view') }}" aria-label="{{ t('tree.reset_view') }}">&#8634;</button>
       </div>
 
+      <div class="tree-relcalc-banner" id="tree-relcalc-banner" hidden aria-live="polite"></div>
+
       <svg id="tree-svg" aria-label="{{ t('tree.title') }}"></svg>
       <div class="tree-status" id="tree-status" role="status" aria-live="polite">{{ t('common.loading') }}</div>
+
+      <div class="tree-relcalc-result" id="tree-relcalc-result" hidden aria-live="polite">
+        <div class="tree-relcalc-result__header">
+          <strong class="tree-relcalc-result__label"></strong>
+          <button class="btn btn--sm" onclick="cancelRelationshipCalc()" aria-label="Close">&times;</button>
+        </div>
+        <div class="tree-relcalc-result__details"></div>
+      </div>
 
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
         <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">

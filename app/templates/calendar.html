@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Calendar — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="calendar-page" id="calendar-page">
+  <div class="calendar-page__header">
+    <h1 class="calendar-page__title">Family Calendar</h1>
+  </div>
+
+  <div id="calendar-grid-container">
+    {% include "partials/calendar_grid.html" %}
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,9 +19,52 @@ from app.schemas import (
     PartnershipUpdate,
 )
 from app.services.audit_service import log_audit
+from app.services.relationship_calculator import find_relationship
 
 router = APIRouter(prefix="/api/relationships", tags=["relationships"])
 logger = logging.getLogger(__name__)
+
+
+# ── Relationship Calculator ──────────────────────────────────────────
+
+
+class PathEdge(BaseModel):
+    from_id: str
+    from_name: str
+    to_id: str
+    to_name: str
+    edge_type: str
+    edge_kind: str
+
+
+class RelationshipPathResponse(BaseModel):
+    found: bool
+    relationship_label: str
+    path: list[str]
+    path_details: list[PathEdge]
+
+
+@router.get("/path", response_model=RelationshipPathResponse)
+async def get_relationship_path(
+    from_id: str = Query(..., alias="from"),
+    to_id: str = Query(..., alias="to"),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Find and label the shortest relationship path between two persons."""
+    # Validate both persons exist
+    for pid in (from_id, to_id):
+        result = await db.execute(select(Person.id).where(Person.id == pid))
+        if not result.scalar_one_or_none():
+            raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+
+    calc_result = await find_relationship(db, from_id, to_id)
+    return RelationshipPathResponse(
+        found=calc_result.found,
+        relationship_label=calc_result.relationship_label,
+        path=calc_result.path,
+        path_details=[PathEdge(**d) for d in calc_result.path_details],
+    )
 
 
 async def _would_create_ancestry_cycle(

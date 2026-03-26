@@ -1,0 +1,147 @@
+<div class="cal" id="calendar-grid" aria-label="Family calendar for {{ month_name }} {{ year }}">
+  {# Month navigation #}
+  <div class="cal__nav">
+    <button class="btn btn--sm cal__nav-btn"
+            hx-get="/partials/calendar-grid?month={{ prev_month }}"
+            hx-target="#calendar-grid-container"
+            hx-swap="innerHTML"
+            aria-label="Previous month">&larr;</button>
+    <h2 class="cal__month-title">{{ month_name }} {{ year }}</h2>
+    <button class="btn btn--sm cal__nav-btn"
+            hx-get="/partials/calendar-grid?month={{ next_month }}"
+            hx-target="#calendar-grid-container"
+            hx-swap="innerHTML"
+            aria-label="Next month">&rarr;</button>
+  </div>
+
+  {# Event type filter #}
+  <div class="cal__filters" role="group" aria-label="Event type filters">
+    <label class="cal__filter">
+      <input type="checkbox" checked onchange="toggleCalFilter('birthday', this.checked)">
+      <span class="cal__filter-dot cal__filter-dot--birthday"></span> Birthdays
+    </label>
+    <label class="cal__filter">
+      <input type="checkbox" checked onchange="toggleCalFilter('remembrance', this.checked)">
+      <span class="cal__filter-dot cal__filter-dot--remembrance"></span> Remembrances
+    </label>
+    <label class="cal__filter">
+      <input type="checkbox" checked onchange="toggleCalFilter('anniversary', this.checked)">
+      <span class="cal__filter-dot cal__filter-dot--anniversary"></span> Anniversaries
+    </label>
+    <label class="cal__filter">
+      <input type="checkbox" checked onchange="toggleCalFilter('moment', this.checked)">
+      <span class="cal__filter-dot cal__filter-dot--moment"></span> Moments
+    </label>
+  </div>
+
+  {# Desktop grid view #}
+  <div class="cal__grid" role="grid" aria-label="Calendar grid">
+    <div class="cal__grid-header" role="row">
+      {% for dh in day_headers %}
+      <div class="cal__grid-header-cell" role="columnheader">{{ dh }}</div>
+      {% endfor %}
+    </div>
+    {% for week in grid %}
+    <div class="cal__grid-row" role="row">
+      {% for day in week %}
+      {% if day %}
+      <div class="cal__grid-cell {% if day == today_day %}cal__grid-cell--today{% endif %} {% if day in events_by_day %}cal__grid-cell--has-events{% endif %}"
+           role="gridcell"
+           {% if day in events_by_day %}tabindex="0" onclick="showDayDetail({{ day }})" onkeydown="if(event.key==='Enter')showDayDetail({{ day }})"{% endif %}
+           aria-label="{{ month_name }} {{ day }}{% if day in events_by_day %}, {{ events_by_day[day]|length }} event{{ 's' if events_by_day[day]|length > 1 else '' }}{% endif %}">
+        <span class="cal__grid-day-num">{{ day }}</span>
+        {% if day in events_by_day %}
+        <div class="cal__grid-dots">
+          {% for ev in events_by_day[day][:3] %}
+          <span class="cal__dot cal__dot--{{ ev.type }}" data-event-type="{{ ev.type }}" title="{{ ev.label }}"></span>
+          {% endfor %}
+          {% if events_by_day[day]|length > 3 %}
+          <span class="cal__dot-more">+{{ events_by_day[day]|length - 3 }}</span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% else %}
+      <div class="cal__grid-cell cal__grid-cell--empty" role="gridcell" aria-hidden="true"></div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {# Mobile list view #}
+  <div class="cal__list" role="list" aria-label="Calendar events list">
+    {% if events %}
+    {% set ns = namespace(current_day=0) %}
+    {% for ev in events %}
+    {% if ev.day != ns.current_day %}
+    {% set ns.current_day = ev.day %}
+    <div class="cal__list-date" role="heading" aria-level="3">{{ month_name }} {{ ev.day }}</div>
+    {% endif %}
+    <div class="cal__list-event cal__list-event--{{ ev.type }}" role="listitem" data-event-type="{{ ev.type }}">
+      <span class="cal__dot cal__dot--{{ ev.type }}"></span>
+      <span class="cal__list-label">{{ ev.label }}</span>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="cal__empty">No events this month.</p>
+    {% endif %}
+  </div>
+
+  {# Day detail panel (populated via JS) #}
+  <div class="cal__day-detail" id="cal-day-detail" role="dialog" aria-label="Day events" aria-hidden="true">
+    <div class="cal__day-detail-header">
+      <h3 class="cal__day-detail-title" id="cal-day-detail-title"></h3>
+      <button class="btn btn--sm" onclick="closeDayDetail()" aria-label="Close">&times;</button>
+    </div>
+    <div class="cal__day-detail-body" id="cal-day-detail-body"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Store events for day detail panel
+  var calEvents = {{ events | tojson }};
+  var monthName = {{ month_name | tojson }};
+
+  window.showDayDetail = function(day) {
+    var detail = document.getElementById('cal-day-detail');
+    var title = document.getElementById('cal-day-detail-title');
+    var body = document.getElementById('cal-day-detail-body');
+    var dayEvents = calEvents.filter(function(e) { return e.day === day; });
+    title.textContent = monthName + ' ' + day;
+    body.innerHTML = '';
+    if (dayEvents.length === 0) {
+      body.innerHTML = '<p class="text-muted">No events</p>';
+    } else {
+      dayEvents.forEach(function(ev) {
+        var div = document.createElement('div');
+        div.className = 'cal__day-detail-event cal__day-detail-event--' + ev.type;
+        div.setAttribute('data-event-type', ev.type);
+        var dot = document.createElement('span');
+        dot.className = 'cal__dot cal__dot--' + ev.type;
+        var label = document.createElement('span');
+        label.textContent = ev.label;
+        div.appendChild(dot);
+        div.appendChild(label);
+        body.appendChild(div);
+      });
+    }
+    detail.setAttribute('aria-hidden', 'false');
+    detail.classList.add('cal__day-detail--open');
+  };
+
+  window.closeDayDetail = function() {
+    var detail = document.getElementById('cal-day-detail');
+    detail.setAttribute('aria-hidden', 'true');
+    detail.classList.remove('cal__day-detail--open');
+  };
+
+  window.toggleCalFilter = function(eventType, visible) {
+    var items = document.querySelectorAll('[data-event-type="' + eventType + '"]');
+    items.forEach(function(el) {
+      el.style.display = visible ? '' : 'none';
+    });
+  };
+})();
+</script>

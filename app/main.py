@@ -88,6 +88,10 @@ def create_app() -> FastAPI:
     from app.routes.pages import router as pages_router
     application.include_router(pages_router)
 
+    # Calendar routes
+    from app.routes.calendar import router as calendar_router
+    application.include_router(calendar_router)
+
     # Import and external records routes
     from app.routes.imports import router as imports_router
     from app.routes.external_records import router as external_records_router

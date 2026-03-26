@@ -1207,11 +1207,12 @@
     var isGraphSource = !!(sidebarState.graphMode && sidebarState.graphMode.sourcePersonId === person.id);
     var isGraphCandidate = !!(sidebarState.graphMode && sidebarState.graphMode.sourcePersonId !== person.id);
     var nodeGroup = g.append('g')
-      .attr('class', 'person-node' +
+      .attr('class', 'tree-node person-node' +
         (person.branch ? ' person-node--branch-' + person.branch : '') +
         (isGraphSource ? ' person-node--graph-source' : '') +
         (isGraphCandidate ? ' person-node--graph-candidate' : ''))
       .attr('data-id', person.id)
+      .attr('data-person-id', person.id)
       .attr('transform', 'translate(' + node.x + ',' + node.y + ')')
       .attr('tabindex', '0')
       .attr('role', 'button')
@@ -1290,6 +1291,10 @@
     addMetricPill(nodeGroup, person, nextTextY);
 
     nodeGroup.on('click', function() {
+      if (_relCalcMode) {
+        _handleRelCalcClick(person.id);
+        return;
+      }
       if (sidebarState.graphMode) {
         handleGraphNodeSelection(person.id);
         return;
@@ -1345,12 +1350,21 @@
     var rootId = determineRootId(structures.personsById, structures.childToParents);
     var layout = layoutTree(rootId, structures.parentToChildren);
 
+    // Build parent-child kind lookup: "parentId|childId" → kind
+    var pcKindLookup = {};
+    treeData.parent_child.forEach(function(pc) {
+      pcKindLookup[pc.parent_id + '|' + pc.child_id] = pc.kind || 'biological';
+    });
+
     var lineGen = d3.line().curve(d3.curveBumpY);
     layout.allNodes.forEach(function(node) {
       if (node.children) {
         node.children.forEach(function(child) {
+          var kind = pcKindLookup[node.id + '|' + child.id] || 'biological';
           g.append('path')
-            .attr('class', 'parent-child-line')
+            .attr('class', 'parent-child-line parent-child-line--' + kind)
+            .attr('data-from', node.id)
+            .attr('data-to', child.id)
             .attr('d', lineGen([[node.x, node.y + NODE_RADIUS], [child.x, child.y - NODE_RADIUS]]));
         });
       }
@@ -1363,8 +1377,11 @@
         return;
       }
       var dissolved = partnership.status === 'dissolved' || partnership.status === 'separated';
+      var pKind = partnership.kind || 'married';
       g.append('line')
-        .attr('class', 'partnership-line' + (dissolved ? ' partnership-line--dissolved' : ''))
+        .attr('class', 'partnership-line partnership-line--' + pKind + (dissolved ? ' partnership-line--dissolved' : ''))
+        .attr('data-from', partnership.person_a_id)
+        .attr('data-to', partnership.person_b_id)
         .attr('x1', posA.x)
         .attr('y1', posA.y)
         .attr('x2', posB.x)
@@ -2758,6 +2775,115 @@
   window.uploadGedcom = uploadGedcom;
   window.previewGedcom = previewGedcom;
   window.confirmGedcomImport = confirmGedcomImport;
+
+  // ── Relationship Calculator ─────────────────────────────────────
+  var _relCalcMode = false;
+  var _relCalcFirst = null;
+
+  function startRelationshipCalc() {
+    _relCalcMode = true;
+    _relCalcFirst = null;
+    var banner = document.getElementById('tree-relcalc-banner');
+    if (banner) {
+      banner.textContent = 'Select the first person on the tree.';
+      banner.hidden = false;
+    }
+  }
+
+  function cancelRelationshipCalc() {
+    _relCalcMode = false;
+    _relCalcFirst = null;
+    var banner = document.getElementById('tree-relcalc-banner');
+    if (banner) banner.hidden = true;
+    _clearPathHighlight();
+    var resultPanel = document.getElementById('tree-relcalc-result');
+    if (resultPanel) resultPanel.hidden = true;
+  }
+
+  function _handleRelCalcClick(personId) {
+    if (!_relCalcFirst) {
+      _relCalcFirst = personId;
+      var banner = document.getElementById('tree-relcalc-banner');
+      if (banner) banner.textContent = 'Now select the second person.';
+      // Highlight first node
+      d3.selectAll('.tree-node').classed('tree-node--relcalc-selected', function() {
+        return d3.select(this).attr('data-person-id') === personId;
+      });
+      return true;
+    }
+    if (personId === _relCalcFirst) return true;
+    // Second person selected — compute path
+    _computeRelationship(_relCalcFirst, personId);
+    return true;
+  }
+
+  async function _computeRelationship(fromId, toId) {
+    var banner = document.getElementById('tree-relcalc-banner');
+    if (banner) banner.textContent = 'Computing relationship...';
+    try {
+      var resp = await fetch('/api/relationships/path?from=' + encodeURIComponent(fromId) + '&to=' + encodeURIComponent(toId));
+      if (!resp.ok) throw new Error('API error');
+      var data = await resp.json();
+      _showRelationshipResult(data);
+      if (data.found && data.path.length > 0) {
+        _highlightPath(data.path);
+      }
+    } catch (err) {
+      if (banner) banner.textContent = 'Could not compute relationship.';
+    }
+    _relCalcMode = false;
+    _relCalcFirst = null;
+    if (banner) banner.hidden = true;
+  }
+
+  function _showRelationshipResult(data) {
+    var panel = document.getElementById('tree-relcalc-result');
+    if (!panel) return;
+    panel.hidden = false;
+    var label = panel.querySelector('.tree-relcalc-result__label');
+    var details = panel.querySelector('.tree-relcalc-result__details');
+    if (label) {
+      label.textContent = data.found ? data.relationship_label : 'No relationship path found';
+    }
+    if (details && data.path_details) {
+      details.innerHTML = '';
+      data.path_details.forEach(function(edge) {
+        var div = document.createElement('div');
+        div.className = 'tree-relcalc-result__step';
+        div.textContent = edge.from_name + ' \u2192 ' + edge.to_name + ' (' + edge.edge_kind + ')';
+        details.appendChild(div);
+      });
+    }
+  }
+
+  function _highlightPath(pathIds) {
+    _clearPathHighlight();
+    var pathSet = new Set(pathIds);
+    d3.selectAll('.tree-node').classed('tree-node--path-highlight', function() {
+      return pathSet.has(d3.select(this).attr('data-person-id'));
+    });
+    // Highlight edges
+    var pathPairs = new Set();
+    for (var i = 0; i < pathIds.length - 1; i++) {
+      pathPairs.add(pathIds[i] + '|' + pathIds[i + 1]);
+      pathPairs.add(pathIds[i + 1] + '|' + pathIds[i]);
+    }
+    d3.selectAll('.parent-child-line, .partnership-line').classed('edge--path-highlight', function() {
+      var el = d3.select(this);
+      var from = el.attr('data-from');
+      var to = el.attr('data-to');
+      return from && to && pathPairs.has(from + '|' + to);
+    });
+  }
+
+  function _clearPathHighlight() {
+    d3.selectAll('.tree-node--path-highlight').classed('tree-node--path-highlight', false);
+    d3.selectAll('.tree-node--relcalc-selected').classed('tree-node--relcalc-selected', false);
+    d3.selectAll('.edge--path-highlight').classed('edge--path-highlight', false);
+  }
+
+  window.startRelationshipCalc = startRelationshipCalc;
+  window.cancelRelationshipCalc = cancelRelationshipCalc;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
   document.getElementById('apply-tree-filters').addEventListener('click', function() {
