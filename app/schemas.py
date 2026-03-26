@@ -2,6 +2,34 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
+# --- Life story entry sub-models ---
+
+class EducationEntry(BaseModel):
+    institution: str | None = Field(None, max_length=300)
+    degree: str | None = Field(None, max_length=200)
+    field_of_study: str | None = Field(None, max_length=200)
+    year_start: str | None = Field(None, max_length=10)
+    year_end: str | None = Field(None, max_length=10)
+    notes: str | None = Field(None, max_length=1000)
+
+
+class CareerEntry(BaseModel):
+    employer: str | None = Field(None, max_length=300)
+    title: str | None = Field(None, max_length=200)
+    year_start: str | None = Field(None, max_length=10)
+    year_end: str | None = Field(None, max_length=10)
+    location: str | None = Field(None, max_length=300)
+    notes: str | None = Field(None, max_length=1000)
+
+
+class OrganizationEntry(BaseModel):
+    name: str | None = Field(None, max_length=300)
+    role: str | None = Field(None, max_length=200)
+    year_joined: str | None = Field(None, max_length=10)
+    year_left: str | None = Field(None, max_length=10)
+    notes: str | None = Field(None, max_length=1000)
+
+
 # --- Person ---
 
 class PersonCreate(BaseModel):
@@ -31,6 +59,11 @@ class PersonCreate(BaseModel):
     bio: str | None = Field(None, max_length=2000)
     research_notes: str | None = Field(None, max_length=5000)
     medical_history: str | None = None
+    obituary: str | None = Field(None, max_length=10000)
+    obituary_source: str | None = Field(None, max_length=500)
+    education: list[EducationEntry] = []
+    career: list[CareerEntry] = []
+    organizations: list[OrganizationEntry] = []
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -66,6 +99,11 @@ class PersonUpdate(BaseModel):
     bio: str | None = Field(None, max_length=2000)
     research_notes: str | None = Field(None, max_length=5000)
     medical_history: str | None = None
+    obituary: str | None = Field(None, max_length=10000)
+    obituary_source: str | None = Field(None, max_length=500)
+    education: list[EducationEntry] | None = None
+    career: list[CareerEntry] | None = None
+    organizations: list[OrganizationEntry] | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -114,6 +152,11 @@ class PersonDetail(PersonSummary):
     bio: str | None = None
     research_notes: str | None = None
     medical_history: str | None = None
+    obituary: str | None = None
+    obituary_source: str | None = None
+    education: list[dict] = []
+    career: list[dict] = []
+    organizations: list[dict] = []
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -197,6 +240,11 @@ def person_to_detail(person) -> PersonDetail:
         bio=person.bio,
         research_notes=person.research_notes,
         medical_history=person.medical_history,
+        obituary=person.obituary,
+        obituary_source=person.obituary_source,
+        education=person.education,
+        career=person.career,
+        organizations=person.organizations,
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,

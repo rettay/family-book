@@ -15,6 +15,8 @@ ALLOWED_MIME_TYPES = {
     "image/jpeg", "image/png", "image/webp", "image/gif",
     "video/mp4", "video/quicktime", "video/webm",
     "audio/opus", "audio/mp3", "audio/m4a", "audio/ogg",
+    "audio/mpeg",
+    "application/pdf",
 }
 
 IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
@@ -23,12 +25,15 @@ MAX_SIZE_BY_CATEGORY = {
     "image": 10 * 1024 * 1024,      # 10 MB
     "video": 100 * 1024 * 1024,     # 100 MB
     "audio": 25 * 1024 * 1024,      # 25 MB
+    "document": 50 * 1024 * 1024,   # 50 MB
 }
 
 THUMBNAIL_SIZE = (400, 400)
 
 
 def _category_for_mime(mime_type: str) -> str:
+    if mime_type == "application/pdf":
+        return "document"
     if mime_type.startswith("image/"):
         return "image"
     if mime_type.startswith("video/"):
@@ -39,6 +44,8 @@ def _category_for_mime(mime_type: str) -> str:
 
 
 def _media_type_for_mime(mime_type: str) -> str:
+    if mime_type == "application/pdf":
+        return MediaType.document.value
     if mime_type == "image/gif":
         return MediaType.gif.value
     if mime_type.startswith("image/"):

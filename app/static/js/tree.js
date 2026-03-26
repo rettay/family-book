@@ -498,24 +498,64 @@
     if (sidebarState.highlightMediaId && sidebarState.highlightMediaId === media.id) {
       item.classList.add('tree-sidebar-media-item--highlight');
     }
-    var trigger = document.createElement('button');
-    trigger.type = 'button';
-    trigger.addEventListener('click', function() {
-      if (typeof window.openLightbox === 'function') {
-        window.openLightbox('/api/media/' + media.id + '/file', media.caption || root.dataset.openMediaLabel);
+    var mediaUrl = '/api/media/' + media.id + '/file';
+    var mType = media.media_type || 'image';
+
+    if (mType === 'audio') {
+      var audioEl = document.createElement('audio');
+      audioEl.controls = true;
+      audioEl.preload = 'metadata';
+      audioEl.style.width = '100%';
+      audioEl.src = mediaUrl;
+      var audioLabel = document.createElement('div');
+      audioLabel.className = 'tree-sidebar-media-item__audio-label';
+      audioLabel.textContent = media.caption || media.original_filename || 'Audio';
+      item.appendChild(audioLabel);
+      item.appendChild(audioEl);
+    } else if (mType === 'document') {
+      var docLink = document.createElement('a');
+      docLink.href = mediaUrl;
+      docLink.target = '_blank';
+      docLink.rel = 'noopener';
+      docLink.className = 'tree-sidebar-media-item__doc-link';
+      docLink.innerHTML = '&#128196; ' + (media.caption || media.original_filename || 'Document');
+      item.appendChild(docLink);
+    } else {
+      var trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.addEventListener('click', function() {
+        if (typeof window.openLightbox === 'function') {
+          window.openLightbox(mediaUrl, media.caption || root.dataset.openMediaLabel, mType === 'video' ? 'video' : 'image');
+        } else {
+          window.location.href = mediaUrl;
+        }
+      });
+      if (mType === 'video') {
+        var videoThumb = document.createElement('div');
+        videoThumb.className = 'tree-sidebar-media-item__video-thumb';
+        var thumbImg = document.createElement('img');
+        thumbImg.src = '/api/media/' + media.id + '/thumbnail';
+        thumbImg.alt = media.caption || 'Video';
+        thumbImg.loading = 'lazy';
+        thumbImg.onerror = function() { thumbImg.style.display = 'none'; };
+        var playIcon = document.createElement('span');
+        playIcon.className = 'tree-sidebar-media-item__play-icon';
+        playIcon.textContent = '\u25B6';
+        videoThumb.appendChild(thumbImg);
+        videoThumb.appendChild(playIcon);
+        trigger.appendChild(videoThumb);
       } else {
-        window.location.href = '/api/media/' + media.id + '/file';
+        var img = document.createElement('img');
+        img.src = '/api/media/' + media.id + '/thumbnail';
+        img.alt = media.caption || 'Family media';
+        img.loading = 'lazy';
+        img.onerror = function() {
+          img.src = mediaUrl;
+        };
+        trigger.appendChild(img);
       }
-    });
-    var img = document.createElement('img');
-    img.src = '/api/media/' + media.id + '/thumbnail';
-    img.alt = media.caption || 'Family media';
-    img.loading = 'lazy';
-    img.onerror = function() {
-      img.src = '/api/media/' + media.id + '/file';
-    };
-    trigger.appendChild(img);
-    item.appendChild(trigger);
+      item.appendChild(trigger);
+    }
     var meta = document.createElement('div');
     meta.className = 'tree-sidebar-media-item__meta';
     if (media.caption) {
@@ -1840,9 +1880,15 @@
             'contact_whatsapp',
             'contact_telegram',
             'contact_signal',
-            'contact_email'
+            'contact_email',
+            'obituary',
+            'obituary_source'
           ]
         });
+      // Collect JSON array fields (education, career, organizations)
+      payload.education = collectJsonArrayEntries('education');
+      payload.career = collectJsonArrayEntries('career');
+      payload.organizations = collectJsonArrayEntries('organizations');
       // Handle is_living checkbox (unchecked = not in FormData)
       var livingCheckbox = form.querySelector('[name="is_living"]');
       if (livingCheckbox) {
@@ -2753,6 +2799,42 @@
     xhr.send(formData);
   }
 
+  function collectJsonArrayEntries(fieldName) {
+    var container = document.getElementById('tree-' + fieldName + '-entries');
+    if (!container) return [];
+    var entries = container.querySelectorAll('.tree-json-entry[data-json-field="' + fieldName + '"]');
+    var result = [];
+    entries.forEach(function(entry) {
+      var obj = {};
+      var inputs = entry.querySelectorAll('[data-key]');
+      var hasValue = false;
+      inputs.forEach(function(input) {
+        var val = input.value.trim();
+        if (val) {
+          obj[input.getAttribute('data-key')] = val;
+          hasValue = true;
+        }
+      });
+      if (hasValue) result.push(obj);
+    });
+    return result;
+  }
+
+  function addJsonArrayEntry(fieldName) {
+    var container = document.getElementById('tree-' + fieldName + '-entries');
+    if (!container) return;
+    var templates = {
+      education: '<div class="tree-json-entry" data-json-field="education"><div class="tree-inline-form__row"><label>Institution<input class="form-input" type="text" data-key="institution"></label><label>Degree<input class="form-input" type="text" data-key="degree"></label></div><div class="tree-inline-form__row"><label>Field<input class="form-input" type="text" data-key="field_of_study"></label><label>Start Year<input class="form-input" type="text" data-key="year_start"></label></div><div class="tree-inline-form__row"><label>End Year<input class="form-input" type="text" data-key="year_end"></label><label>Notes<input class="form-input" type="text" data-key="notes"></label></div><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>',
+      career: '<div class="tree-json-entry" data-json-field="career"><div class="tree-inline-form__row"><label>Employer<input class="form-input" type="text" data-key="employer"></label><label>Title<input class="form-input" type="text" data-key="title"></label></div><div class="tree-inline-form__row"><label>Start Year<input class="form-input" type="text" data-key="year_start"></label><label>End Year<input class="form-input" type="text" data-key="year_end"></label></div><div class="tree-inline-form__row"><label>Location<input class="form-input" type="text" data-key="location"></label><label>Notes<input class="form-input" type="text" data-key="notes"></label></div><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>',
+      organizations: '<div class="tree-json-entry" data-json-field="organizations"><div class="tree-inline-form__row"><label>Organization<input class="form-input" type="text" data-key="name"></label><label>Role<input class="form-input" type="text" data-key="role"></label></div><div class="tree-inline-form__row"><label>Year Joined<input class="form-input" type="text" data-key="year_joined"></label><label>Year Left<input class="form-input" type="text" data-key="year_left"></label></div><label>Notes<input class="form-input" type="text" data-key="notes"></label><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>'
+    };
+    if (templates[fieldName]) {
+      container.insertAdjacentHTML('beforeend', templates[fieldName]);
+    }
+  }
+
+  window.collectJsonArrayEntries = collectJsonArrayEntries;
+  window.addJsonArrayEntry = addJsonArrayEntry;
   window.saveTreePerson = saveTreePerson;
   window.linkTreeRelationship = linkTreeRelationship;
   window.createTreeRelative = createTreeRelative;

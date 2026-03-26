@@ -226,6 +226,11 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "bio": _profile_value(person.bio, access),
         "research_notes": _profile_value(person.research_notes, access),
         "medical_history": _profile_value(person.medical_history, access),
+        "obituary": _profile_value(person.obituary, access),
+        "obituary_source": _profile_value(person.obituary_source, access),
+        "education": _profile_list(person.education, access),
+        "career": _profile_list(person.career, access),
+        "organizations": _profile_list(person.organizations, access),
     }
 
 

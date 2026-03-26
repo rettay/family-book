@@ -1,17 +1,41 @@
 {% if media_list %}
 <div class="media-gallery">
   {% for m in media_list %}
+  {% if m.media_type == 'video' %}
+  <div class="media-gallery__item media-gallery__item--video">
+    <button type="button" class="media-gallery__video-thumb" onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or "Family media")|tojson }}, "video")'>
+      <img src="/api/media/{{ m.id }}/thumbnail" alt="{{ m.caption or 'Family media' }}" loading="lazy"
+           onerror="this.src='/api/media/{{ m.id }}/file'">
+      <span class="media-gallery__play-icon" aria-hidden="true">&#9654;</span>
+    </button>
+  </div>
+  {% elif m.media_type == 'audio' %}
+  <div class="media-gallery__item media-gallery__item--audio">
+    <div class="media-gallery__audio-label">&#9835; {{ m.caption or m.original_filename or 'Audio' }}</div>
+    <audio controls preload="metadata" style="width:100%;">
+      <source src="/api/media/{{ m.id }}/file" type="{{ m.mime_type or 'audio/mpeg' }}">
+    </audio>
+  </div>
+  {% elif m.media_type == 'document' %}
+  <div class="media-gallery__item media-gallery__item--document">
+    <a href="/api/media/{{ m.id }}/file" target="_blank" rel="noopener" class="media-gallery__doc-link">
+      <span class="media-gallery__doc-icon" aria-hidden="true">&#128196;</span>
+      <span>{{ m.caption or m.original_filename or 'Document' }}</span>
+    </a>
+  </div>
+  {% else %}
   <button type="button" class="media-gallery__item" onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or "Family media")|tojson }})'>
     <img src="/api/media/{{ m.id }}/thumbnail" alt="{{ m.caption or 'Family media' }}" loading="lazy"
          onerror="this.src='/api/media/{{ m.id }}/file'">
   </button>
+  {% endif %}
   {% endfor %}
 </div>
 
 {% if can_upload %}
 <div style="padding:0 16px 8px;">
   <form id="media-upload-form" style="display:flex; gap:8px; align-items:center;">
-    <input type="file" id="media-upload-file" accept="image/*,video/*" style="font-size:0.85rem;">
+    <input type="file" id="media-upload-file" accept="image/*,video/*,audio/*,.pdf" style="font-size:0.85rem;">
     <button type="button" class="btn btn--primary btn--sm" onclick="uploadMedia()">Upload</button>
   </form>
 </div>
@@ -21,7 +45,7 @@
   <p class="text-sm text-muted">No media yet</p>
   {% if can_upload %}
   <form style="margin-top:12px; display:flex; gap:8px; align-items:center; justify-content:center;">
-    <input type="file" id="media-upload-file" accept="image/*,video/*" style="font-size:0.85rem;">
+    <input type="file" id="media-upload-file" accept="image/*,video/*,audio/*,.pdf" style="font-size:0.85rem;">
     <button type="button" class="btn btn--primary btn--sm" onclick="uploadMedia()">Upload</button>
   </form>
   {% endif %}

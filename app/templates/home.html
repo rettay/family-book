@@ -55,7 +55,7 @@
 <!-- Compose bar -->
 <div class="compose-bar" id="compose-bar">
   <button type="button" class="compose-bar__photo-btn" id="compose-photo-button" onclick="document.getElementById('compose-file').click()" aria-label="Add media">&#128247;</button>
-  <input type="file" id="compose-file" accept="image/*,video/*" multiple onchange="handleComposeFile(this)">
+  <input type="file" id="compose-file" accept="image/*,video/*,audio/*,.pdf" multiple onchange="handleComposeFile(this)">
   <label class="sr-only" for="compose-input">{{ t('moments.share') }}</label>
   <input type="text" class="compose-bar__input" id="compose-input"
          placeholder="{{ t('moments.share') }}..." onkeydown="if(event.key==='Enter')submitMoment()">

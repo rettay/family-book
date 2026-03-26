@@ -445,6 +445,87 @@
           </label>
         </details>
 
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="obituary">
+          <summary>{{ t('person.obituary') }}</summary>
+          <label>
+            {{ t('person.obituary') }}
+            <textarea class="form-textarea" name="obituary" rows="4">{{ person.obituary or '' }}</textarea>
+          </label>
+          <label>
+            {{ t('person.obituary_source') }}
+            <input class="form-input" type="text" name="obituary_source" value="{{ person.obituary_source or '' }}">
+          </label>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="education">
+          <summary>{{ t('person.education') }}</summary>
+          <div id="tree-education-entries">
+            {% for edu in person.education %}
+            <div class="tree-json-entry" data-json-field="education">
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.education_institution') }}<input class="form-input" type="text" data-key="institution" value="{{ edu.institution or '' }}"></label>
+                <label>{{ t('person.education_degree') }}<input class="form-input" type="text" data-key="degree" value="{{ edu.degree or '' }}"></label>
+              </div>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.education_field') }}<input class="form-input" type="text" data-key="field_of_study" value="{{ edu.field_of_study or '' }}"></label>
+                <label>{{ t('person.education_year_start') }}<input class="form-input" type="text" data-key="year_start" value="{{ edu.year_start or '' }}"></label>
+              </div>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.education_year_end') }}<input class="form-input" type="text" data-key="year_end" value="{{ edu.year_end or '' }}"></label>
+                <label>{{ t('person.education_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ edu.notes or '' }}"></label>
+              </div>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('education')">+ Add Education</button>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="career">
+          <summary>{{ t('person.career') }}</summary>
+          <div id="tree-career-entries">
+            {% for job in person.career %}
+            <div class="tree-json-entry" data-json-field="career">
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.career_employer') }}<input class="form-input" type="text" data-key="employer" value="{{ job.employer or '' }}"></label>
+                <label>{{ t('person.career_title') }}<input class="form-input" type="text" data-key="title" value="{{ job.title or '' }}"></label>
+              </div>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.career_year_start') }}<input class="form-input" type="text" data-key="year_start" value="{{ job.year_start or '' }}"></label>
+                <label>{{ t('person.career_year_end') }}<input class="form-input" type="text" data-key="year_end" value="{{ job.year_end or '' }}"></label>
+              </div>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.career_location') }}<input class="form-input" type="text" data-key="location" value="{{ job.location or '' }}"></label>
+                <label>{{ t('person.career_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ job.notes or '' }}"></label>
+              </div>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('career')">+ Add Career</button>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="organizations">
+          <summary>{{ t('person.organizations') }}</summary>
+          <div id="tree-organizations-entries">
+            {% for org in person.organizations %}
+            <div class="tree-json-entry" data-json-field="organizations">
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.org_name') }}<input class="form-input" type="text" data-key="name" value="{{ org.name or '' }}"></label>
+                <label>{{ t('person.org_role') }}<input class="form-input" type="text" data-key="role" value="{{ org.role or '' }}"></label>
+              </div>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.org_year_joined') }}<input class="form-input" type="text" data-key="year_joined" value="{{ org.year_joined or '' }}"></label>
+                <label>{{ t('person.org_year_left') }}<input class="form-input" type="text" data-key="year_left" value="{{ org.year_left or '' }}"></label>
+              </div>
+              <label>{{ t('person.org_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ org.notes or '' }}"></label>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('organizations')">+ Add Organization</button>
+        </details>
+
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}
@@ -789,7 +870,7 @@
         <div class="tree-composer-advanced" data-tree-story-extras>
           <label>
             {{ t('tree.story_attachments_label') }}
-            <input class="form-input" type="file" name="story_files" accept="image/*,video/*" multiple data-tree-story-files>
+            <input class="form-input" type="file" name="story_files" accept="image/*,video/*,audio/*,.pdf" multiple data-tree-story-files>
           </label>
           <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" id="tree-story-files-summary">{{ t('tree.story_attachments_pending') }}</p>
           <div class="tree-composer-token-list" id="tree-story-files-list" aria-live="polite"></div>
@@ -839,7 +920,7 @@
         <div id="tree-media-error" class="form-error hidden" role="status" aria-live="polite"></div>
         <label>
           {{ t('tree.upload_media') }}
-          <input class="form-input" type="file" name="file" accept="image/*,video/*" required multiple>
+          <input class="form-input" type="file" name="file" accept="image/*,video/*,audio/*,.pdf" required multiple>
         </label>
         <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" id="tree-media-file-name">{{ t('tree.media_file_pending') }}</p>
         <div class="tree-composer-token-list" id="tree-media-file-list" aria-live="polite"></div>

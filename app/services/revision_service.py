@@ -40,6 +40,8 @@ PERSON_MUTABLE_FIELDS = [
     "bio",
     "research_notes",
     "medical_history",
+    "obituary",
+    "obituary_source",
     "contact_whatsapp",
     "contact_telegram",
     "contact_signal",
@@ -94,6 +96,9 @@ def _parse_datetime(value: str | None) -> datetime | None:
 def serialize_person_snapshot(person: Person) -> dict:
     snapshot = {field: getattr(person, field) for field in PERSON_MUTABLE_FIELDS}
     snapshot["languages"] = person.languages
+    snapshot["education"] = person.education
+    snapshot["career"] = person.career
+    snapshot["organizations"] = person.organizations
     return encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
 
 
@@ -104,6 +109,12 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
             setattr(person, field, snapshot[field])
     if "languages" in snapshot:
         person.languages = snapshot["languages"] or []
+    if "education" in snapshot:
+        person.education = snapshot["education"] or []
+    if "career" in snapshot:
+        person.career = snapshot["career"] or []
+    if "organizations" in snapshot:
+        person.organizations = snapshot["organizations"] or []
 
 
 def serialize_moment_snapshot(moment: Moment) -> dict:

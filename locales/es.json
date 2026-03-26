@@ -11,6 +11,7 @@
     "admin": "Administrar",
     "settings": "Configuración",
     "calendar": "Calendario",
+    "timeline": "Cronología",
     "logout": "Cerrar Sesión",
     "login": "Iniciar Sesión"
   },
@@ -42,7 +43,29 @@
     "edit_subtitle": "Actualiza detalles del perfil, notas familiares, información de contacto y registros conmemorativos.",
     "living": "Vivo/a",
     "deceased": "Fallecido/a",
-    "memorial": "Memorial"
+    "memorial": "Memorial",
+    "obituary": "Obituario",
+    "obituary_source": "Fuente del Obituario",
+    "education": "Educación",
+    "education_institution": "Institución",
+    "education_degree": "Título",
+    "education_field": "Campo de Estudio",
+    "education_year_start": "Año de Inicio",
+    "education_year_end": "Año de Fin",
+    "education_notes": "Notas",
+    "career": "Carrera",
+    "career_employer": "Empleador",
+    "career_title": "Cargo",
+    "career_year_start": "Año de Inicio",
+    "career_year_end": "Año de Fin",
+    "career_location": "Ubicación",
+    "career_notes": "Notas",
+    "organizations": "Organizaciones",
+    "org_name": "Organización",
+    "org_role": "Rol",
+    "org_year_joined": "Año de Ingreso",
+    "org_year_left": "Año de Salida",
+    "org_notes": "Notas"
   },
   "relationships": {
     "parents": "Padres",
@@ -287,6 +310,19 @@
     "month_10": "Octubre",
     "month_11": "Noviembre",
     "month_12": "Diciembre"
+  },
+  "timeline": {
+    "title": "Cronología Familiar",
+    "subtitle": "Una vista cronológica de nacimientos, fallecimientos, matrimonios y momentos familiares.",
+    "no_events": "No se encontraron eventos en la cronología.",
+    "filter_all": "Todos los eventos",
+    "filter_births": "Nacimientos",
+    "filter_deaths": "Fallecimientos",
+    "filter_marriages": "Matrimonios",
+    "filter_moments": "Momentos",
+    "year_from": "Desde año",
+    "year_to": "Hasta año",
+    "filter_branch": "Rama"
   },
   "map": {
     "title": "Mapa Familiar",

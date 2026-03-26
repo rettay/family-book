@@ -1,0 +1,303 @@
+"""Tests for family timeline with branch filtering."""
+
+from datetime import datetime, timezone
+
+import pytest
+from httpx import AsyncClient
+
+
+# ── API tests ────────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_timeline_api_unauthenticated(client: AsyncClient):
+    resp = await client.get("/api/timeline")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_timeline_api_returns_events(admin_client: AsyncClient):
+    """Create a person with a birth date and verify it appears in the timeline."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "TimelineTest",
+        "last_name": "Person",
+        "birth_date": "1985-06-15",
+        "birth_date_precision": "exact",
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/timeline")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "events" in data
+    assert isinstance(data["events"], list)
+    # Should include at least the person we just created
+    birth_events = [e for e in data["events"] if e["type"] == "birth" and "TimelineTest" in e["label"]]
+    assert len(birth_events) >= 1
+    # Check event field structure
+    ev = birth_events[0]
+    assert "date" in ev
+    assert "year" in ev
+    assert "type" in ev
+    assert "label" in ev
+    assert "person_id" in ev
+    assert "person_name" in ev
+    assert "detail" in ev
+
+
+@pytest.mark.asyncio
+async def test_timeline_api_filter_by_type(admin_client: AsyncClient):
+    """Filter timeline to only birth events."""
+    resp = await admin_client.get("/api/timeline?event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    for ev in data["events"]:
+        assert ev["type"] == "birth"
+
+
+@pytest.mark.asyncio
+async def test_timeline_api_filter_by_year_range(admin_client: AsyncClient):
+    """Create persons in known years and verify year filtering works."""
+    await admin_client.post("/api/persons", json={
+        "first_name": "OldPerson",
+        "last_name": "Timeline",
+        "birth_date": "1920-01-01",
+        "birth_date_precision": "exact",
+    })
+    await admin_client.post("/api/persons", json={
+        "first_name": "NewPerson",
+        "last_name": "Timeline",
+        "birth_date": "2010-06-01",
+        "birth_date_precision": "exact",
+    })
+
+    # Filter to only 1900-1950
+    resp = await admin_client.get("/api/timeline?year_from=1900&year_to=1950&event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    for ev in data["events"]:
+        assert 1900 <= ev["year"] <= 1950
+
+    # NewPerson should not appear
+    new_events = [e for e in data["events"] if "NewPerson" in e["label"]]
+    assert len(new_events) == 0
+
+
+# ── Page tests ───────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_timeline_page_loads(admin_client: AsyncClient):
+    resp = await admin_client.get("/timeline")
+    assert resp.status_code == 200
+    assert "timeline" in resp.text.lower()
+
+
+@pytest.mark.asyncio
+async def test_timeline_partial_returns_html(admin_client: AsyncClient):
+    resp = await admin_client.get("/partials/timeline-events")
+    assert resp.status_code == 200
+
+
+# ── Graph traversal tests ────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_get_ancestors(admin_client: AsyncClient, session_factory):
+    """Create parent-child chain and verify ancestors."""
+    from app.services.relationship_calculator import get_ancestors
+
+    # Create grandparent -> parent -> child
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "GrandpaAncestor", "last_name": "Test",
+    })
+    grandparent_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "ParentAncestor", "last_name": "Test",
+    })
+    parent_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "ChildAncestor", "last_name": "Test",
+    })
+    child_id = resp.json()["id"]
+
+    # Link grandparent -> parent
+    await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": grandparent_id, "child_id": parent_id,
+    })
+    # Link parent -> child
+    await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id, "child_id": child_id,
+    })
+
+    async with session_factory() as db:
+        ancestors = await get_ancestors(db, child_id)
+        assert parent_id in ancestors
+        assert grandparent_id in ancestors
+        assert child_id not in ancestors
+
+
+@pytest.mark.asyncio
+async def test_get_descendants(admin_client: AsyncClient, session_factory):
+    """Verify descendants traversal."""
+    from app.services.relationship_calculator import get_descendants
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "TopDesc", "last_name": "Test",
+    })
+    top_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "MidDesc", "last_name": "Test",
+    })
+    mid_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "BottomDesc", "last_name": "Test",
+    })
+    bottom_id = resp.json()["id"]
+
+    await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": top_id, "child_id": mid_id,
+    })
+    await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": mid_id, "child_id": bottom_id,
+    })
+
+    async with session_factory() as db:
+        descendants = await get_descendants(db, top_id)
+        assert mid_id in descendants
+        assert bottom_id in descendants
+        assert top_id not in descendants
+
+
+@pytest.mark.asyncio
+async def test_lineage_filter_restricts_events(admin_client: AsyncClient):
+    """Verify that lineage_person_id filter restricts timeline events."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "LineageParent", "last_name": "Filter",
+        "birth_date": "1960-01-01", "birth_date_precision": "exact",
+    })
+    parent_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "LineageChild", "last_name": "Filter",
+        "birth_date": "1990-01-01", "birth_date_precision": "exact",
+    })
+    child_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "UnrelatedPerson", "last_name": "Filter",
+        "birth_date": "1990-02-02", "birth_date_precision": "exact",
+    })
+    unrelated_id = resp.json()["id"]
+
+    await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id, "child_id": child_id,
+    })
+
+    # Filter by lineage of child — should include child and parent, but not unrelated
+    resp = await admin_client.get(f"/api/timeline?lineage_person_id={child_id}&event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    person_ids = {e["person_id"] for e in data["events"]}
+    assert child_id in person_ids
+    assert parent_id in person_ids
+    assert unrelated_id not in person_ids
+
+
+# ── Member-client tests ──────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_member_can_access_timeline(member_client: AsyncClient):
+    """Non-admin member can access the timeline API."""
+    resp = await member_client.get("/api/timeline")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "events" in data
+    assert "total" in data
+
+
+@pytest.mark.asyncio
+async def test_hidden_person_excluded_from_member_timeline(
+    admin_client: AsyncClient, member_client: AsyncClient
+):
+    """Hidden person's events should not appear in member's timeline."""
+    # Admin creates a hidden person with a birth date
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "HiddenTimeline",
+        "last_name": "Person",
+        "birth_date": "1975-03-20",
+        "birth_date_precision": "exact",
+    })
+    assert resp.status_code == 201
+    hidden_id = resp.json()["id"]
+
+    # Admin sets visibility to hidden
+    resp = await admin_client.put(f"/api/persons/{hidden_id}", json={
+        "visibility": "hidden",
+    })
+    assert resp.status_code == 200
+
+    # Member's timeline should not include the hidden person
+    resp = await member_client.get("/api/timeline?event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    hidden_events = [e for e in data["events"] if e["person_id"] == hidden_id]
+    assert len(hidden_events) == 0
+
+
+@pytest.mark.asyncio
+async def test_admin_only_moment_excluded_from_member_timeline(
+    admin_client: AsyncClient, member_client: AsyncClient
+):
+    """Moments with visibility='admins' should not appear in member's timeline."""
+    # Admin creates a person
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "MomentVis",
+        "last_name": "Test",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    # Admin creates an admin-only moment
+    resp = await admin_client.post("/api/moments", json={
+        "kind": "note",
+        "person_id": person_id,
+        "title": "AdminOnlyTimelineMoment",
+        "body": "Secret admin note",
+        "visibility": "admins",
+        "occurred_at": datetime(2000, 6, 15, tzinfo=timezone.utc).isoformat(),
+    })
+    assert resp.status_code == 201
+
+    # Admin should see the moment in timeline
+    resp = await admin_client.get("/api/timeline?event_type=moment")
+    assert resp.status_code == 200
+    admin_moments = [e for e in resp.json()["events"] if "AdminOnlyTimelineMoment" in e["label"]]
+    assert len(admin_moments) >= 1
+
+    # Member should NOT see the admin-only moment
+    resp = await member_client.get("/api/timeline?event_type=moment")
+    assert resp.status_code == 200
+    member_moments = [e for e in resp.json()["events"] if "AdminOnlyTimelineMoment" in e["label"]]
+    assert len(member_moments) == 0
+
+
+@pytest.mark.asyncio
+async def test_timeline_total_reflects_pre_pagination_count(admin_client: AsyncClient):
+    """The total field should reflect total matching events, not just the page size."""
+    # Create 3 persons with birth dates
+    for i in range(3):
+        await admin_client.post("/api/persons", json={
+            "first_name": f"TotalTest{i}",
+            "last_name": "Counter",
+            "birth_date": f"200{i}-01-01",
+            "birth_date_precision": "exact",
+        })
+
+    # Request with limit=1 — total should be >= 3 (seed data adds more)
+    resp = await admin_client.get("/api/timeline?event_type=birth&limit=1")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["events"]) == 1
+    assert data["total"] >= 3

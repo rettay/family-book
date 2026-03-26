@@ -245,16 +245,29 @@ async function postComment(e, momentId) {
   }
 }
 
-// Lightbox
-function openLightbox(url, altText) {
+// Lightbox — supports image, video, and audio
+function _guessMediaType(url) {
+  if (!url) return 'image';
+  var lower = url.toLowerCase();
+  if (lower.match(/\.(mp4|webm|mov|quicktime)(\?|$)/)) return 'video';
+  if (lower.match(/\.(mp3|m4a|ogg|opus|wav)(\?|$)/)) return 'audio';
+  if (lower.match(/\.pdf(\?|$)/)) return 'document';
+  return 'image';
+}
+
+function openLightbox(url, altText, mediaType) {
+  if (!mediaType) mediaType = _guessMediaType(url);
+  if (mediaType === 'document') {
+    window.open(url, '_blank');
+    return;
+  }
   var lb = document.createElement('div');
   lb.className = 'lightbox';
   lb.hidden = true;
   lb.setAttribute('aria-hidden', 'true');
   lb.onclick = function(e) {
     if (e.target === lb) {
-      closeAccessibleOverlay(lb);
-      lb.remove();
+      _closeLightbox(lb);
     }
   };
   var closeBtn = document.createElement('button');
@@ -264,8 +277,7 @@ function openLightbox(url, altText) {
   closeBtn.textContent = '\u00D7';
   closeBtn.onclick = function(e) {
     e.stopPropagation();
-    closeAccessibleOverlay(lb);
-    lb.remove();
+    _closeLightbox(lb);
   };
   var dialog = document.createElement('div');
   dialog.className = 'lightbox__dialog';
@@ -273,14 +285,44 @@ function openLightbox(url, altText) {
   dialog.setAttribute('aria-modal', 'true');
   dialog.setAttribute('aria-label', altText || 'Expanded media');
   dialog.tabIndex = -1;
-  var img = document.createElement('img');
-  img.src = url;
-  img.alt = altText || 'Expanded media';
   dialog.appendChild(closeBtn);
-  dialog.appendChild(img);
+
+  if (mediaType === 'video') {
+    var video = document.createElement('video');
+    video.controls = true;
+    video.autoplay = true;
+    video.src = url;
+    video.style.maxWidth = '90vw';
+    video.style.maxHeight = '80vh';
+    dialog.appendChild(video);
+  } else if (mediaType === 'audio') {
+    var audio = document.createElement('audio');
+    audio.controls = true;
+    audio.autoplay = true;
+    audio.src = url;
+    audio.style.width = '400px';
+    audio.style.maxWidth = '90vw';
+    dialog.appendChild(audio);
+  } else {
+    var img = document.createElement('img');
+    img.src = url;
+    img.alt = altText || 'Expanded media';
+    dialog.appendChild(img);
+  }
+
   lb.appendChild(dialog);
   document.body.appendChild(lb);
   openAccessibleOverlay(lb, {initialFocus: '.lightbox__close'});
+}
+
+function _closeLightbox(lb) {
+  // Pause any playing media before removing
+  var video = lb.querySelector('video');
+  var audio = lb.querySelector('audio');
+  if (video) video.pause();
+  if (audio) audio.pause();
+  closeAccessibleOverlay(lb);
+  lb.remove();
 }
 
 // Media upload (person profile page)

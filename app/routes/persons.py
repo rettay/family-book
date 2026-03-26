@@ -67,6 +67,11 @@ async def _person_history_entries(
                     "bio": snapshot.get("bio"),
                     "branch": snapshot.get("branch"),
                     "lifecycle_state": snapshot.get("lifecycle_state"),
+                    "obituary": snapshot.get("obituary"),
+                    "obituary_source": snapshot.get("obituary_source"),
+                    "education": snapshot.get("education", []),
+                    "career": snapshot.get("career", []),
+                    "organizations": snapshot.get("organizations", []),
                 },
             }
         )
@@ -232,11 +237,16 @@ async def create_person(
         contact_telegram=body.contact_telegram,
         contact_signal=body.contact_signal,
         contact_email=body.contact_email,
+        obituary=body.obituary,
+        obituary_source=body.obituary_source,
         branch=body.branch,
         source=body.source,
         created_by=current_user.id,
     )
     person.languages = body.languages
+    person.education = [e.model_dump(exclude_none=True) for e in body.education]
+    person.career = [e.model_dump(exclude_none=True) for e in body.career]
+    person.organizations = [e.model_dump(exclude_none=True) for e in body.organizations]
     db.add(person)
     await db.flush()
 
@@ -275,9 +285,15 @@ async def update_person(
     old_snapshot = serialize_person_snapshot(person)
     update_data = body.model_dump(exclude_unset=True)
 
-    # Handle languages separately
+    # Handle JSON array fields separately
     if "languages" in update_data:
-        person.languages = update_data.pop("languages")
+        person.languages = update_data.pop("languages") or []
+    if "education" in update_data:
+        person.education = update_data.pop("education") or []
+    if "career" in update_data:
+        person.career = update_data.pop("career") or []
+    if "organizations" in update_data:
+        person.organizations = update_data.pop("organizations") or []
 
     for field, value in update_data.items():
         setattr(person, field, value)

@@ -92,6 +92,10 @@ def create_app() -> FastAPI:
     from app.routes.calendar import router as calendar_router
     application.include_router(calendar_router)
 
+    # Timeline routes
+    from app.routes.timeline import router as timeline_router
+    application.include_router(timeline_router)
+
     # Import and external records routes
     from app.routes.imports import router as imports_router
     from app.routes.external_records import router as external_records_router

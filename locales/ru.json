@@ -11,6 +11,7 @@
     "admin": "Управление",
     "settings": "Настройки",
     "calendar": "Календарь",
+    "timeline": "Хронология",
     "logout": "Выйти",
     "login": "Войти"
   },
@@ -42,7 +43,29 @@
     "edit_subtitle": "Обновите данные профиля, семейные заметки, контакты и мемориальные записи.",
     "living": "Жив(а)",
     "deceased": "Умер(ла)",
-    "memorial": "Мемориал"
+    "memorial": "Мемориал",
+    "obituary": "Некролог",
+    "obituary_source": "Источник некролога",
+    "education": "Образование",
+    "education_institution": "Учебное заведение",
+    "education_degree": "Степень",
+    "education_field": "Направление",
+    "education_year_start": "Год начала",
+    "education_year_end": "Год окончания",
+    "education_notes": "Заметки",
+    "career": "Карьера",
+    "career_employer": "Работодатель",
+    "career_title": "Должность",
+    "career_year_start": "Год начала",
+    "career_year_end": "Год окончания",
+    "career_location": "Местоположение",
+    "career_notes": "Заметки",
+    "organizations": "Организации",
+    "org_name": "Организация",
+    "org_role": "Роль",
+    "org_year_joined": "Год вступления",
+    "org_year_left": "Год выхода",
+    "org_notes": "Заметки"
   },
   "relationships": {
     "parents": "Родители",
@@ -287,6 +310,19 @@
     "month_10": "Октябрь",
     "month_11": "Ноябрь",
     "month_12": "Декабрь"
+  },
+  "timeline": {
+    "title": "Семейная Хронология",
+    "subtitle": "Хронологический обзор рождений, смертей, браков и семейных событий.",
+    "no_events": "Событий на хронологии не найдено.",
+    "filter_all": "Все события",
+    "filter_births": "Рождения",
+    "filter_deaths": "Смерти",
+    "filter_marriages": "Браки",
+    "filter_moments": "Моменты",
+    "year_from": "С года",
+    "year_to": "По год",
+    "filter_branch": "Ветвь"
   },
   "map": {
     "title": "Семейная карта",

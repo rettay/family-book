@@ -57,34 +57,37 @@
 
   {% if m.media and m.media | length > 0 %}
   <div class="moment__media">
-    {% if m.media | length == 1 %}
-    <button type="button" class="media-trigger" onclick='openLightbox({{ m.media[0].url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
-      <img src="{{ m.media[0].url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy">
-    </button>
-    {% elif m.media | length <= 4 %}
-    <div class="moment__media-grid moment__media-grid--{{ m.media | length }}">
-      {% for media in m.media %}
-      <button type="button" class="media-trigger" onclick='openLightbox({{ media.url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
-        <img src="{{ media.url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
-      </button>
-      {% endfor %}
+    {% for media in m.media %}
+    {% if media.media_type == 'video' %}
+    <div class="moment__media-inline">
+      <video controls preload="metadata" style="max-width:100%;border-radius:8px;">
+        <source src="{{ media.url }}" type="{{ media.mime_type or 'video/mp4' }}">
+      </video>
+    </div>
+    {% elif media.media_type == 'audio' %}
+    <div class="moment__media-inline">
+      <audio controls preload="metadata" style="width:100%;">
+        <source src="{{ media.url }}" type="{{ media.mime_type or 'audio/mpeg' }}">
+      </audio>
+    </div>
+    {% elif media.media_type == 'document' %}
+    <div class="moment__media-inline">
+      <a href="{{ media.url }}" target="_blank" rel="noopener" class="btn btn--secondary btn--sm" style="display:inline-flex;align-items:center;gap:4px;">
+        &#128196; {{ media.caption or media.original_filename or 'View Document' }}
+      </a>
     </div>
     {% else %}
-    <div class="moment__media-grid moment__media-grid--4">
-      {% for media in m.media[:4] %}
-      <div style="position:relative;">
-        <button type="button" class="media-trigger" onclick='openLightbox({{ media.url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
-          <img src="{{ media.url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
-        </button>
-        {% if loop.index == 4 and m.media | length > 4 %}
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:600;">
-          +{{ m.media | length - 4 }}
-        </div>
-        {% endif %}
-      </div>
-      {% endfor %}
-    </div>
+    {% if m.media | length == 1 %}
+    <button type="button" class="media-trigger" onclick='openLightbox({{ media.url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})'>
+      <img src="{{ media.url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy">
+    </button>
+    {% else %}
+    <button type="button" class="media-trigger" onclick='openLightbox({{ media.url|tojson }}, {{ (m.title or m.body or "Moment media")|tojson }})' style="display:inline-block;">
+      <img src="{{ media.url }}" alt="{{ m.title or m.body or 'Moment media' }}" loading="lazy" style="max-width:200px;height:auto;object-fit:cover;border-radius:8px;">
+    </button>
     {% endif %}
+    {% endif %}
+    {% endfor %}
   </div>
   {% endif %}
 

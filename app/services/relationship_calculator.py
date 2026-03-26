@@ -13,6 +13,53 @@ from app.models.person import Person, PersonLifecycleState
 from app.models.relationships import ParentChild, Partnership
 
 
+async def get_ancestors(db: AsyncSession, person_id: str) -> set[str]:
+    """BFS upward through ParentChild to find all ancestors."""
+    from app.models.relationships import ParentChild
+    result = await db.execute(select(ParentChild))
+    edges = result.scalars().all()
+    child_to_parents: dict[str, list[str]] = {}
+    for e in edges:
+        child_to_parents.setdefault(e.child_id, []).append(e.parent_id)
+
+    ancestors: set[str] = set()
+    queue = deque(child_to_parents.get(person_id, []))
+    while queue:
+        pid = queue.popleft()
+        if pid in ancestors:
+            continue
+        ancestors.add(pid)
+        queue.extend(child_to_parents.get(pid, []))
+    return ancestors
+
+
+async def get_descendants(db: AsyncSession, person_id: str) -> set[str]:
+    """BFS downward through ParentChild to find all descendants."""
+    from app.models.relationships import ParentChild
+    result = await db.execute(select(ParentChild))
+    edges = result.scalars().all()
+    parent_to_children: dict[str, list[str]] = {}
+    for e in edges:
+        parent_to_children.setdefault(e.parent_id, []).append(e.child_id)
+
+    descendants: set[str] = set()
+    queue = deque(parent_to_children.get(person_id, []))
+    while queue:
+        cid = queue.popleft()
+        if cid in descendants:
+            continue
+        descendants.add(cid)
+        queue.extend(parent_to_children.get(cid, []))
+    return descendants
+
+
+async def get_lineage(db: AsyncSession, person_id: str) -> set[str]:
+    """Return person + all ancestors + all descendants."""
+    ancestors = await get_ancestors(db, person_id)
+    descendants = await get_descendants(db, person_id)
+    return {person_id} | ancestors | descendants
+
+
 class RelationshipResult:
     def __init__(
         self,

@@ -11,6 +11,7 @@
     "admin": "Admin",
     "settings": "Settings",
     "calendar": "Calendar",
+    "timeline": "Timeline",
     "logout": "Log Out",
     "login": "Log In"
   },
@@ -42,7 +43,29 @@
     "edit_subtitle": "Update profile details, family notes, contact information, and memorial records.",
     "living": "Living",
     "deceased": "Deceased",
-    "memorial": "Memorial"
+    "memorial": "Memorial",
+    "obituary": "Obituary",
+    "obituary_source": "Obituary Source",
+    "education": "Education",
+    "education_institution": "Institution",
+    "education_degree": "Degree",
+    "education_field": "Field of Study",
+    "education_year_start": "Start Year",
+    "education_year_end": "End Year",
+    "education_notes": "Notes",
+    "career": "Career",
+    "career_employer": "Employer",
+    "career_title": "Title",
+    "career_year_start": "Start Year",
+    "career_year_end": "End Year",
+    "career_location": "Location",
+    "career_notes": "Notes",
+    "organizations": "Organizations",
+    "org_name": "Organization",
+    "org_role": "Role",
+    "org_year_joined": "Year Joined",
+    "org_year_left": "Year Left",
+    "org_notes": "Notes"
   },
   "relationships": {
     "parents": "Parents",
@@ -287,6 +310,19 @@
     "month_10": "October",
     "month_11": "November",
     "month_12": "December"
+  },
+  "timeline": {
+    "title": "Family Timeline",
+    "subtitle": "A chronological view of births, deaths, marriages, and family moments.",
+    "no_events": "No timeline events found.",
+    "filter_all": "All events",
+    "filter_births": "Births",
+    "filter_deaths": "Deaths",
+    "filter_marriages": "Marriages",
+    "filter_moments": "Moments",
+    "year_from": "From year",
+    "year_to": "To year",
+    "filter_branch": "Branch"
   },
   "map": {
     "title": "Family Map",

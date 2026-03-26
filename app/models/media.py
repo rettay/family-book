@@ -15,6 +15,7 @@ class MediaType(str, enum.Enum):
     sticker = "sticker"
     gif = "gif"
     embed = "embed"
+    document = "document"
 
 
 class MediaSource(str, enum.Enum):

@@ -108,6 +108,12 @@ class Person(Base, TimestampMixin):
     research_notes: Mapped[str | None] = mapped_column(Text, default=None)
     medical_history: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
 
+    obituary: Mapped[str | None] = mapped_column(Text, default=None)
+    obituary_source: Mapped[str | None] = mapped_column(String(500), default=None)
+    _education: Mapped[str | None] = mapped_column("education", Text, default="[]")
+    _career: Mapped[str | None] = mapped_column("career", Text, default="[]")
+    _organizations: Mapped[str | None] = mapped_column("organizations", Text, default="[]")
+
     contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_telegram: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
@@ -153,6 +159,36 @@ class Person(Base, TimestampMixin):
     @languages.setter
     def languages(self, value: list[str]) -> None:
         self._languages = json.dumps(value)
+
+    @property
+    def education(self) -> list[dict]:
+        if self._education:
+            return json.loads(self._education)
+        return []
+
+    @education.setter
+    def education(self, value: list[dict]) -> None:
+        self._education = json.dumps(value)
+
+    @property
+    def career(self) -> list[dict]:
+        if self._career:
+            return json.loads(self._career)
+        return []
+
+    @career.setter
+    def career(self, value: list[dict]) -> None:
+        self._career = json.dumps(value)
+
+    @property
+    def organizations(self) -> list[dict]:
+        if self._organizations:
+            return json.loads(self._organizations)
+        return []
+
+    @organizations.setter
+    def organizations(self, value: list[dict]) -> None:
+        self._organizations = json.dumps(value)
 
     @property
     def display_name(self) -> str:

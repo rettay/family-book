@@ -61,6 +61,66 @@
   </div>
   {% endif %}
 
+  {% if person.obituary %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.obituary') }}</h3>
+    <p class="profile-section__copy" style="white-space: pre-line;">{{ person.obituary }}</p>
+    {% if person.obituary_source %}
+    <p class="text-sm text-muted">Source: {{ person.obituary_source }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if person.education %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.education') }}</h3>
+    {% for edu in person.education %}
+    <div class="profile-list-entry">
+      <strong>{{ edu.institution or '' }}</strong>
+      {% if edu.degree %} — {{ edu.degree }}{% endif %}
+      {% if edu.field_of_study %} in {{ edu.field_of_study }}{% endif %}
+      {% if edu.year_start or edu.year_end %}
+      <span class="text-sm text-muted">({{ edu.year_start or '?' }}–{{ edu.year_end or 'present' }})</span>
+      {% endif %}
+      {% if edu.notes %}<p class="text-sm text-muted">{{ edu.notes }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if person.career %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.career') }}</h3>
+    {% for job in person.career %}
+    <div class="profile-list-entry">
+      <strong>{{ job.title or '' }}</strong>
+      {% if job.employer %} at {{ job.employer }}{% endif %}
+      {% if job.year_start or job.year_end %}
+      <span class="text-sm text-muted">({{ job.year_start or '?' }}–{{ job.year_end or 'present' }})</span>
+      {% endif %}
+      {% if job.location %}<span class="text-sm text-muted"> — {{ job.location }}</span>{% endif %}
+      {% if job.notes %}<p class="text-sm text-muted">{{ job.notes }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if person.organizations %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.organizations') }}</h3>
+    {% for org in person.organizations %}
+    <div class="profile-list-entry">
+      <strong>{{ org.name or '' }}</strong>
+      {% if org.role %} — {{ org.role }}{% endif %}
+      {% if org.year_joined or org.year_left %}
+      <span class="text-sm text-muted">({{ org.year_joined or '?' }}–{{ org.year_left or 'present' }})</span>
+      {% endif %}
+      {% if org.notes %}<p class="text-sm text-muted">{{ org.notes }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if person.burial_place or person.burial_country_code or person.burial_cemetery_name or person.burial_plot_number %}
   <div class="profile-section">
     <h3 class="profile-section__title">Burial Details</h3>
