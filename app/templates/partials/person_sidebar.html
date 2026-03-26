@@ -1035,6 +1035,14 @@
           {{ t('moments.title') }}
           <input class="form-input" type="text" name="caption" maxlength="300" placeholder="{{ t('tree.media_caption_placeholder') }}">
         </label>
+        <label>
+          {{ t('media.purpose') }}
+          <select class="form-input" name="purpose">
+            <option value="memory" selected>{{ t('media.purpose_memory') }}</option>
+            <option value="document">{{ t('media.purpose_document') }}</option>
+            <option value="evidence">{{ t('media.purpose_evidence') }}</option>
+          </select>
+        </label>
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.upload_media') }}</button>
       </form>
       {% endif %}

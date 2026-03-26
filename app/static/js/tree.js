@@ -1719,6 +1719,9 @@
         if (opts.caption) {
           fd.append('caption', opts.caption);
         }
+        if (opts.purpose && opts.purpose !== 'memory') {
+          fd.append('purpose', opts.purpose);
+        }
         if (opts.taggedPersonIds && opts.taggedPersonIds.length) {
           fd.append('tagged_person_ids', JSON.stringify(opts.taggedPersonIds));
         }
@@ -1828,8 +1831,10 @@
 
     try {
       var captionInput = form.querySelector('input[name="caption"]');
+      var purposeSelect = form.querySelector('select[name="purpose"]');
       uploads = await uploadTreeFiles(fileInput.files, personId, {
-        caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : ''
+        caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : '',
+        purpose: purposeSelect && purposeSelect.value ? purposeSelect.value : 'memory'
       });
       form.reset();
       sidebarState.activeTab = 'media';

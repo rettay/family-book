@@ -24,6 +24,9 @@ def upgrade() -> None:
     with op.batch_alter_table('media', schema=None) as batch_op:
         batch_op.add_column(sa.Column('purpose', sa.String(length=20), nullable=True))
 
+    # Backfill existing media rows so purpose is never NULL
+    op.execute(sa.text("UPDATE media SET purpose = 'memory' WHERE purpose IS NULL"))
+
     with op.batch_alter_table('persons', schema=None) as batch_op:
         batch_op.add_column(sa.Column('source_detail', sa.String(length=500), nullable=True))
         batch_op.add_column(sa.Column('confidence', sa.String(length=20), nullable=True))
