@@ -1,5 +1,49 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Candidate Sprint
+
+### `S24 - Tree Photo Headshots, Person Wiki Pages, and Research UX`
+
+Status: Candidate
+
+### Sprint Goal
+
+Enrich the visual and narrative experience of Family Book by adding photo prompts on tree nodes, creating Wikipedia-style person pages as a top-level feature, and overhauling the research tools UX from a buried sidebar tab into a polished top-level surface.
+
+### Why This Sprint Next
+
+S23 delivers source citations and evidence classification for the genealogy-researcher persona. S24 pivots to user-facing delight and discoverability: tree nodes that invite photo contribution, person pages that turn data into readable narratives, and research tools that feel professional rather than hidden. These three packets came directly from user feedback and represent concrete, high-CFLSR improvements that should land before the platform completeness sprint (fan chart, duplicate detection, print/export).
+
+### Candidate Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 29 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | candidate |
+| 30 | FB-030 | Person Wiki Pages | P1 | candidate |
+| 31 | FB-031 | Research Tools UX Overhaul | P1 | candidate |
+
+### Candidate Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S24-1 | Tree Photo Headshots and Add-Photo Prompt (FB-029) | candidate |
+| S24-2 | Person Wiki Pages Phase 1 (FB-030) | candidate |
+| S24-3 | Research Tools UX Overhaul (FB-031) | candidate |
+
+### Sprint Exit Criteria (draft)
+
+The sprint is successful when all are true:
+
+- tree nodes without photos show an add-photo affordance that triggers the upload flow
+- every person has a wiki page at `/wiki/{slug}` with templated biographical sections
+- wiki index lists all accessible persons with search/filter
+- "Research" replaces "External Records" in nav and UI
+- unconfigured sources are hidden instead of showing errors
+- users can save external records to persons
+- test baselines remain intact, i18n parity maintained
+
+---
+
 ## Closed Sprint
 
 ### `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`

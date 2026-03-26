@@ -23,9 +23,10 @@ Execution slices:
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S24 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
+| S24 | Tree Photo Headshots, Person Wiki Pages, and Research UX | FB-029, FB-030, FB-031 | candidate |
+| S25 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
 
-Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done)
+Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done). Concrete user-facing features (S24) come first.
 
 ## Closed Sprint `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`
 
