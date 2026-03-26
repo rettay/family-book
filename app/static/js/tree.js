@@ -1297,6 +1297,41 @@
           .attr('pointer-events', 'none')
           .text(person.display_name.substring(0, 2));
       }
+      // Camera icon overlay for photo-less nodes
+      if (preferences.show_photos) {
+        var iconGroup = nodeGroup.append('g')
+          .attr('class', 'tree-node__add-photo')
+          .attr('pointer-events', 'all')
+          .style('cursor', 'pointer');
+        iconGroup.append('circle')
+          .attr('r', 12)
+          .attr('cx', NODE_RADIUS - 8)
+          .attr('cy', NODE_RADIUS - 8)
+          .attr('fill', 'var(--bg-warm, #faf8f5)')
+          .attr('stroke', 'var(--border, #e0d6c8)')
+          .attr('stroke-width', 1);
+        // Camera body path
+        iconGroup.append('path')
+          .attr('d', 'M' + (NODE_RADIUS - 13) + ',' + (NODE_RADIUS - 11) +
+            ' l2,-3 h6 l2,3 h2 a1,1 0 0,1 1,1 v6 a1,1 0 0,1 -1,1 h-14 a1,1 0 0,1 -1,-1 v-6 a1,1 0 0,1 1,-1 z')
+          .attr('fill', 'none')
+          .attr('stroke', 'var(--green-deep, #2d5016)')
+          .attr('stroke-width', 1.2)
+          .attr('stroke-linecap', 'round')
+          .attr('stroke-linejoin', 'round');
+        // Camera lens circle
+        iconGroup.append('circle')
+          .attr('cx', NODE_RADIUS - 8)
+          .attr('cy', NODE_RADIUS - 6)
+          .attr('r', 2.5)
+          .attr('fill', 'none')
+          .attr('stroke', 'var(--green-deep, #2d5016)')
+          .attr('stroke-width', 1.2);
+        iconGroup.on('click', function(event) {
+          event.stopPropagation();
+          triggerTreePhotoUpload(person.id);
+        });
+      }
     }
 
     nodeGroup.append('circle')
@@ -1679,6 +1714,16 @@
     return String.fromCodePoint(code.charCodeAt(0) + offset, code.charCodeAt(1) + offset);
   }
 
+  function triggerTreePhotoUpload(personId) {
+    openPersonSidebar(personId).then(function() {
+      switchTreeSidebarTab('media');
+      setTimeout(function() {
+        var fileInput = sidebarContent.querySelector('[data-tree-sidebar-panel="media"] input[type="file"]');
+        if (fileInput) { fileInput.click(); }
+      }, 200);
+    });
+  }
+
   async function refreshTreeWorkspace(personId) {
     await loadTree();
     if (personId) {
@@ -1836,6 +1881,15 @@
         caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : '',
         purpose: purposeSelect && purposeSelect.value ? purposeSelect.value : 'memory'
       });
+      // Auto-set profile photo if person has none and upload is an image
+      var treePerson = (treeData && treeData.persons || []).find(function(p) { return p.id === personId; });
+      if (treePerson && !treePerson.photo_url && uploads.length > 0 && uploads[0].mime_type && uploads[0].mime_type.indexOf('image') === 0) {
+        await fetch('/api/persons/' + personId, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ photo_url: uploads[0].id })
+        }).catch(function() { /* best-effort */ });
+      }
       form.reset();
       sidebarState.activeTab = 'media';
       sidebarState.highlightMediaId = uploads.length ? uploads[uploads.length - 1].id : '';

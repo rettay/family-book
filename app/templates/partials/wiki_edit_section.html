@@ -1,0 +1,40 @@
+<form class="wiki-edit-form"
+      method="post"
+      action="/wiki/{{ person.slug }}/edit/{{ section }}"
+      hx-post="/wiki/{{ person.slug }}/edit/{{ section }}"
+      hx-target="body"
+      hx-swap="innerHTML">
+
+  {% for field in fields %}
+  <div class="wiki-edit-form__field">
+    <label class="wiki-edit-form__label" for="wiki-{{ field }}">
+      {{ t('person.' ~ field) }}
+    </label>
+    {% if field in ('bio', 'obituary', 'research_notes') %}
+    <textarea class="form-input wiki-edit-form__textarea"
+              id="wiki-{{ field }}"
+              name="{{ field }}"
+              rows="5">{{ person[field] or '' }}</textarea>
+    {% elif field in ('education', 'career', 'organizations') %}
+    <textarea class="form-input wiki-edit-form__textarea"
+              id="wiki-{{ field }}"
+              name="{{ field }}"
+              rows="6"
+              placeholder='[{"degree": "...", "institution": "..."}]'>{{ person[field]|tojson }}</textarea>
+    <p class="wiki-edit-form__hint">{{ t('wiki.json_hint') }}</p>
+    {% else %}
+    <input class="form-input"
+           id="wiki-{{ field }}"
+           name="{{ field }}"
+           type="text"
+           value="{{ person[field] or '' }}">
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="wiki-edit-form__actions">
+    <button type="submit" class="btn btn--sm">{{ t('wiki.save') }}</button>
+    <button type="button" class="btn btn--sm btn--outline"
+            onclick="this.closest('.wiki-edit-form').remove()">{{ t('wiki.cancel') }}</button>
+  </div>
+</form>

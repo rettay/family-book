@@ -134,6 +134,9 @@ class Person(Base, TimestampMixin):
     source_detail: Mapped[str | None] = mapped_column(String(500), default=None)
     confidence: Mapped[str | None] = mapped_column(String(20), default=None)
 
+    # Wiki slug (URL-safe, generated once on create)
+    slug: Mapped[str | None] = mapped_column(String(200), unique=True, default=None, index=True)
+
     contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_telegram: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)

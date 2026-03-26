@@ -1131,6 +1131,9 @@
 
   <div class="tree-sidebar-card__footer">
     <a href="/people/{{ person.id }}" class="btn btn--primary btn--block">{{ t('tree.full_profile') }}</a>
+    {% if person.slug %}
+    <a href="/wiki/{{ person.slug }}" class="btn btn--ghost btn--block">{{ t('nav.wiki') }}</a>
+    {% endif %}
     {% if can_manage %}
     <a href="/people/{{ person.id }}/edit" class="btn btn--ghost btn--block">{{ t('tree.advanced_edit') }}</a>
     {% endif %}

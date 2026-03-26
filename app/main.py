@@ -100,6 +100,10 @@ def create_app() -> FastAPI:
     from app.routes.health_dashboard import router as health_dashboard_router
     application.include_router(health_dashboard_router)
 
+    # Wiki routes
+    from app.routes.wiki import router as wiki_router
+    application.include_router(wiki_router)
+
     # Import and external records routes
     from app.routes.imports import router as imports_router
     from app.routes.external_records import router as external_records_router

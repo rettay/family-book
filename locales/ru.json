@@ -13,6 +13,7 @@
     "calendar": "Календарь",
     "timeline": "Хронология",
     "health": "Здоровье",
+    "wiki": "Вики",
     "logout": "Выйти",
     "login": "Войти"
   },
@@ -388,5 +389,32 @@
     "provider_google": "Для этого представления активен Google Maps.",
     "provider_fallback": "Используется встроенная приватная карта как резервный вариант.",
     "provider_error": "Google Maps оказался недоступен, поэтому показана резервная приватная карта."
+  },
+  "wiki": {
+    "index_title": "Семейная Вики",
+    "index_subtitle": "Биографические страницы каждого члена семьи, собранные из их записей.",
+    "search_placeholder": "Поиск людей...",
+    "no_persons": "Люди не найдены.",
+    "view_in_tree": "Показать в Древе",
+    "view_profile": "Показать Профиль",
+    "edit_section": "редактировать",
+    "add_section": "Добавить этот раздел",
+    "summary": "Сводка",
+    "early_life": "Ранняя Жизнь",
+    "education": "Образование",
+    "career": "Карьера",
+    "personal_life": "Личная Жизнь",
+    "organizations": "Организации",
+    "later_life": "Поздняя Жизнь",
+    "death_legacy": "Смерть и Наследие",
+    "research_notes": "Исследовательские Заметки",
+    "infobox_born": "Рождение",
+    "infobox_died": "Смерть",
+    "infobox_birthplace": "Место Рождения",
+    "infobox_residence": "Место Жительства",
+    "infobox_branch": "Ветвь",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "json_hint": "Редактировать как массив JSON. Каждая запись — объект с ключами полей."
   }
 }

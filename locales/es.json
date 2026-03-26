@@ -13,6 +13,7 @@
     "calendar": "Calendario",
     "timeline": "Cronología",
     "health": "Salud",
+    "wiki": "Wiki",
     "logout": "Cerrar Sesión",
     "login": "Iniciar Sesión"
   },
@@ -388,5 +389,32 @@
     "provider_google": "Google Maps está activo para esta vista.",
     "provider_fallback": "Se está usando el mapa privado integrado como alternativa.",
     "provider_error": "Google Maps no estuvo disponible, así que se muestra el mapa privado alternativo."
+  },
+  "wiki": {
+    "index_title": "Wiki Familiar",
+    "index_subtitle": "Páginas biográficas de cada miembro de la familia, ensambladas a partir de sus registros.",
+    "search_placeholder": "Buscar personas...",
+    "no_persons": "No se encontraron personas.",
+    "view_in_tree": "Ver en el Árbol",
+    "view_profile": "Ver Perfil",
+    "edit_section": "editar",
+    "add_section": "Agregar esta sección",
+    "summary": "Resumen",
+    "early_life": "Vida Temprana",
+    "education": "Educación",
+    "career": "Carrera",
+    "personal_life": "Vida Personal",
+    "organizations": "Organizaciones",
+    "later_life": "Vida Posterior",
+    "death_legacy": "Muerte y Legado",
+    "research_notes": "Notas de Investigación",
+    "infobox_born": "Nacimiento",
+    "infobox_died": "Defunción",
+    "infobox_birthplace": "Lugar de Nacimiento",
+    "infobox_residence": "Residencia",
+    "infobox_branch": "Rama",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "json_hint": "Editar como matriz JSON. Cada entrada es un objeto con claves de campo."
   }
 }

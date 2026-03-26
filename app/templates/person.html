@@ -25,11 +25,14 @@
     <span>{{ t('person.deceased') }}</span>
     {% endif %}
   </div>
-  {% if can_edit %}
   <div style="margin-top: 12px;">
+    {% if can_edit %}
     <a href="/people/{{ person.id }}/edit" class="btn btn--sm" style="background:rgba(255,255,255,0.2); color:white;">{{ t('person.edit') }}</a>
+    {% endif %}
+    {% if person.slug %}
+    <a href="/wiki/{{ person.slug }}" class="btn btn--sm" style="background:rgba(255,255,255,0.2); color:white;">{{ t('nav.wiki') }}</a>
+    {% endif %}
   </div>
-  {% endif %}
 </div>
 
 <div class="container">

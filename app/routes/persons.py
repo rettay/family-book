@@ -283,6 +283,9 @@ async def create_person(
     person.medical_conditions = [e.model_dump(exclude_none=True) for e in body.medical_conditions]
     db.add(person)
     await db.flush()
+    from app.services.wiki_service import generate_slug
+    person.slug = generate_slug(body.first_name, body.last_name, person.id)
+    await db.flush()
 
     snapshot = serialize_person_snapshot(person)
     await record_revision(

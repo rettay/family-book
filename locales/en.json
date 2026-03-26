@@ -13,6 +13,7 @@
     "calendar": "Calendar",
     "timeline": "Timeline",
     "health": "Health",
+    "wiki": "Wiki",
     "logout": "Log Out",
     "login": "Log In"
   },
@@ -388,5 +389,32 @@
     "provider_google": "Google Maps is active for this view.",
     "provider_fallback": "Using the built-in private map fallback.",
     "provider_error": "Google Maps was unavailable, so the private fallback map is shown."
+  },
+  "wiki": {
+    "index_title": "Family Wiki",
+    "index_subtitle": "Biographical pages for every family member, assembled from their records.",
+    "search_placeholder": "Search people...",
+    "no_persons": "No people found.",
+    "view_in_tree": "View in Tree",
+    "view_profile": "View Profile",
+    "edit_section": "edit",
+    "add_section": "Add this section",
+    "summary": "Summary",
+    "early_life": "Early Life",
+    "education": "Education",
+    "career": "Career",
+    "personal_life": "Personal Life",
+    "organizations": "Organizations",
+    "later_life": "Later Life",
+    "death_legacy": "Death & Legacy",
+    "research_notes": "Research Notes",
+    "infobox_born": "Born",
+    "infobox_died": "Died",
+    "infobox_birthplace": "Birthplace",
+    "infobox_residence": "Residence",
+    "infobox_branch": "Branch",
+    "save": "Save",
+    "cancel": "Cancel",
+    "json_hint": "Edit as JSON array. Each entry is an object with field keys."
   }
 }

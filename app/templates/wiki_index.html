@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ t('wiki.index_title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="wiki-page">
+  <div class="wiki-page__header">
+    <h1 class="wiki-page__title">{{ t('wiki.index_title') }}</h1>
+    <p class="wiki-page__subtitle">{{ t('wiki.index_subtitle') }}</p>
+  </div>
+
+  <div class="wiki-index__search">
+    <input type="search"
+           name="search"
+           class="form-input"
+           placeholder="{{ t('wiki.search_placeholder') }}"
+           value="{{ search }}"
+           hx-get="/wiki"
+           hx-target=".wiki-index__grid"
+           hx-trigger="input changed delay:300ms"
+           hx-select=".wiki-index__grid"
+           hx-swap="outerHTML"
+           hx-push-url="true"
+           hx-include="this"
+           aria-label="{{ t('wiki.search_placeholder') }}">
+  </div>
+
+  <div class="wiki-index__grid">
+    {% if persons %}
+    {% for person in persons %}
+    <a href="/wiki/{{ person.slug }}" class="wiki-index__card">
+      <div class="wiki-index__card-photo">
+        {% if person.photo_url %}
+        <img src="/api/media/{{ person.photo_url }}/file" alt="{{ person.display_name }}" loading="lazy">
+        {% else %}
+        <span class="wiki-index__card-initials">{{ person.display_name[:2] }}</span>
+        {% endif %}
+      </div>
+      <div class="wiki-index__card-info">
+        <span class="wiki-index__card-name">{{ person.display_name }}</span>
+        {% if person.birth_date_raw %}
+        <span class="wiki-index__card-dates">{{ person.birth_date_raw }}{% if not person.is_living and person.death_date_raw %} – {{ person.death_date_raw }}{% endif %}</span>
+        {% endif %}
+        {% if person.branch %}
+        <span class="wiki-index__card-branch">{{ person.branch }}</span>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+    {% else %}
+    <p class="wiki-page__empty">{{ t('wiki.no_persons') }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

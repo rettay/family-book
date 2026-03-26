@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ person.display_name }} — {{ t('wiki.index_title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="wiki-page">
+  <div class="wiki-page__nav-row">
+    <a href="/wiki" class="wiki-page__back-link">&larr; {{ t('wiki.index_title') }}</a>
+    <div class="wiki-page__nav-actions">
+      <a href="/tree?focus={{ person.id }}" class="btn btn--sm btn--outline">{{ t('wiki.view_in_tree') }}</a>
+      <a href="/people/{{ person.id }}" class="btn btn--sm btn--outline">{{ t('wiki.view_profile') }}</a>
+    </div>
+  </div>
+
+  <article class="wiki-article">
+    {# ── Infobox ── #}
+    <aside class="wiki-infobox">
+      {% if person.photo_url %}
+      <div class="wiki-infobox__photo">
+        <img src="/api/media/{{ person.photo_url }}/file" alt="{{ person.display_name }}">
+      </div>
+      {% endif %}
+      <h2 class="wiki-infobox__name">{{ person.display_name }}</h2>
+      <table class="wiki-infobox__table">
+        {% if person.birth_date_raw %}
+        <tr><th>{{ t('wiki.infobox_born') }}</th><td>{{ person.birth_date_raw }}</td></tr>
+        {% endif %}
+        {% if not person.is_living and person.death_date_raw %}
+        <tr><th>{{ t('wiki.infobox_died') }}</th><td>{{ person.death_date_raw }}</td></tr>
+        {% endif %}
+        {% if person.birth_place %}
+        <tr><th>{{ t('wiki.infobox_birthplace') }}</th><td>{{ person.birth_place }}</td></tr>
+        {% endif %}
+        {% if person.residence_place %}
+        <tr><th>{{ t('wiki.infobox_residence') }}</th><td>{{ person.residence_place }}</td></tr>
+        {% endif %}
+        {% if person.branch %}
+        <tr><th>{{ t('wiki.infobox_branch') }}</th><td>{{ person.branch }}</td></tr>
+        {% endif %}
+      </table>
+    </aside>
+
+    {# ── Sections ── #}
+    {% for section in sections %}
+    <div class="wiki-section" id="section-{{ section.id }}">
+      <h2 class="wiki-section__title">
+        {{ t('wiki.' ~ section.id|replace('-', '_')) }}
+        {% if can_edit and section.edit_fields %}
+        <a href="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+           class="wiki-section__edit-btn"
+           hx-get="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+           hx-target="#section-{{ section.id }}-form"
+           hx-swap="innerHTML">{{ t('wiki.edit_section') }}</a>
+        {% endif %}
+      </h2>
+      <div class="wiki-section__content">
+        {% if section.content %}
+        {% for line in section.content.split('\n') %}
+        <p>{{ line }}</p>
+        {% endfor %}
+        {% else %}
+        {% if can_edit and section.edit_fields %}
+        <p class="wiki-section__empty">
+          <a href="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+             hx-get="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+             hx-target="#section-{{ section.id }}-form"
+             hx-swap="innerHTML">{{ t('wiki.add_section') }}</a>
+        </p>
+        {% endif %}
+        {% endif %}
+      </div>
+      <div id="section-{{ section.id }}-form"></div>
+    </div>
+    {% endfor %}
+  </article>
+</div>
+{% endblock %}

@@ -152,6 +152,7 @@ class PersonUpdate(BaseModel):
     medical_conditions: list[MedicalConditionEntry] | None = None
     source_detail: str | None = Field(None, max_length=500)
     confidence: str | None = Field(None, max_length=20)
+    photo_url: str | None = Field(None, max_length=500)
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -224,6 +225,7 @@ class PersonDetail(PersonSummary):
     medical_conditions: list[dict] = []
     source_detail: str | None = None
     confidence: str | None = None
+    slug: str | None = None
     current_age: int | None = None
     age_at_death: int | None = None
     contact_whatsapp: str | None = None
@@ -271,6 +273,7 @@ def person_to_detail(person) -> PersonDetail:
             media_count=getattr(person, "media_count", 0) or 0,
             first_name=None,
             last_name=None,
+            slug=person.slug,
             is_root=True,
             source=person.source,
             created_at=person.created_at,
@@ -326,6 +329,7 @@ def person_to_detail(person) -> PersonDetail:
         medical_conditions=person.medical_conditions,
         source_detail=person.source_detail,
         confidence=person.confidence,
+        slug=person.slug,
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,
