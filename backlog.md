@@ -1,9 +1,33 @@
 # Family Book Backlog
 
-Sprint: `S24 - Tree Photo Headshots and Person Wiki Pages`
-Status: In Progress
+Sprint: `S25 - Research UX Overhaul and Test Infrastructure`
+Status: Planning
 
-## Current Sprint `S24 - Tree Photo Headshots and Person Wiki Pages`
+## Current Sprint `S25 - Research UX Overhaul and Test Infrastructure`
+
+Sprint goal:
+- Transform "External Records" into a polished top-level "Research" experience with source management, saved records, and graceful degradation. Add i18n test parity.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-031 | Research Tools UX Overhaul | P1 | todo | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+| FB-032 | i18n Test Parity | P2 | todo | `task_packets/FB-032_i18n_test_parity.md` |
+
+Execution slices:
+- `S25-1` Research Rename, Index Page, and Source Visibility
+- `S25-2` Saved Records Model and Per-Person Research
+- `S25-3` Unified Search UX and Cross-Links
+- `S25-4` i18n Test Parity
+
+## Planned Follow-Up Sprints
+
+| Sprint | Title | Packets | Status |
+|---|---|---|---|
+| S26 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
+
+## Closed Sprint `S24 - Tree Photo Headshots and Person Wiki Pages`
 
 Sprint goal:
 - Make the tree visually inviting with photo contribution prompts and turn structured person data into readable Wikipedia-style biographical pages.
@@ -12,19 +36,13 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | todo | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |
-| FB-030 | Person Wiki Pages | P1 | todo | `task_packets/FB-030_person_wiki_pages.md` |
+| FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | done | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |
+| FB-030 | Person Wiki Pages | P1 | done | `task_packets/FB-030_person_wiki_pages.md` |
 
 Execution slices:
 - `S24-1` Tree Photo Headshots and Add-Photo Prompt
 - `S24-2` Wiki Page Foundation — Slug, Index, and Read-Only Rendering
 - `S24-3` Wiki Page Interactivity — Section Editing and Cross-Links
-
-## Planned Follow-Up Sprints
-
-| Sprint | Title | Packets | Status |
-|---|---|---|---|
-| S25 | Research UX and Platform Completeness | FB-031, G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
 
 ## Closed Sprint `S23 - Source Citations, Evidence, and Date Intelligence`
 

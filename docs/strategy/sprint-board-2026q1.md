@@ -2,9 +2,58 @@
 
 ## Current Sprint
 
+### `S25 - Research UX Overhaul and Test Infrastructure`
+
+Status: Planning
+
+### Sprint Goal
+
+Transform the buried "External Records" feature into a polished top-level "Research" experience with cleaner source management, per-person saved records, and graceful degradation for unconfigured sources. Add i18n test parity infrastructure to catch locale key mismatches automatically.
+
+### Why This Sprint Next
+
+S24 delivered tree photo headshots and person wiki pages — the two highest-CFLSR visual and narrative improvements. The research tools (shipped in S19) remain the weakest link for the genealogy-researcher persona: wrong naming, visible error states for unconfigured APIs, no way to save external records, and the feature is buried in a sidebar tab. FB-031 promotes "Research" to a top-level experience. The i18n parity test (FB-032) closes a pre-existing gap identified during the S24 audit — there are no automated checks that locale files stay in sync.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 31 | FB-031 | Research Tools UX Overhaul | P1 | todo |
+| 32 | FB-032 | i18n Test Parity | P2 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S25-1 | Research Rename, Index Page, and Source Visibility (FB-031) | todo |
+| S25-2 | Saved Records Model and Per-Person Research (FB-031) | todo |
+| S25-3 | Unified Search UX and Cross-Links (FB-031) | todo |
+| S25-4 | i18n Test Parity (FB-032) | todo |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- "Research" replaces "External Records" across all surfaces (nav, routes, templates, i18n)
+- GET /research returns a research index page with available source descriptions
+- unconfigured sources are hidden, not shown with error messages
+- unified search bar with source filter chips replaces per-source buttons
+- users can save an external record to a person (database-backed)
+- saved records appear on person profile and sidebar
+- users can delete a saved record
+- person profile and wiki page link to pre-filtered research
+- root person restrictions maintained on research page
+- CEMLA form integrated into research page layout
+- a test exists that validates all 3 locale files have matching key sets
+- test baselines remain intact, i18n parity maintained
+
+---
+
+## Closed Sprint
+
 ### `S24 - Tree Photo Headshots and Person Wiki Pages`
 
-Status: In Progress
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,16 +67,16 @@ S23 delivered source citations, evidence classification, and date intelligence f
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 29 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | todo |
-| 30 | FB-030 | Person Wiki Pages | P1 | todo |
+| 29 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | done |
+| 30 | FB-030 | Person Wiki Pages | P1 | done |
 
-### Planned Slices
+### Delivered Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S24-1 | Tree Photo Headshots and Add-Photo Prompt (FB-029) | todo |
-| S24-2 | Wiki Page Foundation — Slug, Index, and Read-Only Rendering (FB-030) | todo |
-| S24-3 | Wiki Page Interactivity — Section Editing and Cross-Links (FB-030) | todo |
+| S24-1 | Tree Photo Headshots and Add-Photo Prompt (FB-029) | done |
+| S24-2 | Wiki Page Foundation — Slug, Index, and Read-Only Rendering (FB-030) | done |
+| S24-3 | Wiki Page Interactivity — Section Editing and Cross-Links (FB-030) | done |
 
 ### Sprint Exit Criteria
 
@@ -48,6 +97,28 @@ The sprint is successful when all are true:
 - wiki page links back to tree node
 - hidden persons excluded, root person redacted
 - test baselines remain intact, i18n parity maintained
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 24 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS — all acceptance criteria met, 2 findings:
+  - S24-F01 (P1): `can_edit` UX bug — wiki edit buttons used non-existent `access.can_edit` attribute, fell back to `is_admin` only. Fixed to `access.can_manage`
+  - S24-F02 (P2): Missing tests — `test_wiki_index_excludes_hidden` and `test_wiki_edit_unauthorized` not implemented. Added both tests
+- All fixes committed in same sprint cycle
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `460 passed, 0 failed`
+  - 21 new tests added (up from 439 baseline)
+  - i18n parity: all 3 locales (en, es, ru) have matching key sets
+  - Migration: `alembic/versions/b919e1b33636_add_person_slug.py`
+
+### Context
+
+- Plan file: `.claude/plans/s24-tree-photos-and-wiki-pages.md`
+- Task packets: `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md`, `task_packets/FB-030_person_wiki_pages.md`
+- Wiki service: `app/services/wiki_service.py`
+- Wiki routes: `app/routes/wiki.py`
 
 ---
 
