@@ -16,19 +16,21 @@ S25 closed the last genealogy-researcher persona gap (research UX). All V1 produ
 
 ### Candidate Packets
 
-| Gap | Title | Priority | Notes |
+| ID | Title | Priority | Packet |
 |---|---|---:|---|
-| G-11 | Fan Chart / Pedigree View | P2 | Alternative D3 layout, ancestor-focused |
-| G-12 | Duplicate Person Detection and Merge | P2 | Fuzzy matching, merge UI, relationship re-linking |
-| G-14 | Print / Export Family Sheet | P3 | PDF generation or print CSS for offline use |
+| FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
+| G-11 | Fan Chart / Pedigree View | P2 | Gap triage |
+| G-12 | Duplicate Person Detection and Merge | P2 | Gap triage |
+| G-14 | Print / Export Family Sheet | P3 | Gap triage |
 
 ### Candidate Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S26-1 | Fan Chart / Pedigree View (G-11) | candidate |
-| S26-2 | Duplicate Person Detection and Merge (G-12) | candidate |
-| S26-3 | Print / Export Family Sheet (G-14) | candidate |
+| S26-1 | Collapsible Tree Controls Panel (FB-033) | candidate |
+| S26-2 | Fan Chart / Pedigree View (G-11) | candidate |
+| S26-3 | Duplicate Person Detection and Merge (G-12) | candidate |
+| S26-4 | Print / Export Family Sheet (G-14) | candidate |
 
 ### Open Questions
 
