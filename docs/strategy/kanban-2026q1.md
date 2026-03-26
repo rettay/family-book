@@ -2,13 +2,13 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-025 | Family Calendar and Relationship Intelligence | P1 | `task_packets/FB-025_family_calendar_and_relationship_intelligence.md` |
+None.
 
 ## In Progress
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-025 | Family Calendar and Relationship Intelligence | P1 | `task_packets/FB-025_family_calendar_and_relationship_intelligence.md` |
 
 ## In Review
 

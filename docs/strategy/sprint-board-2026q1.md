@@ -18,15 +18,15 @@ Sprint 19 landed GEDCOM import, external record search, and CEMLA integration â€
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 25 | FB-025 | Family Calendar and Relationship Intelligence | P1 | todo |
+| 25 | FB-025 | Family Calendar and Relationship Intelligence | P1 | in progress |
 
 ### Execution Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S20-1 | Family Calendar | todo |
-| S20-2 | Relationship Calculator | todo |
-| S20-3 | Visual Relationship Types on Tree | todo |
+| S20-1 | Family Calendar | done |
+| S20-2 | Relationship Calculator | done |
+| S20-3 | Visual Relationship Types on Tree | done |
 
 ### Sprint Exit Criteria
 
