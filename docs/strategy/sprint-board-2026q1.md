@@ -1,45 +1,52 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Candidate Sprint
+## Current Sprint
 
-### `S24 - Tree Photo Headshots, Person Wiki Pages, and Research UX`
+### `S24 - Tree Photo Headshots and Person Wiki Pages`
 
-Status: Candidate
+Status: In Progress
 
 ### Sprint Goal
 
-Enrich the visual and narrative experience of Family Book by adding photo prompts on tree nodes, creating Wikipedia-style person pages as a top-level feature, and overhauling the research tools UX from a buried sidebar tab into a polished top-level surface.
+Make the family tree visually inviting by adding photo contribution prompts on photo-less nodes, and turn structured person data into readable Wikipedia-style biographical pages with a new top-level Wiki feature.
 
 ### Why This Sprint Next
 
-S23 delivers source citations and evidence classification for the genealogy-researcher persona. S24 pivots to user-facing delight and discoverability: tree nodes that invite photo contribution, person pages that turn data into readable narratives, and research tools that feel professional rather than hidden. These three packets came directly from user feedback and represent concrete, high-CFLSR improvements that should land before the platform completeness sprint (fan chart, duplicate detection, print/export).
+S23 delivered source citations, evidence classification, and date intelligence for the genealogy-researcher persona. S24 pivots to user-facing delight and narrative depth: tree nodes that invite photo contribution (the most natural "I can help" moment), and wiki pages that transform disconnected data fields into readable family stories. These are the highest-CFLSR visual and narrative improvements available. Research UX (FB-031) is deferred to S25 to keep this sprint focused.
 
-### Candidate Packets
+### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 29 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | candidate |
-| 30 | FB-030 | Person Wiki Pages | P1 | candidate |
-| 31 | FB-031 | Research Tools UX Overhaul | P1 | candidate |
+| 29 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | todo |
+| 30 | FB-030 | Person Wiki Pages | P1 | todo |
 
-### Candidate Slices
+### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S24-1 | Tree Photo Headshots and Add-Photo Prompt (FB-029) | candidate |
-| S24-2 | Person Wiki Pages Phase 1 (FB-030) | candidate |
-| S24-3 | Research Tools UX Overhaul (FB-031) | candidate |
+| S24-1 | Tree Photo Headshots and Add-Photo Prompt (FB-029) | todo |
+| S24-2 | Wiki Page Foundation — Slug, Index, and Read-Only Rendering (FB-030) | todo |
+| S24-3 | Wiki Page Interactivity — Section Editing and Cross-Links (FB-030) | todo |
 
-### Sprint Exit Criteria (draft)
+### Sprint Exit Criteria
 
 The sprint is successful when all are true:
 
-- tree nodes without photos show an add-photo affordance that triggers the upload flow
-- every person has a wiki page at `/wiki/{slug}` with templated biographical sections
-- wiki index lists all accessible persons with search/filter
-- "Research" replaces "External Records" in nav and UI
-- unconfigured sources are hidden instead of showing errors
-- users can save external records to persons
+- tree nodes without photos show an add-photo affordance (camera/plus icon, hover-reveals)
+- clicking the add-photo affordance opens the photo upload flow for that person
+- after upload the tree node re-renders with the new photo
+- the add-photo prompt is touch-accessible on mobile
+- every person has a slug field for URL-safe wiki paths
+- GET /wiki returns an alphabetical index of accessible persons with search/filter
+- GET /wiki/{slug} returns a Wikipedia-style biographical page with infobox and templated sections
+- sections render from existing structured data (dates, places, education, career, organizations, obituary, relationships)
+- empty sections show "Add [section]" prompts that link to editing
+- edit buttons on sections open forms that write back to person structured fields via API
+- "Wiki" appears in main nav
+- person profile and tree sidebar link to wiki page
+- wiki page links back to tree node
+- hidden persons excluded, root person redacted
 - test baselines remain intact, i18n parity maintained
 
 ---
@@ -93,11 +100,17 @@ The sprint is successful when all are true:
 - Exit result: `pass`
 - Builder implemented Sprint 23 on `main`
 - 1 defect found during test run: revision snapshot missing source_detail/confidence — fixed before commit
+- Auditor issued PASS WITH FOLLOW-UPS — all 23 acceptance criteria evaluated (23 PASS, 0 FAIL)
+  - S23-F01 (P3): Media purpose NULL on pre-existing records — fixed with backfill migration
+  - S23-F02 (P3): Confidence defaults to None vs packet-specified "unknown" — accepted as better design, no change
+  - S23-F03 (P3): Sidebar media upload missing purpose selector — fixed with select + JS wiring
+- All fixes re-audited: PASS — no remaining findings
 - Focused closeout baseline:
   - `uv run pytest -q`
   - result: `439 passed, 0 failed`
   - 35 new tests added (up from 404 baseline)
   - i18n parity: all 3 locales (en, es, ru) have matching key sets
+  - Playwright (pre-existing): `31 PASS, 0 FAIL`
 
 ### Context
 

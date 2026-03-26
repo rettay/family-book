@@ -1,20 +1,30 @@
 # Family Book Backlog
 
-Sprint: `S24 - Tree Photo Headshots, Person Wiki Pages, and Research UX`
-Status: Candidate
+Sprint: `S24 - Tree Photo Headshots and Person Wiki Pages`
+Status: In Progress
 
-## Planned Follow-Up Sprint `S24 - Tree Photo Headshots, Person Wiki Pages, and Research UX`
+## Current Sprint `S24 - Tree Photo Headshots and Person Wiki Pages`
 
 Sprint goal:
-- Enrich the visual and narrative experience by adding photo prompts on tree nodes, Wikipedia-style person pages, and a polished research tools surface.
+- Make the tree visually inviting with photo contribution prompts and turn structured person data into readable Wikipedia-style biographical pages.
 
-Candidate packets:
+Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | candidate | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |
-| FB-030 | Person Wiki Pages | P1 | candidate | `task_packets/FB-030_person_wiki_pages.md` |
-| FB-031 | Research Tools UX Overhaul | P1 | candidate | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+| FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | todo | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |
+| FB-030 | Person Wiki Pages | P1 | todo | `task_packets/FB-030_person_wiki_pages.md` |
+
+Execution slices:
+- `S24-1` Tree Photo Headshots and Add-Photo Prompt
+- `S24-2` Wiki Page Foundation — Slug, Index, and Read-Only Rendering
+- `S24-3` Wiki Page Interactivity — Section Editing and Cross-Links
+
+## Planned Follow-Up Sprints
+
+| Sprint | Title | Packets | Status |
+|---|---|---|---|
+| S25 | Research UX and Platform Completeness | FB-031, G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
 
 ## Closed Sprint `S23 - Source Citations, Evidence, and Date Intelligence`
 
@@ -36,9 +46,7 @@ Execution slices:
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S25 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
-
-Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done). Concrete user-facing features (S24) come first.
+Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done). Concrete user-facing features (S24-S25) come first.
 
 ## Closed Sprint `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`
 
