@@ -2,41 +2,87 @@
 
 ## Planned Sprint
 
-### `S19 - External Record Integration Foundation`
+### `S20 - Family Calendar and Relationship Intelligence`
 
 Status: Planning
 
 ### Sprint Goal
 
-Give Family Book the ability to import existing family trees via GEDCOM and search free external genealogy databases (FamilySearch, newspapers, NARA, Antenati, CEMLA) so the app becomes a research workspace for families with roots in the USA, Australia, Argentina, and Italy.
+Make Family Book a place families visit regularly by surfacing stored dates as a living calendar, computing human-readable relationship paths between any two people, and visually distinguishing relationship types on the tree.
 
 ### Why This Sprint Exists
 
-Sprint 18 closed completeness prompts and sidebar detail expansion. The next bottleneck is onboarding and research workflow: users with years of research in Ancestry or FamilySearch have no way to bring their data into Family Book, and researchers working on specific ancestors must leave the app to search external databases. GEDCOM import is the single most important onboarding accelerator. External record search turns the app from a display layer into the place where research happens. CEMLA covers the specific Italian-Argentine immigration connection that no other tool integrates.
+Sprint 19 landed GEDCOM import, external record search, and CEMLA integration — turning Family Book into a research workspace. The next product bottleneck is recurring engagement and social delight: dates already stored in the system have no calendar surface, the graph data can answer "how are we related?" but no algorithm does, and relationship types (adoption, step, biological) all look identical on the tree. Sprint 20 turns stored data into features that make the app useful at family gatherings and worth visiting regularly.
 
 ### Committed Packet
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 23 | FB-023 | External Record Integration Foundation | P1 | todo |
+| 25 | FB-025 | Family Calendar and Relationship Intelligence | P1 | todo |
 
 ### Execution Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S19-1 | GEDCOM Import | todo |
-| S19-2 | External Record Search Panel | todo |
-| S19-3 | CEMLA Immigration Record Search | todo |
+| S20-1 | Family Calendar | todo |
+| S20-2 | Relationship Calculator | todo |
+| S20-3 | Visual Relationship Types on Tree | todo |
 
 ### Sprint Exit Criteria
 
 The sprint is successful when all are true:
 
-- users can upload a GEDCOM file and see imported persons and relationships appear in the tree
-- users can search external records for any person from the tree sidebar and see results from multiple free APIs
-- CEMLA immigration records are searchable from within the app or gracefully fall back to a direct link
-- all external API interactions have rate limiting, caching, and graceful error handling
-- browser, accessibility, and CodeMap baselines remain intact
+- a calendar page auto-populates from birth dates, death dates, partnership dates, and moments
+- users can select any two people and see their relationship described in plain English
+- the tree visually distinguishes biological, adoptive, step, and other relationship types
+- root person redaction is maintained across all new surfaces
+- browser, accessibility, and test baselines remain intact
+
+### Context
+
+- Task packet: `task_packets/FB-025_family_calendar_and_relationship_intelligence.md`
+- Gap triage: `docs/strategy/genealogy-review-triage.md` (G-16, G-06, G-15)
+
+## Closed Sprint
+
+### `S19 - External Record Integration Foundation`
+
+Status: Closed
+
+### Sprint Goal
+
+Give Family Book the ability to import existing family trees via GEDCOM and search free external genealogy databases (FamilySearch, newspapers, NARA, Antenati, CEMLA) so the app becomes a research workspace for families with roots in the USA, Australia, Argentina, and Italy.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 23 | FB-023 | External Record Integration Foundation | P1 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S19-1 | GEDCOM Import | done |
+| S19-2 | External Record Search Panel | done |
+| S19-3 | CEMLA Immigration Record Search | done |
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 19 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS — all 27 acceptance criteria evaluated (22 PASS, 3 PARTIAL, 1 SKIP, 1 N/A)
+- Builder fixed all follow-up defects before closeout:
+  - P1: Root person name leak in external records API — added is_root guard returning 403
+  - P1: Root person name leak in CEMLA form template — wrapped in `{% if not person.is_root %}` guard
+  - P2: Added GedcomImportBatch model for first-class batch tracking
+  - P2: Added XHR upload progress bar with percentage display
+  - P2: Added two-phase GEDCOM import (preview with duplicate review → confirm)
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `319 passed, 0 failed`
+  - `make test-ui-playwright`
+  - result: `31 PASS, 0 FAIL`
 
 ### Context
 
