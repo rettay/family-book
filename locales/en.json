@@ -428,6 +428,7 @@
     "coverage": "Coverage",
     "unconfigured_sources": "Additional sources available",
     "configure_hint": "Set the required API keys in your environment to enable these sources.",
-    "no_sources": "No research sources are available."
+    "no_sources": "No research sources are available.",
+    "researching": "Researching"
   }
 }

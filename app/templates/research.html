@@ -11,7 +11,7 @@
   {% if person_context %}
   <div class="research-page__person-context">
     <p>
-      Researching: <strong>{{ person_context.first_name }} {{ person_context.last_name }}</strong>
+      {{ t('research.researching') }}: <strong>{{ person_context.first_name }} {{ person_context.last_name }}</strong>
       <a href="/people/{{ person_context.id }}" class="btn btn--ghost btn--xs">{{ t('wiki.view_profile') }}</a>
       {% if person_context.slug %}
       <a href="/wiki/{{ person_context.slug }}" class="btn btn--ghost btn--xs">{{ t('nav.wiki') }}</a>

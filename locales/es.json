@@ -428,6 +428,7 @@
     "coverage": "Cobertura",
     "unconfigured_sources": "Fuentes adicionales disponibles",
     "configure_hint": "Configure las claves de API necesarias en su entorno para habilitar estas fuentes.",
-    "no_sources": "No hay fuentes de investigación disponibles."
+    "no_sources": "No hay fuentes de investigación disponibles.",
+    "researching": "Investigando"
   }
 }

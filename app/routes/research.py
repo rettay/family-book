@@ -65,8 +65,11 @@ async def research_index(
                 Person.id == person_id, Person.lifecycle_state == "active"
             )
         )
-        person_context = result.scalar_one_or_none()
-        if person_context and not person_context.is_root:
+        person = result.scalar_one_or_none()
+        if person and person.is_root:
+            person = None  # Root person redaction — never expose name
+        person_context = person
+        if person_context:
             parts = []
             if person_context.first_name:
                 parts.append(person_context.first_name)
