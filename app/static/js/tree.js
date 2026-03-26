@@ -2185,6 +2185,299 @@
     }
   };
 
+  // ── External Records Search ─────────────────────────────────────────
+
+  var SOURCE_LABELS = {
+    chronicling_america: 'Chronicling America (USA Newspapers)',
+    nara: 'NARA Catalog (USA Archives)',
+    trove: 'Trove (Australian Newspapers)',
+    dpla: 'DPLA (US Libraries & Archives)',
+    familysearch: 'FamilySearch',
+    antenati: 'Antenati (Italian Civil Records)'
+  };
+
+  async function searchAllExternalRecords(personId) {
+    var status = document.getElementById('tree-external-records-status');
+    var container = document.getElementById('tree-external-records-results');
+    if (!status || !container) return;
+
+    status.textContent = 'Searching all sources…';
+    clearNode(container);
+
+    try {
+      var resp = await fetch('/api/external-records/search?person_id=' + encodeURIComponent(personId));
+      if (!resp.ok) {
+        var err = await resp.json().catch(function() { return {detail: 'Search failed'}; });
+        status.textContent = err.detail || 'Search failed';
+        return;
+      }
+      var data = await resp.json();
+      status.textContent = '';
+      renderExternalRecordResults(container, data.sources || []);
+    } catch (e) {
+      status.textContent = 'Search failed: ' + e.message;
+    }
+  }
+
+  async function searchExternalSource(personId, source) {
+    var status = document.getElementById('tree-external-records-status');
+    var container = document.getElementById('tree-external-records-results');
+    if (!status || !container) return;
+
+    status.textContent = 'Searching ' + (SOURCE_LABELS[source] || source) + '…';
+    clearNode(container);
+
+    try {
+      var resp = await fetch('/api/external-records/search?person_id=' + encodeURIComponent(personId) + '&source=' + encodeURIComponent(source));
+      if (!resp.ok) {
+        var err = await resp.json().catch(function() { return {detail: 'Search failed'}; });
+        status.textContent = err.detail || 'Search failed';
+        return;
+      }
+      var data = await resp.json();
+      status.textContent = '';
+      renderExternalRecordResults(container, data.sources || []);
+    } catch (e) {
+      status.textContent = 'Search failed: ' + e.message;
+    }
+  }
+
+  function renderExternalRecordResults(container, sources) {
+    clearNode(container);
+    if (!sources || sources.length === 0) {
+      container.textContent = 'No sources returned.';
+      return;
+    }
+
+    sources.forEach(function(src) {
+      var section = document.createElement('details');
+      section.className = 'tree-external-source-group';
+      section.open = src.results && src.results.length > 0;
+
+      var summary = document.createElement('summary');
+      var label = SOURCE_LABELS[src.source] || src.source;
+      var count = src.total_count || (src.results ? src.results.length : 0);
+      summary.textContent = label + ' (' + count + ')';
+      if (src.error) {
+        summary.textContent += ' — ' + src.error;
+      }
+      if (!src.available) {
+        summary.textContent += ' [not configured]';
+      }
+      section.appendChild(summary);
+
+      if (src.results && src.results.length > 0) {
+        var list = document.createElement('div');
+        list.className = 'tree-external-results-list';
+        src.results.forEach(function(result) {
+          var item = document.createElement('div');
+          item.className = 'tree-external-result-item';
+
+          var titleEl = document.createElement('div');
+          titleEl.className = 'tree-external-result-item__title';
+          if (result.url) {
+            var link = document.createElement('a');
+            link.href = result.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = result.title || 'View record';
+            titleEl.appendChild(link);
+          } else {
+            titleEl.textContent = result.title || 'Record';
+          }
+          item.appendChild(titleEl);
+
+          var meta = [];
+          if (result.date) meta.push(result.date);
+          if (result.location) meta.push(result.location);
+          if (result.record_type && result.record_type !== 'link') meta.push(result.record_type);
+          if (meta.length) {
+            var metaEl = document.createElement('div');
+            metaEl.className = 'tree-external-result-item__meta';
+            metaEl.textContent = meta.join(' · ');
+            item.appendChild(metaEl);
+          }
+
+          if (result.snippet) {
+            var snippetEl = document.createElement('div');
+            snippetEl.className = 'tree-external-result-item__snippet';
+            snippetEl.textContent = result.snippet;
+            item.appendChild(snippetEl);
+          }
+
+          list.appendChild(item);
+        });
+        section.appendChild(list);
+      }
+
+      container.appendChild(section);
+    });
+  }
+
+  // ── CEMLA Search ──────────────────────────────────────────────────
+
+  async function searchCemla(event) {
+    event.preventDefault();
+    var form = event.target;
+    var container = document.getElementById('tree-cemla-results');
+    if (!container) return;
+
+    var surname = form.querySelector('[name="cemla_surname"]').value.trim();
+    var givenName = form.querySelector('[name="cemla_given_name"]').value.trim();
+    var yearFrom = form.querySelector('[name="cemla_year_from"]').value.trim();
+    var yearTo = form.querySelector('[name="cemla_year_to"]').value.trim();
+
+    if (!surname) {
+      container.textContent = 'Surname is required.';
+      return;
+    }
+
+    container.textContent = 'Searching CEMLA…';
+
+    try {
+      var url = '/api/external-records/cemla?surname=' + encodeURIComponent(surname);
+      if (givenName) url += '&given_name=' + encodeURIComponent(givenName);
+      if (yearFrom) url += '&year_from=' + encodeURIComponent(yearFrom);
+      if (yearTo) url += '&year_to=' + encodeURIComponent(yearTo);
+
+      var resp = await fetch(url);
+      if (!resp.ok) {
+        var err = await resp.json().catch(function() { return {detail: 'Search failed'}; });
+        container.textContent = err.detail || 'Search failed';
+        return;
+      }
+      var data = await resp.json();
+      renderCemlaResults(container, data);
+    } catch (e) {
+      container.textContent = 'Search failed: ' + e.message;
+    }
+  }
+
+  function renderCemlaResults(container, data) {
+    clearNode(container);
+
+    if (data.error) {
+      var msg = document.createElement('p');
+      msg.className = 'tree-sidebar-card__muted';
+      msg.textContent = data.error;
+      container.appendChild(msg);
+    }
+
+    if (data.results && data.results.length > 0) {
+      var list = document.createElement('div');
+      list.className = 'tree-external-results-list';
+      data.results.forEach(function(r) {
+        var item = document.createElement('div');
+        item.className = 'tree-external-result-item';
+
+        var titleEl = document.createElement('div');
+        titleEl.className = 'tree-external-result-item__title';
+        titleEl.textContent = r.passenger_name || 'Unknown';
+        item.appendChild(titleEl);
+
+        var meta = [];
+        if (r.ship_name) meta.push('Ship: ' + r.ship_name);
+        if (r.arrival_date) meta.push(r.arrival_date);
+        if (r.nationality) meta.push(r.nationality);
+        if (meta.length) {
+          var metaEl = document.createElement('div');
+          metaEl.className = 'tree-external-result-item__meta';
+          metaEl.textContent = meta.join(' · ');
+          item.appendChild(metaEl);
+        }
+
+        var ports = [];
+        if (r.departure_port) ports.push('From: ' + r.departure_port);
+        if (r.arrival_port) ports.push('To: ' + r.arrival_port);
+        if (ports.length) {
+          var portsEl = document.createElement('div');
+          portsEl.className = 'tree-external-result-item__snippet';
+          portsEl.textContent = ports.join(' · ');
+          item.appendChild(portsEl);
+        }
+
+        list.appendChild(item);
+      });
+      container.appendChild(list);
+    }
+
+    if (data.fallback_url) {
+      var linkWrap = document.createElement('p');
+      linkWrap.className = 'tree-sidebar-card__muted';
+      linkWrap.style.marginTop = '0.5rem';
+      var link = document.createElement('a');
+      link.href = data.fallback_url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'Search CEMLA directly →';
+      linkWrap.appendChild(link);
+      container.appendChild(linkWrap);
+    }
+  }
+
+  // ── GEDCOM Upload ─────────────────────────────────────────────────
+
+  async function uploadGedcom(event) {
+    event.preventDefault();
+    var form = event.target;
+    var errorEl = document.getElementById('tree-gedcom-error');
+    var resultsEl = document.getElementById('tree-gedcom-results');
+
+    if (errorEl) { errorEl.textContent = ''; errorEl.classList.add('hidden'); }
+    if (resultsEl) clearNode(resultsEl);
+
+    var fileInput = form.querySelector('[name="gedcom_file"]');
+    if (!fileInput || !fileInput.files || !fileInput.files.length) {
+      if (errorEl) { errorEl.textContent = 'Please select a GEDCOM file.'; errorEl.classList.remove('hidden'); }
+      return;
+    }
+
+    var file = fileInput.files[0];
+    if (file.size > 10 * 1024 * 1024) {
+      if (errorEl) { errorEl.textContent = 'File exceeds 10MB limit.'; errorEl.classList.remove('hidden'); }
+      return;
+    }
+
+    var formData = new FormData();
+    formData.append('file', file);
+
+    if (resultsEl) resultsEl.textContent = 'Importing…';
+
+    try {
+      var resp = await fetch('/api/import/gedcom', {
+        method: 'POST',
+        body: formData
+      });
+      var data = await resp.json();
+
+      if (!resp.ok) {
+        if (errorEl) { errorEl.textContent = data.detail || 'Import failed'; errorEl.classList.remove('hidden'); }
+        if (resultsEl) clearNode(resultsEl);
+        return;
+      }
+
+      if (resultsEl) {
+        clearNode(resultsEl);
+        var summary = document.createElement('div');
+        summary.className = 'tree-gedcom-summary';
+        summary.innerHTML =
+          '<p><strong>' + escapeHTML(data.persons_created) + '</strong> persons created</p>' +
+          '<p><strong>' + escapeHTML(data.relationships_created) + '</strong> relationships created</p>' +
+          (data.duplicates_skipped ? '<p><strong>' + escapeHTML(data.duplicates_skipped) + '</strong> duplicates skipped</p>' : '') +
+          (data.errors && data.errors.length ? '<p class="form-error">' + escapeHTML(data.errors.join('; ')) + '</p>' : '');
+        resultsEl.appendChild(summary);
+      }
+
+      // Reload the tree to show new persons
+      if (typeof loadTree === 'function') loadTree();
+      showToastMessage('GEDCOM import complete: ' + data.persons_created + ' persons, ' + data.relationships_created + ' relationships');
+
+    } catch (e) {
+      if (errorEl) { errorEl.textContent = 'Import failed: ' + e.message; errorEl.classList.remove('hidden'); }
+      if (resultsEl) clearNode(resultsEl);
+    }
+  }
+
   window.saveTreePerson = saveTreePerson;
   window.linkTreeRelationship = linkTreeRelationship;
   window.createTreeRelative = createTreeRelative;
@@ -2201,6 +2494,10 @@
   window.cancelTreeGraphMode = cancelTreeGraphMode;
   window.openTreeRelationshipSearch = openTreeRelationshipSearch;
   window.openTreeRelationshipCreate = openTreeRelationshipCreate;
+  window.searchAllExternalRecords = searchAllExternalRecords;
+  window.searchExternalSource = searchExternalSource;
+  window.searchCemla = searchCemla;
+  window.uploadGedcom = uploadGedcom;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
   document.getElementById('apply-tree-filters').addEventListener('click', function() {

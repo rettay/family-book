@@ -82,6 +82,15 @@
     >
       {{ t('tree.media_count') }}
     </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="records"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('records')"
+    >
+      Records
+    </button>
   </nav>
 
   <section class="tree-sidebar-panel tree-sidebar-panel--active" data-tree-sidebar-panel="overview">
@@ -846,6 +855,76 @@
         <a href="/people/{{ person.id }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
       </div>
       <div id="tree-sidebar-media" class="tree-sidebar-stream" aria-live="polite" aria-busy="false"></div>
+    </section>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="records" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">External Records</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">Search free genealogy databases for historical records</p>
+        </div>
+      </div>
+
+      <div class="tree-external-records-controls">
+        <button type="button" class="btn btn--primary btn--block" onclick="searchAllExternalRecords('{{ person.id }}')">
+          Search All Sources
+        </button>
+        <div class="tree-external-records-source-buttons">
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'chronicling_america')">Newspapers (USA)</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'nara')">NARA Archives</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'trove')">Trove (Australia)</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'dpla')">DPLA Archives</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'familysearch')">FamilySearch</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'antenati')">Antenati (Italy)</button>
+        </div>
+      </div>
+
+      <div id="tree-external-records-status" class="tree-sidebar-card__muted" role="status" aria-live="polite"></div>
+      <div id="tree-external-records-results" class="tree-external-records-results" aria-live="polite"></div>
+
+      <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section">
+        <summary>CEMLA Immigration Search (Argentina)</summary>
+        <form class="tree-inline-form tree-inline-form--compact" onsubmit="searchCemla(event)">
+          <div class="tree-inline-form__row">
+            <label>
+              Surname
+              <input class="form-input" type="text" name="cemla_surname" value="{{ person.last_name or '' }}" required>
+            </label>
+            <label>
+              Given Name
+              <input class="form-input" type="text" name="cemla_given_name" value="{{ person.first_name or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Year From
+              <input class="form-input" type="text" name="cemla_year_from" maxlength="4" placeholder="1850">
+            </label>
+            <label>
+              Year To
+              <input class="form-input" type="text" name="cemla_year_to" maxlength="4" placeholder="1950">
+            </label>
+          </div>
+          <button type="submit" class="btn btn--secondary btn--block">Search CEMLA</button>
+        </form>
+        <div id="tree-cemla-results" aria-live="polite"></div>
+      </details>
+
+      <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section">
+        <summary>Import GEDCOM File</summary>
+        <form class="tree-inline-form tree-inline-form--compact" onsubmit="uploadGedcom(event)">
+          <div id="tree-gedcom-error" class="form-error hidden" role="status" aria-live="polite"></div>
+          <label>
+            GEDCOM File (.ged)
+            <input class="form-input" type="file" name="gedcom_file" accept=".ged,.gedcom" required>
+          </label>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">Upload a GEDCOM 5.5.1 file exported from Ancestry, FamilySearch, Gramps, or other genealogy software. Max 10MB.</p>
+          <button type="submit" class="btn btn--secondary btn--block">Import GEDCOM</button>
+        </form>
+        <div id="tree-gedcom-results" aria-live="polite"></div>
+      </details>
     </section>
   </section>
 

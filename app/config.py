@@ -64,6 +64,11 @@ class Settings(BaseSettings):
     MATRIX_BOT_PASSWORD: str = ""
     MATRIX_FAMILY_ROOM: str = ""
 
+    # External record search API keys
+    TROVE_API_KEY: str = ""
+    DPLA_API_KEY: str = ""
+    FAMILYSEARCH_APP_KEY: str = ""
+
     # Logging
     LOG_LEVEL: str = "INFO"
     PORT: int = 8000
