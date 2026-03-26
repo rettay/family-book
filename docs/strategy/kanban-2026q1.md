@@ -2,7 +2,10 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
+| FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md` |
 
 ## In Progress
 

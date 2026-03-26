@@ -19,6 +19,7 @@ S25 closed the last genealogy-researcher persona gap (research UX). All V1 produ
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
 | FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
+| FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md` |
 | G-11 | Fan Chart / Pedigree View | P2 | Gap triage |
 | G-12 | Duplicate Person Detection and Merge | P2 | Gap triage |
 | G-14 | Print / Export Family Sheet | P3 | Gap triage |
@@ -28,15 +29,19 @@ S25 closed the last genealogy-researcher persona gap (research UX). All V1 produ
 | Slice | Title | Status |
 |---|---|---|
 | S26-1 | Collapsible Tree Controls Panel (FB-033) | candidate |
-| S26-2 | Fan Chart / Pedigree View (G-11) | candidate |
-| S26-3 | Duplicate Person Detection and Merge (G-12) | candidate |
-| S26-4 | Print / Export Family Sheet (G-14) | candidate |
+| S26-2 | Wiki Section Structure Enhancement (FB-034) | candidate |
+| S26-3 | Trix Rich Text Editor Integration (FB-034) | candidate |
+| S26-4 | Structured Form Editing for JSON Arrays (FB-034) | candidate |
+| S26-5 | Fan Chart / Pedigree View (G-11) | candidate |
+| S26-6 | Duplicate Person Detection and Merge (G-12) | candidate |
+| S26-7 | Print / Export Family Sheet (G-14) | candidate |
 
 ### Open Questions
 
 - Should G-12 (duplicate detection) be combined with a data-quality dashboard?
 - What PDF library to use for G-14 — server-side (weasyprint, reportlab) or print CSS?
 - Should G-11 include a descendant fan chart or only ancestor pedigree?
+- Should Trix CDN assets be self-hosted or loaded from jsDelivr?
 
 ---
 
