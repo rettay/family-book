@@ -526,6 +526,95 @@
           <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('organizations')">+ Add Organization</button>
         </details>
 
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="physical">
+          <summary>{{ t('person.physical_attributes') }}</summary>
+          <div class="tree-inline-form__row">
+            <label>{{ t('person.height') }}<input class="form-input" type="text" name="height" value="{{ person.height or '' }}" placeholder="5'10&quot; / 178cm"></label>
+            <label>{{ t('person.weight') }}<input class="form-input" type="text" name="weight" value="{{ person.weight or '' }}" placeholder="170 lbs / 77kg"></label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>{{ t('person.eye_color') }}<input class="form-input" type="text" name="eye_color" value="{{ person.eye_color or '' }}"></label>
+            <label>{{ t('person.hair_color') }}<input class="form-input" type="text" name="hair_color" value="{{ person.hair_color or '' }}"></label>
+          </div>
+          <label>
+            {{ t('person.blood_type') }}
+            <select class="form-input" name="blood_type">
+              <option value="">—</option>
+              <option value="A+"{% if person.blood_type == 'A+' %} selected{% endif %}>A+</option>
+              <option value="A-"{% if person.blood_type == 'A-' %} selected{% endif %}>A-</option>
+              <option value="B+"{% if person.blood_type == 'B+' %} selected{% endif %}>B+</option>
+              <option value="B-"{% if person.blood_type == 'B-' %} selected{% endif %}>B-</option>
+              <option value="AB+"{% if person.blood_type == 'AB+' %} selected{% endif %}>AB+</option>
+              <option value="AB-"{% if person.blood_type == 'AB-' %} selected{% endif %}>AB-</option>
+              <option value="O+"{% if person.blood_type == 'O+' %} selected{% endif %}>O+</option>
+              <option value="O-"{% if person.blood_type == 'O-' %} selected{% endif %}>O-</option>
+            </select>
+          </label>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="genetic">
+          <summary>{{ t('person.genetic_profile') }}</summary>
+          <div class="tree-inline-form__row">
+            <label>{{ t('person.maternal_haplogroup') }}<input class="form-input" type="text" name="maternal_haplogroup" value="{{ person.maternal_haplogroup or '' }}"></label>
+            <label>{{ t('person.paternal_haplogroup') }}<input class="form-input" type="text" name="paternal_haplogroup" value="{{ person.paternal_haplogroup or '' }}"></label>
+          </div>
+          <label>{{ t('person.dna_test_provider') }}<input class="form-input" type="text" name="dna_test_provider" value="{{ person.dna_test_provider or '' }}" placeholder="23andMe, AncestryDNA..."></label>
+          <div id="tree-admixture-entries">
+            {% for adm in person.admixture %}
+            <div class="tree-json-entry" data-json-field="admixture">
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.admixture_ethnicity') }}<input class="form-input" type="text" data-key="ethnicity" value="{{ adm.ethnicity or '' }}"></label>
+                <label>{{ t('person.admixture_percentage') }}<input class="form-input" type="text" data-key="percentage" value="{{ adm.percentage or '' }}"></label>
+              </div>
+              <label>{{ t('person.admixture_source') }}<input class="form-input" type="text" data-key="source" value="{{ adm.source or '' }}"></label>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('admixture')">+ {{ t('person.add_admixture') }}</button>
+        </details>
+
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="medical_conditions">
+          <summary>{{ t('person.medical_conditions') }}</summary>
+          <div id="tree-medical_conditions-entries">
+            {% for mc in person.medical_conditions %}
+            <div class="tree-json-entry" data-json-field="medical_conditions">
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.condition_name') }}<input class="form-input" type="text" data-key="condition" value="{{ mc.condition or '' }}"></label>
+                <label>{{ t('person.condition_onset_age') }}<input class="form-input" type="text" data-key="onset_age" value="{{ mc.onset_age or '' }}"></label>
+              </div>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.condition_status') }}
+                  <select class="form-input" data-key="status">
+                    <option value="">—</option>
+                    <option value="active"{% if mc.status == 'active' %} selected{% endif %}>Active</option>
+                    <option value="resolved"{% if mc.status == 'resolved' %} selected{% endif %}>Resolved</option>
+                    <option value="managed"{% if mc.status == 'managed' %} selected{% endif %}>Managed</option>
+                    <option value="unknown"{% if mc.status == 'unknown' %} selected{% endif %}>Unknown</option>
+                  </select>
+                </label>
+                <label>{{ t('person.condition_severity') }}<input class="form-input" type="text" data-key="severity" value="{{ mc.severity or '' }}"></label>
+              </div>
+              <label>{{ t('person.condition_treatment') }}<input class="form-input" type="text" data-key="treatment" value="{{ mc.treatment or '' }}"></label>
+              <div class="tree-inline-form__row">
+                <label>{{ t('person.condition_hereditary_line') }}
+                  <select class="form-input" data-key="hereditary_line">
+                    <option value="">—</option>
+                    <option value="maternal"{% if mc.hereditary_line == 'maternal' %} selected{% endif %}>Maternal</option>
+                    <option value="paternal"{% if mc.hereditary_line == 'paternal' %} selected{% endif %}>Paternal</option>
+                    <option value="both"{% if mc.hereditary_line == 'both' %} selected{% endif %}>Both</option>
+                    <option value="unknown"{% if mc.hereditary_line == 'unknown' %} selected{% endif %}>Unknown</option>
+                  </select>
+                </label>
+                <label>{{ t('person.condition_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ mc.notes or '' }}"></label>
+              </div>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('medical_conditions')">+ {{ t('person.add_condition') }}</button>
+        </details>
+
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}

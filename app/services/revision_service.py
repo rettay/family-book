@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 import logging
 
@@ -9,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.moments import Moment
 from app.models.person import Person
 from app.models.revisions import EntityRevision
-from app.services.field_protection import decrypt_mapping_fields, encrypt_mapping_fields
+from app.services.field_protection import decrypt_mapping_fields, decrypt_string, encrypt_mapping_fields, encrypt_string
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,14 @@ PERSON_MUTABLE_FIELDS = [
     "contact_telegram",
     "contact_signal",
     "contact_email",
+    "height",
+    "weight",
+    "eye_color",
+    "hair_color",
+    "blood_type",
+    "maternal_haplogroup",
+    "paternal_haplogroup",
+    "dna_test_provider",
     "photo_url",
     "branch",
     "visibility",
@@ -75,6 +84,14 @@ PERSON_SNAPSHOT_PROTECTED_FIELDS = [
     "contact_telegram",
     "contact_signal",
     "contact_email",
+    "maternal_haplogroup",
+    "paternal_haplogroup",
+    "dna_test_provider",
+]
+
+PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS = [
+    "admixture",
+    "medical_conditions",
 ]
 
 
@@ -99,11 +116,21 @@ def serialize_person_snapshot(person: Person) -> dict:
     snapshot["education"] = person.education
     snapshot["career"] = person.career
     snapshot["organizations"] = person.organizations
-    return encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
+    snapshot["admixture"] = person.admixture
+    snapshot["medical_conditions"] = person.medical_conditions
+    snapshot = encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
+    for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
+        if field in snapshot and snapshot[field] is not None:
+            snapshot[field] = encrypt_string(json.dumps(snapshot[field]))
+    return snapshot
 
 
 def apply_person_snapshot(person: Person, snapshot: dict) -> None:
     snapshot = decrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
+    for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
+        if field in snapshot and isinstance(snapshot[field], str):
+            decrypted = decrypt_string(snapshot[field])
+            snapshot[field] = json.loads(decrypted) if decrypted else []
     for field in PERSON_MUTABLE_FIELDS:
         if field in snapshot:
             setattr(person, field, snapshot[field])
@@ -115,6 +142,10 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
         person.career = snapshot["career"] or []
     if "organizations" in snapshot:
         person.organizations = snapshot["organizations"] or []
+    if "admixture" in snapshot:
+        person.admixture = snapshot["admixture"] or []
+    if "medical_conditions" in snapshot:
+        person.medical_conditions = snapshot["medical_conditions"] or []
 
 
 def serialize_moment_snapshot(moment: Moment) -> dict:

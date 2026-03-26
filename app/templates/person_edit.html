@@ -152,6 +152,68 @@
         <textarea class="form-textarea" id="edit-organizations" name="organizations" rows="3">{{ person.organizations | tojson }}</textarea>
       </div>
 
+      <h3 class="form-section-title">{{ t('person.physical_attributes') }}</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-height">{{ t('person.height') }}</label>
+          <input type="text" class="form-input" id="edit-height" name="height" value="{{ person.height or '' }}" placeholder="5'10&quot; / 178cm">
+        </div>
+        <div class="form-group">
+          <label for="edit-weight">{{ t('person.weight') }}</label>
+          <input type="text" class="form-input" id="edit-weight" name="weight" value="{{ person.weight or '' }}" placeholder="170 lbs / 77kg">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-eye-color">{{ t('person.eye_color') }}</label>
+          <input type="text" class="form-input" id="edit-eye-color" name="eye_color" value="{{ person.eye_color or '' }}">
+        </div>
+        <div class="form-group">
+          <label for="edit-hair-color">{{ t('person.hair_color') }}</label>
+          <input type="text" class="form-input" id="edit-hair-color" name="hair_color" value="{{ person.hair_color or '' }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="edit-blood-type">{{ t('person.blood_type') }}</label>
+        <select class="form-select" id="edit-blood-type" name="blood_type">
+          <option value="">—</option>
+          <option value="A+" {% if person.blood_type == 'A+' %}selected{% endif %}>A+</option>
+          <option value="A-" {% if person.blood_type == 'A-' %}selected{% endif %}>A-</option>
+          <option value="B+" {% if person.blood_type == 'B+' %}selected{% endif %}>B+</option>
+          <option value="B-" {% if person.blood_type == 'B-' %}selected{% endif %}>B-</option>
+          <option value="AB+" {% if person.blood_type == 'AB+' %}selected{% endif %}>AB+</option>
+          <option value="AB-" {% if person.blood_type == 'AB-' %}selected{% endif %}>AB-</option>
+          <option value="O+" {% if person.blood_type == 'O+' %}selected{% endif %}>O+</option>
+          <option value="O-" {% if person.blood_type == 'O-' %}selected{% endif %}>O-</option>
+        </select>
+      </div>
+
+      <h3 class="form-section-title">{{ t('person.genetic_profile') }}</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-maternal-haplogroup">{{ t('person.maternal_haplogroup') }}</label>
+          <input type="text" class="form-input" id="edit-maternal-haplogroup" name="maternal_haplogroup" value="{{ person.maternal_haplogroup or '' }}">
+        </div>
+        <div class="form-group">
+          <label for="edit-paternal-haplogroup">{{ t('person.paternal_haplogroup') }}</label>
+          <input type="text" class="form-input" id="edit-paternal-haplogroup" name="paternal_haplogroup" value="{{ person.paternal_haplogroup or '' }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="edit-dna-test-provider">{{ t('person.dna_test_provider') }}</label>
+        <input type="text" class="form-input" id="edit-dna-test-provider" name="dna_test_provider" value="{{ person.dna_test_provider or '' }}">
+      </div>
+      <div class="form-group">
+        <label for="edit-admixture">{{ t('person.admixture') }} (JSON)</label>
+        <textarea class="form-textarea" id="edit-admixture" name="admixture" rows="3">{{ person.admixture | tojson }}</textarea>
+      </div>
+
+      <h3 class="form-section-title">{{ t('person.medical_conditions') }}</h3>
+      <div class="form-group">
+        <label for="edit-medical-conditions">{{ t('person.medical_conditions') }} (JSON)</label>
+        <textarea class="form-textarea" id="edit-medical-conditions" name="medical_conditions" rows="3">{{ person.medical_conditions | tojson }}</textarea>
+      </div>
+
       <h3 class="form-section-title">{{ t('person.contact') }}</h3>
 
       <div class="form-row">
@@ -243,7 +305,7 @@ async function savePerson(e) {
 
   const fd = new FormData(e.target);
   const data = {};
-  const jsonFields = ['education', 'career', 'organizations'];
+  const jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions'];
   for (const [k, v] of fd.entries()) {
     if (k === 'languages') {
       data[k] = v ? v.split(',').map(s => s.trim()).filter(Boolean) : [];

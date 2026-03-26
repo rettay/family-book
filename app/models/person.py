@@ -114,6 +114,22 @@ class Person(Base, TimestampMixin):
     _career: Mapped[str | None] = mapped_column("career", Text, default="[]")
     _organizations: Mapped[str | None] = mapped_column("organizations", Text, default="[]")
 
+    # Physical attributes (NOT encrypted)
+    height: Mapped[str | None] = mapped_column(String(50), default=None)
+    weight: Mapped[str | None] = mapped_column(String(50), default=None)
+    eye_color: Mapped[str | None] = mapped_column(String(50), default=None)
+    hair_color: Mapped[str | None] = mapped_column(String(50), default=None)
+    blood_type: Mapped[str | None] = mapped_column(String(10), default=None)
+
+    # Genetic profile (encrypted at rest)
+    maternal_haplogroup: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    paternal_haplogroup: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    dna_test_provider: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    _admixture: Mapped[str | None] = mapped_column("admixture", EncryptedText(), default="[]")
+
+    # Structured medical conditions (encrypted at rest)
+    _medical_conditions: Mapped[str | None] = mapped_column("medical_conditions", EncryptedText(), default="[]")
+
     contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_telegram: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
@@ -189,6 +205,26 @@ class Person(Base, TimestampMixin):
     @organizations.setter
     def organizations(self, value: list[dict]) -> None:
         self._organizations = json.dumps(value)
+
+    @property
+    def admixture(self) -> list[dict]:
+        if self._admixture:
+            return json.loads(self._admixture)
+        return []
+
+    @admixture.setter
+    def admixture(self, value: list[dict]) -> None:
+        self._admixture = json.dumps(value)
+
+    @property
+    def medical_conditions(self) -> list[dict]:
+        if self._medical_conditions:
+            return json.loads(self._medical_conditions)
+        return []
+
+    @medical_conditions.setter
+    def medical_conditions(self, value: list[dict]) -> None:
+        self._medical_conditions = json.dumps(value)
 
     @property
     def display_name(self) -> str:

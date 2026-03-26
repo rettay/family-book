@@ -30,6 +30,23 @@ class OrganizationEntry(BaseModel):
     notes: str | None = Field(None, max_length=1000)
 
 
+class AdmixtureEntry(BaseModel):
+    ethnicity: str | None = Field(None, max_length=200)
+    percentage: str | None = Field(None, max_length=10)
+    source: str | None = Field(None, max_length=200)
+
+
+class MedicalConditionEntry(BaseModel):
+    condition: str | None = Field(None, max_length=300)
+    onset_age: str | None = Field(None, max_length=20)
+    status: str | None = Field(None, max_length=20)
+    severity: str | None = Field(None, max_length=50)
+    treatment: str | None = Field(None, max_length=500)
+    is_inherited: bool | None = None
+    hereditary_line: str | None = Field(None, max_length=100)
+    notes: str | None = Field(None, max_length=1000)
+
+
 # --- Person ---
 
 class PersonCreate(BaseModel):
@@ -64,6 +81,16 @@ class PersonCreate(BaseModel):
     education: list[EducationEntry] = []
     career: list[CareerEntry] = []
     organizations: list[OrganizationEntry] = []
+    height: str | None = Field(None, max_length=50)
+    weight: str | None = Field(None, max_length=50)
+    eye_color: str | None = Field(None, max_length=50)
+    hair_color: str | None = Field(None, max_length=50)
+    blood_type: str | None = Field(None, max_length=10)
+    maternal_haplogroup: str | None = Field(None, max_length=100)
+    paternal_haplogroup: str | None = Field(None, max_length=100)
+    dna_test_provider: str | None = Field(None, max_length=200)
+    admixture: list[AdmixtureEntry] = []
+    medical_conditions: list[MedicalConditionEntry] = []
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -104,6 +131,16 @@ class PersonUpdate(BaseModel):
     education: list[EducationEntry] | None = None
     career: list[CareerEntry] | None = None
     organizations: list[OrganizationEntry] | None = None
+    height: str | None = Field(None, max_length=50)
+    weight: str | None = Field(None, max_length=50)
+    eye_color: str | None = Field(None, max_length=50)
+    hair_color: str | None = Field(None, max_length=50)
+    blood_type: str | None = Field(None, max_length=10)
+    maternal_haplogroup: str | None = Field(None, max_length=100)
+    paternal_haplogroup: str | None = Field(None, max_length=100)
+    dna_test_provider: str | None = Field(None, max_length=200)
+    admixture: list[AdmixtureEntry] | None = None
+    medical_conditions: list[MedicalConditionEntry] | None = None
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -157,6 +194,16 @@ class PersonDetail(PersonSummary):
     education: list[dict] = []
     career: list[dict] = []
     organizations: list[dict] = []
+    height: str | None = None
+    weight: str | None = None
+    eye_color: str | None = None
+    hair_color: str | None = None
+    blood_type: str | None = None
+    maternal_haplogroup: str | None = None
+    paternal_haplogroup: str | None = None
+    dna_test_provider: str | None = None
+    admixture: list[dict] = []
+    medical_conditions: list[dict] = []
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
@@ -245,6 +292,16 @@ def person_to_detail(person) -> PersonDetail:
         education=person.education,
         career=person.career,
         organizations=person.organizations,
+        height=person.height,
+        weight=person.weight,
+        eye_color=person.eye_color,
+        hair_color=person.hair_color,
+        blood_type=person.blood_type,
+        maternal_haplogroup=person.maternal_haplogroup,
+        paternal_haplogroup=person.paternal_haplogroup,
+        dna_test_provider=person.dna_test_provider,
+        admixture=person.admixture,
+        medical_conditions=person.medical_conditions,
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,

@@ -2238,3 +2238,9 @@ body.has-overlay { overflow: hidden; }
 .profile-list-entry:last-child { border-bottom: none; }
 .tree-json-entry { padding: 10px; margin-bottom: 8px; background: var(--bg-warm, #faf8f5); border-radius: 8px; border: 1px solid var(--border-light, #eee); }
 .tree-json-entry .tree-inline-form__row { margin-bottom: 4px; }
+
+/* ===== Health Dashboard ===== */
+.health-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.health-summary-card { background: var(--bg-warm, #faf8f5); border: 1px solid var(--border-light, #eee); border-radius: 12px; padding: 20px 16px; text-align: center; }
+.health-summary-card__value { font-family: var(--font-display, 'Playfair Display', serif); font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.health-summary-card__label { font-size: 0.85rem; color: var(--text-light); margin-top: 4px; }

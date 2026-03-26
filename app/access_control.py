@@ -231,6 +231,16 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "education": _profile_list(person.education, access),
         "career": _profile_list(person.career, access),
         "organizations": _profile_list(person.organizations, access),
+        "height": _profile_value(person.height, access),
+        "weight": _profile_value(person.weight, access),
+        "eye_color": _profile_value(person.eye_color, access),
+        "hair_color": _profile_value(person.hair_color, access),
+        "blood_type": _profile_value(person.blood_type, access),
+        "maternal_haplogroup": _profile_value(person.maternal_haplogroup, access),
+        "paternal_haplogroup": _profile_value(person.paternal_haplogroup, access),
+        "dna_test_provider": _profile_value(person.dna_test_provider, access),
+        "admixture": _profile_list(person.admixture, access),
+        "medical_conditions": _profile_list(person.medical_conditions, access),
     }
 
 

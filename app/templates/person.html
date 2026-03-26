@@ -121,6 +121,53 @@
   </div>
   {% endif %}
 
+  {% if person.height or person.weight or person.eye_color or person.hair_color or person.blood_type %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.physical_attributes') }}</h3>
+    {% if person.height %}<p class="profile-section__copy"><strong>{{ t('person.height') }}:</strong> {{ person.height }}</p>{% endif %}
+    {% if person.weight %}<p class="profile-section__copy"><strong>{{ t('person.weight') }}:</strong> {{ person.weight }}</p>{% endif %}
+    {% if person.eye_color %}<p class="profile-section__copy"><strong>{{ t('person.eye_color') }}:</strong> {{ person.eye_color }}</p>{% endif %}
+    {% if person.hair_color %}<p class="profile-section__copy"><strong>{{ t('person.hair_color') }}:</strong> {{ person.hair_color }}</p>{% endif %}
+    {% if person.blood_type %}<p class="profile-section__copy"><strong>{{ t('person.blood_type') }}:</strong> {{ person.blood_type }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if person.maternal_haplogroup or person.paternal_haplogroup or person.dna_test_provider or person.admixture %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.genetic_profile') }}</h3>
+    {% if person.maternal_haplogroup %}<p class="profile-section__copy"><strong>{{ t('person.maternal_haplogroup') }}:</strong> {{ person.maternal_haplogroup }}</p>{% endif %}
+    {% if person.paternal_haplogroup %}<p class="profile-section__copy"><strong>{{ t('person.paternal_haplogroup') }}:</strong> {{ person.paternal_haplogroup }}</p>{% endif %}
+    {% if person.dna_test_provider %}<p class="profile-section__copy"><strong>{{ t('person.dna_test_provider') }}:</strong> {{ person.dna_test_provider }}</p>{% endif %}
+    {% if person.admixture %}
+    <h4 style="margin-top:8px;">{{ t('person.admixture') }}</h4>
+    {% for adm in person.admixture %}
+    <div class="profile-list-entry">
+      <strong>{{ adm.ethnicity or '' }}</strong>
+      {% if adm.percentage %} — {{ adm.percentage }}%{% endif %}
+      {% if adm.source %}<span class="text-sm text-muted">({{ adm.source }})</span>{% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if person.medical_conditions %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('person.medical_conditions') }}</h3>
+    {% for mc in person.medical_conditions %}
+    <div class="profile-list-entry">
+      <strong>{{ mc.condition or '' }}</strong>
+      {% if mc.status %}<span class="text-sm text-muted">({{ mc.status }})</span>{% endif %}
+      {% if mc.onset_age %}<span class="text-sm text-muted"> — onset: {{ mc.onset_age }}</span>{% endif %}
+      {% if mc.severity %}<p class="text-sm text-muted">Severity: {{ mc.severity }}</p>{% endif %}
+      {% if mc.treatment %}<p class="text-sm text-muted">Treatment: {{ mc.treatment }}</p>{% endif %}
+      {% if mc.hereditary_line %}<p class="text-sm text-muted">Hereditary line: {{ mc.hereditary_line }}</p>{% endif %}
+      {% if mc.notes %}<p class="text-sm text-muted">{{ mc.notes }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   {% if person.burial_place or person.burial_country_code or person.burial_cemetery_name or person.burial_plot_number %}
   <div class="profile-section">
     <h3 class="profile-section__title">Burial Details</h3>

@@ -186,6 +186,7 @@ async def build_moment_cards(
                     "width": media.width,
                     "height": media.height,
                     "media_type": media.media_type,
+                    "mime_type": media.mime_type,
                     "caption": media.caption,
                 }
             )

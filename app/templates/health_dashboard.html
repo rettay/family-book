@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ t('health.title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 16px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">{{ t('health.title') }}</h1>
+    <p class="page-header__subtitle">{{ t('health.subtitle') }}</p>
+  </div>
+
+  <div class="health-summary-grid">
+    <div class="health-summary-card">
+      <div class="health-summary-card__value">{{ dashboard.total_persons }}</div>
+      <div class="health-summary-card__label">{{ t('health.total_persons') }}</div>
+    </div>
+    <div class="health-summary-card">
+      <div class="health-summary-card__value">{{ dashboard.with_genetic_profile }}</div>
+      <div class="health-summary-card__label">{{ t('health.with_genetic_profile') }}</div>
+    </div>
+    <div class="health-summary-card">
+      <div class="health-summary-card__value">{{ dashboard.with_medical_conditions }}</div>
+      <div class="health-summary-card__label">{{ t('health.with_medical_conditions') }}</div>
+    </div>
+    <div class="health-summary-card">
+      <div class="health-summary-card__value">{{ dashboard.with_physical_attributes }}</div>
+      <div class="health-summary-card__label">{{ t('health.with_physical_attributes') }}</div>
+    </div>
+  </div>
+
+  {% if dashboard.shared_conditions %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('health.shared_conditions') }}</h3>
+    <p class="text-sm text-muted" style="margin-bottom: 8px;">{{ t('health.shared_conditions_desc') }}</p>
+    {% for sc in dashboard.shared_conditions %}
+    <div class="profile-list-entry">
+      <strong>{{ sc.condition }}</strong>
+      <span class="text-sm text-muted">({{ sc.count }} {{ t('health.family_members') }})</span>
+      <div class="rel-chips" style="margin-top: 4px;">
+        {% for p in sc.persons %}
+        <a href="/people/{{ p.id }}" class="rel-chip">{{ p.display_name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if dashboard.haplogroup_distribution.maternal or dashboard.haplogroup_distribution.paternal %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('health.haplogroup_distribution') }}</h3>
+    {% if dashboard.haplogroup_distribution.maternal %}
+    <h4 style="margin-top: 8px;">{{ t('person.maternal_haplogroup') }}</h4>
+    {% for hg, count in dashboard.haplogroup_distribution.maternal.items() %}
+    <p class="profile-section__copy"><strong>{{ hg }}:</strong> {{ count }}</p>
+    {% endfor %}
+    {% endif %}
+    {% if dashboard.haplogroup_distribution.paternal %}
+    <h4 style="margin-top: 8px;">{{ t('person.paternal_haplogroup') }}</h4>
+    {% for hg, count in dashboard.haplogroup_distribution.paternal.items() %}
+    <p class="profile-section__copy"><strong>{{ hg }}:</strong> {{ count }}</p>
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if dashboard.blood_type_distribution %}
+  <div class="profile-section">
+    <h3 class="profile-section__title">{{ t('health.blood_type_distribution') }}</h3>
+    {% for bt, count in dashboard.blood_type_distribution.items() %}
+    <p class="profile-section__copy"><strong>{{ bt }}:</strong> {{ count }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not dashboard.shared_conditions and not dashboard.haplogroup_distribution.maternal and not dashboard.haplogroup_distribution.paternal and not dashboard.blood_type_distribution %}
+  <div class="profile-section">
+    <p class="text-muted">{{ t('health.no_data') }}</p>
+  </div>
+  {% endif %}
+
+  <div style="height:32px;"></div>
+</div>
+{% endblock %}

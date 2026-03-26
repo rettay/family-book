@@ -301,3 +301,191 @@ async def test_timeline_total_reflects_pre_pagination_count(admin_client: AsyncC
     data = resp.json()
     assert len(data["events"]) == 1
     assert data["total"] >= 3
+
+
+# ── Branch filter tests (S21-F04) ────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_branch_filter_returns_matching_persons(admin_client: AsyncClient):
+    """Timeline with branch filter returns only persons in that branch."""
+    await admin_client.post("/api/persons", json={
+        "first_name": "BranchAlpha",
+        "last_name": "Filter",
+        "birth_date": "1980-01-01",
+        "birth_date_precision": "exact",
+        "branch": "maternal",
+    })
+    await admin_client.post("/api/persons", json={
+        "first_name": "BranchBeta",
+        "last_name": "Filter",
+        "birth_date": "1982-01-01",
+        "birth_date_precision": "exact",
+        "branch": "paternal",
+    })
+
+    resp = await admin_client.get("/api/timeline?branch=maternal&event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    names = [e["person_name"] for e in data["events"]]
+    assert any("BranchAlpha" in n for n in names)
+    assert all("BranchBeta" not in n for n in names)
+
+
+@pytest.mark.asyncio
+async def test_branch_filter_case_insensitive(admin_client: AsyncClient):
+    """Branch filter matches case-insensitively."""
+    await admin_client.post("/api/persons", json={
+        "first_name": "CaseBranch",
+        "last_name": "Filter",
+        "birth_date": "1975-06-01",
+        "birth_date_precision": "exact",
+        "branch": "Paternal",
+    })
+
+    resp = await admin_client.get("/api/timeline?branch=paternal&event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    names = [e["person_name"] for e in data["events"]]
+    assert any("CaseBranch" in n for n in names)
+
+
+@pytest.mark.asyncio
+async def test_branch_filter_no_match_returns_empty(admin_client: AsyncClient):
+    """Branch filter with nonexistent branch returns no events for that branch."""
+    resp = await admin_client.get("/api/timeline?branch=nonexistent_branch_xyz&event_type=birth")
+    assert resp.status_code == 200
+    data = resp.json()
+    # May include seed data with no branch, but none should match "nonexistent_branch_xyz"
+    # The filter only includes persons where branch matches, so this should be empty or only unbranched
+    assert data["total"] == 0
+
+
+# ── Death event tests (S21-F05) ──────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_death_event_appears_in_timeline(admin_client: AsyncClient):
+    """Person with death_date generates a death event."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "DeathTest",
+        "last_name": "Person",
+        "birth_date": "1920-01-01",
+        "birth_date_precision": "exact",
+        "death_date": "2000-12-31",
+        "death_date_precision": "exact",
+        "is_living": False,
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/timeline?event_type=death")
+    assert resp.status_code == 200
+    data = resp.json()
+    death_events = [e for e in data["events"] if "DeathTest" in e["person_name"]]
+    assert len(death_events) == 1
+    assert death_events[0]["type"] == "death"
+    assert death_events[0]["year"] == 2000
+
+
+# ── Marriage/partnership event tests (S21-F05) ───────────────────────
+
+
+@pytest.mark.asyncio
+async def test_marriage_event_appears_in_timeline(admin_client: AsyncClient):
+    """Partnership with start_date generates a marriage event."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "SpouseA",
+        "last_name": "Wedding",
+        "birth_date": "1970-01-01",
+        "birth_date_precision": "exact",
+    })
+    assert resp.status_code == 201
+    person_a_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "SpouseB",
+        "last_name": "Wedding",
+        "birth_date": "1972-01-01",
+        "birth_date_precision": "exact",
+    })
+    assert resp.status_code == 201
+    person_b_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/relationships/partnership", json={
+        "person_a_id": person_a_id,
+        "person_b_id": person_b_id,
+        "kind": "marriage",
+        "start_date": "1995-06-15",
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/timeline?event_type=marriage")
+    assert resp.status_code == 200
+    data = resp.json()
+    wedding_events = [e for e in data["events"] if "SpouseA" in e["label"] or "SpouseB" in e["label"]]
+    assert len(wedding_events) >= 1
+    assert wedding_events[0]["year"] == 1995
+
+
+@pytest.mark.asyncio
+async def test_hidden_partner_marriage_excluded(
+    admin_client: AsyncClient, member_client: AsyncClient
+):
+    """Marriage event is excluded when one partner is hidden (no existence leak)."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "VisiblePartner",
+        "last_name": "MarriageTest",
+        "birth_date": "1965-01-01",
+        "birth_date_precision": "exact",
+    })
+    visible_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "HiddenPartner",
+        "last_name": "MarriageTest",
+        "birth_date": "1966-01-01",
+        "birth_date_precision": "exact",
+    })
+    hidden_id = resp.json()["id"]
+
+    await admin_client.post("/api/relationships/partnership", json={
+        "person_a_id": visible_id,
+        "person_b_id": hidden_id,
+        "kind": "marriage",
+        "start_date": "1990-09-01",
+    })
+
+    # Hide one partner
+    await admin_client.put(f"/api/persons/{hidden_id}", json={"visibility": "hidden"})
+
+    # Member should not see the marriage event at all
+    resp = await member_client.get("/api/timeline?event_type=marriage")
+    assert resp.status_code == 200
+    data = resp.json()
+    leaked = [e for e in data["events"] if "VisiblePartner" in e.get("label", "")]
+    assert len(leaked) == 0
+
+
+# ── Lineage access check test (S21-F01) ──────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_lineage_with_hidden_person_returns_no_events(
+    admin_client: AsyncClient, member_client: AsyncClient
+):
+    """Using a hidden person's ID as lineage_person_id returns no lineage events."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "HiddenLineage",
+        "last_name": "Test",
+        "birth_date": "1950-01-01",
+        "birth_date_precision": "exact",
+    })
+    hidden_id = resp.json()["id"]
+
+    await admin_client.put(f"/api/persons/{hidden_id}", json={"visibility": "hidden"})
+
+    # Member tries to use hidden person as lineage filter
+    resp = await member_client.get(f"/api/timeline?lineage_person_id={hidden_id}")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] == 0

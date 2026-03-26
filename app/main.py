@@ -96,6 +96,10 @@ def create_app() -> FastAPI:
     from app.routes.timeline import router as timeline_router
     application.include_router(timeline_router)
 
+    # Health dashboard routes
+    from app.routes.health_dashboard import router as health_dashboard_router
+    application.include_router(health_dashboard_router)
+
     # Import and external records routes
     from app.routes.imports import router as imports_router
     from app.routes.external_records import router as external_records_router

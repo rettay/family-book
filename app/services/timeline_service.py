@@ -100,8 +100,11 @@ async def get_timeline_events(
             sd = _parse_date(p.start_date)
             if not sd or not _in_year_range(sd.year, year_from, year_to):
                 continue
-            name_a = names_by_id.get(p.person_a_id, "?")
-            name_b = names_by_id.get(p.person_b_id, "?")
+            # Skip if either partner is not accessible (avoid leaking existence)
+            if p.person_a_id not in names_by_id or p.person_b_id not in names_by_id:
+                continue
+            name_a = names_by_id[p.person_a_id]
+            name_b = names_by_id[p.person_b_id]
             events.append({
                 "date": p.start_date,
                 "year": sd.year,

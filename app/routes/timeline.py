@@ -42,9 +42,17 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
     }
 
 
-async def _resolve_lineage_ids(db: AsyncSession, lineage_person_id: str | None) -> set[str] | None:
+async def _resolve_lineage_ids(
+    db: AsyncSession,
+    lineage_person_id: str | None,
+    current_user: Person,
+) -> set[str] | None:
     if not lineage_person_id:
         return None
+    from app.access_control import get_accessible_person_ids
+    accessible = await get_accessible_person_ids(db, current_user)
+    if lineage_person_id not in accessible:
+        return set()  # inaccessible person → empty result (no events match)
     from app.services.relationship_calculator import get_lineage
     return await get_lineage(db, lineage_person_id)
 
@@ -79,7 +87,7 @@ async def api_timeline(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    lineage_ids = await _resolve_lineage_ids(db, lineage_person_id)
+    lineage_ids = await _resolve_lineage_ids(db, lineage_person_id, current_user)
     events, total = await get_timeline_events(
         db, current_user,
         event_type=event_type,
@@ -110,7 +118,7 @@ async def timeline_page(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    lineage_ids = await _resolve_lineage_ids(db, lineage_person_id)
+    lineage_ids = await _resolve_lineage_ids(db, lineage_person_id, current_user)
     events, _total = await get_timeline_events(
         db, current_user,
         event_type=event_type,
@@ -151,7 +159,7 @@ async def partial_timeline_events(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    lineage_ids = await _resolve_lineage_ids(db, lineage_person_id)
+    lineage_ids = await _resolve_lineage_ids(db, lineage_person_id, current_user)
     events, _total = await get_timeline_events(
         db, current_user,
         event_type=event_type,

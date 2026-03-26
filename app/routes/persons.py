@@ -1,3 +1,4 @@
+import json
 import logging
 
 from datetime import datetime, timezone
@@ -26,7 +27,9 @@ from app.schemas import (
     person_to_detail,
 )
 from app.services.audit_service import log_audit
+from app.services.field_protection import decrypt_string
 from app.services.revision_service import (
+    PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS,
     apply_person_snapshot,
     get_revision,
     list_revisions,
@@ -55,6 +58,12 @@ async def _person_history_entries(
     for revision in revisions:
         actor = actors_by_id.get(revision.actor_id or "")
         snapshot = revision.snapshot
+        # Decrypt protected JSON array fields before serving
+        for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
+            raw = snapshot.get(field)
+            if isinstance(raw, str):
+                decrypted = decrypt_string(raw)
+                snapshot[field] = json.loads(decrypted) if decrypted else []
         entries.append(
             {
                 "id": revision.id,
@@ -72,6 +81,13 @@ async def _person_history_entries(
                     "education": snapshot.get("education", []),
                     "career": snapshot.get("career", []),
                     "organizations": snapshot.get("organizations", []),
+                    "height": snapshot.get("height"),
+                    "weight": snapshot.get("weight"),
+                    "eye_color": snapshot.get("eye_color"),
+                    "hair_color": snapshot.get("hair_color"),
+                    "blood_type": snapshot.get("blood_type"),
+                    "admixture": snapshot.get("admixture", []),
+                    "medical_conditions": snapshot.get("medical_conditions", []),
                 },
             }
         )
@@ -239,6 +255,14 @@ async def create_person(
         contact_email=body.contact_email,
         obituary=body.obituary,
         obituary_source=body.obituary_source,
+        height=body.height,
+        weight=body.weight,
+        eye_color=body.eye_color,
+        hair_color=body.hair_color,
+        blood_type=body.blood_type,
+        maternal_haplogroup=body.maternal_haplogroup,
+        paternal_haplogroup=body.paternal_haplogroup,
+        dna_test_provider=body.dna_test_provider,
         branch=body.branch,
         source=body.source,
         created_by=current_user.id,
@@ -247,6 +271,8 @@ async def create_person(
     person.education = [e.model_dump(exclude_none=True) for e in body.education]
     person.career = [e.model_dump(exclude_none=True) for e in body.career]
     person.organizations = [e.model_dump(exclude_none=True) for e in body.organizations]
+    person.admixture = [e.model_dump(exclude_none=True) for e in body.admixture]
+    person.medical_conditions = [e.model_dump(exclude_none=True) for e in body.medical_conditions]
     db.add(person)
     await db.flush()
 
@@ -285,15 +311,24 @@ async def update_person(
     old_snapshot = serialize_person_snapshot(person)
     update_data = body.model_dump(exclude_unset=True)
 
-    # Handle JSON array fields separately
+    # Handle JSON array fields separately, stripping None values per entry
+    def _strip_none_entries(entries: list | None) -> list[dict]:
+        if not entries:
+            return []
+        return [{k: v for k, v in e.items() if v is not None} if isinstance(e, dict) else e for e in entries]
+
     if "languages" in update_data:
         person.languages = update_data.pop("languages") or []
     if "education" in update_data:
-        person.education = update_data.pop("education") or []
+        person.education = _strip_none_entries(update_data.pop("education"))
     if "career" in update_data:
-        person.career = update_data.pop("career") or []
+        person.career = _strip_none_entries(update_data.pop("career"))
     if "organizations" in update_data:
-        person.organizations = update_data.pop("organizations") or []
+        person.organizations = _strip_none_entries(update_data.pop("organizations"))
+    if "admixture" in update_data:
+        person.admixture = _strip_none_entries(update_data.pop("admixture"))
+    if "medical_conditions" in update_data:
+        person.medical_conditions = _strip_none_entries(update_data.pop("medical_conditions"))
 
     for field, value in update_data.items():
         setattr(person, field, value)

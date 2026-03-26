@@ -14,6 +14,9 @@ PROTECTED_PERSON_FIELDS = [
     "contact_telegram",
     "contact_signal",
     "contact_email",
+    "maternal_haplogroup",
+    "paternal_haplogroup",
+    "dna_test_provider",
 ]
 
 

@@ -1882,13 +1882,23 @@
             'contact_signal',
             'contact_email',
             'obituary',
-            'obituary_source'
+            'obituary_source',
+            'height',
+            'weight',
+            'eye_color',
+            'hair_color',
+            'blood_type',
+            'maternal_haplogroup',
+            'paternal_haplogroup',
+            'dna_test_provider'
           ]
         });
-      // Collect JSON array fields (education, career, organizations)
+      // Collect JSON array fields (education, career, organizations, admixture, medical_conditions)
       payload.education = collectJsonArrayEntries('education');
       payload.career = collectJsonArrayEntries('career');
       payload.organizations = collectJsonArrayEntries('organizations');
+      payload.admixture = collectJsonArrayEntries('admixture');
+      payload.medical_conditions = collectJsonArrayEntries('medical_conditions');
       // Handle is_living checkbox (unchecked = not in FormData)
       var livingCheckbox = form.querySelector('[name="is_living"]');
       if (livingCheckbox) {
@@ -2826,7 +2836,9 @@
     var templates = {
       education: '<div class="tree-json-entry" data-json-field="education"><div class="tree-inline-form__row"><label>Institution<input class="form-input" type="text" data-key="institution"></label><label>Degree<input class="form-input" type="text" data-key="degree"></label></div><div class="tree-inline-form__row"><label>Field<input class="form-input" type="text" data-key="field_of_study"></label><label>Start Year<input class="form-input" type="text" data-key="year_start"></label></div><div class="tree-inline-form__row"><label>End Year<input class="form-input" type="text" data-key="year_end"></label><label>Notes<input class="form-input" type="text" data-key="notes"></label></div><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>',
       career: '<div class="tree-json-entry" data-json-field="career"><div class="tree-inline-form__row"><label>Employer<input class="form-input" type="text" data-key="employer"></label><label>Title<input class="form-input" type="text" data-key="title"></label></div><div class="tree-inline-form__row"><label>Start Year<input class="form-input" type="text" data-key="year_start"></label><label>End Year<input class="form-input" type="text" data-key="year_end"></label></div><div class="tree-inline-form__row"><label>Location<input class="form-input" type="text" data-key="location"></label><label>Notes<input class="form-input" type="text" data-key="notes"></label></div><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>',
-      organizations: '<div class="tree-json-entry" data-json-field="organizations"><div class="tree-inline-form__row"><label>Organization<input class="form-input" type="text" data-key="name"></label><label>Role<input class="form-input" type="text" data-key="role"></label></div><div class="tree-inline-form__row"><label>Year Joined<input class="form-input" type="text" data-key="year_joined"></label><label>Year Left<input class="form-input" type="text" data-key="year_left"></label></div><label>Notes<input class="form-input" type="text" data-key="notes"></label><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>'
+      organizations: '<div class="tree-json-entry" data-json-field="organizations"><div class="tree-inline-form__row"><label>Organization<input class="form-input" type="text" data-key="name"></label><label>Role<input class="form-input" type="text" data-key="role"></label></div><div class="tree-inline-form__row"><label>Year Joined<input class="form-input" type="text" data-key="year_joined"></label><label>Year Left<input class="form-input" type="text" data-key="year_left"></label></div><label>Notes<input class="form-input" type="text" data-key="notes"></label><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>',
+      admixture: '<div class="tree-json-entry" data-json-field="admixture"><div class="tree-inline-form__row"><label>Ethnicity<input class="form-input" type="text" data-key="ethnicity"></label><label>Percentage<input class="form-input" type="text" data-key="percentage"></label></div><label>Source<input class="form-input" type="text" data-key="source"></label><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>',
+      medical_conditions: '<div class="tree-json-entry" data-json-field="medical_conditions"><div class="tree-inline-form__row"><label>Condition<input class="form-input" type="text" data-key="condition"></label><label>Onset Age<input class="form-input" type="text" data-key="onset_age"></label></div><div class="tree-inline-form__row"><label>Status<select class="form-input" data-key="status"><option value="">—</option><option value="active">Active</option><option value="resolved">Resolved</option><option value="managed">Managed</option><option value="unknown">Unknown</option></select></label><label>Severity<input class="form-input" type="text" data-key="severity"></label></div><label>Treatment<input class="form-input" type="text" data-key="treatment"></label><div class="tree-inline-form__row"><label>Hereditary Line<select class="form-input" data-key="hereditary_line"><option value="">—</option><option value="maternal">Maternal</option><option value="paternal">Paternal</option><option value="both">Both</option><option value="unknown">Unknown</option></select></label><label>Notes<input class="form-input" type="text" data-key="notes"></label></div><button type="button" class="btn btn--ghost btn--sm" onclick="this.closest(\'.tree-json-entry\').remove()">Remove</button></div>'
     };
     if (templates[fieldName]) {
       container.insertAdjacentHTML('beforeend', templates[fieldName]);
