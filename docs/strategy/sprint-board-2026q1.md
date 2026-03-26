@@ -4,7 +4,7 @@
 
 ### `S25 - Research UX Overhaul and Test Infrastructure`
 
-Status: Planning
+Status: In Review
 
 ### Sprint Goal
 
@@ -18,17 +18,17 @@ S24 delivered tree photo headshots and person wiki pages — the two highest-CFL
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 31 | FB-031 | Research Tools UX Overhaul | P1 | todo |
-| 32 | FB-032 | i18n Test Parity | P2 | todo |
+| 31 | FB-031 | Research Tools UX Overhaul | P1 | done |
+| 32 | FB-032 | i18n Test Parity | P2 | done |
 
-### Planned Slices
+### Delivered Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S25-1 | Research Rename, Index Page, and Source Visibility (FB-031) | todo |
-| S25-2 | Saved Records Model and Per-Person Research (FB-031) | todo |
-| S25-3 | Unified Search UX and Cross-Links (FB-031) | todo |
-| S25-4 | i18n Test Parity (FB-032) | todo |
+| S25-1 | Research Rename, Index Page, and Source Visibility (FB-031) | done |
+| S25-2 | Saved Records Model and Per-Person Research (FB-031) | done |
+| S25-3 | Unified Search UX and Cross-Links (FB-031) | done |
+| S25-4 | i18n Test Parity (FB-032) | done |
 
 ### Sprint Exit Criteria
 
@@ -46,6 +46,21 @@ The sprint is successful when all are true:
 - CEMLA form integrated into research page layout
 - a test exists that validates all 3 locale files have matching key sets
 - test baselines remain intact, i18n parity maintained
+
+### Builder Implementation Notes
+
+- Builder implemented Sprint 25 on `main`
+- 4 slices delivered: research index page, saved records API, cross-links, i18n tests
+- New files: `app/routes/research.py`, `app/services/research_service.py`, `app/models/saved_record.py`, `app/templates/research.html`, `tests/test_research.py`, `tests/test_i18n.py`
+- Migration: `alembic/versions/08f77a386981_add_saved_records_table.py`
+- 7 sources configured (chronicling_america, nara, trove, dpla, familysearch, antenati, cemla)
+- Cross-links from person profile and wiki page to `/research?person_id={id}`
+- Root person restrictions enforced (no research link, no prefill)
+- i18n parity test with `ALLOWED_EMPTY_KEYS` for intentionally blank `app.tagline`
+- Focused build baseline:
+  - `uv run pytest -q`
+  - result: `475 passed, 0 failed`
+  - 15 new tests added (up from 460 baseline)
 
 ---
 

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ t('research.title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="research-page" id="research-page">
+  <div class="research-page__header">
+    <h1 class="research-page__title">{{ t('research.title') }}</h1>
+    <p class="research-page__subtitle">{{ t('research.subtitle') }}</p>
+  </div>
+
+  {% if person_context %}
+  <div class="research-page__person-context">
+    <p>
+      Researching: <strong>{{ person_context.first_name }} {{ person_context.last_name }}</strong>
+      <a href="/people/{{ person_context.id }}" class="btn btn--ghost btn--xs">{{ t('wiki.view_profile') }}</a>
+      {% if person_context.slug %}
+      <a href="/wiki/{{ person_context.slug }}" class="btn btn--ghost btn--xs">{{ t('nav.wiki') }}</a>
+      {% endif %}
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="research-page__search">
+    <form class="research-search-form" action="/research" method="get" id="research-search-form">
+      {% if person_context %}
+      <input type="hidden" name="person_id" value="{{ person_context.id }}">
+      {% endif %}
+      <div class="research-search-form__row">
+        <input
+          type="text"
+          name="q"
+          class="form-input research-search-form__input"
+          placeholder="{{ t('research.search_placeholder') }}"
+          value="{{ prefill_query or request.query_params.get('q', '') }}"
+          aria-label="{{ t('research.search_placeholder') }}"
+        >
+        <button type="submit" class="btn btn--primary">{{ t('common.search') }}</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="research-page__sources">
+    <h2 class="research-page__section-title">{{ t('research.available_sources') }}</h2>
+    {% set configured_sources = sources | selectattr('configured') | list %}
+    {% set unconfigured_sources = sources | rejectattr('configured') | list %}
+
+    {% if configured_sources %}
+    <div class="research-source-grid">
+      {% for source in configured_sources %}
+      <div class="research-source-card">
+        <div class="research-source-card__header">
+          <h3 class="research-source-card__name">{{ source.name }}</h3>
+          <span class="research-source-card__badge research-source-card__badge--active">{{ t('research.source_active') }}</span>
+        </div>
+        <p class="research-source-card__description">{{ source.description }}</p>
+        <p class="research-source-card__coverage">{{ t('research.coverage') }}: {{ source.coverage }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if unconfigured_sources %}
+    <details class="research-page__unconfigured">
+      <summary>{{ t('research.unconfigured_sources') }} ({{ unconfigured_sources | length }})</summary>
+      <div class="research-source-grid">
+        {% for source in unconfigured_sources %}
+        <div class="research-source-card research-source-card--inactive">
+          <div class="research-source-card__header">
+            <h3 class="research-source-card__name">{{ source.name }}</h3>
+            <span class="research-source-card__badge research-source-card__badge--inactive">{{ t('research.source_inactive') }}</span>
+          </div>
+          <p class="research-source-card__description">{{ source.description }}</p>
+          <p class="research-source-card__coverage">{{ t('research.coverage') }}: {{ source.coverage }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="research-page__configure-hint">{{ t('research.configure_hint') }}</p>
+    </details>
+    {% endif %}
+
+    {% if not configured_sources and not unconfigured_sources %}
+    <p class="research-page__empty">{{ t('research.no_sources') }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

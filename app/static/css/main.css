@@ -2265,6 +2265,37 @@ body.has-overlay { overflow: hidden; }
 .health-summary-card__value { font-family: var(--font-display, 'Playfair Display', serif); font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
 .health-summary-card__label { font-size: 0.85rem; color: var(--text-light); margin-top: 4px; }
 
+/* ===== Research Page ===== */
+.research-page { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+.research-page__header { margin-bottom: 24px; }
+.research-page__title { font-family: var(--font-display, 'Playfair Display', serif); font-size: 1.8rem; margin: 0 0 4px; }
+.research-page__subtitle { color: var(--text-light); font-size: 0.95rem; margin: 0; }
+.research-page__section-title { font-size: 1.1rem; font-weight: 600; margin: 0 0 12px; }
+.research-page__person-context { background: var(--bg-warm, #faf8f5); border: 1px solid var(--border-light, #eee); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
+.research-page__person-context p { margin: 0; }
+.research-page__empty { color: var(--text-light); padding: 24px 0; text-align: center; }
+.research-page__configure-hint { color: var(--text-light); font-size: 0.85rem; margin-top: 8px; }
+.research-page__unconfigured { margin-top: 16px; }
+.research-search-form__row { display: flex; gap: 8px; }
+.research-search-form__input { flex: 1; }
+.research-source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.research-source-card { background: var(--bg-warm, #faf8f5); border: 1px solid var(--border-light, #eee); border-radius: 8px; padding: 16px; }
+.research-source-card--inactive { opacity: 0.6; }
+.research-source-card__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.research-source-card__name { font-size: 1rem; font-weight: 600; margin: 0; }
+.research-source-card__badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+.research-source-card__badge--active { background: #e8f5e9; color: #2e7d32; }
+.research-source-card__badge--inactive { background: #f5f5f5; color: #999; }
+.research-source-card__description { font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 4px; }
+.research-source-card__coverage { font-size: 0.8rem; color: var(--text-light); margin: 0; }
+.btn--xs { font-size: 0.75rem; padding: 2px 8px; }
+.btn--danger { color: #c62828; }
+.tree-saved-record-item { border-left: 3px solid var(--accent, #2d5a27); padding-left: 8px; }
+@media (max-width: 600px) {
+  .research-search-form__row { flex-direction: column; }
+  .research-source-grid { grid-template-columns: 1fr; }
+}
+
 /* ===== Tree Node Add-Photo ===== */
 .tree-node__add-photo { opacity: 0.35; cursor: pointer; transition: opacity 0.2s; }
 .tree-node__add-photo:hover { opacity: 0.85; }

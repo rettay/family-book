@@ -14,6 +14,7 @@
     "timeline": "Cronología",
     "health": "Salud",
     "wiki": "Wiki",
+    "research": "Investigación",
     "logout": "Cerrar Sesión",
     "login": "Iniciar Sesión"
   },
@@ -416,5 +417,17 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "json_hint": "Editar como matriz JSON. Cada entrada es un objeto con claves de campo."
+  },
+  "research": {
+    "title": "Investigación",
+    "subtitle": "Busca en bases de datos genealógicas gratuitas registros históricos de tu familia.",
+    "search_placeholder": "Buscar por nombre, fecha o lugar...",
+    "available_sources": "Fuentes Disponibles",
+    "source_active": "Activa",
+    "source_inactive": "No configurada",
+    "coverage": "Cobertura",
+    "unconfigured_sources": "Fuentes adicionales disponibles",
+    "configure_hint": "Configure las claves de API necesarias en su entorno para habilitar estas fuentes.",
+    "no_sources": "No hay fuentes de investigación disponibles."
   }
 }

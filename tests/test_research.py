@@ -1,0 +1,205 @@
+"""Tests for the Research feature (FB-031)."""
+
+import pytest
+from httpx import AsyncClient
+
+
+@pytest.mark.asyncio
+async def test_research_index_renders(admin_client: AsyncClient):
+    """GET /research returns 200 for authenticated user."""
+    resp = await admin_client.get("/research")
+    assert resp.status_code == 200
+    assert "Research" in resp.text or "research-page" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_research_index_unauthenticated(client: AsyncClient):
+    """GET /research redirects unauthenticated users."""
+    resp = await client.get("/research", follow_redirects=False)
+    assert resp.status_code in (302, 401)
+
+
+@pytest.mark.asyncio
+async def test_research_shows_configured_sources(admin_client: AsyncClient):
+    """Research page shows sources that don't require API keys."""
+    resp = await admin_client.get("/research")
+    assert resp.status_code == 200
+    # Chronicling America and NARA are always available (no key needed)
+    assert "Chronicling America" in resp.text
+    assert "NARA" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_unconfigured_sources_hidden(admin_client: AsyncClient):
+    """Sources without API keys appear under unconfigured section, not as active."""
+    resp = await admin_client.get("/research")
+    assert resp.status_code == 200
+    text = resp.text
+    # Trove, DPLA, and FamilySearch require API keys which aren't set in tests
+    # They should be in the "unconfigured" section, not marked as active
+    assert "source_inactive" in text or "Not configured" in text or "unconfigured" in text
+
+
+@pytest.mark.asyncio
+async def test_research_nav_link_present(admin_client: AsyncClient):
+    """The research nav link appears in the main navigation."""
+    resp = await admin_client.get("/research")
+    assert resp.status_code == 200
+    assert 'href="/research"' in resp.text
+
+
+# ── Saved Records API Tests ──────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_save_record_to_person(admin_client: AsyncClient):
+    """POST creates saved record, appears in GET."""
+    # Create a person first
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "ResearchTarget", "last_name": "Person",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    # Save a record
+    resp = await admin_client.post("/api/research/saved-records", json={
+        "person_id": person_id,
+        "title": "Census Record 1910",
+        "url": "https://example.com/census/1910",
+        "source": "nara",
+        "snippet": "John Doe, age 35, carpenter",
+    })
+    assert resp.status_code == 200
+    record = resp.json()
+    assert record["title"] == "Census Record 1910"
+    assert record["source"] == "nara"
+    record_id = record["id"]
+
+    # Verify it appears in the list
+    resp = await admin_client.get(f"/api/research/saved-records/{person_id}")
+    assert resp.status_code == 200
+    records = resp.json()["records"]
+    assert len(records) >= 1
+    assert any(r["id"] == record_id for r in records)
+
+
+@pytest.mark.asyncio
+async def test_delete_saved_record(admin_client: AsyncClient):
+    """DELETE removes record."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "DeleteTarget", "last_name": "Record",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    resp = await admin_client.post("/api/research/saved-records", json={
+        "person_id": person_id,
+        "title": "To Be Deleted",
+        "source": "chronicling_america",
+    })
+    assert resp.status_code == 200
+    record_id = resp.json()["id"]
+
+    resp = await admin_client.delete(f"/api/research/saved-records/{record_id}")
+    assert resp.status_code == 200
+    assert resp.json()["deleted"] is True
+
+    # Verify it's gone
+    resp = await admin_client.get(f"/api/research/saved-records/{person_id}")
+    assert resp.status_code == 200
+    records = resp.json()["records"]
+    assert not any(r["id"] == record_id for r in records)
+
+
+@pytest.mark.asyncio
+async def test_saved_records_require_auth(client: AsyncClient):
+    """Unauthenticated users get 401."""
+    resp = await client.post("/api/research/saved-records", json={
+        "person_id": "fake-id",
+        "title": "Unauthorized",
+        "source": "nara",
+    })
+    assert resp.status_code == 401
+
+    resp = await client.get("/api/research/saved-records/fake-id")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_saved_records_round_trip(admin_client: AsyncClient):
+    """Save, list, verify data integrity."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "RoundTrip", "last_name": "Research",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    # Save multiple records
+    for i, source in enumerate(["nara", "chronicling_america", "trove"]):
+        resp = await admin_client.post("/api/research/saved-records", json={
+            "person_id": person_id,
+            "title": f"Record {i}",
+            "url": f"https://example.com/record/{i}",
+            "source": source,
+            "snippet": f"Snippet for record {i}",
+        })
+        assert resp.status_code == 200
+
+    resp = await admin_client.get(f"/api/research/saved-records/{person_id}")
+    assert resp.status_code == 200
+    records = resp.json()["records"]
+    assert len(records) == 3
+    # Verify all fields round-trip correctly
+    sources = {r["source"] for r in records}
+    assert sources == {"nara", "chronicling_america", "trove"}
+
+
+# ── Slice 3: Cross-Links and Person Context Tests ────────────────────
+
+
+@pytest.mark.asyncio
+async def test_research_person_context(admin_client: AsyncClient):
+    """GET /research?person_id={id} pre-fills person name in search."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "ContextTest", "last_name": "Searcher",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    resp = await admin_client.get(f"/research?person_id={person_id}")
+    assert resp.status_code == 200
+    assert "ContextTest" in resp.text
+    assert "Searcher" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_research_cross_links_person_profile(admin_client: AsyncClient):
+    """Person profile contains research link."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "CrossLink", "last_name": "Profile",
+    })
+    assert resp.status_code == 201
+    person_id = resp.json()["id"]
+
+    resp = await admin_client.get(f"/people/{person_id}")
+    assert resp.status_code == 200
+    assert f"/research?person_id={person_id}" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_root_person_no_research_link(admin_client: AsyncClient):
+    """Root person profile does not show research link."""
+    from sqlalchemy import select
+    from app.models.person import Person
+    from app.database import async_session_factory
+
+    async with async_session_factory() as session:
+        result = await session.execute(
+            select(Person).where(Person.is_root == True)
+        )
+        root = result.scalar_one_or_none()
+
+    if root:
+        resp = await admin_client.get(f"/people/{root.id}", follow_redirects=True)
+        if resp.status_code == 200:
+            assert f"/research?person_id={root.id}" not in resp.text

@@ -14,6 +14,7 @@
     "timeline": "Timeline",
     "health": "Health",
     "wiki": "Wiki",
+    "research": "Research",
     "logout": "Log Out",
     "login": "Log In"
   },
@@ -416,5 +417,17 @@
     "save": "Save",
     "cancel": "Cancel",
     "json_hint": "Edit as JSON array. Each entry is an object with field keys."
+  },
+  "research": {
+    "title": "Research",
+    "subtitle": "Search free genealogy databases for historical records about your family.",
+    "search_placeholder": "Search by name, date, or place...",
+    "available_sources": "Available Sources",
+    "source_active": "Active",
+    "source_inactive": "Not configured",
+    "coverage": "Coverage",
+    "unconfigured_sources": "Additional sources available",
+    "configure_hint": "Set the required API keys in your environment to enable these sources.",
+    "no_sources": "No research sources are available."
   }
 }

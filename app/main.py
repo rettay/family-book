@@ -104,6 +104,10 @@ def create_app() -> FastAPI:
     from app.routes.wiki import router as wiki_router
     application.include_router(wiki_router)
 
+    # Research routes
+    from app.routes.research import router as research_router
+    application.include_router(research_router)
+
     # Import and external records routes
     from app.routes.imports import router as imports_router
     from app.routes.external_records import router as external_records_router

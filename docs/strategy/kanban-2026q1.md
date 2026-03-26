@@ -2,10 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-031 | Research Tools UX Overhaul | P1 | `task_packets/FB-031_research_tools_ux_overhaul.md` |
-| FB-032 | i18n Test Parity | P2 | `task_packets/FB-032_i18n_test_parity.md` |
+None.
 
 ## In Progress
 
@@ -13,7 +10,10 @@ None.
 
 ## In Review
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-031 | Research Tools UX Overhaul | P1 | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+| FB-032 | i18n Test Parity | P2 | `task_packets/FB-032_i18n_test_parity.md` |
 
 ## Done
 

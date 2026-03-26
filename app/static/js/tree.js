@@ -1532,6 +1532,12 @@
         loadTreeSidebarMedia(personId);
       }
     }
+    if (sidebarState.activeTab === 'records') {
+      var personId = getSidebarPersonId();
+      if (personId) {
+        loadSavedRecords(personId);
+      }
+    }
     updateGraphModeBanner();
     applyRelationshipHighlights();
   }
@@ -2457,6 +2463,20 @@
             item.appendChild(snippetEl);
           }
 
+          // Save button
+          var savedRecordsEl = document.getElementById('tree-saved-records');
+          var personId = savedRecordsEl ? savedRecordsEl.dataset.personId : '';
+          if (personId && result.title) {
+            var saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'btn btn--ghost btn--xs';
+            saveBtn.textContent = 'Save';
+            saveBtn.onclick = (function(r, btn) {
+              return function() { saveExternalRecord(personId, r, btn); };
+            })(result, saveBtn);
+            item.appendChild(saveBtn);
+          }
+
           list.appendChild(item);
         });
         section.appendChild(list);
@@ -2464,6 +2484,113 @@
 
       container.appendChild(section);
     });
+  }
+
+  // ── Saved Records ──────────────────────────────────────────────────
+
+  async function saveExternalRecord(personId, result, btn) {
+    try {
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+      var resp = await fetch('/api/research/saved-records', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          person_id: personId,
+          title: result.title || 'Untitled',
+          url: result.url || null,
+          source: result.source || 'unknown',
+          snippet: result.snippet || null
+        })
+      });
+      if (resp.ok) {
+        btn.textContent = 'Saved';
+        loadSavedRecords(personId);
+      } else {
+        btn.textContent = 'Error';
+        setTimeout(function() { btn.textContent = 'Save'; btn.disabled = false; }, 2000);
+      }
+    } catch (e) {
+      btn.textContent = 'Error';
+      setTimeout(function() { btn.textContent = 'Save'; btn.disabled = false; }, 2000);
+    }
+  }
+
+  async function loadSavedRecords(personId) {
+    var container = document.getElementById('tree-saved-records');
+    if (!container) return;
+
+    try {
+      var resp = await fetch('/api/research/saved-records/' + encodeURIComponent(personId));
+      if (!resp.ok) return;
+      var data = await resp.json();
+      clearNode(container);
+
+      if (!data.records || data.records.length === 0) return;
+
+      var heading = document.createElement('h4');
+      heading.className = 'tree-sidebar-card__section-title';
+      heading.style.marginTop = '1rem';
+      heading.textContent = 'Saved Records (' + data.records.length + ')';
+      container.appendChild(heading);
+
+      data.records.forEach(function(record) {
+        var item = document.createElement('div');
+        item.className = 'tree-external-result-item tree-saved-record-item';
+
+        var titleEl = document.createElement('div');
+        titleEl.className = 'tree-external-result-item__title';
+        if (record.url) {
+          var link = document.createElement('a');
+          link.href = record.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = record.title;
+          titleEl.appendChild(link);
+        } else {
+          titleEl.textContent = record.title;
+        }
+        item.appendChild(titleEl);
+
+        var metaEl = document.createElement('div');
+        metaEl.className = 'tree-external-result-item__meta';
+        metaEl.textContent = (SOURCE_LABELS[record.source] || record.source);
+        item.appendChild(metaEl);
+
+        if (record.snippet) {
+          var snippetEl = document.createElement('div');
+          snippetEl.className = 'tree-external-result-item__snippet';
+          snippetEl.textContent = record.snippet;
+          item.appendChild(snippetEl);
+        }
+
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn btn--ghost btn--xs btn--danger';
+        delBtn.textContent = 'Remove';
+        delBtn.onclick = (function(rid) {
+          return function() { deleteSavedRecord(rid, personId); };
+        })(record.id);
+        item.appendChild(delBtn);
+
+        container.appendChild(item);
+      });
+    } catch (e) {
+      // Silently fail
+    }
+  }
+
+  async function deleteSavedRecord(recordId, personId) {
+    try {
+      var resp = await fetch('/api/research/saved-records/' + encodeURIComponent(recordId), {
+        method: 'DELETE'
+      });
+      if (resp.ok) {
+        loadSavedRecords(personId);
+      }
+    } catch (e) {
+      // Silently fail
+    }
   }
 
   // ── CEMLA Search ──────────────────────────────────────────────────

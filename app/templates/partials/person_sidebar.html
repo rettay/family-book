@@ -89,7 +89,7 @@
       aria-pressed="false"
       onclick="switchTreeSidebarTab('records')"
     >
-      Records
+      {{ t('nav.research') }}
     </button>
   </nav>
 
@@ -1058,8 +1058,8 @@
     <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
       <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
         <div>
-          <h3 class="tree-sidebar-card__section-title">External Records</h3>
-          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">Search free genealogy databases for historical records</p>
+          <h3 class="tree-sidebar-card__section-title">{{ t('research.title') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('research.subtitle') }}</p>
         </div>
       </div>
 
@@ -1082,6 +1082,12 @@
 
       <div id="tree-external-records-status" class="tree-sidebar-card__muted" role="status" aria-live="polite"></div>
       <div id="tree-external-records-results" class="tree-external-records-results" aria-live="polite"></div>
+
+      <div id="tree-saved-records" class="tree-saved-records" data-person-id="{{ person.id }}"></div>
+
+      <div class="tree-sidebar-inline-actions" style="margin-top: 0.5rem;">
+        <a href="/research?person_id={{ person.id }}" class="btn btn--ghost btn--sm">Full Research Page</a>
+      </div>
 
       <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section">
         <summary>CEMLA Immigration Search (Argentina)</summary>

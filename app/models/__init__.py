@@ -10,6 +10,7 @@ from app.models.notifications import Notification, NotificationDelivery, Notific
 from app.models.preferences import TreePreference
 from app.models.settings import AppThemeSettings
 from app.models.governance import ApprovalRequest, ApprovalVote
+from app.models.saved_record import SavedRecord
 from app.models.imports import (
     WhatsappImportBatch,
     MessengerImportBatch,
@@ -39,6 +40,7 @@ __all__ = [
     "AppThemeSettings",
     "ApprovalRequest",
     "ApprovalVote",
+    "SavedRecord",
     "WhatsappImportBatch",
     "MessengerImportBatch",
     "AgentApiKey",

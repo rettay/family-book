@@ -32,6 +32,9 @@
     {% if person.slug %}
     <a href="/wiki/{{ person.slug }}" class="btn btn--sm" style="background:rgba(255,255,255,0.2); color:white;">{{ t('nav.wiki') }}</a>
     {% endif %}
+    {% if not person.is_root %}
+    <a href="/research?person_id={{ person.id }}" class="btn btn--sm" style="background:rgba(255,255,255,0.2); color:white;">{{ t('nav.research') }}</a>
+    {% endif %}
   </div>
 </div>
 
