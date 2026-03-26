@@ -2,9 +2,9 @@
 
 ## Overall State
 
-Family Book is in **external integration and research-workspace expansion**.
+Family Book is in **power-user genealogy depth**.
 
-The product contract reset, tree-workspace foundation, and completeness/detail-depth work are complete (Sprints 01-18). The tree is the primary workspace with tabbed sidebar, moments/media authoring, graph-mode relationship editing, rich storytelling, in-tree search with zoom-to-node, research notes per person, completeness prompts in sidebar, expanded collapsible detail sections (Identity, Dates, Places, Notes, Contact, Languages), and a family-level completeness API. Sprint 18 delivered completeness prompts and sidebar detail depth. Sprint 19 is in planning, targeting GEDCOM import, external record search, and CEMLA integration.
+22 sprints closed (S01-S22). The product is a full-featured collaborative family wiki with tree workspace, multimedia archive, family timeline, calendar, relationship calculator, GEDCOM import, external record search, genetic profiles, structured medical conditions, and a family health dashboard. All V1 product requirements are met. The next sprint targets genealogy research credibility: source citations, evidence classification, and date intelligence.
 
 ## North Star
 
@@ -125,62 +125,22 @@ The product contract reset, tree-workspace foundation, and completeness/detail-d
 
 ## Current Risks
 
-- Browser coverage is materially stronger but still a targeted confidence layer rather than a full cross-browser or visual-regression matrix
-- CodeMap still shows structural warnings around dependency cycles, hidden coupling, observability gaps, and ownership concentration in a few critical modules
-- The genealogy-review triage has grown to 21 gaps across 3 tiers plus a long-horizon AI feature; sequencing them without scope creep requires disciplined sprint boundaries
-- Video/audio playback is broken on the frontend despite backend support — uploaded videos render as broken images, audio can't be uploaded from UI at all
-- External record integration (S19) introduces multiple third-party API dependencies; rate limiting, caching, and graceful degradation are required
-- CEMLA HTML scraping is inherently fragile and requires a fallback strategy
-- FamilySearch OAuth 2 introduces token storage security requirements
-- GEDCOM parsing must handle encoding variants and vendor-specific extensions
+- Browser coverage is a targeted confidence layer, not a full cross-browser or visual-regression matrix
+- CodeMap still shows structural warnings in a few critical modules
+- CEMLA HTML scraping is inherently fragile and requires ongoing maintenance
+- Genetic and medical data is the most sensitive content — flat family access model may need revisiting
+- The AI memorial long-horizon feature now has all prerequisites met (G-19, G-22, G-23) — scheduling it requires ethical consent framework design
 
 ## Current Priority Order
 
-1. Execute Sprint 19 (GEDCOM import, external record search, CEMLA) — the integration foundation
-2. Preserve browser, accessibility, and staging-review confidence while expanding research-workflow support
-3. Execute Sprint 20 (family calendar, relationship calculator) once S19 lands
-5. Execute Sprint 20 (family calendar, relationship calculator) once S19 lands
-6. Execute Sprint 21 (multimedia playback, timeline, branch filtering) — completes the archive story and enables voice recordings for AI memorial
-7. Keep architecture cleanup behind user-facing genealogy-workflow value unless it blocks product progress
+1. Execute Sprint 23 (source citations, evidence classification, date intelligence) — genealogy research credibility
+2. Preserve test and browser baselines while expanding power-user features
+3. Consider S24 for platform completeness (fan chart, duplicate detection, print/export)
+4. Keep architecture cleanup behind user-facing genealogy-workflow value unless it blocks product progress
 
 ## Sprint State
 
-- Closed sprints:
-  - `S01 - Shared Collaboration Reset`
-  - `S02 - Tree and Discovery Foundation`
-  - `S03 - Timeline and Family Moments Expansion`
-  - `S04 - Version History, Revert, and Moderation Controls`
-  - `S05 - Encryption and Backup Hardening Pass`
-  - `S06 - Theme Customization and Branding Controls`
-  - `S07 - Observability and Coverage Hardening`
-  - `S08 - Browser Regression Expansion and Release Confidence`
-  - `S09 - Accessibility and Interaction Hardening`
-  - `S10 - Readability and Responsive Polish`
-  - `S11 - Tree as Primary Workspace`
-  - `S12 - External Integrations and Confidence Hardening`
-  - `S13 - Tree Workspace 2.0`
-  - `S14 - Family Content and Relationship Authoring`
-  - `S15 - Rich Family Storytelling and Multi-Item Authoring`
-  - `S16 - Tree Graph Editing and Relationship Modeling`
-  - `S17 - Tree Discovery and Research Foundation`
-  - `S18 - Completeness Prompts and Sidebar Detail Depth`
-- Planning: `S19 - External Record Integration Foundation`
-- Candidate: `S20 - Family Calendar and Relationship Intelligence`
-- Primary integration packet: `/Users/cheech/code/family-book/task_packets/FB-023_external_record_integration_foundation.md`
-- Sprint 16 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s16.md`
-- Sprint 16 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s16.md`
-- Sprint 16 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s16.md`
-- Primary packet: `/Users/cheech/code/family-book/task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md`
-- Sprint 15 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s15.md`
-- Sprint 15 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s15.md`
-- Sprint 15 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s15.md`
-- Sprint 14 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s14.md`
-- Sprint 14 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s14.md`
-- Sprint 14 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s14.md`
-- Sprint 13 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s13.md`
-- Sprint 13 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s13.md`
-- Sprint 13 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s13.md`
-- Sprint 12 plan: `/Users/cheech/code/family-book/docs/strategy/sprint-plan-s12.md`
-- Sprint 12 slices: `/Users/cheech/code/family-book/docs/strategy/sprint-slices-s12.md`
-- Sprint 12 closeout: `/Users/cheech/code/family-book/docs/strategy/sprint-closeout-s12.md`
-- See `/Users/cheech/code/family-book/backlog.md` and `/Users/cheech/code/family-book/docs/strategy/kanban-2026q1.md`.
+- Closed sprints: S01 through S22
+- Planning: `S23 - Source Citations, Evidence, and Date Intelligence`
+- Candidate: `S24 - Platform Completeness`
+- See `backlog.md`, `docs/strategy/kanban-2026q1.md`, `docs/strategy/sprint-board-2026q1.md`

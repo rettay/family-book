@@ -1,34 +1,47 @@
 # Family Book Backlog
 
-Sprint: `S19 - External Record Integration Foundation`
+Sprint: `S23 - Source Citations, Evidence, and Date Intelligence`
 Status: Planning
 
-## Current Sprint `S19 - External Record Integration Foundation`
+## Current Sprint `S23 - Source Citations, Evidence, and Date Intelligence`
 
 Sprint goal:
-- Give Family Book the ability to import existing family trees via GEDCOM and search free external genealogy databases so the app becomes a research workspace rather than a display layer.
+- Make Family Book credible for serious genealogy research by adding per-person source citations with confidence levels, distinguishing documentary evidence from memory media, and computing age context at life events.
 
 Committed packet:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-023 | External Record Integration Foundation | P1 | todo | `task_packets/FB-023_external_record_integration_foundation.md` |
+| FB-028 | Source Citations, Evidence, and Date Intelligence | P1 | todo | `task_packets/FB-028_source_citations_evidence_and_date_intelligence.md` |
 
 Execution slices:
-- `S19-1` GEDCOM Import
-- `S19-2` External Record Search Panel
-- `S19-3` CEMLA Immigration Record Search
+- `S23-1` Source Citations and Confidence
+- `S23-2` Document vs. Evidence Media Classification
+- `S23-3` Date Math and Age Display
 
 ## Planned Follow-Up Sprints
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S20 | Family Calendar and Relationship Intelligence | G-16 (family calendar), G-06 (relationship calculator), G-15 (visual relationship types) | candidate |
-| S21 | Multimedia, Timeline, and Life Story Depth | G-19 (multimedia + docs), G-08/G-20 (timeline + branch filter), G-22 (life story fields) | candidate |
-| S22 | Genetic Profile and Family Health Intelligence | G-23 (genetic profile, structured medical, health dashboard) | candidate |
-| S23 | Power User Depth | G-07 (source citations), G-09 (document as evidence), G-13 (date math) | candidate |
+| S24 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
 
-Long horizon: G-21 (AI family memorial) — requires G-19 + G-22 + G-23 + rich content foundation
+Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done)
+
+## Closed Sprint `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`
+
+Sprint goal:
+- Close the remaining person-model depth gaps (physical attributes, genetic profile, structured medical conditions) and build a family health dashboard.
+
+Committed packet:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-027 | Genetic Profile, Physical Attributes, and Family Health Intelligence | P1 | done | S22 plan: `.claude/plans/spicy-bouncing-llama.md` |
+
+Execution slices:
+- `S22-1` Physical Attributes + Genetic Profile
+- `S22-2` Structured Medical Conditions
+- `S22-3` Family Health Dashboard
 
 Gap triage: `docs/strategy/genealogy-review-triage.md`
 

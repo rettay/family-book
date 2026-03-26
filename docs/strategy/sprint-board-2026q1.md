@@ -2,6 +2,79 @@
 
 ## Closed Sprint
 
+### `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`
+
+Status: Closed
+
+### Sprint Goal
+
+Close the remaining person-model depth gaps (physical attributes from G-22 deferred, genetic profile and structured medical conditions from G-23) and build a family health dashboard that surfaces hereditary patterns across family members.
+
+### Why This Sprint Exists
+
+Sprint 21 shipped multimedia playback, family timeline, and life story fields (obituary, education, career, organizations). The deferred G-22 item (physical attributes) and the full G-23 gap (genetic profile, structured medical conditions, health dashboard) represent the final content-depth expansion before pivoting to power-user research credibility features.
+
+### Committed Packet
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 27 | FB-027 | Genetic Profile, Physical Attributes, and Family Health Intelligence | P1 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S22-1 | Physical Attributes + Genetic Profile | done |
+| S22-2 | Structured Medical Conditions | done |
+| S22-3 | Family Health Dashboard | done |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- person records support height, weight, eye_color, hair_color, blood_type as structured fields
+- person records support maternal/paternal haplogroups, DNA test provider, and admixture array
+- person records support structured medical conditions with onset, status, severity, hereditary line
+- genetic and medical data is encrypted at rest via EncryptedText
+- a family health dashboard shows shared conditions, haplogroup distribution, and blood type distribution
+- revision snapshots include all new fields with proper encryption
+- access control enforced for all new fields
+- i18n parity across all 3 locales
+- test baselines remain intact
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 22 on `main`
+- Auditor issued PASS WITH FOLLOW-UPS on S22 — 3 findings:
+  - S22-F01 (P1): Encrypted genetic fields leaked in history endpoint snapshots — fixed
+  - S22-F02 (P2): admixture/medical_conditions stored unencrypted in revision snapshots — fixed
+  - S22-F03 (P3): Inconsistent None handling in update_person JSON arrays — fixed
+- Auditor issued PASS WITH FOLLOW-UPS on S21 final pass — 7 findings:
+  - S21-F01 (HIGH): Lineage person ID not access-checked — fixed
+  - S21-F02 (MEDIUM): Hidden partner names leaked via "?" in timeline — fixed
+  - S21-F03 (MEDIUM): Missing mime_type in moment media dict — fixed
+  - S21-F04 (CRITICAL GAP): Branch filtering untested — 3 tests added
+  - S21-F05 (MEDIUM GAP): No death/marriage event tests — 3 tests added
+  - S21-F06 (LOW): Year range validation — no-op, FastAPI handles via int type
+  - S21-F07 (LOW): Autoplay browser compat — cosmetic, no action
+- All fixes re-audited: PASS — no remaining findings
+- Focused closeout baseline:
+  - `uv run pytest -q`
+  - result: `404 passed, 0 failed`
+  - i18n parity: all 3 locales (en, es, ru) have matching key sets
+  - Playwright (pre-existing): `31 PASS, 0 FAIL`
+
+### Context
+
+- Plan file: `.claude/plans/spicy-bouncing-llama.md`
+- Gap triage: `docs/strategy/genealogy-review-triage.md` (G-22 deferred, G-23)
+- Migration: `alembic/versions/9dc8ffc2dc25_add_physical_genetic_medical_fields.py`
+
+---
+
+## Closed Sprint
+
 ### `S21 - Multimedia, Timeline, and Life Story Depth`
 
 Status: Closed
