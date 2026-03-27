@@ -97,6 +97,12 @@ class PersonCreate(BaseModel):
     contact_telegram: str | None = None
     contact_signal: str | None = None
     contact_email: str | None = None
+    social_instagram: str | None = Field(None, max_length=300)
+    social_facebook: str | None = Field(None, max_length=300)
+    social_twitter: str | None = Field(None, max_length=300)
+    social_linkedin: str | None = Field(None, max_length=300)
+    social_tiktok: str | None = Field(None, max_length=300)
+    social_youtube: str | None = Field(None, max_length=300)
     branch: str | None = Field(None, max_length=100)
     source: str = "manual"
 
@@ -157,6 +163,12 @@ class PersonUpdate(BaseModel):
     contact_telegram: str | None = None
     contact_signal: str | None = None
     contact_email: str | None = None
+    social_instagram: str | None = Field(None, max_length=300)
+    social_facebook: str | None = Field(None, max_length=300)
+    social_twitter: str | None = Field(None, max_length=300)
+    social_linkedin: str | None = Field(None, max_length=300)
+    social_tiktok: str | None = Field(None, max_length=300)
+    social_youtube: str | None = Field(None, max_length=300)
     branch: str | None = Field(None, max_length=100)
     visibility: str | None = None
 
@@ -230,6 +242,12 @@ class PersonDetail(PersonSummary):
     contact_telegram: str | None = None
     contact_signal: str | None = None
     contact_email: str | None = None
+    social_instagram: str | None = None
+    social_facebook: str | None = None
+    social_twitter: str | None = None
+    social_linkedin: str | None = None
+    social_tiktok: str | None = None
+    social_youtube: str | None = None
     is_admin: bool = False
     is_root: bool = False
     source: str = "manual"
@@ -326,6 +344,12 @@ def person_to_detail(person) -> PersonDetail:
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,
         contact_email=person.contact_email,
+        social_instagram=person.social_instagram,
+        social_facebook=person.social_facebook,
+        social_twitter=person.social_twitter,
+        social_linkedin=person.social_linkedin,
+        social_tiktok=person.social_tiktok,
+        social_youtube=person.social_youtube,
         is_admin=person.is_admin,
         is_root=person.is_root,
         source=person.source,

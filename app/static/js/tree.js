@@ -872,7 +872,7 @@
     return rootId;
   }
 
-  function layoutTree(rootId, parentToChildren) {
+  function layoutTree(rootId, parentToChildren, childToParents) {
     var visited = new Set();
     var nodePositions = {};
 
@@ -883,13 +883,13 @@
 
       while (queue.length > 0) {
         var node = queue.shift();
-        var children = parentToChildren[node.id] || [];
-        children.forEach(function(childId) {
-          if (visited.has(childId)) {
+        var neighbors = (parentToChildren[node.id] || []).concat(childToParents[node.id] || []);
+        neighbors.forEach(function(neighborId) {
+          if (visited.has(neighborId)) {
             return;
           }
-          visited.add(childId);
-          var childNode = {id: childId, children: [], depth: node.depth + 1, parent: node};
+          visited.add(neighborId);
+          var childNode = {id: neighborId, children: [], depth: node.depth + 1, parent: node};
           node.children.push(childNode);
           queue.push(childNode);
         });
@@ -1153,7 +1153,7 @@
 
     var structures = buildTreeStructures();
     var rootId = determineRootId(structures.personsById, structures.childToParents);
-    var layout = layoutTree(rootId, structures.parentToChildren);
+    var layout = layoutTree(rootId, structures.parentToChildren, structures.childToParents);
 
     // Build parent-child kind lookup: "parentId|childId" → kind
     var pcKindLookup = {};
@@ -1165,7 +1165,7 @@
     layout.allNodes.forEach(function(node) {
       if (node.children) {
         node.children.forEach(function(child) {
-          var kind = pcKindLookup[node.id + '|' + child.id] || 'biological';
+          var kind = pcKindLookup[node.id + '|' + child.id] || pcKindLookup[child.id + '|' + node.id] || 'biological';
           g.append('path')
             .attr('class', 'parent-child-line parent-child-line--' + kind)
             .attr('data-from', node.id)
@@ -1994,6 +1994,20 @@
   var PANEL_COLLAPSED_KEY = 'treePanelCollapsed';
   var treeLayout = document.getElementById('tree-root');
 
+  function _updateEdgeToggle(collapsed) {
+    var edgeBtn = document.getElementById('tree-panel-edge-toggle');
+    if (edgeBtn) {
+      edgeBtn.innerHTML = collapsed ? '&#x276F;' : '&#x276E;';
+      edgeBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+  }
+
+  function collapseTreePanelSilent() {
+    if (!treeLayout) return;
+    treeLayout.classList.add('tree-layout--panel-collapsed');
+    _updateEdgeToggle(true);
+  }
+
   function restoreTreePanelState() {
     try {
       if (localStorage.getItem(PANEL_COLLAPSED_KEY) === '1') {
@@ -2002,30 +2016,33 @@
     } catch (e) { /* localStorage unavailable */ }
   }
 
-  function collapseTreePanelSilent() {
+  window.toggleTreePanel = function() {
+    if (!treeLayout) return;
+    var isCollapsed = treeLayout.classList.contains('tree-layout--panel-collapsed');
+    if (isCollapsed) {
+      treeLayout.classList.remove('tree-layout--panel-collapsed');
+      _updateEdgeToggle(false);
+      try { localStorage.setItem(PANEL_COLLAPSED_KEY, '0'); } catch (e) {}
+    } else {
+      treeLayout.classList.add('tree-layout--panel-collapsed');
+      _updateEdgeToggle(true);
+      try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
+    }
+  };
+
+  // Keep old names as aliases for backwards compatibility
+  window.collapseTreePanel = function() {
     if (!treeLayout) return;
     treeLayout.classList.add('tree-layout--panel-collapsed');
-    var expandTab = document.getElementById('panel-expand-tab');
-    if (expandTab) { expandTab.hidden = false; expandTab.setAttribute('aria-expanded', 'false'); }
-    var collapseBtn = document.getElementById('tree-panel-collapse');
-    if (collapseBtn) collapseBtn.setAttribute('aria-expanded', 'false');
-  }
-
-  window.collapseTreePanel = function() {
-    collapseTreePanelSilent();
+    _updateEdgeToggle(true);
     try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
-    var expandTab = document.getElementById('panel-expand-tab');
-    if (expandTab) expandTab.focus();
   };
 
   window.expandTreePanel = function() {
     if (!treeLayout) return;
     treeLayout.classList.remove('tree-layout--panel-collapsed');
-    var expandTab = document.getElementById('panel-expand-tab');
-    if (expandTab) { expandTab.hidden = true; expandTab.setAttribute('aria-expanded', 'true'); }
+    _updateEdgeToggle(false);
     try { localStorage.setItem(PANEL_COLLAPSED_KEY, '0'); } catch (e) {}
-    var collapseBtn = document.getElementById('tree-panel-collapse');
-    if (collapseBtn) { collapseBtn.setAttribute('aria-expanded', 'true'); collapseBtn.focus(); }
   };
 
   restoreTreePanelState();

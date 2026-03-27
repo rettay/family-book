@@ -136,43 +136,18 @@ def _parse_date_to_raw_and_iso(date_str: str) -> tuple[str, str | None, str | No
     """Convert GEDCOM date to (raw, iso_date, precision).
 
     Returns (raw_string, iso_date_or_none, precision_or_none).
+    Delegates to the shared date_parsing service.
     """
     raw = date_str.strip()
     if not raw:
         return "", None, None
 
-    # Strip qualifiers
-    clean = raw.upper()
-    precision = None
-    for prefix in ("ABT ", "ABOUT ", "EST ", "CAL ", "BEF ", "AFT "):
-        if clean.startswith(prefix):
-            clean = clean[len(prefix):].strip()
-            precision = "approximate"
-            break
-
-    months = {
-        "JAN": "01", "FEB": "02", "MAR": "03", "APR": "04",
-        "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08",
-        "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12",
-    }
-
-    parts = clean.split()
-    if len(parts) == 3:
-        day, mon, year = parts
-        mon_num = months.get(mon[:3])
-        if mon_num and year.isdigit() and day.isdigit():
-            iso = f"{year}-{mon_num}-{day.zfill(2)}"
-            return raw, iso, precision or "exact"
-    elif len(parts) == 2:
-        mon, year = parts
-        mon_num = months.get(mon[:3])
-        if mon_num and year.isdigit():
-            iso = f"{year}-{mon_num}"
-            return raw, iso, precision or "month"
-    elif len(parts) == 1 and parts[0].isdigit() and len(parts[0]) == 4:
-        return raw, parts[0], precision or "year"
-
-    return raw, None, precision or "approximate"
+    from app.services.date_parsing import parse_date_raw_to_iso
+    iso, precision = parse_date_raw_to_iso(raw)
+    # GEDCOM fallback: any non-empty unparseable string → approximate
+    if iso is None and precision is None:
+        precision = "approximate"
+    return raw, iso, precision
 
 
 def _gender_map(sex: str) -> str | None:

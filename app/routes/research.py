@@ -19,6 +19,7 @@ from app.i18n import translate
 from app.models.person import Person
 from app.models.saved_record import SavedRecord
 from app.models.base import generate_uuid
+from app.services.external_records import SearchParams, search_all_sources, source_results_to_dict
 from app.services.research_service import get_available_sources
 from app.services.theme_service import get_runtime_theme_from_app
 
@@ -87,6 +88,61 @@ async def research_index(
             prefill_query=prefill_query,
             active_page="research",
         ),
+    )
+
+
+# ── HTMX Search Results Partial ──────────────────────────────────────
+
+
+@router.get("/partials/research-results", response_class=HTMLResponse)
+async def research_results_partial(
+    request: Request,
+    q: str = Query("", description="Search query"),
+    person_id: str | None = Query(None),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """HTMX endpoint: search external records and return HTML partial."""
+    error = None
+    results = []
+
+    if not q.strip() and not person_id:
+        return templates.TemplateResponse(
+            "partials/research_results.html",
+            _ctx(request, current_user, results=[], error=None),
+        )
+
+    params = SearchParams(query=q.strip())
+
+    if person_id:
+        result = await db.execute(
+            select(Person).where(
+                Person.id == person_id, Person.lifecycle_state == "active"
+            )
+        )
+        person = result.scalar_one_or_none()
+        if person and not person.is_root:
+            params.first_name = person.first_name or ""
+            params.last_name = person.last_name or ""
+            params.birth_date = person.birth_date or ""
+            params.birth_place = person.birth_place or ""
+
+    if not params.query and not params.first_name and not params.last_name:
+        return templates.TemplateResponse(
+            "partials/research_results.html",
+            _ctx(request, current_user, results=[], error=None),
+        )
+
+    try:
+        raw_results = await search_all_sources(params)
+        results = [source_results_to_dict(r) for r in raw_results]
+    except Exception as exc:
+        logger.exception("Research search failed for q=%r", q)
+        error = str(exc)
+
+    return templates.TemplateResponse(
+        "partials/research_results.html",
+        _ctx(request, current_user, results=results, error=error),
     )
 
 

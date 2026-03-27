@@ -26,6 +26,7 @@ from app.schemas import (
     person_to_detail,
 )
 from app.services.audit_service import log_audit
+from app.services.date_parsing import parse_date_raw_to_iso
 from app.services.field_protection import decrypt_string
 from app.services.sanitization import RICH_TEXT_FIELDS, sanitize_html
 from app.services.revision_service import (
@@ -259,10 +260,28 @@ async def create_person(
         dna_test_provider=body.dna_test_provider,
         source_detail=body.source_detail,
         confidence=body.confidence,
+        social_instagram=body.social_instagram,
+        social_facebook=body.social_facebook,
+        social_twitter=body.social_twitter,
+        social_linkedin=body.social_linkedin,
+        social_tiktok=body.social_tiktok,
+        social_youtube=body.social_youtube,
         branch=body.branch,
         source=body.source,
         created_by=current_user.id,
     )
+    # Auto-parse raw dates to ISO if ISO not explicitly provided
+    if person.birth_date_raw and not person.birth_date:
+        iso, prec = parse_date_raw_to_iso(person.birth_date_raw)
+        if iso:
+            person.birth_date = iso
+            person.birth_date_precision = prec
+    if person.death_date_raw and not person.death_date:
+        iso, prec = parse_date_raw_to_iso(person.death_date_raw)
+        if iso:
+            person.death_date = iso
+            person.death_date_precision = prec
+
     person.languages = body.languages
     person.education = [e.model_dump(exclude_none=True) for e in body.education]
     person.career = [e.model_dump(exclude_none=True) for e in body.career]
@@ -334,6 +353,20 @@ async def update_person(
             value = sanitize_html(value)
         setattr(person, field, value)
 
+    # Auto-parse raw dates to ISO if raw was set but ISO wasn't in this update
+    if "birth_date_raw" in update_data and "birth_date" not in update_data:
+        if person.birth_date_raw:
+            iso, prec = parse_date_raw_to_iso(person.birth_date_raw)
+            if iso:
+                person.birth_date = iso
+                person.birth_date_precision = prec
+    if "death_date_raw" in update_data and "death_date" not in update_data:
+        if person.death_date_raw:
+            iso, prec = parse_date_raw_to_iso(person.death_date_raw)
+            if iso:
+                person.death_date = iso
+                person.death_date_precision = prec
+
     await db.flush()
     await record_revision(
         db,
@@ -362,6 +395,8 @@ async def delete_person(
     person = result.scalar_one_or_none()
     if not person:
         raise HTTPException(status_code=404, detail="Person not found")
+    if person.is_root:
+        raise HTTPException(status_code=403, detail="Cannot delete root person")
     if person.lifecycle_state == PersonLifecycleState.deleted.value:
         return
 

@@ -134,6 +134,14 @@ class Person(Base, TimestampMixin):
     source_detail: Mapped[str | None] = mapped_column(String(500), default=None)
     confidence: Mapped[str | None] = mapped_column(String(20), default=None)
 
+    # Social profile URLs (public, not encrypted)
+    social_instagram: Mapped[str | None] = mapped_column(String(300), default=None)
+    social_facebook: Mapped[str | None] = mapped_column(String(300), default=None)
+    social_twitter: Mapped[str | None] = mapped_column(String(300), default=None)
+    social_linkedin: Mapped[str | None] = mapped_column(String(300), default=None)
+    social_tiktok: Mapped[str | None] = mapped_column(String(300), default=None)
+    social_youtube: Mapped[str | None] = mapped_column(String(300), default=None)
+
     # Wiki slug (URL-safe, generated once on create)
     slug: Mapped[str | None] = mapped_column(String(200), unique=True, default=None, index=True)
 

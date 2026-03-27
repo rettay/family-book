@@ -1,6 +1,59 @@
 {% extends "base.html" %}
 {% block title %}{{ t('person.edit') }} {{ person.display_name }} — {{ brand_display_name }}{% endblock %}
 
+{% block head %}
+<style>
+  .date-input-group { display: flex; gap: 0.5rem; align-items: flex-end; }
+  .date-input-group__field { flex: 1; }
+  .date-input-group__toggle {
+    padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;
+    background: rgba(45, 80, 22, 0.08); border: 1px solid rgba(45, 80, 22, 0.15);
+    border-radius: 6px; cursor: pointer; color: #6b6054; margin-bottom: 2px;
+  }
+  .date-input-group__toggle:hover { background: rgba(45, 80, 22, 0.15); color: #2d5016; }
+
+  .tag-input { position: relative; }
+  .tag-input__chips {
+    display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px;
+    border: 1px solid rgba(45, 80, 22, 0.2); border-radius: 8px;
+    background: #fff; min-height: 38px; align-items: center; cursor: text;
+  }
+  .tag-input__chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; background: rgba(45, 80, 22, 0.1);
+    border-radius: 999px; font-size: 0.82rem; color: #2d5016;
+  }
+  .tag-input__chip-remove {
+    border: none; background: none; cursor: pointer; font-size: 0.9rem;
+    color: #6b6054; padding: 0 2px; line-height: 1;
+  }
+  .tag-input__chip-remove:hover { color: #c00; }
+  .tag-input__text {
+    border: none; outline: none; font-size: 0.9rem;
+    min-width: 120px; flex: 1; background: transparent;
+  }
+  .tag-input__dropdown {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
+    max-height: 200px; overflow-y: auto; background: #fffdf8;
+    border: 1px solid rgba(45, 80, 22, 0.15); border-top: 0;
+    border-radius: 0 0 8px 8px; box-shadow: 0 8px 20px rgba(45, 80, 22, 0.1);
+    display: none;
+  }
+  .tag-input__dropdown--open { display: block; }
+  .tag-input__option {
+    padding: 6px 10px; cursor: pointer; font-size: 0.85rem;
+    border-bottom: 1px solid rgba(45, 80, 22, 0.06);
+  }
+  .tag-input__option:hover, .tag-input__option--active { background: rgba(217, 234, 201, 0.5); }
+
+  .measurement-input { display: flex; gap: 0.5rem; align-items: flex-end; }
+  .measurement-input__fields { display: flex; gap: 0.35rem; flex: 1; align-items: center; }
+  .measurement-input__fields input { width: 70px; }
+  .measurement-input__fields .measurement-input__sep { font-size: 0.85rem; color: #6b6054; }
+  .measurement-input select { width: auto; min-width: 70px; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container" style="padding-top: 16px;">
   <div class="page-header page-header--split mb-16">
@@ -66,15 +119,39 @@
         </div>
       </div>
 
+      {# ── Dual-mode date inputs ── #}
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-birth-date">{{ t('person.birth_date') }}</label>
-          <input type="text" class="form-input" id="edit-birth-date" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}"
-                 placeholder="e.g. March 1985, ~1960">
+          <label>{{ t('person.birth_date') }}</label>
+          <div class="date-input-group" id="birth-date-group">
+            <div class="date-input-group__field">
+              <input type="date" class="form-input" id="edit-birth-date-calendar"
+                     value="{{ person.birth_date or '' }}"
+                     {% if not person.birth_date and person.birth_date_raw %}style="display:none"{% endif %}>
+              <input type="text" class="form-input" id="edit-birth-date-freeform"
+                     value="{{ person.birth_date_raw or '' }}"
+                     placeholder="e.g. March 1985, ~1960"
+                     {% if person.birth_date and not (person.birth_date_precision == 'approximate' or person.birth_date_precision == 'month' or person.birth_date_precision == 'year') %}style="display:none"{% elif not person.birth_date_raw and not person.birth_date %}style="display:none"{% endif %}>
+            </div>
+            <button type="button" class="date-input-group__toggle" id="birth-date-toggle"
+                    onclick="toggleDateMode('birth')">Freeform</button>
+          </div>
         </div>
         <div class="form-group">
-          <label for="edit-death-date">{{ t('person.death_date') }}</label>
-          <input type="text" class="form-input" id="edit-death-date" name="death_date_raw" value="{{ person.death_date_raw or '' }}">
+          <label>{{ t('person.death_date') }}</label>
+          <div class="date-input-group" id="death-date-group">
+            <div class="date-input-group__field">
+              <input type="date" class="form-input" id="edit-death-date-calendar"
+                     value="{{ person.death_date or '' }}"
+                     {% if not person.death_date and person.death_date_raw %}style="display:none"{% endif %}>
+              <input type="text" class="form-input" id="edit-death-date-freeform"
+                     value="{{ person.death_date_raw or '' }}"
+                     placeholder="e.g. January 2020"
+                     {% if person.death_date and not (person.death_date_precision == 'approximate' or person.death_date_precision == 'month' or person.death_date_precision == 'year') %}style="display:none"{% elif not person.death_date_raw and not person.death_date %}style="display:none"{% endif %}>
+            </div>
+            <button type="button" class="date-input-group__toggle" id="death-date-toggle"
+                    onclick="toggleDateMode('death')">Freeform</button>
+          </div>
         </div>
       </div>
 
@@ -117,9 +194,22 @@
         <textarea class="form-textarea" id="edit-medical-history" name="medical_history" rows="4">{{ person.medical_history or '' }}</textarea>
       </div>
 
+      {# ── Language tag autocomplete ── #}
       <div class="form-group">
-        <label for="edit-languages">{{ t('person.languages') }} (comma-separated codes: en, es, ru)</label>
-        <input type="text" class="form-input" id="edit-languages" name="languages" value="{{ person.languages | join(', ') }}">
+        <label>{{ t('person.languages') }}</label>
+        <div class="tag-input" id="lang-tag-input">
+          <div class="tag-input__chips" id="lang-chips" onclick="document.getElementById('lang-search').focus()">
+            <input type="text" class="tag-input__text" id="lang-search"
+                   placeholder="Type to search languages..."
+                   autocomplete="off"
+                   oninput="filterLanguages()"
+                   onkeydown="langKeydown(event)"
+                   onfocus="filterLanguages()"
+                   onblur="setTimeout(closeLangDropdown, 200)">
+          </div>
+          <div class="tag-input__dropdown" id="lang-dropdown"></div>
+          <input type="hidden" id="lang-hidden" name="languages" value="{{ person.languages | join(',') }}">
+        </div>
       </div>
 
       <h3 class="form-section-title">{{ t('person.obituary') }}</h3>
@@ -153,14 +243,41 @@
       </div>
 
       <h3 class="form-section-title">{{ t('person.physical_attributes') }}</h3>
+      {# ── Height with unit selector ── #}
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-height">{{ t('person.height') }}</label>
-          <input type="text" class="form-input" id="edit-height" name="height" value="{{ person.height or '' }}" placeholder="5'10&quot; / 178cm">
+          <label>{{ t('person.height') }}</label>
+          <div class="measurement-input" id="height-input">
+            <select id="height-unit" onchange="toggleHeightFields()">
+              <option value="ftin">ft / in</option>
+              <option value="cm">cm</option>
+            </select>
+            <div class="measurement-input__fields" id="height-ftin-fields">
+              <input type="number" class="form-input" id="height-feet" min="0" max="9" placeholder="ft" style="width:60px">
+              <span class="measurement-input__sep">'</span>
+              <input type="number" class="form-input" id="height-inches" min="0" max="11" placeholder="in" style="width:60px">
+              <span class="measurement-input__sep">"</span>
+            </div>
+            <div class="measurement-input__fields" id="height-cm-fields" style="display:none">
+              <input type="number" class="form-input" id="height-cm" min="0" max="300" placeholder="cm" style="width:80px">
+              <span class="measurement-input__sep">cm</span>
+            </div>
+          </div>
+          <input type="hidden" id="height-hidden" name="height" value="{{ person.height or '' }}">
         </div>
         <div class="form-group">
-          <label for="edit-weight">{{ t('person.weight') }}</label>
-          <input type="text" class="form-input" id="edit-weight" name="weight" value="{{ person.weight or '' }}" placeholder="170 lbs / 77kg">
+          <label>{{ t('person.weight') }}</label>
+          <div class="measurement-input" id="weight-input">
+            <select id="weight-unit" onchange="toggleWeightFields()">
+              <option value="lbs">lbs</option>
+              <option value="kg">kg</option>
+            </select>
+            <div class="measurement-input__fields">
+              <input type="number" class="form-input" id="weight-value" min="0" max="999" placeholder="0" style="width:80px">
+              <span class="measurement-input__sep" id="weight-unit-label">lbs</span>
+            </div>
+          </div>
+          <input type="hidden" id="weight-hidden" name="weight" value="{{ person.weight or '' }}">
         </div>
       </div>
       <div class="form-row">
@@ -228,6 +345,44 @@
           <option value="uncertain" {% if person.confidence == 'uncertain' %}selected{% endif %}>{{ t('person.confidence_uncertain') }}</option>
           <option value="unknown" {% if person.confidence == 'unknown' %}selected{% endif %}>{{ t('person.confidence_unknown') }}</option>
         </select>
+      </div>
+
+      <h3 class="form-section-title">{{ t('person.social_profiles') }}</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-social-instagram">Instagram</label>
+          <input type="url" class="form-input" id="edit-social-instagram" name="social_instagram"
+                 value="{{ person.social_instagram or '' }}" placeholder="https://instagram.com/username">
+        </div>
+        <div class="form-group">
+          <label for="edit-social-facebook">Facebook</label>
+          <input type="url" class="form-input" id="edit-social-facebook" name="social_facebook"
+                 value="{{ person.social_facebook or '' }}" placeholder="https://facebook.com/username">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-social-twitter">X / Twitter</label>
+          <input type="url" class="form-input" id="edit-social-twitter" name="social_twitter"
+                 value="{{ person.social_twitter or '' }}" placeholder="https://x.com/username">
+        </div>
+        <div class="form-group">
+          <label for="edit-social-linkedin">LinkedIn</label>
+          <input type="url" class="form-input" id="edit-social-linkedin" name="social_linkedin"
+                 value="{{ person.social_linkedin or '' }}" placeholder="https://linkedin.com/in/username">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-social-tiktok">TikTok</label>
+          <input type="url" class="form-input" id="edit-social-tiktok" name="social_tiktok"
+                 value="{{ person.social_tiktok or '' }}" placeholder="https://tiktok.com/@username">
+        </div>
+        <div class="form-group">
+          <label for="edit-social-youtube">YouTube</label>
+          <input type="url" class="form-input" id="edit-social-youtube" name="social_youtube"
+                 value="{{ person.social_youtube or '' }}" placeholder="https://youtube.com/@channel">
+        </div>
       </div>
 
       <h3 class="form-section-title">{{ t('person.contact') }}</h3>
@@ -304,36 +459,274 @@
       <button type="submit" class="btn btn--primary" id="save-btn">{{ t('common.save') }}</button>
     </div>
   </form>
+  {% if current_user.is_admin and not person.is_root %}
+  <div class="card" style="margin-top:1.5rem; border:1px solid #c00;">
+    <div class="card__body">
+      <h3 class="form-section-title" style="color:#c00;">{{ t('person.danger_zone') }}</h3>
+      <p style="font-size:0.9rem; color:#6b6054; margin-bottom:0.75rem;">
+        {{ t('person.danger_zone_hint') }}
+      </p>
+      <div id="delete-person-data"
+           data-person-id="{{ person.id }}"
+           data-person-name="{{ person.display_name }}"
+           data-confirm-msg="{{ t('person.delete_confirm') }}"
+           data-error-msg="{{ t('common.error') }}" hidden></div>
+      <button type="button" class="btn" id="delete-person-btn"
+              style="background:#c00; color:#fff; border:none;"
+              onclick="deletePerson()">{{ t('person.delete_button') }}</button>
+    </div>
+  </div>
+  <script src="/static/js/delete-person.js"></script>
+  {% endif %}
   <div style="height:32px;"></div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+/* ── Date dual-mode toggle ── */
+var dateState = {
+  birth: '{{ "freeform" if (not person.birth_date and person.birth_date_raw) or person.birth_date_precision in ("approximate", "month", "year") else "calendar" }}',
+  death: '{{ "freeform" if (not person.death_date and person.death_date_raw) or person.death_date_precision in ("approximate", "month", "year") else "calendar" }}'
+};
+
+function initDateMode(prefix) {
+  var cal = document.getElementById('edit-' + prefix + '-date-calendar');
+  var free = document.getElementById('edit-' + prefix + '-date-freeform');
+  var toggle = document.getElementById(prefix + '-date-toggle');
+  if (dateState[prefix] === 'freeform') {
+    cal.style.display = 'none';
+    free.style.display = '';
+    toggle.textContent = 'Calendar';
+  } else {
+    cal.style.display = '';
+    free.style.display = 'none';
+    toggle.textContent = 'Freeform';
+  }
+}
+
+function toggleDateMode(prefix) {
+  dateState[prefix] = dateState[prefix] === 'calendar' ? 'freeform' : 'calendar';
+  initDateMode(prefix);
+}
+
+initDateMode('birth');
+initDateMode('death');
+
+/* ── Language tag autocomplete ── */
+var allLanguages = [];
+var selectedLangs = {{ person.languages | tojson }};
+
+(function() {
+  fetch('/static/data/languages.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) { allLanguages = data; renderLangChips(); });
+})();
+
+function renderLangChips() {
+  var container = document.getElementById('lang-chips');
+  var search = document.getElementById('lang-search');
+  // Remove existing chips
+  var existing = container.querySelectorAll('.tag-input__chip');
+  existing.forEach(function(c) { c.remove(); });
+  // Add chips before search input
+  selectedLangs.forEach(function(code) {
+    var lang = allLanguages.find(function(l) { return l.code === code; });
+    var chip = document.createElement('span');
+    chip.className = 'tag-input__chip';
+    chip.textContent = lang ? lang.name + ' (' + code + ')' : code;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tag-input__chip-remove';
+    btn.innerHTML = '&times;';
+    btn.setAttribute('data-code', code);
+    btn.onclick = function() { removeLang(code); };
+    chip.appendChild(btn);
+    container.insertBefore(chip, search);
+  });
+  document.getElementById('lang-hidden').value = selectedLangs.join(',');
+}
+
+function filterLanguages() {
+  var query = document.getElementById('lang-search').value.toLowerCase();
+  var dropdown = document.getElementById('lang-dropdown');
+  if (!query) { dropdown.className = 'tag-input__dropdown'; dropdown.innerHTML = ''; return; }
+  var matches = allLanguages.filter(function(l) {
+    return (l.name.toLowerCase().indexOf(query) !== -1 || l.code.toLowerCase().indexOf(query) !== -1)
+           && selectedLangs.indexOf(l.code) === -1;
+  }).slice(0, 8);
+  if (matches.length === 0) { dropdown.className = 'tag-input__dropdown'; dropdown.innerHTML = ''; return; }
+  dropdown.innerHTML = matches.map(function(l) {
+    return '<div class="tag-input__option" onmousedown="addLang(\'' + l.code + '\')">' + l.name + ' (' + l.code + ')</div>';
+  }).join('');
+  dropdown.className = 'tag-input__dropdown tag-input__dropdown--open';
+}
+
+function addLang(code) {
+  if (selectedLangs.indexOf(code) === -1) {
+    selectedLangs.push(code);
+    renderLangChips();
+  }
+  document.getElementById('lang-search').value = '';
+  closeLangDropdown();
+}
+
+function removeLang(code) {
+  selectedLangs = selectedLangs.filter(function(c) { return c !== code; });
+  renderLangChips();
+}
+
+function closeLangDropdown() {
+  document.getElementById('lang-dropdown').className = 'tag-input__dropdown';
+}
+
+function langKeydown(e) {
+  if (e.key === 'Backspace' && !e.target.value && selectedLangs.length > 0) {
+    selectedLangs.pop();
+    renderLangChips();
+  }
+}
+
+/* ── Height/Weight guided input ── */
+function parseHeight(str) {
+  if (!str) return { unit: 'ftin', feet: '', inches: '' };
+  var m = str.match(/(\d+)\s*['′]\s*(\d+)\s*["″]?/);
+  if (m) return { unit: 'ftin', feet: m[1], inches: m[2] };
+  m = str.match(/(\d+)\s*ft\s*(\d*)\s*in/i);
+  if (m) return { unit: 'ftin', feet: m[1], inches: m[2] || '0' };
+  m = str.match(/(\d+)\s*cm/i);
+  if (m) return { unit: 'cm', cm: m[1] };
+  m = str.match(/^(\d{2,3})$/);
+  if (m && parseInt(m[1]) > 50) return { unit: 'cm', cm: m[1] };
+  return { unit: 'ftin', feet: '', inches: '' };
+}
+
+function parseWeight(str) {
+  if (!str) return { unit: 'lbs', value: '' };
+  var m = str.match(/(\d+)\s*(?:lbs?|pounds?)/i);
+  if (m) return { unit: 'lbs', value: m[1] };
+  m = str.match(/(\d+)\s*(?:kgs?|kilograms?)/i);
+  if (m) return { unit: 'kg', value: m[1] };
+  m = str.match(/^(\d+)$/);
+  if (m) return { unit: 'lbs', value: m[1] };
+  return { unit: 'lbs', value: '' };
+}
+
+(function initMeasurements() {
+  var h = parseHeight('{{ person.height or "" }}');
+  document.getElementById('height-unit').value = h.unit;
+  if (h.unit === 'cm') {
+    document.getElementById('height-cm').value = h.cm || '';
+  } else {
+    document.getElementById('height-feet').value = h.feet || '';
+    document.getElementById('height-inches').value = h.inches || '';
+  }
+  toggleHeightFields();
+
+  var w = parseWeight('{{ person.weight or "" }}');
+  document.getElementById('weight-unit').value = w.unit;
+  document.getElementById('weight-value').value = w.value || '';
+  toggleWeightFields();
+})();
+
+function toggleHeightFields() {
+  var unit = document.getElementById('height-unit').value;
+  document.getElementById('height-ftin-fields').style.display = unit === 'ftin' ? 'flex' : 'none';
+  document.getElementById('height-cm-fields').style.display = unit === 'cm' ? 'flex' : 'none';
+}
+
+function toggleWeightFields() {
+  var unit = document.getElementById('weight-unit').value;
+  document.getElementById('weight-unit-label').textContent = unit;
+}
+
+function collectHeight() {
+  var unit = document.getElementById('height-unit').value;
+  if (unit === 'cm') {
+    var cm = document.getElementById('height-cm').value;
+    return cm ? cm + 'cm' : '';
+  }
+  var ft = document.getElementById('height-feet').value;
+  var inches = document.getElementById('height-inches').value;
+  if (!ft && !inches) return '';
+  return (ft || '0') + "'" + (inches || '0') + '"';
+}
+
+function collectWeight() {
+  var val = document.getElementById('weight-value').value;
+  var unit = document.getElementById('weight-unit').value;
+  return val ? val + ' ' + unit : '';
+}
+
+/* ── Save ── */
 async function savePerson(e) {
   e.preventDefault();
-  const btn = document.getElementById('save-btn');
-  const errorBox = document.getElementById('person-edit-error');
+  var btn = document.getElementById('save-btn');
+  var errorBox = document.getElementById('person-edit-error');
   errorBox.textContent = '';
   errorBox.classList.add('hidden');
   btn.disabled = true;
   btn.textContent = '{{ t("common.loading") }}';
 
-  const fd = new FormData(e.target);
-  const data = {};
-  const jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions'];
-  for (const [k, v] of fd.entries()) {
+  // Update hidden fields before collecting form data
+  document.getElementById('height-hidden').value = collectHeight();
+  document.getElementById('weight-hidden').value = collectWeight();
+
+  var fd = new FormData(e.target);
+  var data = {};
+  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions'];
+  for (var pair of fd.entries()) {
+    var k = pair[0], v = pair[1];
     if (k === 'languages') {
-      data[k] = v ? v.split(',').map(s => s.trim()).filter(Boolean) : [];
-    } else if (jsonFields.includes(k)) {
-      try { data[k] = JSON.parse(v); } catch { data[k] = []; }
+      data[k] = v ? v.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+    } else if (jsonFields.indexOf(k) !== -1) {
+      try { data[k] = JSON.parse(v); } catch(ex) { data[k] = []; }
     } else if (v !== '') {
       data[k] = v;
     }
   }
 
+  // Collect from active date mode
+  if (dateState.birth === 'calendar') {
+    var bCal = document.getElementById('edit-birth-date-calendar').value;
+    if (bCal) {
+      data.birth_date = bCal;
+      data.birth_date_precision = 'exact';
+      // Also set raw for display
+      var parts = bCal.split('-');
+      var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      data.birth_date_raw = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+  } else {
+    var bFree = document.getElementById('edit-birth-date-freeform').value;
+    if (bFree) {
+      data.birth_date_raw = bFree;
+      // Server will auto-parse to ISO
+      delete data.birth_date;
+      delete data.birth_date_precision;
+    }
+  }
+
+  if (dateState.death === 'calendar') {
+    var dCal = document.getElementById('edit-death-date-calendar').value;
+    if (dCal) {
+      data.death_date = dCal;
+      data.death_date_precision = 'exact';
+      var dParts = dCal.split('-');
+      var dd = new Date(parseInt(dParts[0]), parseInt(dParts[1]) - 1, parseInt(dParts[2]));
+      data.death_date_raw = dd.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+  } else {
+    var dFree = document.getElementById('edit-death-date-freeform').value;
+    if (dFree) {
+      data.death_date_raw = dFree;
+      delete data.death_date;
+      delete data.death_date_precision;
+    }
+  }
+
   try {
-    const resp = await fetch('/api/persons/{{ person.id }}', {
+    var resp = await fetch('/api/persons/{{ person.id }}', {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data)
@@ -341,7 +734,7 @@ async function savePerson(e) {
     if (resp.ok) {
       window.location.href = '/wiki/{{ person.slug }}';
     } else {
-      const err = await resp.json();
+      var err = await resp.json();
       errorBox.textContent = err.detail || '{{ t("common.error") }}';
       errorBox.classList.remove('hidden');
       btn.disabled = false;
@@ -357,10 +750,10 @@ async function savePerson(e) {
 
 async function uploadProfilePhoto(input) {
   if (!input.files[0]) return;
-  const fd = new FormData();
+  var fd = new FormData();
   fd.append('file', input.files[0]);
   fd.append('person_id', '{{ person.id }}');
-  const resp = await fetch('/api/media', {method: 'POST', body: fd});
+  var resp = await fetch('/api/media', {method: 'POST', body: fd});
   if (resp.ok) {
     showToast('Photo uploaded');
     window.location.reload();

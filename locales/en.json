@@ -97,7 +97,15 @@
     "confidence_unknown": "Unknown",
     "age": "age",
     "current_age": "Current Age",
-    "age_at_death": "Age at Death"
+    "age_at_death": "Age at Death",
+    "social_profiles": "Social Profiles",
+    "date_mode_freeform": "Freeform",
+    "date_mode_calendar": "Calendar",
+    "delete_confirm": "Are you sure you want to remove {name}? This can be undone by an admin.",
+    "delete_button": "Remove Person",
+    "cannot_delete_root": "The root family node cannot be removed.",
+    "danger_zone": "Danger Zone",
+    "danger_zone_hint": "Removing a person soft-deletes their record. An admin can restore it later."
   },
   "media": {
     "purpose": "Purpose",
@@ -347,6 +355,8 @@
     "unconfigured_sources": "Additional sources available",
     "configure_hint": "Set the required API keys in your environment to enable these sources.",
     "no_sources": "No research sources are available.",
-    "researching": "Researching"
+    "researching": "Researching",
+    "no_results": "No results found for this search.",
+    "searching": "Searching external sources..."
   }
 }

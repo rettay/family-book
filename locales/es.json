@@ -97,7 +97,15 @@
     "confidence_unknown": "Desconocido",
     "age": "edad",
     "current_age": "Edad Actual",
-    "age_at_death": "Edad al Fallecer"
+    "age_at_death": "Edad al Fallecer",
+    "social_profiles": "Perfiles Sociales",
+    "date_mode_freeform": "Texto libre",
+    "date_mode_calendar": "Calendario",
+    "delete_confirm": "¿Estás seguro/a de que deseas eliminar a {name}? Un administrador puede revertirlo.",
+    "delete_button": "Eliminar Persona",
+    "cannot_delete_root": "El nodo raíz de la familia no se puede eliminar.",
+    "danger_zone": "Zona de Peligro",
+    "danger_zone_hint": "Al eliminar una persona, su registro se marca como borrado. Un administrador puede restaurarlo después."
   },
   "media": {
     "purpose": "Propósito",
@@ -347,6 +355,8 @@
     "unconfigured_sources": "Fuentes adicionales disponibles",
     "configure_hint": "Configure las claves de API necesarias en su entorno para habilitar estas fuentes.",
     "no_sources": "No hay fuentes de investigación disponibles.",
-    "researching": "Investigando"
+    "researching": "Investigando",
+    "no_results": "No se encontraron resultados para esta búsqueda.",
+    "searching": "Buscando en fuentes externas..."
   }
 }

@@ -1,6 +1,32 @@
 {% extends "base.html" %}
 {% block title %}{{ t('research.title') }} — {{ brand_display_name }}{% endblock %}
 
+{% block head %}
+<style>
+  .research-results { margin-top: 1.5rem; }
+  .research-results__source { margin-bottom: 1.5rem; }
+  .research-results__source-name { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.25rem; }
+  .research-results__source-count { font-size: 0.82rem; color: #6b6054; margin: 0 0 0.5rem; }
+  .research-results__list { list-style: none; padding: 0; margin: 0; }
+  .research-results__item {
+    padding: 0.75rem 0; border-bottom: 1px solid rgba(45, 80, 22, 0.08);
+  }
+  .research-results__title { font-weight: 600; color: #2d5016; text-decoration: none; display: block; }
+  a.research-results__title:hover { text-decoration: underline; }
+  .research-results__meta { font-size: 0.82rem; color: #6b6054; display: block; margin-top: 2px; }
+  .research-results__snippet { font-size: 0.88rem; color: #3a3a3a; margin: 4px 0 0; }
+  .research-results__empty, .research-results__error {
+    text-align: center; padding: 2rem 1rem; color: #6b6054;
+  }
+  .research-results__error { color: #b91c1c; }
+  .htmx-indicator { display: none; }
+  .htmx-request .htmx-indicator { display: block; }
+  .research-loading {
+    text-align: center; padding: 2rem; color: #6b6054; font-size: 0.9rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="research-page" id="research-page">
   <div class="research-page__header">
@@ -20,7 +46,10 @@
   {% endif %}
 
   <div class="research-page__search">
-    <form class="research-search-form" action="/research" method="get" id="research-search-form">
+    <form class="research-search-form" id="research-search-form"
+          hx-get="/partials/research-results"
+          hx-target="#research-results"
+          hx-indicator="#research-loading">
       {% if person_context %}
       <input type="hidden" name="person_id" value="{{ person_context.id }}">
       {% endif %}
@@ -37,6 +66,11 @@
       </div>
     </form>
   </div>
+
+  <div class="research-loading htmx-indicator" id="research-loading">
+    {{ t('research.searching') }}
+  </div>
+  <div id="research-results"></div>
 
   <div class="research-page__sources">
     <h2 class="research-page__section-title">{{ t('research.available_sources') }}</h2>

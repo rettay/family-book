@@ -154,6 +154,37 @@ async def test_saved_records_round_trip(admin_client: AsyncClient):
     assert sources == {"nara", "chronicling_america", "trove"}
 
 
+# ── HTMX Search Results Partial ───────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_research_results_partial_returns_html(admin_client: AsyncClient):
+    """GET /partials/research-results returns HTML partial."""
+    resp = await admin_client.get(
+        "/partials/research-results?q=smith",
+        headers={"HX-Request": "true"},
+    )
+    assert resp.status_code == 200
+    assert "text/html" in resp.headers.get("content-type", "")
+
+
+@pytest.mark.asyncio
+async def test_research_results_partial_requires_auth(client: AsyncClient):
+    """Unauthenticated users get redirected."""
+    resp = await client.get(
+        "/partials/research-results?q=test",
+        follow_redirects=False,
+    )
+    assert resp.status_code in (302, 401)
+
+
+@pytest.mark.asyncio
+async def test_research_results_empty_query(admin_client: AsyncClient):
+    """Empty query returns empty results partial."""
+    resp = await admin_client.get("/partials/research-results?q=")
+    assert resp.status_code == 200
+
+
 # ── Slice 3: Cross-Links and Person Context Tests ────────────────────
 
 

@@ -11,6 +11,10 @@
       {% if not person.is_root %}
       <a href="/research?person_id={{ person.id }}" class="btn btn--sm btn--outline">{{ t('nav.research') }}</a>
       {% endif %}
+      {% if current_user.is_admin and not person.is_root %}
+      <button type="button" class="btn btn--sm" style="background:#c00; color:#fff; border:none;"
+              onclick="deletePerson()">{{ t('person.delete_button') }}</button>
+      {% endif %}
     </div>
   </div>
 
@@ -40,6 +44,20 @@
         <tr><th>{{ t('wiki.infobox_branch') }}</th><td>{{ person.branch }}</td></tr>
         {% endif %}
       </table>
+      {% set social_links = [] %}
+      {% if person.social_instagram %}{% set _ = social_links.append(('Instagram', person.social_instagram)) %}{% endif %}
+      {% if person.social_facebook %}{% set _ = social_links.append(('Facebook', person.social_facebook)) %}{% endif %}
+      {% if person.social_twitter %}{% set _ = social_links.append(('X', person.social_twitter)) %}{% endif %}
+      {% if person.social_linkedin %}{% set _ = social_links.append(('LinkedIn', person.social_linkedin)) %}{% endif %}
+      {% if person.social_tiktok %}{% set _ = social_links.append(('TikTok', person.social_tiktok)) %}{% endif %}
+      {% if person.social_youtube %}{% set _ = social_links.append(('YouTube', person.social_youtube)) %}{% endif %}
+      {% if social_links %}
+      <div class="wiki-infobox__social">
+        {% for label, url in social_links %}
+        <a href="{{ url }}" target="_blank" rel="noopener" class="wiki-infobox__social-link" title="{{ label }}">{{ label }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
     </aside>
 
     {# ── Sections ── #}
@@ -83,3 +101,14 @@
   </article>
 </div>
 {% endblock %}
+
+{% if current_user.is_admin and not person.is_root %}
+{% block scripts %}
+<div id="delete-person-data"
+     data-person-id="{{ person.id }}"
+     data-person-name="{{ person.display_name }}"
+     data-confirm-msg="{{ t('person.delete_confirm') }}"
+     data-error-msg="{{ t('common.error') }}" hidden></div>
+<script src="/static/js/delete-person.js"></script>
+{% endblock %}
+{% endif %}
