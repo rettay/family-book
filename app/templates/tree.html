@@ -4,6 +4,7 @@
 <style>
   .page { padding-top: var(--nav-h); padding-bottom: 0; }
   .tree-layout {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
     min-height: calc(100vh - var(--nav-h));
@@ -27,7 +28,7 @@
     width: 340px;
   }
   .tree-layout--panel-collapsed {
-    grid-template-columns: 0 minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
   .tree-panel__collapse {
     position: absolute; top: 12px; right: 12px; z-index: 2;
@@ -84,6 +85,7 @@
   }
   .tree-canvas {
     position: relative;
+    min-width: 0;
     min-height: calc(100vh - var(--nav-h));
     background:
       radial-gradient(circle at top, rgba(217, 234, 201, 0.8), transparent 40%),
@@ -91,6 +93,7 @@
   }
   .tree-page {
     position: relative;
+    width: 100%;
     height: calc(100vh - var(--nav-h));
   }
   #tree-svg {
