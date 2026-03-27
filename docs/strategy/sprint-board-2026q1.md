@@ -2,6 +2,83 @@
 
 ## Current Sprint
 
+### `S27 - Tree Interaction UX and Form Polish`
+
+Status: Closed
+
+### Sprint Goal
+
+Reduce UX friction on the tree and person edit surfaces: replace the inconsistent left panel toggle with a compact pill/tab matching the right sidebar, add node-level "add relative" plus buttons, make the toolbar "Add Person" button inline instead of navigating away, unify the dual-mode date input into a single smart field with calendar helper, and clean up duplicate CSS for the language autocomplete.
+
+### Why This Sprint Next
+
+User testing after S26 identified five concrete friction points on the tree and edit surfaces. All are frontend-only (no backend/model changes), low-to-medium risk, and directly improve the tree-as-workspace experience for the genealogy-researcher persona.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| — | — | Tree Interaction UX and Form Polish (5 slices) | P2 | done |
+
+### Delivered Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S27-1 | Left panel toggle — match right sidebar pattern | done |
+| S27-2 | Node-level "add relative" plus button | done |
+| S27-3 | Toolbar add person — inline sidebar form | done |
+| S27-4 | Unified smart date input | done |
+| S27-5 | Language autocomplete CSS cleanup | done |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- left panel collapse button is a compact pill (top-right inside panel), expand is a small tab (left edge of canvas) — matches right sidebar
+- hover over tree node reveals + circle below node; click opens sidebar Relationships tab
+- toolbar Add Person opens sidebar form; fill name and Create adds person to tree without navigation
+- empty tree shows prominent + CTA that opens the create form
+- date input is a single text field with calendar icon helper and live precision badge
+- form always sends birth_date_raw/death_date_raw; server parses to ISO
+- clearing a date field clears both raw and ISO values (no orphaned data)
+- language autocomplete works with no duplicate CSS between inline and main.css
+- i18n parity maintained across all 3 locales (en, es, ru)
+- test baselines remain intact
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented all 5 slices on `main`
+- Round 1 audit: NEEDS WORK — 2 P1 (Playwright broken reference, date-clear regression), 2 P2 (duplicate CSS, hardcoded form labels)
+  - Builder fixed all 4 defects
+- Round 2 audit: PASS WITH FOLLOW-UPS — 1 P2 (server-side date-clear orphan), 1 P3 (pre-existing hardcoded search hints)
+  - Builder fixed both defects
+- Round 3 audit: PASS — all 6 prior defects verified resolved, no new P0/P1/P2 findings
+  - 3 pre-existing P3/P4 findings noted (unused search-hint data attribute, ~15 hardcoded English strings in left panel, dead .moment CSS) — backlog items, not S27 regressions
+- Focused closeout baseline:
+  - `uv run pytest -q`: **445 passed, 0 failed**
+  - `uv run pytest tests/test_i18n.py -q`: **3 passed** (locale parity)
+  - Test count delta: 445 → 445 (no backend changes, test count unchanged from S26)
+  - Commit: `cf2009c`
+
+### Deferred to S28
+
+| ID | Title | Reason |
+|---|---|---|
+| G-11 | Fan Chart / Pedigree View | High complexity, alternative D3 layout |
+| G-12 | Duplicate Person Detection and Merge | High complexity, fuzzy matching + merge UX |
+| G-14 | Print / Export Family Sheet | Medium complexity, PDF library decision pending |
+| — | i18n for tree left panel (search, relcalc, legend) | ~15 pre-existing hardcoded strings, backlog hygiene |
+
+### Context
+
+- Plan file: `.claude/plans/spicy-bouncing-llama.md`
+- Key files changed: `tree.html`, `tree.js`, `person_edit.html`, `main.css`, `persons.py`, 3 locale files
+
+---
+
+## Closed Sprint
+
 ### `S26 - Platform Completeness: Tree Fix, Social Fields, Add/Remove Person`
 
 Status: Closed
