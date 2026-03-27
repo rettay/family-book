@@ -1,47 +1,100 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Next Sprint Candidate
+## Current Sprint
 
-### `S26 - Platform Completeness and Power User Tools`
+### `S26 - Family Bios Enhancement and Tree UX`
 
-Status: Candidate
+Status: Closed
 
 ### Sprint Goal
 
-Add power-user tools that complete the platform beyond V1: a fan/pedigree chart view for ancestor-focused browsing, duplicate person detection and merge to maintain data quality at scale, and print/export family sheets for offline research sessions.
+Make Family Bios the definitive biographical surface by expanding to full Wikipedia-style section coverage, adding WYSIWYG rich text editing for narrative fields, and replacing raw JSON editing with structured forms. Complement with a collapsible tree controls panel that matches the existing sidebar pattern.
 
 ### Why This Sprint Next
 
-S25 closed the last genealogy-researcher persona gap (research UX). All V1 product requirements are met. All Tier 1 and Tier 2 gaps from the genealogy review are complete. The remaining Tier 3 gaps (G-11, G-12, G-14) are platform completeness features that make Family Book competitive with dedicated genealogy tools. These are the highest-value improvements available for users who have already built substantial family trees.
+FB-035 just made Family Bios the single read-only view for person data by removing the People listing and detail pages. That makes FB-034 (enhancing the wiki with full person field coverage, rich text editing, and structured forms) the highest-leverage next investment. FB-033 is a quick user-requested UX win that follows the established sidebar-collapse pattern. Tier 3 gaps (G-11 fan chart, G-12 duplicate detection, G-14 print/export) are deferred to S27 — they are high complexity and would overload a sprint that already includes a rich text editor integration and structured form overhaul.
 
-### Candidate Packets
+### Committed Packets
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
-| FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md` |
-| G-11 | Fan Chart / Pedigree View | P2 | Gap triage |
-| G-12 | Duplicate Person Detection and Merge | P2 | Gap triage |
-| G-14 | Print / Export Family Sheet | P3 | Gap triage |
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 33 | FB-033 | Collapsible Tree Controls Panel | P2 | done |
+| 34 | FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | done |
 
-### Candidate Slices
+### Delivered Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S26-1 | Collapsible Tree Controls Panel (FB-033) | candidate |
-| S26-2 | Wiki Section Structure Enhancement (FB-034) | candidate |
-| S26-3 | Trix Rich Text Editor Integration (FB-034) | candidate |
-| S26-4 | Structured Form Editing for JSON Arrays (FB-034) | candidate |
-| S26-5 | Fan Chart / Pedigree View (G-11) | candidate |
-| S26-6 | Duplicate Person Detection and Merge (G-12) | candidate |
-| S26-7 | Print / Export Family Sheet (G-14) | candidate |
+| S26-1 | Collapsible Tree Controls Panel (FB-033) | done |
+| S26-2 | Wiki Section Structure Enhancement (FB-034) | done |
+| S26-3 | Trix Rich Text Editor Integration (FB-034) | done |
+| S26-4 | Structured Form Editing for JSON Arrays (FB-034) | done |
 
-### Open Questions
+### Sprint Exit Criteria
 
-- Should G-12 (duplicate detection) be combined with a data-quality dashboard?
-- What PDF library to use for G-14 — server-side (weasyprint, reportlab) or print CSS?
-- Should G-11 include a descendant fan chart or only ancestor pedigree?
-- Should Trix CDN assets be self-hosted or loaded from jsDelivr?
+The sprint is successful when all are true:
+
+- left tree controls panel has a collapse/expand toggle matching the right sidebar pattern
+- collapse state persists across page reloads via localStorage
+- wiki pages display all 11 sections (summary, early life, education, career, personal life, organizations, physical description, later life, death & legacy, sources, research notes) when data exists
+- summary section shows computed age and languages
+- early life section shows maiden name when different from last_name
+- physical description and sources & citations are new sections surfacing existing model fields
+- death & legacy section includes full burial details
+- Trix WYSIWYG editor loads for bio, obituary, and research_notes in wiki edit mode
+- HTML is sanitized server-side via nh3 before storage
+- rich text content round-trips correctly (edit → save → re-render with formatting)
+- education, career, and organization entries edited via structured form fields (not raw JSON)
+- add/remove entry buttons work for each array type
+- i18n parity maintained across all 3 locales
+- root person redaction maintained across all new sections
+- mobile layout unaffected
+- test baselines remain intact
+
+### Exit Result
+
+- Exit result: `pass`
+- Builder implemented Sprint 26 on `main`
+- First audit: PASS WITH REQUIRED FIXES — 1 P1, 8 P2, 16 P3
+  - Builder fixed all 6 grouped defect items (1 P1, 5 P2/P3)
+- Re-audit: FAIL — 3 new P1 findings in render/revert paths, 4 P2 findings
+  - S2-R01/R02 (P1): Plain-text fields rendered through `|safe` in summary and death-legacy sections — stored XSS
+  - S3-R01 (P1): Revert endpoint bypasses sanitization for rich text fields
+  - S1-R01/R05 (P2): Collapsed panel lacks `visibility:hidden` — remains in tab order
+  - S3-R03 (P2): `sanitize_html(None)` would raise TypeError
+  - S3-R08 (P2): Already had max_length — false positive (bio=2000, obituary=10000, research_notes=5000)
+  - Builder fixed all 4 real findings (3 P1, 1 P2)
+- Final re-audit findings resolved, all acceptance criteria met
+- Focused closeout baseline:
+  - `uv run pytest -q`: **422 passed, 0 failed**
+  - `uv run pytest tests/test_i18n.py -q`: **3 passed** (locale parity)
+  - Test count delta: 401 → 422 (21 new tests added)
+  - New dependency: `nh3` (Rust-based HTML sanitizer)
+  - New module: `app/services/sanitization.py` (shared HTML sanitization)
+
+### Deferred to S27
+
+| ID | Title | Reason |
+|---|---|---|
+| G-11 | Fan Chart / Pedigree View | High complexity, alternative D3 layout |
+| G-12 | Duplicate Person Detection and Merge | High complexity, fuzzy matching + merge UX |
+| G-14 | Print / Export Family Sheet | Medium complexity, PDF library decision pending |
+
+### Resolved Questions
+
+| Question | Decision |
+|---|---|
+| Trix CDN source? | jsDelivr — pinned to trix@2.1.18 with SRI hashes, MIT license |
+| G-12 + data-quality dashboard? | Deferred to S27 scoping |
+| G-14 PDF library? | Deferred to S27 scoping |
+| G-11 descendant fan? | Deferred to S27 scoping |
+
+### Context
+
+- Task packets: `task_packets/FB-033_collapsible_tree_controls_panel.md`, `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md`
+- Sanitization module: `app/services/sanitization.py`
+- Wiki service: `app/services/wiki_service.py`
+- Wiki routes: `app/routes/wiki.py`
 
 ---
 

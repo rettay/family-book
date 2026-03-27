@@ -3,6 +3,10 @@
 import re
 import unicodedata
 
+from markupsafe import escape as _esc
+
+from app.services.date_intelligence_service import compute_current_age, compute_age_at_death
+
 
 def generate_slug(first_name: str | None, last_name: str | None, person_id: str) -> str:
     """Generate URL-safe slug: first-last-shortid."""
@@ -45,40 +49,68 @@ def _empty_section(section_id: str, title: str, edit_fields: list[str] | None = 
 
 
 def build_summary_section(person) -> dict | None:
-    """Auto-generated lead paragraph from name, dates, places."""
+    """Auto-generated lead paragraph from name, dates, places, age, languages."""
     parts = []
-    name = person.display_name
+    name = _esc(person.display_name)
+
+    # Build name line with dates and computed age
     if person.is_living:
+        age = compute_current_age(
+            getattr(person, "birth_date", None),
+            getattr(person, "birth_date_precision", None),
+        )
         if person.birth_date_raw:
-            parts.append(f"{name} (born {person.birth_date_raw})")
+            bdr = _esc(person.birth_date_raw)
+            age_str = f", age {age}" if age is not None else ""
+            parts.append(f"{name} (born {bdr}{age_str})")
         else:
-            parts.append(name)
+            parts.append(str(name))
     else:
+        age = compute_age_at_death(
+            getattr(person, "birth_date", None),
+            getattr(person, "death_date", None),
+            getattr(person, "birth_date_precision", None),
+            getattr(person, "death_date_precision", None),
+        )
         dates = ""
         if person.birth_date_raw and person.death_date_raw:
-            dates = f" ({person.birth_date_raw} – {person.death_date_raw})"
+            bdr = _esc(person.birth_date_raw)
+            ddr = _esc(person.death_date_raw)
+            age_str = f", aged {age}" if age is not None else ""
+            dates = f" ({bdr} \u2013 {ddr}{age_str})"
         elif person.birth_date_raw:
-            dates = f" (born {person.birth_date_raw})"
+            dates = f" (born {_esc(person.birth_date_raw)})"
         elif person.death_date_raw:
-            dates = f" (died {person.death_date_raw})"
+            dates = f" (died {_esc(person.death_date_raw)})"
         parts.append(f"{name}{dates}")
 
+    # Languages
+    languages = getattr(person, "languages", None) or []
+    if languages:
+        parts.append(f"Languages: {', '.join(_esc(lang) for lang in languages)}.")
+
     if person.bio:
-        parts.append(person.bio)
+        parts.append(person.bio)  # Already sanitized via nh3
 
     return _section("summary", "Summary", parts, edit_fields=["bio"])
 
 
 def build_early_life_section(person, parents: list) -> dict | None:
-    """Birth info and parents."""
+    """Birth info, maiden name, and parents."""
     lines = []
     if person.birth_place:
-        born_in = f"Born in {person.birth_place}"
+        born_in = f"Born in {_esc(person.birth_place)}"
         if person.birth_country_code:
-            born_in += f" ({person.birth_country_code.upper()})"
+            born_in += f" ({_esc(person.birth_country_code.upper())})"
         lines.append(born_in + ".")
+
+    # Maiden name (birth_last_name) when different from current last_name
+    birth_last_name = getattr(person, "birth_last_name", None)
+    if birth_last_name and birth_last_name != getattr(person, "last_name", None):
+        lines.append(f"Born as {_esc(birth_last_name)}.")
+
     if parents:
-        parent_names = [p.display_name for p in parents]
+        parent_names = [_esc(p.display_name) for p in parents]
         if len(parent_names) == 1:
             lines.append(f"Child of {parent_names[0]}.")
         elif len(parent_names) == 2:
@@ -88,9 +120,9 @@ def build_early_life_section(person, parents: list) -> dict | None:
 
     if not lines:
         return _empty_section("early-life", "Early Life",
-                              edit_fields=["birth_place", "birth_country_code", "birth_date_raw"])
+                              edit_fields=["birth_place", "birth_country_code", "birth_date_raw", "birth_last_name"])
     return _section("early-life", "Early Life", lines,
-                    edit_fields=["birth_place", "birth_country_code", "birth_date_raw"])
+                    edit_fields=["birth_place", "birth_country_code", "birth_date_raw", "birth_last_name"])
 
 
 def build_education_section(person) -> dict | None:
@@ -102,11 +134,16 @@ def build_education_section(person) -> dict | None:
         parts = []
         if isinstance(entry, dict):
             if entry.get("degree"):
-                parts.append(entry["degree"])
+                parts.append(str(_esc(entry["degree"])))
             if entry.get("institution"):
-                parts.append(f"at {entry['institution']}")
+                parts.append(f"at {_esc(entry['institution'])}")
             if entry.get("year"):
-                parts.append(f"({entry['year']})")
+                parts.append(f"({_esc(entry['year'])})")
+            elif entry.get("year_start"):
+                year_range = str(_esc(entry["year_start"]))
+                if entry.get("year_end"):
+                    year_range += f"\u2013{_esc(entry['year_end'])}"
+                parts.append(f"({year_range})")
         if parts:
             lines.append(" ".join(parts))
     return _section("education", "Education", lines, edit_fields=["education"])
@@ -121,37 +158,53 @@ def build_career_section(person) -> dict | None:
         parts = []
         if isinstance(entry, dict):
             if entry.get("title"):
-                parts.append(entry["title"])
+                parts.append(str(_esc(entry["title"])))
             if entry.get("company"):
-                parts.append(f"at {entry['company']}")
+                parts.append(f"at {_esc(entry['company'])}")
+            elif entry.get("employer"):
+                parts.append(f"at {_esc(entry['employer'])}")
             if entry.get("years"):
-                parts.append(f"({entry['years']})")
+                parts.append(f"({_esc(entry['years'])})")
+            elif entry.get("year_start"):
+                year_range = str(_esc(entry["year_start"]))
+                if entry.get("year_end"):
+                    year_range += f"\u2013{_esc(entry['year_end'])}"
+                parts.append(f"({year_range})")
         if parts:
             lines.append(" ".join(parts))
     return _section("career", "Career", lines, edit_fields=["career"])
 
 
 def build_personal_life_section(person, partnerships: list, children: list) -> dict | None:
-    """Partnerships and children."""
+    """Partnerships, children, and residence."""
     lines = []
     for p in partnerships:
         partner = p.get("partner")
         if partner:
             verb = "Married" if p.get("type") == "married" else "Partner of"
-            line = f"{verb} {partner.display_name}"
+            line = f"{verb} {_esc(partner.display_name)}"
             if p.get("start_date"):
-                line += f" ({p['start_date']})"
+                line += f" ({_esc(str(p['start_date']))})"
             lines.append(line + ".")
     if children:
-        child_names = [c.display_name for c in children]
+        child_names = [_esc(c.display_name) for c in children]
         if len(child_names) == 1:
             lines.append(f"Has one child: {child_names[0]}.")
         else:
             lines.append(f"Has {len(child_names)} children: {', '.join(child_names)}.")
 
+    # Residence info
+    if person.residence_place:
+        res_line = f"Resides in {_esc(person.residence_place)}"
+        if getattr(person, "residence_country_code", None):
+            res_line += f" ({_esc(person.residence_country_code.upper())})"
+        lines.append(res_line + ".")
+
     if not lines:
-        return _empty_section("personal-life", "Personal Life", edit_fields=[])
-    return _section("personal-life", "Personal Life", lines, edit_fields=[])
+        return _empty_section("personal-life", "Personal Life",
+                              edit_fields=["residence_place", "residence_country_code"])
+    return _section("personal-life", "Personal Life", lines,
+                    edit_fields=["residence_place", "residence_country_code"])
 
 
 def build_organizations_section(person) -> dict | None:
@@ -163,58 +216,97 @@ def build_organizations_section(person) -> dict | None:
         parts = []
         if isinstance(entry, dict):
             if entry.get("name"):
-                parts.append(entry["name"])
+                parts.append(str(_esc(entry["name"])))
             if entry.get("role"):
-                parts.append(f"({entry['role']})")
+                parts.append(f"({_esc(entry['role'])})")
         if parts:
             lines.append(" ".join(parts))
     return _section("organizations", "Organizations", lines, edit_fields=["organizations"])
 
 
-def build_later_life_section(person) -> dict | None:
-    """Residence and health overview."""
+def build_physical_description_section(person) -> dict | None:
+    """Physical attributes: height, weight, eye/hair color, blood type."""
     lines = []
-    if person.residence_place:
-        line = f"Resides in {person.residence_place}"
-        if getattr(person, "residence_country_code", None):
-            line += f" ({person.residence_country_code.upper()})"
-        lines.append(line + ".")
+    if getattr(person, "height", None):
+        lines.append(f"Height: {_esc(person.height)}.")
+    if getattr(person, "weight", None):
+        lines.append(f"Weight: {_esc(person.weight)}.")
+    if getattr(person, "eye_color", None):
+        lines.append(f"Eye color: {_esc(person.eye_color)}.")
+    if getattr(person, "hair_color", None):
+        lines.append(f"Hair color: {_esc(person.hair_color)}.")
+    if getattr(person, "blood_type", None):
+        lines.append(f"Blood type: {_esc(person.blood_type)}.")
+
+    if not lines:
+        return _empty_section("physical-description", "Physical Description",
+                              edit_fields=["height", "weight", "eye_color", "hair_color", "blood_type"])
+    return _section("physical-description", "Physical Description", lines,
+                    edit_fields=["height", "weight", "eye_color", "hair_color", "blood_type"])
+
+
+def build_later_life_section(person) -> dict | None:
+    """Health overview (condition names only)."""
+    lines = []
 
     conditions = getattr(person, "medical_conditions", None) or []
     if conditions:
-        condition_names = [c.get("condition", "") for c in conditions if isinstance(c, dict) and c.get("condition")]
+        condition_names = [str(_esc(c.get("condition", ""))) for c in conditions if isinstance(c, dict) and c.get("condition")]
         if condition_names:
             lines.append(f"Known health conditions: {', '.join(condition_names)}.")
 
     if not lines:
         return None
-    return _section("later-life", "Later Life", lines,
-                    edit_fields=["residence_place", "residence_country_code"])
+    return _section("later-life", "Later Life", lines, edit_fields=[])
 
 
 def build_death_section(person) -> dict | None:
-    """Death date, burial, obituary."""
+    """Death date, full burial details, obituary."""
     lines = []
     if person.death_date_raw:
-        lines.append(f"Died {person.death_date_raw}.")
+        lines.append(f"Died {_esc(person.death_date_raw)}.")
     if person.burial_place:
-        burial = f"Buried at {person.burial_place}"
+        burial = f"Buried at {_esc(person.burial_place)}"
         if getattr(person, "burial_cemetery_name", None):
-            burial += f" ({person.burial_cemetery_name})"
+            burial += f" ({_esc(person.burial_cemetery_name)})"
+        if getattr(person, "burial_country_code", None):
+            burial += f", {_esc(person.burial_country_code.upper())}"
         lines.append(burial + ".")
+    if getattr(person, "burial_plot_number", None):
+        lines.append(f"Plot: {_esc(person.burial_plot_number)}.")
     if person.obituary:
-        lines.append(person.obituary)
+        lines.append(person.obituary)  # Already sanitized via nh3
+    if getattr(person, "obituary_source", None):
+        lines.append(f"Source: {_esc(person.obituary_source)}.")
 
     if not lines:
         return None
     return _section("death-legacy", "Death & Legacy", lines,
-                    edit_fields=["death_date_raw", "burial_place", "obituary"])
+                    edit_fields=["death_date_raw", "burial_place", "burial_cemetery_name",
+                                 "burial_country_code", "burial_plot_number", "obituary", "obituary_source"])
+
+
+def build_sources_section(person) -> dict | None:
+    """Source citations and confidence level."""
+    lines = []
+    if getattr(person, "source_detail", None):
+        lines.append(str(_esc(person.source_detail)))
+    confidence = getattr(person, "confidence", None)
+    if confidence:
+        lines.append(f"Confidence: {_esc(confidence)}.")
+
+    if not lines:
+        return _empty_section("sources", "Sources & Citations",
+                              edit_fields=["source_detail", "confidence"])
+    return _section("sources", "Sources & Citations", lines,
+                    edit_fields=["source_detail", "confidence"])
 
 
 def build_research_section(person) -> dict | None:
     """Research notes."""
     if not person.research_notes:
-        return None
+        return _empty_section("research-notes", "Research Notes",
+                              edit_fields=["research_notes"])
     return _section("research-notes", "Research Notes", [person.research_notes],
                     edit_fields=["research_notes"])
 
@@ -299,48 +391,64 @@ async def get_partnerships(db, person_id: str):
 
 
 async def assemble_wiki_sections(db, person, current_user) -> list[dict]:
-    """Assemble biographical sections from structured data."""
+    """Assemble biographical sections from structured data — 11 Wikipedia-style sections."""
     sections = []
 
+    # 1. Summary (always present — has name at minimum)
     summary = build_summary_section(person)
     if summary:
         sections.append(summary)
 
+    # 2. Early Life
     parents = await get_parents(db, person.id)
     early = build_early_life_section(person, parents)
     if early:
         sections.append(early)
 
-    if person.education:
-        edu = build_education_section(person)
-        if edu:
-            sections.append(edu)
+    # 3. Education
+    edu = build_education_section(person)
+    if edu:
+        sections.append(edu)
 
-    if person.career:
-        career = build_career_section(person)
-        if career:
-            sections.append(career)
+    # 4. Career
+    career = build_career_section(person)
+    if career:
+        sections.append(career)
 
+    # 5. Personal Life
     partnerships = await get_partnerships(db, person.id)
     children = await get_children(db, person.id)
     personal = build_personal_life_section(person, partnerships, children)
     if personal:
         sections.append(personal)
 
-    if person.organizations:
-        orgs = build_organizations_section(person)
-        if orgs:
-            sections.append(orgs)
+    # 6. Organizations
+    orgs = build_organizations_section(person)
+    if orgs:
+        sections.append(orgs)
 
+    # 7. Physical Description (NEW)
+    phys = build_physical_description_section(person)
+    if phys:
+        sections.append(phys)
+
+    # 8. Later Life
     later = build_later_life_section(person)
     if later:
         sections.append(later)
 
+    # 9. Death & Legacy
     if not person.is_living:
         death = build_death_section(person)
         if death:
             sections.append(death)
 
+    # 10. Sources & Citations (NEW)
+    sources = build_sources_section(person)
+    if sources:
+        sections.append(sources)
+
+    # 11. Research Notes
     research = build_research_section(person)
     if research:
         sections.append(research)

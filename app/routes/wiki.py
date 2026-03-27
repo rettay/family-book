@@ -1,7 +1,9 @@
 """Wiki routes — index page and person wiki pages."""
 
+import json
 import logging
 import os
+import re
 
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.exceptions import HTTPException
@@ -17,7 +19,10 @@ from app.models.person import Person, PersonLifecycleState, Visibility
 from app.access_control import get_person_access, can_manage_person
 from app.services.wiki_service import assemble_wiki_sections
 from app.services.revision_service import serialize_person_snapshot, record_revision
+from app.services.sanitization import RICH_TEXT_FIELDS as _RICH_TEXT_FIELDS, sanitize_html
 from app.services.theme_service import get_runtime_theme_from_app
+from pydantic import ValidationError
+from app.schemas import EducationEntry, CareerEntry, OrganizationEntry
 from app.i18n import translate
 
 router = APIRouter(tags=["wiki"])
@@ -160,17 +165,72 @@ async def wiki_person_api(
 # Map section IDs to person fields
 SECTION_FIELD_MAP = {
     "summary": ["bio"],
-    "early-life": ["birth_place", "birth_country_code", "birth_date_raw"],
+    "early-life": ["birth_place", "birth_country_code", "birth_date_raw", "birth_last_name"],
     "education": ["education"],
     "career": ["career"],
+    "personal-life": ["residence_place", "residence_country_code"],
     "organizations": ["organizations"],
-    "later-life": ["residence_place", "residence_country_code"],
-    "death-legacy": ["death_date_raw", "burial_place", "burial_cemetery_name", "obituary"],
+    "physical-description": ["height", "weight", "eye_color", "hair_color", "blood_type"],
+    "death-legacy": ["death_date_raw", "burial_place", "burial_cemetery_name",
+                      "burial_country_code", "burial_plot_number", "obituary", "obituary_source"],
+    "sources": ["source_detail", "confidence"],
     "research-notes": ["research_notes"],
 }
 
 # JSON array fields that need special handling
 _JSON_ARRAY_FIELDS = {"education", "career", "organizations"}
+
+# Pydantic models for validation of array entries
+_ARRAY_ENTRY_MODELS = {
+    "education": EducationEntry,
+    "career": CareerEntry,
+    "organizations": OrganizationEntry,
+}
+
+
+def _parse_indexed_form_fields(form, field_name: str) -> list[dict] | None:
+    """Parse indexed form fields like education[0].institution into a list of dicts.
+
+    Returns None if no matching keys found (allows fallback to raw JSON).
+    """
+    pattern = re.compile(rf"^{re.escape(field_name)}\[(\d+)\]\.(\w+)$")
+    entries: dict[int, dict] = {}
+    found = False
+    for key in form:
+        m = pattern.match(key)
+        if m:
+            found = True
+            idx = int(m.group(1))
+            subfield = m.group(2)
+            value = form[key].strip() if form[key] else ""
+            if idx not in entries:
+                entries[idx] = {}
+            if value:
+                entries[idx][subfield] = value
+    if not found:
+        return None
+    # Return entries sorted by index, filtering out empty entries
+    return [entries[i] for i in sorted(entries.keys()) if entries[i]]
+
+
+def _validate_array_entries(field_name: str, entries: list[dict]) -> list[dict]:
+    """Validate and whitelist array entries through Pydantic models.
+
+    Raises HTTPException(422) if validation fails (e.g. max_length exceeded).
+    """
+    model_cls = _ARRAY_ENTRY_MODELS.get(field_name)
+    if not model_cls:
+        return entries
+    validated = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        try:
+            obj = model_cls.model_validate(entry)
+        except ValidationError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        validated.append(obj.model_dump(exclude_none=True))
+    return validated
 
 
 async def _get_person_for_edit(slug: str, current_user: Person, db: AsyncSession) -> Person:
@@ -230,15 +290,29 @@ async def wiki_save_section(
     form = await request.form()
 
     for field in fields:
-        if field in form:
-            value = form[field].strip() if form[field] else None
-            if field in _JSON_ARRAY_FIELDS:
-                import json
+        if field in _JSON_ARRAY_FIELDS:
+            # Parse structured form fields: fieldname[idx].key = value
+            parsed = _parse_indexed_form_fields(form, field)
+            if parsed is not None:
+                validated = _validate_array_entries(field, parsed)
+                setattr(person, field, validated)
+            elif field in form:
+                # Fallback: try raw JSON (backward compat)
+                value = form[field].strip() if form[field] else None
                 try:
                     value = json.loads(value) if value else []
                 except json.JSONDecodeError:
                     value = getattr(person, field, [])
+                if isinstance(value, list):
+                    value = _validate_array_entries(field, value)
                 setattr(person, field, value)
+            else:
+                # No indexed fields and no raw JSON — user removed all entries
+                setattr(person, field, [])
+        elif field in form:
+            value = form[field].strip() if form[field] else None
+            if field in _RICH_TEXT_FIELDS and value:
+                setattr(person, field, sanitize_html(value))
             else:
                 setattr(person, field, value if value else None)
 

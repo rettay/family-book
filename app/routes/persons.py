@@ -27,6 +27,7 @@ from app.schemas import (
 )
 from app.services.audit_service import log_audit
 from app.services.field_protection import decrypt_string
+from app.services.sanitization import RICH_TEXT_FIELDS, sanitize_html
 from app.services.revision_service import (
     PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS,
     apply_person_snapshot,
@@ -239,14 +240,14 @@ async def create_person(
         burial_country_code=body.burial_country_code,
         burial_cemetery_name=body.burial_cemetery_name,
         burial_plot_number=body.burial_plot_number,
-        bio=body.bio,
-        research_notes=body.research_notes,
+        bio=sanitize_html(body.bio) if body.bio else body.bio,
+        research_notes=sanitize_html(body.research_notes) if body.research_notes else body.research_notes,
         medical_history=body.medical_history,
         contact_whatsapp=body.contact_whatsapp,
         contact_telegram=body.contact_telegram,
         contact_signal=body.contact_signal,
         contact_email=body.contact_email,
-        obituary=body.obituary,
+        obituary=sanitize_html(body.obituary) if body.obituary else body.obituary,
         obituary_source=body.obituary_source,
         height=body.height,
         weight=body.weight,
@@ -329,6 +330,8 @@ async def update_person(
         person.medical_conditions = _strip_none_entries(update_data.pop("medical_conditions"))
 
     for field, value in update_data.items():
+        if field in RICH_TEXT_FIELDS and value:
+            value = sanitize_html(value)
         setattr(person, field, value)
 
     await db.flush()

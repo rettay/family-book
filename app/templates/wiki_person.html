@@ -57,9 +57,15 @@
       </h2>
       <div class="wiki-section__content">
         {% if section.content %}
+        {% if section.id in ('summary', 'death-legacy', 'research-notes') %}
+        {% for line in section.content.split('\n') %}
+        <p>{{ line | safe }}</p>
+        {% endfor %}
+        {% else %}
         {% for line in section.content.split('\n') %}
         <p>{{ line }}</p>
         {% endfor %}
+        {% endif %}
         {% else %}
         {% if can_edit and section.edit_fields %}
         <p class="wiki-section__empty">

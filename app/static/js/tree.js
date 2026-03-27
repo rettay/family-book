@@ -1989,6 +1989,47 @@
     }
   };
 
+  // ── Left Panel Collapse / Expand ────────────────────────────────────
+
+  var PANEL_COLLAPSED_KEY = 'treePanelCollapsed';
+  var treeLayout = document.getElementById('tree-root');
+
+  function restoreTreePanelState() {
+    try {
+      if (localStorage.getItem(PANEL_COLLAPSED_KEY) === '1') {
+        collapseTreePanelSilent();
+      }
+    } catch (e) { /* localStorage unavailable */ }
+  }
+
+  function collapseTreePanelSilent() {
+    if (!treeLayout) return;
+    treeLayout.classList.add('tree-layout--panel-collapsed');
+    var expandTab = document.getElementById('panel-expand-tab');
+    if (expandTab) { expandTab.hidden = false; expandTab.setAttribute('aria-expanded', 'false'); }
+    var collapseBtn = document.getElementById('tree-panel-collapse');
+    if (collapseBtn) collapseBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  window.collapseTreePanel = function() {
+    collapseTreePanelSilent();
+    try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
+    var expandTab = document.getElementById('panel-expand-tab');
+    if (expandTab) expandTab.focus();
+  };
+
+  window.expandTreePanel = function() {
+    if (!treeLayout) return;
+    treeLayout.classList.remove('tree-layout--panel-collapsed');
+    var expandTab = document.getElementById('panel-expand-tab');
+    if (expandTab) { expandTab.hidden = true; expandTab.setAttribute('aria-expanded', 'true'); }
+    try { localStorage.setItem(PANEL_COLLAPSED_KEY, '0'); } catch (e) {}
+    var collapseBtn = document.getElementById('tree-panel-collapse');
+    if (collapseBtn) { collapseBtn.setAttribute('aria-expanded', 'true'); collapseBtn.focus(); }
+  };
+
+  restoreTreePanelState();
+
   // ── External Records Search ─────────────────────────────────────────
 
   var SOURCE_LABELS = {

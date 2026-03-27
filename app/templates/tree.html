@@ -13,7 +13,56 @@
     background: rgba(255, 248, 237, 0.95);
     border-right: 1px solid rgba(45, 80, 22, 0.12);
     overflow-y: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease;
   }
+  .tree-layout--panel-collapsed .tree-panel {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 340px;
+  }
+  .tree-layout--panel-collapsed {
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+  .tree-panel__collapse-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(45, 80, 22, 0.08);
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #6b6054;
+    padding: 6px 10px;
+    border-radius: 999px;
+    transition: all 0.2s ease;
+    z-index: 2;
+  }
+  .tree-panel__collapse-btn:hover { background: rgba(45, 80, 22, 0.15); color: #2d5016; }
+  .tree-panel__collapse-btn:focus-visible { outline: 2px solid #2d5016; outline-offset: 2px; }
+  .panel-expand-tab {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 19;
+    transform: translateY(-50%);
+    background: rgba(255, 248, 237, 0.95);
+    border: 1px solid rgba(45, 80, 22, 0.12);
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    padding: 12px 6px;
+    cursor: pointer;
+    color: #6b6054;
+    font-size: 0.85rem;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+  }
+  .panel-expand-tab:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
+  .panel-expand-tab:focus-visible { outline: 2px solid #2d5016; outline-offset: 2px; }
   .tree-panel__group {
     margin-bottom: 1rem;
     padding: 0.9rem;
@@ -130,6 +179,15 @@
     .tree-layout {
       grid-template-columns: 1fr;
     }
+    .tree-layout--panel-collapsed { grid-template-columns: 1fr; }
+    .tree-layout--panel-collapsed .tree-panel {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+      position: static;
+      width: auto;
+    }
     .tree-panel {
       border-right: 0;
       border-bottom: 1px solid rgba(45, 80, 22, 0.12);
@@ -139,6 +197,8 @@
       min-height: 70vh;
       height: 70vh;
     }
+    .tree-panel__collapse-btn,
+    .panel-expand-tab { display: none; }
   }
 </style>
 {% endblock %}
@@ -188,7 +248,8 @@
   data-tree-search-no-results="No matching people found"
   data-tree-search-hint="Type a name to search"
 >
-  <aside class="tree-panel">
+  <aside class="tree-panel" id="tree-panel-content" style="position:relative;">
+    <button class="tree-panel__collapse-btn" type="button" id="tree-panel-collapse" aria-label="Collapse controls panel" aria-expanded="true" aria-controls="tree-panel-content" title="Collapse controls panel" onclick="collapseTreePanel()">&#x276E;</button>
     <section class="tree-panel__group">
       <h2 class="tree-panel__title">Search Tree</h2>
       <div class="tree-search" id="tree-search">
@@ -275,6 +336,7 @@
   </aside>
 
   <div class="tree-canvas">
+    <button class="panel-expand-tab" id="panel-expand-tab" type="button" aria-label="Expand controls panel" aria-expanded="false" aria-controls="tree-panel-content" title="Expand controls panel" onclick="expandTreePanel()" hidden>&#x276F;</button>
     <div class="tree-page" id="tree-page">
       <div class="tree-controls">
         <button type="button" onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}" aria-label="{{ t('tree.zoom_in') }}">+</button>

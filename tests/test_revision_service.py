@@ -37,3 +37,25 @@ def test_apply_person_snapshot_restores_sensitive_fields():
     assert target.medical_history == "Sensitive family note"
     assert target.contact_email == "history@example.com"
     assert target.contact_signal == "+15551234567"
+
+
+def test_apply_person_snapshot_sanitizes_rich_text():
+    """Revert path sanitizes bio/obituary/research_notes (S3-R01)."""
+    source = Person(
+        first_name="XSS",
+        last_name="Revert",
+        bio='<p>Safe</p><script>alert("xss")</script>',
+        obituary='<em>Rest</em><iframe src="evil"></iframe>',
+        research_notes='<strong>Note</strong><img src=x onerror=alert(1)>',
+    )
+    snapshot = serialize_person_snapshot(source)
+
+    target = Person(first_name="Blank", last_name="Person")
+    apply_person_snapshot(target, snapshot)
+
+    assert "<script>" not in target.bio
+    assert "<p>Safe</p>" in target.bio
+    assert "<iframe" not in target.obituary
+    assert "<em>Rest</em>" in target.obituary
+    assert "<img" not in target.research_notes
+    assert "<strong>Note</strong>" in target.research_notes

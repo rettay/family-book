@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.person import Person
 from app.models.revisions import EntityRevision
 from app.services.field_protection import decrypt_mapping_fields, decrypt_string, encrypt_mapping_fields, encrypt_string
+from app.services.sanitization import RICH_TEXT_FIELDS, sanitize_html
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +120,10 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
             snapshot[field] = json.loads(decrypted) if decrypted else []
     for field in PERSON_MUTABLE_FIELDS:
         if field in snapshot:
-            setattr(person, field, snapshot[field])
+            value = snapshot[field]
+            if field in RICH_TEXT_FIELDS and value:
+                value = sanitize_html(value)
+            setattr(person, field, value)
     if "languages" in snapshot:
         person.languages = snapshot["languages"] or []
     if "education" in snapshot:

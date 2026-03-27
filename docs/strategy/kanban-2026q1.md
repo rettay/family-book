@@ -2,10 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
-| FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md` |
+None.
 
 ## In Progress
 
@@ -19,6 +16,8 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
+| FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md` |
 | FB-035 | UI Cleanup: Rebrand Wiki, Remove Moments/People/Health | P1 | Interstitial — `.claude/plans/spicy-bouncing-llama.md` |
 | FB-031 | Research Tools UX Overhaul | P1 | `task_packets/FB-031_research_tools_ux_overhaul.md` |
 | FB-032 | i18n Test Parity | P2 | `task_packets/FB-032_i18n_test_parity.md` |
