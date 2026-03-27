@@ -2058,6 +2058,12 @@
     if (expandTab) expandTab.hidden = !collapsed;
   }
 
+  function _rerenderAfterPanelTransition() {
+    setTimeout(function() {
+      if (treeData) render();
+    }, 350);
+  }
+
   function collapseTreePanelSilent() {
     if (!treeLayout) return;
     treeLayout.classList.add('tree-layout--panel-collapsed');
@@ -2084,6 +2090,7 @@
       _updatePanelToggleUI(true);
       try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
     }
+    _rerenderAfterPanelTransition();
   };
 
   // Keep old names as aliases for backwards compatibility
@@ -2092,6 +2099,7 @@
     treeLayout.classList.add('tree-layout--panel-collapsed');
     _updatePanelToggleUI(true);
     try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
+    _rerenderAfterPanelTransition();
   };
 
   window.expandTreePanel = function() {
@@ -2099,6 +2107,7 @@
     treeLayout.classList.remove('tree-layout--panel-collapsed');
     _updatePanelToggleUI(false);
     try { localStorage.setItem(PANEL_COLLAPSED_KEY, '0'); } catch (e) {}
+    _rerenderAfterPanelTransition();
   };
 
   restoreTreePanelState();

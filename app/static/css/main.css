@@ -708,7 +708,8 @@ body.has-overlay { overflow: hidden; }
 
 /* ===== Tree ===== */
 .tree-page {
-  position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0;
+  position: relative;
+  height: calc(100vh - var(--nav-h));
   background: var(--bg); overflow: hidden;
 }
 .tree-controls {
