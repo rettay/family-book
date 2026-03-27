@@ -76,7 +76,7 @@
           <span id="profile-initials">{{ person.display_name[:2] }}</span>
           {% endif %}
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" onclick="document.getElementById('profile-photo-input').click()">Change Photo</button>
+        <button type="button" class="btn btn--secondary btn--sm" onclick="document.getElementById('profile-photo-input').click()">{{ t('person.change_photo') }}</button>
         <input type="file" id="profile-photo-input" accept="image/*" class="hidden"
                onchange="uploadProfilePhoto(this)">
       </div>
@@ -134,7 +134,7 @@
                      {% if person.birth_date and not (person.birth_date_precision == 'approximate' or person.birth_date_precision == 'month' or person.birth_date_precision == 'year') %}style="display:none"{% elif not person.birth_date_raw and not person.birth_date %}style="display:none"{% endif %}>
             </div>
             <button type="button" class="date-input-group__toggle" id="birth-date-toggle"
-                    onclick="toggleDateMode('birth')">Freeform</button>
+                    onclick="toggleDateMode('birth')">{{ t('person.date_mode_freeform') }}</button>
           </div>
         </div>
         <div class="form-group">
@@ -150,7 +150,7 @@
                      {% if person.death_date and not (person.death_date_precision == 'approximate' or person.death_date_precision == 'month' or person.death_date_precision == 'year') %}style="display:none"{% elif not person.death_date_raw and not person.death_date %}style="display:none"{% endif %}>
             </div>
             <button type="button" class="date-input-group__toggle" id="death-date-toggle"
-                    onclick="toggleDateMode('death')">Freeform</button>
+                    onclick="toggleDateMode('death')">{{ t('person.date_mode_freeform') }}</button>
           </div>
         </div>
       </div>
@@ -168,12 +168,12 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-birth-country">Birth Country (2-letter code)</label>
+          <label for="edit-birth-country">{{ t('person.birth_country') }} (2-letter code)</label>
           <input type="text" class="form-input" id="edit-birth-country" name="birth_country_code" maxlength="2"
                  value="{{ person.birth_country_code or '' }}" placeholder="CA, RU, ES...">
         </div>
         <div class="form-group">
-          <label for="edit-residence-country">Residence Country</label>
+          <label for="edit-residence-country">{{ t('person.residence_country') }}</label>
           <input type="text" class="form-input" id="edit-residence-country" name="residence_country_code" maxlength="2"
                  value="{{ person.residence_country_code or '' }}" placeholder="CA, RU, ES...">
         </div>
@@ -185,12 +185,12 @@
       </div>
 
       <div class="form-group">
-        <label for="edit-research-notes">Research Notes</label>
+        <label for="edit-research-notes">{{ t('person.research_notes_label') }}</label>
         <textarea class="form-textarea" id="edit-research-notes" name="research_notes" rows="4" placeholder="Working notes about genealogy research for this person...">{{ person.research_notes or '' }}</textarea>
       </div>
 
       <div class="form-group">
-        <label for="edit-medical-history">Medical History</label>
+        <label for="edit-medical-history">{{ t('person.medical_history') }}</label>
         <textarea class="form-textarea" id="edit-medical-history" name="medical_history" rows="4">{{ person.medical_history or '' }}</textarea>
       </div>
 
@@ -408,26 +408,26 @@
         </div>
       </div>
 
-      <h3 class="form-section-title">Burial Details</h3>
+      <h3 class="form-section-title">{{ t('person.burial_details') }}</h3>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-burial-place">Burial Place</label>
+          <label for="edit-burial-place">{{ t('person.burial_place') }}</label>
           <input type="text" class="form-input" id="edit-burial-place" name="burial_place" value="{{ person.burial_place or '' }}">
         </div>
         <div class="form-group">
-          <label for="edit-burial-cemetery">Cemetery Name</label>
+          <label for="edit-burial-cemetery">{{ t('person.burial_cemetery_name') }}</label>
           <input type="text" class="form-input" id="edit-burial-cemetery" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-burial-plot">Plot Number</label>
+          <label for="edit-burial-plot">{{ t('person.burial_plot_number') }}</label>
           <input type="text" class="form-input" id="edit-burial-plot" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
         </div>
         <div class="form-group">
-          <label for="edit-burial-country">Burial Country</label>
+          <label for="edit-burial-country">{{ t('person.burial_country') }}</label>
           <input type="text" class="form-input" id="edit-burial-country" name="burial_country_code" maxlength="2"
                  value="{{ person.burial_country_code or '' }}" placeholder="US, MX, ES...">
         </div>
@@ -435,7 +435,7 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-branch">Branch</label>
+          <label for="edit-branch">{{ t('person.branch') }}</label>
           <input type="text" class="form-input" id="edit-branch" name="branch" value="{{ person.branch or '' }}">
         </div>
       </div>
@@ -443,11 +443,11 @@
       {% if current_user.is_admin %}
       <div class="form-row">
         <div class="form-group">
-          <label for="edit-visibility">Visibility</label>
+          <label for="edit-visibility">{{ t('person.visibility') }}</label>
           <select class="form-select" id="edit-visibility" name="visibility">
-            <option value="visible" {% if person.visibility == 'visible' %}selected{% endif %}>Visible</option>
-            <option value="hidden" {% if person.visibility == 'hidden' %}selected{% endif %}>Hidden</option>
-            <option value="memorial" {% if person.visibility == 'memorial' %}selected{% endif %}>Memorial</option>
+            <option value="visible" {% if person.visibility == 'visible' %}selected{% endif %}>{{ t('person.visibility_visible') }}</option>
+            <option value="hidden" {% if person.visibility == 'hidden' %}selected{% endif %}>{{ t('person.visibility_hidden') }}</option>
+            <option value="memorial" {% if person.visibility == 'memorial' %}selected{% endif %}>{{ t('person.visibility_memorial') }}</option>
           </select>
         </div>
       </div>
@@ -497,11 +497,11 @@ function initDateMode(prefix) {
   if (dateState[prefix] === 'freeform') {
     cal.style.display = 'none';
     free.style.display = '';
-    toggle.textContent = 'Calendar';
+    toggle.textContent = '{{ t("person.date_mode_calendar") }}';
   } else {
     cal.style.display = '';
     free.style.display = 'none';
-    toggle.textContent = 'Freeform';
+    toggle.textContent = '{{ t("person.date_mode_freeform") }}';
   }
 }
 
@@ -755,7 +755,7 @@ async function uploadProfilePhoto(input) {
   fd.append('person_id', '{{ person.id }}');
   var resp = await fetch('/api/media', {method: 'POST', body: fd});
   if (resp.ok) {
-    showToast('Photo uploaded');
+    showToast('{{ t("person.photo_uploaded") }}');
     window.location.reload();
   }
 }

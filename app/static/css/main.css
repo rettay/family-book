@@ -2421,6 +2421,17 @@ body.has-overlay { overflow: hidden; }
 .wiki-infobox__table { width: 100%; padding: 0 14px 14px; border-collapse: collapse; }
 .wiki-infobox__table th { text-align: left; font-size: 0.78rem; color: var(--text-muted); font-weight: 600; padding: 4px 8px 4px 0; white-space: nowrap; vertical-align: top; }
 .wiki-infobox__table td { font-size: 0.85rem; padding: 4px 0; }
+.wiki-infobox__social { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px 14px; }
+.wiki-infobox__social-link {
+  display: inline-block;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  background: var(--border-light, #e8e3da);
+  border-radius: 4px;
+  color: var(--text);
+  text-decoration: none;
+}
+.wiki-infobox__social-link:hover { background: var(--green-pale, #e0ebe0); color: var(--green-deep); }
 
 /* Wiki Sections */
 .wiki-section { margin-bottom: 24px; clear: none; }
@@ -2439,6 +2450,14 @@ body.has-overlay { overflow: hidden; }
 .wiki-edit-form__textarea { width: 100%; min-height: 80px; resize: vertical; }
 .wiki-edit-form__hint { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
 .wiki-edit-form__actions { display: flex; gap: 8px; margin-top: 12px; }
+.wiki-edit-form__trix {
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  min-height: 120px;
+  padding: 8px;
+  background: var(--surface, #fff);
+}
+.wiki-edit-form__trix:focus-within { border-color: var(--accent, #7c6f5b); }
 
 @media (max-width: 640px) {
   .wiki-infobox { float: none; width: 100%; margin: 0 0 16px 0; }
