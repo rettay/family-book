@@ -1,0 +1,125 @@
+version: 1
+default_resolution_order:
+  - family_admin
+  - contributing_member
+  - genealogy_researcher
+  - mobile_first_relative
+
+personas:
+  - id: family_admin
+    label: Family Admin
+    source_doc: /Users/cheech/code/family-book/foundation/PERSONAS.md
+    role: admin
+    summary: Organizer responsible for invites, settings, and keeping the shared family space coherent.
+    devices:
+      primary: desktop
+      supported:
+        - desktop
+        - tablet
+    locales:
+      primary: en
+      secondary:
+        - es
+    confidence_level: high
+    patience_level: medium
+    goals:
+      - invite and manage family accounts
+      - maintain shared tree accuracy
+      - verify that collaborative changes are visible to other members
+      - keep settings and policy understandable
+    risks:
+      - permission or moderation controls are inconsistent across surfaces
+      - admin workflows rely on hidden or poorly labeled actions
+      - changes appear saved locally but not shared correctly
+    success_signals:
+      - completes core admin task without needing undocumented steps
+      - can confirm member-facing effect of admin action
+      - does not encounter misleading or contradictory UI states
+
+  - id: contributing_member
+    label: Contributing Family Member
+    source_doc: /Users/cheech/code/family-book/foundation/PERSONAS.md
+    role: member
+    summary: Invited relative who reads, edits, and enriches the shared family record.
+    devices:
+      primary: desktop
+      supported:
+        - desktop
+        - tablet
+        - mobile
+    locales:
+      primary: en
+      secondary:
+        - es
+    confidence_level: medium
+    patience_level: medium
+    goals:
+      - find a person quickly
+      - add a story, photo, or factual correction
+      - understand whether a change was saved successfully
+    risks:
+      - empty states are passive rather than inviting
+      - editing UI feels like an admin form wall
+      - important controls are visible in DOM but weak in presentation
+    success_signals:
+      - completes a small contribution in one session
+      - understands where edits belong without trial-and-error loops
+      - sees clear confirmation that shared content changed
+
+  - id: genealogy_researcher
+    label: Genealogy Researcher
+    source_doc: /Users/cheech/code/family-book/foundation/PERSONAS.md
+    role: member
+    summary: Detail-oriented relative who contributes sourced, uncertain, and incremental historical information.
+    devices:
+      primary: desktop
+      supported:
+        - desktop
+        - tablet
+    locales:
+      primary: en
+      secondary:
+        - es
+    confidence_level: high
+    patience_level: high
+    goals:
+      - capture uncertain dates and provenance
+      - connect stories, media, and records around a person
+      - use Family Book as a research workspace instead of an external notebook
+    risks:
+      - research-oriented controls are buried behind generic labels
+      - provenance and confidence features exist but are too hidden to use
+      - long-form or structured content entry loses context
+    success_signals:
+      - can enter nuanced data without workaround text fields
+      - can revisit and interpret prior research decisions
+      - sees evidence-oriented UI language rather than purely social phrasing
+
+  - id: mobile_first_relative
+    label: Mobile-First Relative
+    source_doc: /Users/cheech/code/family-book/foundation/PERSONAS.md
+    role: member
+    summary: Lower-confidence relative contributing in short sessions on a phone.
+    devices:
+      primary: mobile
+      supported:
+        - mobile
+        - tablet
+    locales:
+      primary: en
+      secondary:
+        - es
+    confidence_level: low
+    patience_level: low
+    goals:
+      - read a person page clearly on a narrow viewport
+      - make a small edit or contribution without getting lost
+      - always find the next step or save action
+    risks:
+      - clipped text or off-screen controls block progress
+      - dense forms or collapsed sections hide the intended path
+      - interaction targets are too subtle for touch use
+    success_signals:
+      - completes the target flow without backtracking loops
+      - can identify the primary action quickly
+      - no critical controls are hidden, overlapped, or unreachable

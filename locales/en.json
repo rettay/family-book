@@ -101,6 +101,11 @@
     "social_profiles": "Social Profiles",
     "date_mode_freeform": "Freeform",
     "date_mode_calendar": "Calendar",
+    "date_placeholder": "e.g. 1985-03-15, March 1985, ~1960",
+    "date_precision_exact": "Exact date",
+    "date_precision_month": "Month precision",
+    "date_precision_year": "Year precision",
+    "date_precision_approximate": "Approximate",
     "delete_confirm": "Are you sure you want to remove {name}? This can be undone by an admin.",
     "delete_button": "Remove Person",
     "cannot_delete_root": "The root family node cannot be removed.",
@@ -276,7 +281,12 @@
     "reset_filters": "Reset Filters",
     "empty": "No family members match these filters yet.",
     "load_error": "Failed to load tree data.",
-    "status": "{count} people shown"
+    "status": "{count} people shown",
+    "search_no_results": "No matching people found",
+    "search_hint": "Type a name to search",
+    "add_new_person": "Add New Person",
+    "create_person": "Create",
+    "add_first_person": "Add your first family member"
   },
   "calendar": {
     "title": "Family Calendar",

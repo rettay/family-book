@@ -5,10 +5,11 @@
   .page { padding-top: var(--nav-h); padding-bottom: 0; }
   .tree-layout {
     display: grid;
-    grid-template-columns: minmax(280px, 340px) auto minmax(0, 1fr);
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
     min-height: calc(100vh - var(--nav-h));
   }
   .tree-panel {
+    position: relative;
     padding: 1rem;
     background: rgba(255, 248, 237, 0.95);
     border-right: 1px solid rgba(45, 80, 22, 0.12);
@@ -26,26 +27,26 @@
     width: 340px;
   }
   .tree-layout--panel-collapsed {
-    grid-template-columns: 0 auto minmax(0, 1fr);
+    grid-template-columns: 0 minmax(0, 1fr);
   }
-  .tree-panel-edge-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    background: rgba(255, 248, 237, 0.95);
-    border-left: 1px solid rgba(45, 80, 22, 0.12);
-    border-right: 1px solid rgba(45, 80, 22, 0.12);
-    cursor: pointer;
-    color: #6b6054;
-    font-size: 0.85rem;
+  .tree-panel__collapse {
+    position: absolute; top: 12px; right: 12px; z-index: 2;
+    background: rgba(255, 248, 237, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
+    font-size: 0.9rem; cursor: pointer; color: #6b6054;
+    padding: 6px 10px; border-radius: 999px;
     transition: all 0.2s ease;
-    user-select: none;
-    z-index: 19;
-    flex-shrink: 0;
   }
-  .tree-panel-edge-toggle:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
-  .tree-panel-edge-toggle:focus-visible { outline: 2px solid #2d5016; outline-offset: -2px; }
+  .tree-panel__collapse:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
+  .tree-panel-expand-tab {
+    position: absolute; top: 50%; left: 0; z-index: 19;
+    transform: translateY(-50%);
+    background: rgba(255, 253, 248, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
+    border-left: none; border-radius: 0 6px 6px 0;
+    padding: 12px 6px; cursor: pointer; color: #6b6054;
+    font-size: 0.85rem; box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+  }
+  .tree-panel-expand-tab:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
   .tree-panel__group {
     margin-bottom: 1rem;
     padding: 0.9rem;
@@ -180,7 +181,8 @@
       min-height: 70vh;
       height: 70vh;
     }
-    .tree-panel-edge-toggle { display: none; }
+    .tree-panel__collapse { display: none; }
+    .tree-panel-expand-tab { display: none; }
   }
 </style>
 {% endblock %}
@@ -227,10 +229,19 @@
   data-tree-open-create-link="{{ t('tree.create_in_tree') }}"
   data-tree-replace-on-tree="{{ t('tree.replace_on_tree') }}"
   data-tree-remove-confirm="{{ t('tree.remove_relationship_confirm') }}"
-  data-tree-search-no-results="No matching people found"
-  data-tree-search-hint="Type a name to search"
+  data-tree-search-no-results="{{ t('tree.search_no_results') }}"
+  data-tree-search-hint="{{ t('tree.search_hint') }}"
+  data-tree-add-new-person="{{ t('tree.add_new_person') }}"
+  data-tree-create-person="{{ t('tree.create_person') }}"
+  data-tree-add-first-person="{{ t('tree.add_first_person') }}"
+  data-tree-first-name-label="{{ t('person.first_name') }}"
+  data-tree-last-name-label="{{ t('person.last_name') }}"
+  data-tree-branch-label="{{ t('person.branch') }}"
 >
   <aside class="tree-panel" id="tree-panel-content">
+    <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
+            aria-label="Collapse controls panel" title="Collapse controls panel"
+            onclick="toggleTreePanel()">&#x276E;</button>
     <section class="tree-panel__group">
       <h2 class="tree-panel__title">Search Tree</h2>
       <div class="tree-search" id="tree-search">
@@ -316,18 +327,13 @@
     </section>
   </aside>
 
-  <button class="tree-panel-edge-toggle" type="button" id="tree-panel-edge-toggle"
-          aria-label="Toggle controls panel" aria-expanded="true"
-          aria-controls="tree-panel-content" title="Toggle controls panel"
-          onclick="toggleTreePanel()">&#x276E;</button>
-
   <div class="tree-canvas">
     <div class="tree-page" id="tree-page">
       <div class="tree-controls">
         <button type="button" onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}" aria-label="{{ t('tree.zoom_in') }}">+</button>
         <button type="button" onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}" aria-label="{{ t('tree.zoom_out') }}">&minus;</button>
         <button type="button" onclick="treeReset()" title="{{ t('tree.reset_view') }}" aria-label="{{ t('tree.reset_view') }}">&#8634;</button>
-        <button type="button" onclick="window.location.href='/people/new'" title="{{ t('person.add') }}" aria-label="{{ t('person.add') }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></button>
+        <button type="button" onclick="window.openAddPersonPanel()" title="{{ t('person.add') }}" aria-label="{{ t('person.add') }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></button>
       </div>
 
       <div class="tree-relcalc-banner" id="tree-relcalc-banner" hidden aria-live="polite"></div>
@@ -343,6 +349,9 @@
         <div class="tree-relcalc-result__details"></div>
       </div>
 
+      <button class="tree-panel-expand-tab" id="tree-panel-expand-tab" type="button"
+              aria-label="Expand controls panel" title="Expand controls panel"
+              onclick="toggleTreePanel()" hidden>&#x276F;</button>
       <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
         <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">

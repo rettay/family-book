@@ -269,21 +269,25 @@ body.has-overlay { overflow: hidden; }
   letter-spacing: 0.01em;
 }
 
-/* ===== Date Input Group (dual-mode calendar/freeform) ===== */
-.date-input-group { display: flex; gap: 8px; align-items: center; }
-.date-input-group__field { flex: 1; }
-.date-input-group__field input { width: 100%; }
-.date-input-group__toggle {
-  font-size: 0.82rem;
-  padding: 6px 10px;
+/* ===== Unified Smart Date Input ===== */
+.date-input-unified { position: relative; display: flex; gap: 0; align-items: center; }
+.date-input-unified__text { flex: 1; border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+.date-input-unified__picker-btn {
+  padding: 8px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius, 6px);
+  border-left: none;
+  border-radius: 0 var(--radius, 6px) var(--radius, 6px) 0;
   color: var(--text-muted);
   cursor: pointer;
-  white-space: nowrap;
+  display: flex; align-items: center; line-height: 1;
 }
-.date-input-group__toggle:hover { background: var(--border); }
+.date-input-unified__picker-btn:hover { background: var(--border); }
+.date-input-unified__hidden { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+.date-input-unified__precision {
+  display: inline-block; margin-top: 4px; font-size: 0.78rem; color: var(--text-muted);
+  padding: 1px 8px; background: rgba(45, 80, 22, 0.06); border-radius: var(--radius-full, 999px);
+}
 
 /* ===== Language Tag Autocomplete ===== */
 .tag-input { position: relative; }
@@ -2386,6 +2390,9 @@ body.has-overlay { overflow: hidden; }
 .tree-node__add-photo { opacity: 0.35; cursor: pointer; transition: opacity 0.2s; }
 .tree-node__add-photo:hover { opacity: 0.85; }
 @media (hover: none) { .tree-node__add-photo { opacity: 0.5; } }
+.tree-node__add-relative { opacity: 0; transition: opacity 0.2s ease; }
+.person-node:hover .tree-node__add-relative { opacity: 1; }
+@media (hover: none) { .tree-node__add-relative { opacity: 0.6; } }
 
 /* ===== Wiki Pages ===== */
 .wiki-page { max-width: 900px; margin: 0 auto; padding: 20px 16px; }

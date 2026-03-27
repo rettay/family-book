@@ -827,10 +827,39 @@
   function drawEmptyState(w, h) {
     g.append('text')
       .attr('x', w / 2)
-      .attr('y', h / 2)
+      .attr('y', h / 2 - 30)
       .attr('text-anchor', 'middle')
       .attr('fill', '#6b6054')
       .text(root.dataset.emptyText);
+
+    // Add first person CTA
+    var ctaLabel = root.dataset.treeAddFirstPerson || 'Add your first family member';
+    var ctaGroup = g.append('g')
+      .attr('transform', 'translate(' + (w / 2) + ',' + (h / 2 + 10) + ')')
+      .style('cursor', 'pointer');
+    ctaGroup.append('circle')
+      .attr('r', 20)
+      .attr('fill', 'var(--green-pale, #d9eac9)')
+      .attr('stroke', 'var(--green-mid, #7da362)')
+      .attr('stroke-width', 2);
+    ctaGroup.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.35em')
+      .attr('fill', 'var(--green-deep, #2d5016)')
+      .attr('font-size', '22px')
+      .attr('font-weight', '700')
+      .attr('pointer-events', 'none')
+      .text('+');
+    ctaGroup.append('text')
+      .attr('y', 34)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#6b6054')
+      .attr('font-size', '13px')
+      .text(ctaLabel);
+    ctaGroup.on('click', function() {
+      window.openAddPersonPanel();
+    });
+
     setStatus(root.dataset.statusTemplate.replace('{count}', '0'));
   }
 
@@ -1066,6 +1095,37 @@
     nodeGroup.append('circle')
       .attr('class', 'tap-target')
       .attr('r', NODE_RADIUS + 10);
+
+    // Add-relative plus button (hover-revealed, hidden during graph mode)
+    if (!sidebarState.graphMode && !_relCalcMode) {
+      var addRelGroup = nodeGroup.append('g')
+        .attr('class', 'tree-node__add-relative')
+        .attr('pointer-events', 'all')
+        .style('cursor', 'pointer');
+      addRelGroup.append('circle')
+        .attr('r', 10)
+        .attr('cx', 0)
+        .attr('cy', -(NODE_RADIUS + 4))
+        .attr('fill', 'var(--green-pale, #d9eac9)')
+        .attr('stroke', 'var(--green-mid, #7da362)')
+        .attr('stroke-width', 1.5);
+      addRelGroup.append('text')
+        .attr('x', 0)
+        .attr('y', -(NODE_RADIUS + 4))
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('fill', 'var(--green-deep, #2d5016)')
+        .attr('font-size', '14px')
+        .attr('font-weight', '700')
+        .attr('pointer-events', 'none')
+        .text('+');
+      addRelGroup.on('click', function(event) {
+        event.stopPropagation();
+        openPersonSidebar(person.id).then(function() {
+          switchTreeSidebarTab('relationships');
+        });
+      });
+    }
 
     var nextTextY = NODE_RADIUS + 16;
     if (preferences.show_names) {
@@ -1993,18 +2053,15 @@
   var PANEL_COLLAPSED_KEY = 'treePanelCollapsed';
   var treeLayout = document.getElementById('tree-root');
 
-  function _updateEdgeToggle(collapsed) {
-    var edgeBtn = document.getElementById('tree-panel-edge-toggle');
-    if (edgeBtn) {
-      edgeBtn.innerHTML = collapsed ? '&#x276F;' : '&#x276E;';
-      edgeBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-    }
+  function _updatePanelToggleUI(collapsed) {
+    var expandTab = document.getElementById('tree-panel-expand-tab');
+    if (expandTab) expandTab.hidden = !collapsed;
   }
 
   function collapseTreePanelSilent() {
     if (!treeLayout) return;
     treeLayout.classList.add('tree-layout--panel-collapsed');
-    _updateEdgeToggle(true);
+    _updatePanelToggleUI(true);
   }
 
   function restoreTreePanelState() {
@@ -2020,11 +2077,11 @@
     var isCollapsed = treeLayout.classList.contains('tree-layout--panel-collapsed');
     if (isCollapsed) {
       treeLayout.classList.remove('tree-layout--panel-collapsed');
-      _updateEdgeToggle(false);
+      _updatePanelToggleUI(false);
       try { localStorage.setItem(PANEL_COLLAPSED_KEY, '0'); } catch (e) {}
     } else {
       treeLayout.classList.add('tree-layout--panel-collapsed');
-      _updateEdgeToggle(true);
+      _updatePanelToggleUI(true);
       try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
     }
   };
@@ -2033,14 +2090,14 @@
   window.collapseTreePanel = function() {
     if (!treeLayout) return;
     treeLayout.classList.add('tree-layout--panel-collapsed');
-    _updateEdgeToggle(true);
+    _updatePanelToggleUI(true);
     try { localStorage.setItem(PANEL_COLLAPSED_KEY, '1'); } catch (e) {}
   };
 
   window.expandTreePanel = function() {
     if (!treeLayout) return;
     treeLayout.classList.remove('tree-layout--panel-collapsed');
-    _updateEdgeToggle(false);
+    _updatePanelToggleUI(false);
     try { localStorage.setItem(PANEL_COLLAPSED_KEY, '0'); } catch (e) {}
   };
 
@@ -2753,6 +2810,71 @@
       container.insertAdjacentHTML('beforeend', templates[fieldName]);
     }
   }
+
+  // ── Add Person Panel (inline sidebar form) ────────────────────────
+  window.openAddPersonPanel = function() {
+    var addLabel = root.dataset.treeAddNewPerson || 'Add New Person';
+    var createLabel = root.dataset.treeCreatePerson || 'Create';
+    var firstNameLabel = root.dataset.treeFirstNameLabel || 'First Name';
+    var lastNameLabel = root.dataset.treeLastNameLabel || 'Last Name';
+    var branchLabel = root.dataset.treeBranchLabel || 'Branch';
+
+    sidebar.classList.add('person-sidebar--open');
+    window.openAccessibleOverlay(sidebar, {initialFocus: '#add-person-first-name'});
+
+    var html = '<div class="tree-sidebar-card" style="padding-top: 56px;">' +
+      '<button class="person-sidebar__close" type="button" aria-label="Close" onclick="closeSidebar()" style="position:absolute;top:12px;right:12px;">&times;</button>' +
+      '<h2 class="tree-sidebar-card__title" style="margin-bottom:16px;">' + escapeHTML(addLabel) + '</h2>' +
+      '<form id="add-person-inline-form" onsubmit="return false;">' +
+      '<div class="form-group" style="margin-bottom:12px;"><label for="add-person-first-name">' + escapeHTML(firstNameLabel) + '</label>' +
+      '<input type="text" class="form-input" id="add-person-first-name" required></div>' +
+      '<div class="form-group" style="margin-bottom:12px;"><label for="add-person-last-name">' + escapeHTML(lastNameLabel) + '</label>' +
+      '<input type="text" class="form-input" id="add-person-last-name"></div>' +
+      '<div class="form-group" style="margin-bottom:16px;"><label for="add-person-branch">' + escapeHTML(branchLabel) + '</label>' +
+      '<input type="text" class="form-input" id="add-person-branch" placeholder="optional"></div>' +
+      '<button type="submit" class="btn btn--primary" id="add-person-submit" style="width:100%;">' + escapeHTML(createLabel) + '</button>' +
+      '</form></div>';
+
+    window.replaceNodeChildrenFromHTML(sidebarContent, html);
+
+    var form = document.getElementById('add-person-inline-form');
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('add-person-submit');
+      btn.disabled = true;
+      btn.textContent = '...';
+      var firstName = document.getElementById('add-person-first-name').value.trim();
+      var lastName = document.getElementById('add-person-last-name').value.trim();
+      var branch = document.getElementById('add-person-branch').value.trim();
+      if (!firstName) { btn.disabled = false; btn.textContent = createLabel; return; }
+      var body = { first_name: firstName, source: 'manual' };
+      if (lastName) body.last_name = lastName;
+      if (branch) body.branch = branch;
+      try {
+        var resp = await fetch('/api/persons', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body)
+        });
+        if (resp.ok) {
+          var newPerson = await resp.json();
+          await loadTree();
+          closeSidebar();
+          if (newPerson && newPerson.id) {
+            openPersonSidebar(newPerson.id);
+          }
+          showToastMessage(root.dataset.createdMessage || 'Person created');
+        } else {
+          var err = await resp.json().catch(function() { return {detail: 'Failed'}; });
+          btn.textContent = err.detail || 'Failed';
+          btn.disabled = false;
+        }
+      } catch(ex) {
+        btn.textContent = 'Error';
+        btn.disabled = false;
+      }
+    });
+  };
 
   window.collectJsonArrayEntries = collectJsonArrayEntries;
   window.addJsonArrayEntry = addJsonArrayEntry;

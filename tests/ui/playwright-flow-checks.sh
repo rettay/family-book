@@ -174,6 +174,23 @@ assert_run "tree name preference hides fallback initials when names are off" \
 assert_run "admin can create a new person from the browser flow" \
   "${PWCLI}" run-code "async page => { if (!page.url().includes('/tree')) throw new Error('create flow did not land on tree'); const focusId = new URL(page.url()).searchParams.get('focus'); if (!focusId) throw new Error('create flow missing focus parameter'); }"
 
+"${PWCLI}" goto "${BASE_URL}/wiki/tyler-martin"
+"${PWCLI}" run-code "async page => { await page.locator('.wiki-infobox').waitFor(); await page.locator('.wiki-infobox__social-link').first().waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/wiki-person.png" --full-page true >/dev/null
+
+assert_run "wiki infobox social links render visibly when social profiles exist" \
+  "${PWCLI}" run-code "async page => { const links = page.locator('.wiki-infobox__social-link'); const count = await links.count(); if (count < 2) throw new Error('expected social links in wiki infobox'); for (let index = 0; index < count; index += 1) { const link = links.nth(index); const box = await link.boundingBox(); if (!box || box.width < 40 || box.height < 20) throw new Error('social link rendered with zero or tiny size'); const display = await link.evaluate((el) => getComputedStyle(el).display); if (display === 'none') throw new Error('social link hidden by styles'); } }"
+
+"${PWCLI}" cookie-set locale es --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+"${PWCLI}" goto "${BASE_URL}/people/${TYLER_ID}/edit"
+"${PWCLI}" run-code "async page => { await page.locator('#edit-social-instagram').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-edit-es.png" --full-page true >/dev/null
+
+assert_run "person edit surface uses locale strings for social and date controls" \
+  "${PWCLI}" run-code "async page => { const socialHeading = page.getByRole('heading', { name: 'Perfiles Sociales' }); await socialHeading.waitFor(); const birthInput = page.locator('#edit-birth-date-text'); await birthInput.waitFor(); const placeholder = await birthInput.getAttribute('placeholder'); if (!placeholder || !placeholder.includes('1985')) throw new Error('birth date unified input missing Spanish placeholder'); const calBtn = page.locator('.date-input-unified__picker-btn').first(); const calTitle = await calBtn.getAttribute('title'); if (calTitle !== 'Calendario') throw new Error('calendar button title not Spanish: ' + calTitle); }"
+
+"${PWCLI}" cookie-set locale en --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+
 "${PWCLI}" goto "${BASE_URL}/tree"
 "${PWCLI}" run-code "async page => { await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(1200); const node = page.locator('#tree-svg [data-id=\"tyler-000-0000-0000-000000000002\"]').first(); await node.click(); await page.locator('button[data-tree-sidebar-tab=\"relationships\"]').waitFor(); }"
 

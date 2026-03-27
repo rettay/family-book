@@ -23,8 +23,12 @@ The operating objective is to maximize **Collaborative Family Loop Success Rate 
 - Auditor playbook: `/Users/cheech/code/family-book/auditor.md`
 - Product vision: `/Users/cheech/code/family-book/foundation/PRODUCT_VISION.md`
 - V1 requirements: `/Users/cheech/code/family-book/foundation/V1_PRODUCT_REQUIREMENTS.md`
+- Personas: `/Users/cheech/code/family-book/foundation/PERSONAS.md`
 - Collaboration and privacy contract: `/Users/cheech/code/family-book/foundation/COLLABORATION_AND_PRIVACY.md`
 - UX North Star: `/Users/cheech/code/family-book/foundation/UX_NORTH_STAR.md`
+- UI review integration spec: `/Users/cheech/code/family-book/docs/ops/ui-review-integration-spec.md`
+- Persona registry: `/Users/cheech/code/family-book/docs/ops/persona_registry.yaml`
+- UI surface matrix: `/Users/cheech/code/family-book/docs/ops/ui_surface_matrix.yaml`
 - Codebase briefing: `/Users/cheech/code/family-book/docs/CODEBASE_BRIEFING.md`
 - Backlog queue: `/Users/cheech/code/family-book/backlog.md`
 - Task packets: `/Users/cheech/code/family-book/task_packets/`
@@ -108,6 +112,23 @@ Every recurring task class must define:
 - Verifiability class: `deterministic`, `bounded-judgment`, or `judgment-heavy`
 - Context policy
 
+Member-facing UI tasks must also define:
+
+- Changed surfaces
+- Structural oracle
+- Browser oracle
+- Visual oracle
+- Persona coverage
+- Required artifacts
+
+For material member-facing UI work, persona coverage is resolved through the canonical persona docs:
+
+- PM identifies changed surfaces.
+- The UI surface matrix maps those surfaces to required personas, scenarios, and viewports.
+- CodeMap confirms or refines the changed-surface classification.
+- Folio runs the resolved persona scenarios.
+- Auditor checks the resulting persona evidence against the packet.
+
 Examples:
 
 - Auth/invite/account tasks: API tests plus end-to-end multi-user validation
@@ -115,6 +136,28 @@ Examples:
 - Media tasks: upload, dedup, visibility, and cross-user render validation
 - Tree/UI tasks: browser or UI-harness evidence against real rendered behavior
 - Docs/product-contract tasks: drift-sensitive text checks plus cross-doc consistency review
+
+## UI Review Stack
+
+Material member-facing UI changes use three review lanes:
+
+1. Structural lane
+- CodeMap or equivalent static review checks cross-file completeness and wiring.
+- Required for template, CSS, i18n, accessibility-hook, and changed-surface classification work.
+
+2. Rendered-behavior lane
+- Browser oracles prove the actual UI is visible, reachable, translated, and usable in the changed states.
+- Prefer deterministic assertions over screenshot volume.
+
+3. Visual/persona lane
+- Folio or equivalent browser exploration produces replay plus screenshot-backed findings for the affected personas and workflows.
+- A vision model may assist, but only with an explicit rubric and durable evidence.
+
+Rules:
+
+- A DOM-only or API-only proof is insufficient for material member-facing UI work.
+- One green lane does not compensate for a missing lane when the task changes rendered UI.
+- The stricter the visual or workflow blast radius, the stronger the browser and persona evidence must be.
 
 ## Workflow
 
@@ -125,14 +168,28 @@ Examples:
 2. Packetize
 - Packet exists in `task_packets/` with objective, scope, evaluation environment, acceptance criteria, validation plan, and definition of done.
 - Backlog status is `todo`.
+- For material member-facing UI work, the packet must name:
+  - changed surfaces,
+  - resolved persona ids from the canonical persona registry and UI surface matrix,
+  - required scenario ids,
+  - required viewports/locales where they matter,
+  - structural/browser/visual oracles,
+  - required CodeMap/Folio artifacts,
+  - baseline screenshots or explicit expected visual states where comparison matters.
 
 3. Build
 - Builder moves task `Ready -> In Progress` and backlog to `in_progress`.
 - Builder implements in thin slices and records evidence.
+- For member-facing UI work, builder evidence must include:
+  - structural review output,
+  - deterministic browser results,
+  - visual/persona artifacts with enough context for independent audit.
 - Builder moves task `In Progress -> In Review` and backlog to `in_review` when complete.
 
 4. Audit
 - Auditor validates acceptance criteria, verifier quality, and risk with explicit evidence.
+- For member-facing UI work, auditor reviews all three UI lanes and treats missing UI evidence as a verifier-quality failure.
+- Auditor also checks that persona selection came from the canonical registry and surface matrix rather than ad hoc packet prose.
 - If fail: task returns to `in_progress` with explicit findings.
 - If pass: task moves to `done`.
 
@@ -146,6 +203,11 @@ Examples:
 - Verifiers must reject hardcoded, shortcut, or admin-only solutions when the feature is supposed to be collaborative.
 - Audits must probe at least one realistic failure path for material changes.
 - Weak verifier quality is itself a blocker.
+- For UI work, "element exists in DOM" is not enough. The verifier should be able to catch:
+  - missing CSS wiring,
+  - untranslated or hardcoded user-facing copy,
+  - hidden, clipped, or unreachable controls,
+  - persona-critical workflow confusion on changed surfaces.
 
 ## Risk-Weighted Verification
 
@@ -172,6 +234,7 @@ A task is done only when all are true:
 - Acceptance criteria are explicitly satisfied.
 - Validation commands are reproducible and passing.
 - Evidence is strong enough for the risk level of the changed path.
+- For material member-facing UI work, structural, rendered-behavior, and visual/persona evidence all exist and agree on ship safety.
 - No unresolved P0/P1 issues remain in task scope.
 - Backlog status is `done`.
 - CFLSR is preserved or improved.

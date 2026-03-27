@@ -3,49 +3,6 @@
 
 {% block head %}
 <style>
-  .date-input-group { display: flex; gap: 0.5rem; align-items: flex-end; }
-  .date-input-group__field { flex: 1; }
-  .date-input-group__toggle {
-    padding: 6px 10px; font-size: 0.78rem; white-space: nowrap;
-    background: rgba(45, 80, 22, 0.08); border: 1px solid rgba(45, 80, 22, 0.15);
-    border-radius: 6px; cursor: pointer; color: #6b6054; margin-bottom: 2px;
-  }
-  .date-input-group__toggle:hover { background: rgba(45, 80, 22, 0.15); color: #2d5016; }
-
-  .tag-input { position: relative; }
-  .tag-input__chips {
-    display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px;
-    border: 1px solid rgba(45, 80, 22, 0.2); border-radius: 8px;
-    background: #fff; min-height: 38px; align-items: center; cursor: text;
-  }
-  .tag-input__chip {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; background: rgba(45, 80, 22, 0.1);
-    border-radius: 999px; font-size: 0.82rem; color: #2d5016;
-  }
-  .tag-input__chip-remove {
-    border: none; background: none; cursor: pointer; font-size: 0.9rem;
-    color: #6b6054; padding: 0 2px; line-height: 1;
-  }
-  .tag-input__chip-remove:hover { color: #c00; }
-  .tag-input__text {
-    border: none; outline: none; font-size: 0.9rem;
-    min-width: 120px; flex: 1; background: transparent;
-  }
-  .tag-input__dropdown {
-    position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
-    max-height: 200px; overflow-y: auto; background: #fffdf8;
-    border: 1px solid rgba(45, 80, 22, 0.15); border-top: 0;
-    border-radius: 0 0 8px 8px; box-shadow: 0 8px 20px rgba(45, 80, 22, 0.1);
-    display: none;
-  }
-  .tag-input__dropdown--open { display: block; }
-  .tag-input__option {
-    padding: 6px 10px; cursor: pointer; font-size: 0.85rem;
-    border-bottom: 1px solid rgba(45, 80, 22, 0.06);
-  }
-  .tag-input__option:hover, .tag-input__option--active { background: rgba(217, 234, 201, 0.5); }
-
   .measurement-input { display: flex; gap: 0.5rem; align-items: flex-end; }
   .measurement-input__fields { display: flex; gap: 0.35rem; flex: 1; align-items: center; }
   .measurement-input__fields input { width: 70px; }
@@ -119,39 +76,35 @@
         </div>
       </div>
 
-      {# ── Dual-mode date inputs ── #}
+      {# ── Unified smart date inputs ── #}
       <div class="form-row">
         <div class="form-group">
           <label>{{ t('person.birth_date') }}</label>
-          <div class="date-input-group" id="birth-date-group">
-            <div class="date-input-group__field">
-              <input type="date" class="form-input" id="edit-birth-date-calendar"
-                     value="{{ person.birth_date or '' }}"
-                     {% if not person.birth_date and person.birth_date_raw %}style="display:none"{% endif %}>
-              <input type="text" class="form-input" id="edit-birth-date-freeform"
-                     value="{{ person.birth_date_raw or '' }}"
-                     placeholder="e.g. March 1985, ~1960"
-                     {% if person.birth_date and not (person.birth_date_precision == 'approximate' or person.birth_date_precision == 'month' or person.birth_date_precision == 'year') %}style="display:none"{% elif not person.birth_date_raw and not person.birth_date %}style="display:none"{% endif %}>
-            </div>
-            <button type="button" class="date-input-group__toggle" id="birth-date-toggle"
-                    onclick="toggleDateMode('birth')">{{ t('person.date_mode_freeform') }}</button>
+          <div class="date-input-unified">
+            <input type="text" class="form-input date-input-unified__text" id="edit-birth-date-text"
+                   value="{{ person.birth_date_raw or person.birth_date or '' }}"
+                   placeholder="{{ t('person.date_placeholder') }}"
+                   oninput="updateDatePrecision('birth')">
+            <button type="button" class="date-input-unified__picker-btn" onclick="openDatePicker('birth')" title="{{ t('person.date_mode_calendar') }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </button>
+            <input type="date" class="date-input-unified__hidden" id="edit-birth-date-picker">
           </div>
+          <span class="date-input-unified__precision" id="birth-date-precision"></span>
         </div>
         <div class="form-group">
           <label>{{ t('person.death_date') }}</label>
-          <div class="date-input-group" id="death-date-group">
-            <div class="date-input-group__field">
-              <input type="date" class="form-input" id="edit-death-date-calendar"
-                     value="{{ person.death_date or '' }}"
-                     {% if not person.death_date and person.death_date_raw %}style="display:none"{% endif %}>
-              <input type="text" class="form-input" id="edit-death-date-freeform"
-                     value="{{ person.death_date_raw or '' }}"
-                     placeholder="e.g. January 2020"
-                     {% if person.death_date and not (person.death_date_precision == 'approximate' or person.death_date_precision == 'month' or person.death_date_precision == 'year') %}style="display:none"{% elif not person.death_date_raw and not person.death_date %}style="display:none"{% endif %}>
-            </div>
-            <button type="button" class="date-input-group__toggle" id="death-date-toggle"
-                    onclick="toggleDateMode('death')">{{ t('person.date_mode_freeform') }}</button>
+          <div class="date-input-unified">
+            <input type="text" class="form-input date-input-unified__text" id="edit-death-date-text"
+                   value="{{ person.death_date_raw or person.death_date or '' }}"
+                   placeholder="{{ t('person.date_placeholder') }}"
+                   oninput="updateDatePrecision('death')">
+            <button type="button" class="date-input-unified__picker-btn" onclick="openDatePicker('death')" title="{{ t('person.date_mode_calendar') }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </button>
+            <input type="date" class="date-input-unified__hidden" id="edit-death-date-picker">
           </div>
+          <span class="date-input-unified__precision" id="death-date-precision"></span>
         </div>
       </div>
 
@@ -484,34 +437,58 @@
 
 {% block scripts %}
 <script>
-/* ── Date dual-mode toggle ── */
-var dateState = {
-  birth: '{{ "freeform" if (not person.birth_date and person.birth_date_raw) or person.birth_date_precision in ("approximate", "month", "year") else "calendar" }}',
-  death: '{{ "freeform" if (not person.death_date and person.death_date_raw) or person.death_date_precision in ("approximate", "month", "year") else "calendar" }}'
+/* ── Unified smart date input ── */
+var DATE_PRECISION_LABELS = {
+  exact: '{{ t("person.date_precision_exact") }}',
+  month: '{{ t("person.date_precision_month") }}',
+  year: '{{ t("person.date_precision_year") }}',
+  approximate: '{{ t("person.date_precision_approximate") }}'
 };
 
-function initDateMode(prefix) {
-  var cal = document.getElementById('edit-' + prefix + '-date-calendar');
-  var free = document.getElementById('edit-' + prefix + '-date-freeform');
-  var toggle = document.getElementById(prefix + '-date-toggle');
-  if (dateState[prefix] === 'freeform') {
-    cal.style.display = 'none';
-    free.style.display = '';
-    toggle.textContent = '{{ t("person.date_mode_calendar") }}';
+function detectDatePrecision(value) {
+  if (!value) return '';
+  var v = value.trim();
+  if (/^[~≈]|^about\b|^circa\b|^approx/i.test(v)) return 'approximate';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'exact';
+  if (/^\d{4}-\d{2}$/.test(v)) return 'month';
+  if (/^\d{4}$/.test(v)) return 'year';
+  // Try common text formats: "March 15, 1985" or "15 March 1985"
+  if (/\b\d{1,2}[,\s]+\d{4}\b/.test(v) && /[a-zA-Z]/.test(v)) return 'exact';
+  // "March 1985" or "1985 March"
+  if (/[a-zA-Z]+\s+\d{4}/.test(v) || /\d{4}\s+[a-zA-Z]+/.test(v)) return 'month';
+  return '';
+}
+
+function updateDatePrecision(prefix) {
+  var text = document.getElementById('edit-' + prefix + '-date-text').value;
+  var badge = document.getElementById(prefix + '-date-precision');
+  var precision = detectDatePrecision(text);
+  badge.textContent = precision ? DATE_PRECISION_LABELS[precision] || precision : '';
+}
+
+function openDatePicker(prefix) {
+  var picker = document.getElementById('edit-' + prefix + '-date-picker');
+  var textInput = document.getElementById('edit-' + prefix + '-date-text');
+  // Try to pre-fill picker from current text if it's ISO
+  var v = textInput.value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) picker.value = v;
+  picker.onchange = function() {
+    if (picker.value) {
+      var parts = picker.value.split('-');
+      var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      textInput.value = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      updateDatePrecision(prefix);
+    }
+  };
+  if (typeof picker.showPicker === 'function') {
+    picker.showPicker();
   } else {
-    cal.style.display = '';
-    free.style.display = 'none';
-    toggle.textContent = '{{ t("person.date_mode_freeform") }}';
+    picker.click();
   }
 }
 
-function toggleDateMode(prefix) {
-  dateState[prefix] = dateState[prefix] === 'calendar' ? 'freeform' : 'calendar';
-  initDateMode(prefix);
-}
-
-initDateMode('birth');
-initDateMode('death');
+updateDatePrecision('birth');
+updateDatePrecision('death');
 
 /* ── Language tag autocomplete ── */
 var allLanguages = [];
@@ -686,44 +663,16 @@ async function savePerson(e) {
     }
   }
 
-  // Collect from active date mode
-  if (dateState.birth === 'calendar') {
-    var bCal = document.getElementById('edit-birth-date-calendar').value;
-    if (bCal) {
-      data.birth_date = bCal;
-      data.birth_date_precision = 'exact';
-      // Also set raw for display
-      var parts = bCal.split('-');
-      var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      data.birth_date_raw = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
-  } else {
-    var bFree = document.getElementById('edit-birth-date-freeform').value;
-    if (bFree) {
-      data.birth_date_raw = bFree;
-      // Server will auto-parse to ISO
-      delete data.birth_date;
-      delete data.birth_date_precision;
-    }
-  }
+  // Collect unified date inputs — always send as raw, server parses to ISO
+  var birthText = document.getElementById('edit-birth-date-text').value.trim();
+  data.birth_date_raw = birthText || null;
+  delete data.birth_date;
+  delete data.birth_date_precision;
 
-  if (dateState.death === 'calendar') {
-    var dCal = document.getElementById('edit-death-date-calendar').value;
-    if (dCal) {
-      data.death_date = dCal;
-      data.death_date_precision = 'exact';
-      var dParts = dCal.split('-');
-      var dd = new Date(parseInt(dParts[0]), parseInt(dParts[1]) - 1, parseInt(dParts[2]));
-      data.death_date_raw = dd.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    }
-  } else {
-    var dFree = document.getElementById('edit-death-date-freeform').value;
-    if (dFree) {
-      data.death_date_raw = dFree;
-      delete data.death_date;
-      delete data.death_date_precision;
-    }
-  }
+  var deathText = document.getElementById('edit-death-date-text').value.trim();
+  data.death_date_raw = deathText || null;
+  delete data.death_date;
+  delete data.death_date_precision;
 
   try {
     var resp = await fetch('/api/persons/{{ person.id }}', {

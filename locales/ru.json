@@ -101,6 +101,11 @@
     "social_profiles": "Социальные профили",
     "date_mode_freeform": "Свободный ввод",
     "date_mode_calendar": "Календарь",
+    "date_placeholder": "напр. 1985-03-15, март 1985, ~1960",
+    "date_precision_exact": "Точная дата",
+    "date_precision_month": "Точность до месяца",
+    "date_precision_year": "Точность до года",
+    "date_precision_approximate": "Приблизительная",
     "delete_confirm": "Вы уверены, что хотите удалить {name}? Администратор может восстановить запись.",
     "delete_button": "Удалить человека",
     "cannot_delete_root": "Корневой узел семьи не может быть удалён.",
@@ -276,7 +281,12 @@
     "reset_filters": "Сбросить фильтры",
     "empty": "Ни один член семьи пока не подходит под эти фильтры.",
     "load_error": "Не удалось загрузить данные дерева.",
-    "status": "Показано людей: {count}"
+    "status": "Показано людей: {count}",
+    "search_no_results": "Совпадений не найдено",
+    "search_hint": "Введите имя для поиска",
+    "add_new_person": "Добавить человека",
+    "create_person": "Создать",
+    "add_first_person": "Добавьте первого члена семьи"
   },
   "calendar": {
     "title": "Семейный Календарь",

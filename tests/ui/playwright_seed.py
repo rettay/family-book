@@ -42,6 +42,9 @@ async def seed() -> None:
             id=TYLER_ID,
             first_name="Tyler",
             last_name="Martin",
+            birth_date_raw="14 Mar 1985",
+            birth_date="1985-03-14",
+            birth_date_precision="exact",
             residence_country_code="ES",
             residence_place="Barcelona",
             branch="martin",
@@ -49,6 +52,9 @@ async def seed() -> None:
             source=PersonSource.manual.value,
             account_state=AccountState.active.value,
             contact_email="tyler@example.com",
+            social_instagram="https://instagram.com/tylermartin",
+            social_linkedin="https://linkedin.com/in/tylermartin",
+            slug="tyler-martin",
         )
         yuliya = Person(
             id=YULIYA_ID,

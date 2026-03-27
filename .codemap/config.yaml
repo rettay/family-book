@@ -49,6 +49,25 @@ check:
       - "*/__tests__/*"
       - "*/__mocks__/*"
       - "tests/test_phase3.py"
+  missing_css_selectors:
+    enabled: true
+    severity: warn
+    template_globs:
+      - "app/templates/**/*.html"
+    script_globs:
+      - "app/static/js/**/*.js"
+    style_globs:
+      - "app/static/css/**/*.css"
+  hardcoded_ui_copy:
+    enabled: true
+    severity: warn
+    locale_paths:
+      - "locales/en.json"
+    scan_globs:
+      - "app/templates/person_edit.html"
+      - "app/templates/wiki_*.html"
+      - "app/templates/partials/wiki_edit_section.html"
+    min_length: 6
 
 gc:
   keep: 10

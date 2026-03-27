@@ -1,0 +1,314 @@
+version: 1
+
+surface_defaults:
+  require_visual_lane: true
+  require_browser_lane: true
+  require_structural_lane: true
+
+surfaces:
+  auth_and_invites:
+    file_globs:
+      - app/templates/login.html
+      - app/templates/invite.html
+      - app/templates/admin.html
+      - app/routes/auth_routes.py
+    routes:
+      - /login
+      - /register
+      - /admin/users
+      - /admin/invites
+    primary_personas:
+      - family_admin
+    safety_personas:
+      - contributing_member
+    required_scenarios:
+      - admin_invites_member
+      - member_accepts_invite_and_signs_in
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - control_discoverability
+      - workflow_clarity
+      - error_message_clarity
+
+  tree_workspace:
+    file_globs:
+      - app/templates/tree.html
+      - app/templates/partials/person_sidebar.html
+      - app/routes/tree.py
+      - app/routes/relationships.py
+      - app/static/js/tree.js
+    routes:
+      - /
+      - /tree
+    primary_personas:
+      - contributing_member
+      - family_admin
+    safety_personas:
+      - mobile_first_relative
+    required_scenarios:
+      - find_person_in_tree
+      - open_sidebar_and_edit_overview
+      - add_relative_from_tree_context
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - hierarchy_and_readability
+      - control_discoverability
+      - mobile_fit
+
+  person_profile:
+    file_globs:
+      - app/templates/wiki_person.html
+      - app/templates/wiki_index.html
+      - app/templates/partials/wiki_edit_section.html
+      - app/routes/wiki.py
+    routes:
+      - /people/:id
+      - /wiki/:slug
+    primary_personas:
+      - contributing_member
+      - genealogy_researcher
+    safety_personas:
+      - mobile_first_relative
+    required_scenarios:
+      - read_identity_and_story
+      - inspect_connected_content
+      - navigate_from_profile_to_editable_content
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - hierarchy_and_readability
+      - translation_completeness
+      - workflow_clarity
+
+  person_edit:
+    file_globs:
+      - app/templates/person_edit.html
+      - app/templates/person_new.html
+      - app/static/js/delete-person.js
+      - app/routes/persons.py
+    routes:
+      - /people/:id/edit
+    primary_personas:
+      - family_admin
+      - contributing_member
+    safety_personas:
+      - mobile_first_relative
+      - genealogy_researcher
+    required_scenarios:
+      - update_core_identity_fields
+      - switch_date_precision_mode
+      - add_social_or_contact_info
+      - save_without_losing_context
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - visibility_and_clipping
+      - control_discoverability
+      - translation_completeness
+      - mobile_fit
+
+  moments_and_timeline:
+    file_globs:
+      - app/templates/timeline.html
+      - app/templates/calendar.html
+      - app/templates/partials/timeline_events.html
+      - app/templates/partials/calendar_grid.html
+      - app/routes/timeline.py
+      - app/routes/calendar.py
+    routes:
+      - /timeline
+      - /moments
+    primary_personas:
+      - contributing_member
+    safety_personas:
+      - mobile_first_relative
+    required_scenarios:
+      - add_story_or_note
+      - view_recent_family_activity
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - content_prominence
+      - readability
+      - workflow_clarity
+
+  media_and_tagging:
+    file_globs:
+      - app/templates/partials/media_gallery.html
+      - app/routes/media.py
+    routes:
+      - /media
+      - /people/:id/media
+    primary_personas:
+      - contributing_member
+    safety_personas:
+      - family_admin
+      - mobile_first_relative
+    required_scenarios:
+      - upload_media
+      - tag_people_in_media
+      - verify_media_visible_to_second_member
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - control_discoverability
+      - visibility_and_clipping
+      - mobile_fit
+
+  map_view:
+    file_globs:
+      - app/templates/map.html
+      - app/routes/pages.py
+      - app/routes/tree.py
+      - app/static/js/map.js
+    routes:
+      - /map
+    primary_personas:
+      - contributing_member
+    safety_personas:
+      - genealogy_researcher
+      - mobile_first_relative
+    required_scenarios:
+      - view_people_or_burials_on_map
+      - understand_empty_state_and_filters
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - readability
+      - control_discoverability
+      - mobile_fit
+
+  research_workspace:
+    file_globs:
+      - app/templates/research.html
+      - app/templates/partials/research_results.html
+      - app/routes/research.py
+      - app/routes/external_records.py
+    routes:
+      - /research
+      - /people/:id/research
+    primary_personas:
+      - genealogy_researcher
+    safety_personas:
+      - family_admin
+    required_scenarios:
+      - search_external_records
+      - inspect_result_details
+      - save_or_follow_up_on_candidate_record
+    required_viewports:
+      - desktop
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - workflow_clarity
+      - translation_completeness
+      - hierarchy_and_readability
+
+  admin_and_settings:
+    file_globs:
+      - app/templates/admin.html
+      - app/templates/settings.html
+      - app/templates/partials/theme_head.html
+      - app/templates/partials/audit_log.html
+      - app/routes/pages.py
+    routes:
+      - /admin
+      - /settings
+    primary_personas:
+      - family_admin
+    safety_personas:
+      - contributing_member
+    required_scenarios:
+      - manage_accounts_or_policy
+      - update_personal_or_theme_settings
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - workflow_clarity
+      - error_message_clarity
+      - control_discoverability
+
+scenario_library:
+  admin_invites_member:
+    summary: Admin creates an invite and confirms the invite appears coherent and actionable.
+  member_accepts_invite_and_signs_in:
+    summary: Invited member enters the shared family space without manual intervention.
+  find_person_in_tree:
+    summary: User finds and opens a person from the tree without leaving context unnecessarily.
+  open_sidebar_and_edit_overview:
+    summary: User opens the primary sidebar workspace and performs an obvious lightweight edit.
+  add_relative_from_tree_context:
+    summary: User creates or links a relationship from the tree workflow itself.
+  read_identity_and_story:
+    summary: User understands who a person is and what content matters first.
+  inspect_connected_content:
+    summary: User finds media, stories, or relationships from the profile without confusion.
+  navigate_from_profile_to_editable_content:
+    summary: User can move from reading to editing without losing track of context.
+  update_core_identity_fields:
+    summary: User edits name or core facts without fighting a dense form wall.
+  switch_date_precision_mode:
+    summary: User understands and uses flexible date-entry options.
+  add_social_or_contact_info:
+    summary: User adds structured contact or social details and sees clear affordances.
+  save_without_losing_context:
+    summary: User can complete an edit and understand what happened next.
+  add_story_or_note:
+    summary: User contributes a lightweight memory or note without process friction.
+  view_recent_family_activity:
+    summary: User understands recent family contributions from the activity surface.
+  upload_media:
+    summary: User adds media and sees a coherent upload state.
+  tag_people_in_media:
+    summary: User connects media to people without ambiguity.
+  verify_media_visible_to_second_member:
+    summary: A second user can see the uploaded and tagged media.
+  view_people_or_burials_on_map:
+    summary: User can understand map markers and their meaning.
+  understand_empty_state_and_filters:
+    summary: User understands why the map is empty and what to do next.
+  search_external_records:
+    summary: Researcher can start research from a clearly named surface.
+  inspect_result_details:
+    summary: Researcher can review candidate records without losing context.
+  save_or_follow_up_on_candidate_record:
+    summary: Researcher can preserve useful research leads inside the app.
+  manage_accounts_or_policy:
+    summary: Admin can complete account or policy work with clear consequences.
+  update_personal_or_theme_settings:
+    summary: User can update settings without confusing personal and global changes.

@@ -101,6 +101,11 @@
     "social_profiles": "Perfiles Sociales",
     "date_mode_freeform": "Texto libre",
     "date_mode_calendar": "Calendario",
+    "date_placeholder": "ej. 1985-03-15, marzo 1985, ~1960",
+    "date_precision_exact": "Fecha exacta",
+    "date_precision_month": "Precisión de mes",
+    "date_precision_year": "Precisión de año",
+    "date_precision_approximate": "Aproximada",
     "delete_confirm": "¿Estás seguro/a de que deseas eliminar a {name}? Un administrador puede revertirlo.",
     "delete_button": "Eliminar Persona",
     "cannot_delete_root": "El nodo raíz de la familia no se puede eliminar.",
@@ -276,7 +281,12 @@
     "reset_filters": "Restablecer Filtros",
     "empty": "Ningún familiar coincide con estos filtros todavía.",
     "load_error": "No se pudieron cargar los datos del árbol.",
-    "status": "{count} personas mostradas"
+    "status": "{count} personas mostradas",
+    "search_no_results": "No se encontraron personas",
+    "search_hint": "Escribe un nombre para buscar",
+    "add_new_person": "Agregar Persona",
+    "create_person": "Crear",
+    "add_first_person": "Agrega tu primer familiar"
   },
   "calendar": {
     "title": "Calendario Familiar",

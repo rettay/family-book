@@ -360,12 +360,18 @@ async def update_person(
             if iso:
                 person.birth_date = iso
                 person.birth_date_precision = prec
+        else:
+            person.birth_date = None
+            person.birth_date_precision = None
     if "death_date_raw" in update_data and "death_date" not in update_data:
         if person.death_date_raw:
             iso, prec = parse_date_raw_to_iso(person.death_date_raw)
             if iso:
                 person.death_date = iso
                 person.death_date_precision = prec
+        else:
+            person.death_date = None
+            person.death_date_precision = None
 
     await db.flush()
     await record_revision(
