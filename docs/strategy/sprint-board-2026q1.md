@@ -2,17 +2,17 @@
 
 ## Current Sprint
 
-### `S26 - Family Bios Enhancement and Tree UX`
+### `S26 - Platform Completeness: Tree Fix, Social Fields, Add/Remove Person`
 
 Status: Closed
 
 ### Sprint Goal
 
-Make Family Bios the definitive biographical surface by expanding to full Wikipedia-style section coverage, adding WYSIWYG rich text editing for narrative fields, and replacing raw JSON editing with structured forms. Complement with a collapsible tree controls panel that matches the existing sidebar pattern.
+Fix the critical tree traversal bug that left nodes disconnected, add social/contact profile fields, implement freeform date auto-parsing, and provide clear add/remove person affordances across tree and wiki surfaces. Continues the platform-completeness work started in S26a (collapsible tree panel, wiki biography enhancement).
 
 ### Why This Sprint Next
 
-FB-035 just made Family Bios the single read-only view for person data by removing the People listing and detail pages. That makes FB-034 (enhancing the wiki with full person field coverage, rich text editing, and structured forms) the highest-leverage next investment. FB-033 is a quick user-requested UX win that follows the established sidebar-collapse pattern. Tier 3 gaps (G-11 fan chart, G-12 duplicate detection, G-14 print/export) are deferred to S27 — they are high complexity and would overload a sprint that already includes a rich text editor integration and structured form overhaul.
+FB-035 cleaned up the UI surface. S26a (commit 75c11a9) delivered wiki biography enhancements and the collapsible tree panel. The remaining work was: a P0 tree BFS bug that prevented relationship lines from rendering when people are connected as parents of the root node, missing social profile fields on create/edit, no freeform date parsing, and zero UI for adding or removing people from tree/wiki views.
 
 ### Committed Packets
 
@@ -20,6 +20,7 @@ FB-035 just made Family Bios the single read-only view for person data by removi
 |---|---|---|---:|---|
 | 33 | FB-033 | Collapsible Tree Controls Panel | P2 | done |
 | 34 | FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | done |
+| — | — | Tree traversal fix + social fields + add/remove person UX | P0–P2 | done |
 
 ### Delivered Slices
 
@@ -29,6 +30,12 @@ FB-035 just made Family Bios the single read-only view for person data by removi
 | S26-2 | Wiki Section Structure Enhancement (FB-034) | done |
 | S26-3 | Trix Rich Text Editor Integration (FB-034) | done |
 | S26-4 | Structured Form Editing for JSON Arrays (FB-034) | done |
+| S26-5 | Tree bi-directional BFS traversal fix (P0 bug) | done |
+| S26-6 | Social profile fields, contact fields, burial details | done |
+| S26-7 | Freeform date auto-parsing to ISO on save | done |
+| S26-8 | Add Person buttons on tree toolbar and wiki index | done |
+| S26-9 | Remove Person UI with server-side root guard | done |
+| S26-10 | Research page HTMX partial and GEDCOM cleanup | done |
 
 ### Sprint Exit Criteria
 
@@ -36,41 +43,50 @@ The sprint is successful when all are true:
 
 - left tree controls panel has a collapse/expand toggle matching the right sidebar pattern
 - collapse state persists across page reloads via localStorage
-- wiki pages display all 11 sections (summary, early life, education, career, personal life, organizations, physical description, later life, death & legacy, sources, research notes) when data exists
-- summary section shows computed age and languages
-- early life section shows maiden name when different from last_name
-- physical description and sources & citations are new sections surfacing existing model fields
-- death & legacy section includes full burial details
-- Trix WYSIWYG editor loads for bio, obituary, and research_notes in wiki edit mode
+- wiki pages display all 11 sections when data exists
+- Trix WYSIWYG editor loads for rich text fields in wiki edit mode
 - HTML is sanitized server-side via nh3 before storage
-- rich text content round-trips correctly (edit → save → re-render with formatting)
-- education, career, and organization entries edited via structured form fields (not raw JSON)
-- add/remove entry buttons work for each array type
-- i18n parity maintained across all 3 locales
-- root person redaction maintained across all new sections
-- mobile layout unaffected
+- education, career, and organization entries edited via structured form fields
+- tree BFS walks both parentToChildren and childToParents — all connected nodes reachable
+- relationship lines render correctly for all connected people including root-parent edges
+- social profiles (Instagram, Facebook, X, LinkedIn, TikTok, YouTube) on create/edit/wiki
+- contact fields (WhatsApp, Telegram, Signal, email) and burial details on edit form
+- freeform date strings auto-parsed to ISO on create and update
+- "Add Person" button visible on wiki index and tree toolbar
+- "Remove Person" visible to admins on person edit and wiki person pages
+- DELETE /api/persons/{id} rejects is_root with 403
+- delete JS uses data-attribute pattern (no Jinja-in-JS interpolation)
+- shared delete-person.js — zero duplicated function bodies
+- i18n parity maintained across all 3 locales (en, es, ru)
+- root person redaction maintained across all surfaces
 - test baselines remain intact
 
 ### Exit Result
 
 - Exit result: `pass`
-- Builder implemented Sprint 26 on `main`
-- First audit: PASS WITH REQUIRED FIXES — 1 P1, 8 P2, 16 P3
-  - Builder fixed all 6 grouped defect items (1 P1, 5 P2/P3)
-- Re-audit: FAIL — 3 new P1 findings in render/revert paths, 4 P2 findings
-  - S2-R01/R02 (P1): Plain-text fields rendered through `|safe` in summary and death-legacy sections — stored XSS
-  - S3-R01 (P1): Revert endpoint bypasses sanitization for rich text fields
-  - S1-R01/R05 (P2): Collapsed panel lacks `visibility:hidden` — remains in tab order
-  - S3-R03 (P2): `sanitize_html(None)` would raise TypeError
-  - S3-R08 (P2): Already had max_length — false positive (bio=2000, obituary=10000, research_notes=5000)
-  - Builder fixed all 4 real findings (3 P1, 1 P2)
-- Final re-audit findings resolved, all acceptance criteria met
+- Phase 1 (S26a): Builder implemented FB-033 + FB-034 on `main` (commit 75c11a9)
+  - First audit: PASS WITH REQUIRED FIXES — 1 P1, 8 P2, 16 P3
+  - Re-audit: FAIL — 3 P1 in render/revert paths, 4 P2
+  - Builder fixed all real findings (3 P1, 1 P2)
+  - Final re-audit: PASS
+- Phase 2 (S26b): Builder implemented tree fix, social fields, date parsing, add/remove UX (commit 3ba06a2)
+  - First audit: NEEDS WORK — 7 findings (1 P0, 1 P1, 2 P2, 3 P3)
+    - F-C1 (P0): No server-side is_root guard on DELETE endpoint
+    - F-C2 (P1): XSS via backslash in display_name JS interpolation
+    - F-B1 (P2): SVG icon path geometry malformed
+    - F-C3 (P2): Danger zone text hardcoded English, not i18n
+    - F-A1 (P3): pcKindLookup miss on reversed edges
+    - F-B2 (P3): Inline styles vs CSS class conventions
+    - F-C4 (P3): Duplicated deletePerson() across templates
+  - Builder fixed all 7 findings
+  - Re-audit: PASS — all findings verified, adversarial XSS probes clear
 - Focused closeout baseline:
-  - `uv run pytest -q`: **422 passed, 0 failed**
+  - `uv run pytest -q`: **445 passed, 0 failed**
   - `uv run pytest tests/test_i18n.py -q`: **3 passed** (locale parity)
-  - Test count delta: 401 → 422 (21 new tests added)
-  - New dependency: `nh3` (Rust-based HTML sanitizer)
-  - New module: `app/services/sanitization.py` (shared HTML sanitization)
+  - Test count delta: 401 → 445 (44 new tests across both phases)
+  - New modules: `app/services/date_parsing.py`, `app/static/js/delete-person.js`
+  - New dependency (phase 1): `nh3` (Rust-based HTML sanitizer)
+  - Migration: `alembic/versions/c27a_social_fields_date_backfill.py`
 
 ### Deferred to S27
 
@@ -85,6 +101,8 @@ The sprint is successful when all are true:
 | Question | Decision |
 |---|---|
 | Trix CDN source? | jsDelivr — pinned to trix@2.1.18 with SRI hashes, MIT license |
+| Delete person XSS mitigation? | Data-attribute pattern with shared JS file — no Jinja-in-JS interpolation |
+| Root person delete protection? | Server-side 403 guard + client-side conditional rendering |
 | G-12 + data-quality dashboard? | Deferred to S27 scoping |
 | G-14 PDF library? | Deferred to S27 scoping |
 | G-11 descendant fan? | Deferred to S27 scoping |
@@ -93,6 +111,8 @@ The sprint is successful when all are true:
 
 - Task packets: `task_packets/FB-033_collapsible_tree_controls_panel.md`, `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md`
 - Sanitization module: `app/services/sanitization.py`
+- Date parsing service: `app/services/date_parsing.py`
+- Shared delete JS: `app/static/js/delete-person.js`
 - Wiki service: `app/services/wiki_service.py`
 - Wiki routes: `app/routes/wiki.py`
 
