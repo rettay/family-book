@@ -911,10 +911,22 @@
   function layoutTree(rootId, parentToChildren, childToParents) {
     var visited = new Set();
     var nodePositions = {};
+    var partnerMap = {};
+
+    treeData.partnerships.forEach(function(partnership) {
+      if (!partnerMap[partnership.person_a_id]) {
+        partnerMap[partnership.person_a_id] = [];
+      }
+      if (!partnerMap[partnership.person_b_id]) {
+        partnerMap[partnership.person_b_id] = [];
+      }
+      partnerMap[partnership.person_a_id].push(partnership.person_b_id);
+      partnerMap[partnership.person_b_id].push(partnership.person_a_id);
+    });
 
     function buildHierarchy(rootNodeId) {
       // Phase 1: Direction-aware BFS to assign generation depths.
-      // Children go deeper (+1), parents go shallower (-1).
+      // Children go deeper (+1), parents go shallower (-1), partners stay level (0).
       var depthOf = {};
       depthOf[rootNodeId] = 0;
       visited.add(rootNodeId);
@@ -938,6 +950,14 @@
             depthOf[pid] = d - 1;
             bfsQueue.push(pid);
             componentIds.push(pid);
+          }
+        });
+        (partnerMap[nid] || []).forEach(function(partnerId) {
+          if (!visited.has(partnerId)) {
+            visited.add(partnerId);
+            depthOf[partnerId] = d;
+            bfsQueue.push(partnerId);
+            componentIds.push(partnerId);
           }
         });
       }
@@ -994,8 +1014,8 @@
       return root;
     }
 
-    function applyLayout(node, xStart, y, maxDepth) {
-      node.y = y;
+    function applyLayout(node, xStart, yOffset, maxDepth) {
+      node.y = yOffset + (node.depth * NODE_SPACING_Y);
       if (node.depth > maxDepth.value) {
         maxDepth.value = node.depth;
       }
@@ -1007,7 +1027,7 @@
 
       var nextX = xStart;
       node.children.forEach(function(child) {
-        nextX = applyLayout(child, nextX, y + NODE_SPACING_Y, maxDepth);
+        nextX = applyLayout(child, nextX, yOffset, maxDepth);
       });
 
       var first = node.children[0];
