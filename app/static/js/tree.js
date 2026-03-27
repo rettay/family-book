@@ -214,6 +214,8 @@
 
   function updateGraphModeBanner() {
     var banner = document.getElementById('tree-graph-mode-banner');
+    var canvasPrompt = document.getElementById('tree-graph-prompt');
+    var canvasPromptText = document.getElementById('tree-graph-prompt-text');
     if (!banner) {
       return;
     }
@@ -223,6 +225,7 @@
       banner.classList.add('hidden');
       if (titleNode) titleNode.textContent = '';
       if (descriptionNode) descriptionNode.textContent = '';
+      if (canvasPrompt) canvasPrompt.hidden = true;
       return;
     }
     var summary = graphModeSummary(sidebarState.graphMode);
@@ -230,6 +233,10 @@
     if (titleNode) titleNode.textContent = summary.title;
     if (descriptionNode) descriptionNode.textContent = summary.description;
     setStatus(summary.description);
+    if (canvasPrompt && canvasPromptText) {
+      canvasPromptText.textContent = summary.description;
+      canvasPrompt.hidden = false;
+    }
   }
 
   function applyRelationshipHighlights() {
