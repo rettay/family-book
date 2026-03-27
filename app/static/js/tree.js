@@ -932,22 +932,21 @@
     }
     collectNodes(rootNode);
 
+    var detachedY = (maxDepth.value + 2) * NODE_SPACING_Y + 60;
+    var detachedX = 0;
     var unvisited = treeData.persons.filter(function(person) {
       return !visited.has(person.id);
     });
-    var ux = 0;
-    unvisited.forEach(function(person) {
-      var detachedNode = {
-        id: person.id,
-        children: [],
-        depth: maxDepth.value + 1,
-        x: ux,
-        y: (maxDepth.value + 1) * NODE_SPACING_Y + 60
-      };
-      allNodes.push(detachedNode);
-      nodePositions[person.id] = {x: detachedNode.x, y: detachedNode.y};
-      ux += NODE_SPACING_X;
-    });
+    while (unvisited.length > 0) {
+      var componentRoot = buildHierarchy(unvisited[0].id);
+      var componentMaxDepth = {value: 0};
+      var nextX = applyLayout(componentRoot, detachedX, detachedY, componentMaxDepth);
+      collectNodes(componentRoot);
+      detachedX = nextX + NODE_SPACING_X / 2;
+      unvisited = treeData.persons.filter(function(person) {
+        return !visited.has(person.id);
+      });
+    }
 
     return {allNodes: allNodes, nodePositions: nodePositions};
   }
