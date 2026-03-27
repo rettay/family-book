@@ -269,6 +269,92 @@ body.has-overlay { overflow: hidden; }
   letter-spacing: 0.01em;
 }
 
+/* ===== Date Input Group (dual-mode calendar/freeform) ===== */
+.date-input-group { display: flex; gap: 8px; align-items: center; }
+.date-input-group__field { flex: 1; }
+.date-input-group__field input { width: 100%; }
+.date-input-group__toggle {
+  font-size: 0.82rem;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.date-input-group__toggle:hover { background: var(--border); }
+
+/* ===== Language Tag Autocomplete ===== */
+.tag-input { position: relative; }
+.tag-input__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  background: var(--surface);
+  cursor: text;
+  min-height: 38px;
+  align-items: center;
+}
+.tag-input__chips:focus-within { border-color: var(--accent, #7c6f5b); outline: none; }
+.tag-input__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--border);
+  border-radius: 4px;
+  font-size: 0.88rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+.tag-input__chip-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+.tag-input__chip-remove:hover { color: var(--danger, #c00); }
+.tag-input__text {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  min-width: 120px;
+  font-size: 0.92rem;
+  color: var(--text);
+  padding: 2px 0;
+}
+.tag-input__dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--surface, #fff);
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 6px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 2px;
+}
+.tag-input__dropdown--open { display: block; }
+.tag-input__option {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+.tag-input__option:hover { background: var(--border); }
+
 /* ===== Moment Card ===== */
 .moment {
   background: var(--warm-white); border-radius: var(--radius-lg);
