@@ -906,25 +906,85 @@
     var nodePositions = {};
 
     function buildHierarchy(rootNodeId) {
-      var rootNode = {id: rootNodeId, children: [], depth: 0, x: 0, y: 0};
-      var queue = [rootNode];
+      // Phase 1: Direction-aware BFS to assign generation depths.
+      // Children go deeper (+1), parents go shallower (-1).
+      var depthOf = {};
+      depthOf[rootNodeId] = 0;
       visited.add(rootNodeId);
+      var bfsQueue = [rootNodeId];
+      var componentIds = [rootNodeId];
 
-      while (queue.length > 0) {
-        var node = queue.shift();
-        var neighbors = (parentToChildren[node.id] || []).concat(childToParents[node.id] || []);
-        neighbors.forEach(function(neighborId) {
-          if (visited.has(neighborId)) {
-            return;
+      while (bfsQueue.length > 0) {
+        var nid = bfsQueue.shift();
+        var d = depthOf[nid];
+        (parentToChildren[nid] || []).forEach(function(cid) {
+          if (!visited.has(cid)) {
+            visited.add(cid);
+            depthOf[cid] = d + 1;
+            bfsQueue.push(cid);
+            componentIds.push(cid);
           }
-          visited.add(neighborId);
-          var childNode = {id: neighborId, children: [], depth: node.depth + 1, parent: node};
-          node.children.push(childNode);
-          queue.push(childNode);
+        });
+        (childToParents[nid] || []).forEach(function(pid) {
+          if (!visited.has(pid)) {
+            visited.add(pid);
+            depthOf[pid] = d - 1;
+            bfsQueue.push(pid);
+            componentIds.push(pid);
+          }
         });
       }
 
-      return rootNode;
+      // Normalize so minimum depth = 0
+      var minD = 0;
+      componentIds.forEach(function(id) { if (depthOf[id] < minD) minD = depthOf[id]; });
+      if (minD < 0) {
+        componentIds.forEach(function(id) { depthOf[id] -= minD; });
+      }
+
+      // Phase 2: Build layout tree from depth assignments.
+      // Each node's layout-children are connected people at exactly depth+1.
+      var placed = {};
+      function buildNode(id) {
+        placed[id] = true;
+        var nd = depthOf[id];
+        var node = {id: id, children: [], depth: nd, x: 0, y: 0};
+        var deeper = [];
+        (parentToChildren[id] || []).forEach(function(cid) {
+          if (!placed[cid] && depthOf[cid] === nd + 1) deeper.push(cid);
+        });
+        (childToParents[id] || []).forEach(function(pid) {
+          if (!placed[pid] && depthOf[pid] === nd + 1) deeper.push(pid);
+        });
+        deeper.forEach(function(childId) {
+          if (!placed[childId]) {
+            var childNode = buildNode(childId);
+            childNode.parent = node;
+            node.children.push(childNode);
+          }
+        });
+        return node;
+      }
+
+      // Start from the shallowest node (prefer designated root if tied)
+      var topId = componentIds[0];
+      componentIds.forEach(function(id) {
+        if (depthOf[id] < depthOf[topId]) topId = id;
+      });
+      if (depthOf[rootNodeId] === depthOf[topId]) topId = rootNodeId;
+
+      var root = buildNode(topId);
+
+      // Attach any unplaced component members (shouldn't happen, but safety net)
+      componentIds.forEach(function(id) {
+        if (!placed[id]) {
+          var orphan = buildNode(id);
+          orphan.parent = root;
+          root.children.push(orphan);
+        }
+      });
+
+      return root;
     }
 
     function applyLayout(node, xStart, y, maxDepth) {
