@@ -14,7 +14,7 @@
         <span class="timeline__type-badge timeline__type-badge--{{ ev.type }}">{{ ev.type | title }}</span>
         <h3 class="timeline__label">
           {% if ev.person_id %}
-          <a href="/people/{{ ev.person_id }}">{{ ev.label }}</a>
+          <a href="/tree?focus={{ ev.person_id }}">{{ ev.label }}</a>
           {% else %}
           {{ ev.label }}
           {% endif %}

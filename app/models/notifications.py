@@ -8,7 +8,6 @@ from datetime import datetime
 
 
 class NotificationKind(str, enum.Enum):
-    new_moment = "new_moment"
     birthday = "birthday"
     anniversary = "anniversary"
     memorial_anniversary = "memorial_anniversary"

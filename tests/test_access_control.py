@@ -134,8 +134,6 @@ def test_redact_person_summary_preserves_metrics_when_profile_visible():
         visibility=Visibility.visible.value,
         is_living=True,
     )
-    person.moment_count = 4
-    person.story_count = 2
     person.media_count = 9
     access = PersonAccess(True, True, False, False)
 
@@ -144,6 +142,4 @@ def test_redact_person_summary_preserves_metrics_when_profile_visible():
     assert access_control.can_collaborate(person) is True
     assert summary.branch == "martin"
     assert summary.residence_country_code == "US"
-    assert summary.moment_count == 4
-    assert summary.story_count == 2
     assert summary.media_count == 9

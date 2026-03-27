@@ -28,19 +28,6 @@ async def test_admin_dashboard_renders_release_confidence_sections(admin_client:
 
 
 @pytest.mark.asyncio
-async def test_moments_page_renders_accessible_compose_and_live_regions(admin_client: AsyncClient):
-    resp = await admin_client.get("/moments")
-
-    assert resp.status_code == 200
-    assert 'id="compose-modal"' in resp.text
-    assert 'role="dialog"' in resp.text
-    assert 'aria-live="polite"' in resp.text
-    assert 'id="moments-feed"' in resp.text
-    assert 'class="form-select feed-filter-select"' in resp.text
-    assert "const url = kind ? '/moments?kind=' + kind : '/moments';" in resp.text
-
-
-@pytest.mark.asyncio
 async def test_authenticated_root_redirects_to_tree(member_client: AsyncClient):
     resp = await member_client.get("/")
 
@@ -50,22 +37,12 @@ async def test_authenticated_root_redirects_to_tree(member_client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_login_page_preserves_safe_return_to_after_auth(client: AsyncClient):
-    resp = await client.get("/login?return_to=/moments")
+    resp = await client.get("/login?return_to=/tree")
 
     assert resp.status_code == 200
     assert "const params = new URLSearchParams(window.location.search);" in resp.text
     assert "const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')" in resp.text
     assert "window.location.href = safeReturnTo || '/tree';" in resp.text
-
-
-@pytest.mark.asyncio
-async def test_people_page_renders_search_label_and_live_results(member_client: AsyncClient):
-    resp = await member_client.get("/people")
-
-    assert resp.status_code == 200
-    assert 'for="people-search-input"' in resp.text
-    assert 'id="people-results" aria-live="polite" aria-busy="false"' in resp.text
-    assert 'class="page-header page-header--split mb-16"' in resp.text
 
 
 @pytest.mark.asyncio
@@ -78,7 +55,6 @@ async def test_tree_page_renders_sidebar_dialog_and_labeled_controls(member_clie
     assert 'aria-label="' in resp.text
     assert 'id="tree-status" role="status" aria-live="polite"' in resp.text
     assert 'data-saved-message="' in resp.text
-    assert 'data-tree-story-created="' in resp.text
     assert 'data-tree-graph-prompt-link="' in resp.text
     assert 'data-tree-graph-confirm-replace="' in resp.text
 
@@ -143,13 +119,10 @@ async def test_tree_person_card_renders_workspace_tabs_and_tree_native_sections(
 
     assert resp.status_code == 200
     assert 'data-tree-sidebar-tab="overview"' in resp.text
-    assert 'data-tree-sidebar-tab="moments"' in resp.text
-    assert 'id="tree-sidebar-moments"' in resp.text
     assert 'id="tree-sidebar-media"' in resp.text
     assert 'id="tree-sidebar-people-options"' in resp.text
     assert 'class="tree-sidebar-inline-actions"' in resp.text
     assert 'class="tree-sidebar-pill-row"' in resp.text
-    assert 'data-tree-moment-filter="shared"' in resp.text
 
 
 @pytest.mark.asyncio
@@ -160,18 +133,6 @@ async def test_tree_person_card_uses_search_picker_not_raw_relationship_selects(
     assert 'data-tree-picker' in resp.text
     assert 'placeholder="Search family members"' in resp.text
     assert 'select class="form-select" name="related_person_id"' not in resp.text
-
-
-@pytest.mark.asyncio
-async def test_admin_tree_person_card_renders_rich_storytelling_controls(admin_client: AsyncClient):
-    resp = await admin_client.get(f"/people/{TYLER_ID}/card")
-
-    assert resp.status_code == 200
-    assert 'name="authoring_scope"' in resp.text
-    assert 'data-tree-story-files' in resp.text
-    assert 'data-tree-multi-picker' in resp.text
-    assert 'name="tagged_person_ids"' in resp.text
-    assert 'multiple' in resp.text
 
 
 @pytest.mark.asyncio

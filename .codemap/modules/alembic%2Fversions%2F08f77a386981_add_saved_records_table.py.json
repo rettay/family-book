@@ -1,0 +1,400 @@
+{
+  "id": "alembic/versions/08f77a386981_add_saved_records_table.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "59ffe388",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 3,
+    "lines": 51,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "upgrade",
+      "type": "function",
+      "summary": null,
+      "line": 21,
+      "signature": "() -> None"
+    },
+    {
+      "name": "downgrade",
+      "type": "function",
+      "summary": null,
+      "line": 44,
+      "signature": "() -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "upgrade",
+      "kind": "function",
+      "line": 21,
+      "signature": "() -> None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "op.create_table",
+          "line": 24,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "sa.Column",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 27,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 27,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 28,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 28,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 30,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 30,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 31,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 31,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 32,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 32,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Column",
+          "line": 33,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.DateTime",
+          "line": 33,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 34,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.ForeignKeyConstraint",
+          "line": 35,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.PrimaryKeyConstraint",
+          "line": 36,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "op.batch_alter_table",
+          "line": 38,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.create_index",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.f",
+          "line": 39,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "downgrade",
+      "kind": "function",
+      "line": 44,
+      "signature": "() -> None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "op.batch_alter_table",
+          "line": 47,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.drop_index",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.f",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "op.drop_table",
+          "line": 50,
+          "module_hint": "alembic"
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "upgrade",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 20,
+        "nesting": 0,
+        "token_count": 264
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 28,
+              "line_end": 28
+            },
+            {
+              "line_start": 29,
+              "line_end": 29
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 26,
+              "line_end": 26
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 28,
+              "line_end": 28
+            },
+            {
+              "line_start": 29,
+              "line_end": 29
+            },
+            {
+              "line_start": 36,
+              "line_end": 36
+            },
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 28,
+              "line_end": 28
+            },
+            {
+              "line_start": 29,
+              "line_end": 29
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "downgrade",
+      "line": 44,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 7,
+        "nesting": 0,
+        "token_count": 52
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 48,
+              "line_end": 48
+            },
+            {
+              "line_start": 50,
+              "line_end": 50
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": true,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "low",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T16:47:46-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 0.6667,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "mixed",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": {
+    "understandability": 0.97,
+    "changeability": 0.7,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.93
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

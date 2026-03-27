@@ -16,7 +16,6 @@ from app.routes.persons import router as persons_router
 from app.routes.relationships import router as relationships_router
 from app.routes.tree import router as tree_router
 from app.routes.media import router as media_router
-from app.routes.moments import router as moments_router
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +81,6 @@ def create_app() -> FastAPI:
     application.include_router(relationships_router)
     application.include_router(tree_router)
     application.include_router(media_router)
-    application.include_router(moments_router)
 
     # HTML page routes (HTMX frontend)
     from app.routes.pages import router as pages_router
@@ -95,10 +93,6 @@ def create_app() -> FastAPI:
     # Timeline routes
     from app.routes.timeline import router as timeline_router
     application.include_router(timeline_router)
-
-    # Health dashboard routes
-    from app.routes.health_dashboard import router as health_dashboard_router
-    application.include_router(health_dashboard_router)
 
     # Wiki routes
     from app.routes.wiki import router as wiki_router

@@ -1,13 +1,13 @@
 {
   "id": "app/static/js/main.js",
   "language": "javascript",
-  "analyzed_at": "2026-03-24T18:42:07.341333+00:00",
-  "source_hash": "6d9ada8f",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "8c41690f",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 85,
-    "lines": 346,
+    "cyclomatic": 82,
+    "lines": 326,
     "rating": "red"
   },
   "dependencies": {
@@ -329,133 +329,30 @@
       ]
     },
     {
-      "name": "toggleReactionPicker",
+      "name": "_guessMediaType",
       "kind": "function",
       "line": 187,
-      "signature": "(momentId, trigger)",
-      "complexity": 4,
+      "signature": "(url)",
+      "complexity": 5,
       "calls": [
         {
-          "name": "document.getElementById",
-          "line": 188,
+          "name": "url.toLowerCase",
+          "line": 189,
           "module_hint": null
         },
         {
-          "name": "el.classList.contains",
+          "name": "lower.match",
           "line": 190,
           "module_hint": null
         },
         {
-          "name": "el.classList.toggle",
+          "name": "lower.match",
           "line": 191,
           "module_hint": null
         },
         {
-          "name": "trigger.setAttribute",
-          "line": 194,
-          "module_hint": null
-        }
-      ]
-    },
-    {
-      "name": "toggleComments",
-      "kind": "function",
-      "line": 199,
-      "signature": "(momentId, trigger)",
-      "complexity": 6,
-      "calls": [
-        {
-          "name": "document.getElementById",
-          "line": 200,
-          "module_hint": null
-        },
-        {
-          "name": "el.classList.contains",
-          "line": 202,
-          "module_hint": null
-        },
-        {
-          "name": "el.classList.toggle",
-          "line": 203,
-          "module_hint": null
-        },
-        {
-          "name": "trigger.setAttribute",
-          "line": 206,
-          "module_hint": null
-        },
-        {
-          "name": "el.setAttribute",
-          "line": 210,
-          "module_hint": null
-        },
-        {
-          "name": "htmx.trigger",
-          "line": 211,
-          "module_hint": null
-        }
-      ]
-    },
-    {
-      "name": "postComment",
-      "kind": "function",
-      "line": 217,
-      "signature": "(e, momentId)",
-      "complexity": 6,
-      "calls": [
-        {
-          "name": "e.preventDefault",
-          "line": 218,
-          "module_hint": null
-        },
-        {
-          "name": "e.target.querySelector",
-          "line": 219,
-          "module_hint": null
-        },
-        {
-          "name": "document.getElementById",
-          "line": 220,
-          "module_hint": null
-        },
-        {
-          "name": "input.value.trim",
-          "line": 221,
-          "module_hint": null
-        },
-        {
-          "name": "statusNode.classList.add",
-          "line": 225,
-          "module_hint": null
-        },
-        {
-          "name": "fetch",
-          "line": 229,
-          "module_hint": null
-        },
-        {
-          "name": "JSON.stringify",
-          "line": 232,
-          "module_hint": null
-        },
-        {
-          "name": "htmx.ajax",
-          "line": 237,
-          "module_hint": null
-        },
-        {
-          "name": "resp.json().catch",
-          "line": 239,
-          "module_hint": null
-        },
-        {
-          "name": "resp.json",
-          "line": 239,
-          "module_hint": null
-        },
-        {
-          "name": "statusNode.classList.remove",
-          "line": 241,
+          "name": "lower.match",
+          "line": 192,
           "module_hint": null
         }
       ]
@@ -463,103 +360,162 @@
     {
       "name": "openLightbox",
       "kind": "function",
-      "line": 249,
-      "signature": "(url, altText)",
-      "complexity": 4,
+      "line": 196,
+      "signature": "(url, altText, mediaType)",
+      "complexity": 8,
       "calls": [
         {
+          "name": "_guessMediaType",
+          "line": 197,
+          "module_hint": null
+        },
+        {
+          "name": "window.open",
+          "line": 199,
+          "module_hint": null
+        },
+        {
           "name": "document.createElement",
-          "line": 250,
+          "line": 202,
           "module_hint": null
         },
         {
           "name": "lb.setAttribute",
-          "line": 253,
+          "line": 205,
           "module_hint": null
         },
         {
-          "name": "closeAccessibleOverlay",
-          "line": 256,
-          "module_hint": null
-        },
-        {
-          "name": "lb.remove",
-          "line": 257,
+          "name": "_closeLightbox",
+          "line": 208,
           "module_hint": null
         },
         {
           "name": "document.createElement",
-          "line": 260,
+          "line": 211,
           "module_hint": null
         },
         {
           "name": "closeBtn.setAttribute",
-          "line": 263,
+          "line": 214,
           "module_hint": null
         },
         {
           "name": "e.stopPropagation",
-          "line": 266,
+          "line": 217,
           "module_hint": null
         },
         {
-          "name": "closeAccessibleOverlay",
-          "line": 267,
-          "module_hint": null
-        },
-        {
-          "name": "lb.remove",
-          "line": 268,
+          "name": "_closeLightbox",
+          "line": 218,
           "module_hint": null
         },
         {
           "name": "document.createElement",
-          "line": 270,
+          "line": 220,
           "module_hint": null
         },
         {
           "name": "dialog.setAttribute",
-          "line": 272,
+          "line": 222,
           "module_hint": null
         },
         {
           "name": "dialog.setAttribute",
-          "line": 273,
+          "line": 223,
           "module_hint": null
         },
         {
           "name": "dialog.setAttribute",
-          "line": 274,
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.appendChild",
+          "line": 226,
           "module_hint": null
         },
         {
           "name": "document.createElement",
-          "line": 276,
+          "line": 229,
           "module_hint": null
         },
         {
           "name": "dialog.appendChild",
-          "line": 279,
+          "line": 235,
+          "module_hint": null
+        },
+        {
+          "name": "document.createElement",
+          "line": 237,
           "module_hint": null
         },
         {
           "name": "dialog.appendChild",
-          "line": 280,
+          "line": 243,
+          "module_hint": null
+        },
+        {
+          "name": "document.createElement",
+          "line": 245,
+          "module_hint": null
+        },
+        {
+          "name": "dialog.appendChild",
+          "line": 248,
           "module_hint": null
         },
         {
           "name": "lb.appendChild",
-          "line": 281,
+          "line": 251,
           "module_hint": null
         },
         {
           "name": "document.body.appendChild",
-          "line": 282,
+          "line": 252,
           "module_hint": null
         },
         {
           "name": "openAccessibleOverlay",
-          "line": 283,
+          "line": 253,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_closeLightbox",
+      "kind": "function",
+      "line": 256,
+      "signature": "(lb)",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "lb.querySelector",
+          "line": 258,
+          "module_hint": null
+        },
+        {
+          "name": "lb.querySelector",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "video.pause",
+          "line": 260,
+          "module_hint": null
+        },
+        {
+          "name": "audio.pause",
+          "line": 261,
+          "module_hint": null
+        },
+        {
+          "name": "closeAccessibleOverlay",
+          "line": 262,
+          "module_hint": null
+        },
+        {
+          "name": "lb.remove",
+          "line": 263,
           "module_hint": null
         }
       ]
@@ -567,88 +523,88 @@
     {
       "name": "uploadMedia",
       "kind": "function",
-      "line": 287,
+      "line": 267,
       "signature": "()",
       "complexity": 8,
       "calls": [
         {
           "name": "document.getElementById",
+          "line": 268,
+          "module_hint": null
+        },
+        {
+          "name": "showToast",
+          "line": 269,
+          "module_hint": null
+        },
+        {
+          "name": "FormData",
+          "line": 270,
+          "module_hint": null
+        },
+        {
+          "name": "fd.append",
+          "line": 271,
+          "module_hint": null
+        },
+        {
+          "name": "window.location.pathname.match",
+          "line": 273,
+          "module_hint": null
+        },
+        {
+          "name": "fd.append",
+          "line": 274,
+          "module_hint": null
+        },
+        {
+          "name": "fetch",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "showToast",
+          "line": 277,
+          "module_hint": null
+        },
+        {
+          "name": "document.getElementById",
+          "line": 279,
+          "module_hint": null
+        },
+        {
+          "name": "gallery.setAttribute",
+          "line": 281,
+          "module_hint": null
+        },
+        {
+          "name": "fetch",
+          "line": 283,
+          "module_hint": null
+        },
+        {
+          "name": "encodeURIComponent",
+          "line": 283,
+          "module_hint": null
+        },
+        {
+          "name": "replaceNodeChildrenFromHTML",
+          "line": 285,
+          "module_hint": null
+        },
+        {
+          "name": "partialResp.text",
+          "line": 285,
+          "module_hint": null
+        },
+        {
+          "name": "gallery.setAttribute",
           "line": 288,
           "module_hint": null
         },
         {
           "name": "showToast",
-          "line": 289,
-          "module_hint": null
-        },
-        {
-          "name": "FormData",
-          "line": 290,
-          "module_hint": null
-        },
-        {
-          "name": "fd.append",
-          "line": 291,
-          "module_hint": null
-        },
-        {
-          "name": "window.location.pathname.match",
           "line": 293,
-          "module_hint": null
-        },
-        {
-          "name": "fd.append",
-          "line": 294,
-          "module_hint": null
-        },
-        {
-          "name": "fetch",
-          "line": 295,
-          "module_hint": null
-        },
-        {
-          "name": "showToast",
-          "line": 297,
-          "module_hint": null
-        },
-        {
-          "name": "document.getElementById",
-          "line": 299,
-          "module_hint": null
-        },
-        {
-          "name": "gallery.setAttribute",
-          "line": 301,
-          "module_hint": null
-        },
-        {
-          "name": "fetch",
-          "line": 303,
-          "module_hint": null
-        },
-        {
-          "name": "encodeURIComponent",
-          "line": 303,
-          "module_hint": null
-        },
-        {
-          "name": "replaceNodeChildrenFromHTML",
-          "line": 305,
-          "module_hint": null
-        },
-        {
-          "name": "partialResp.text",
-          "line": 305,
-          "module_hint": null
-        },
-        {
-          "name": "gallery.setAttribute",
-          "line": 308,
-          "module_hint": null
-        },
-        {
-          "name": "showToast",
-          "line": 313,
           "module_hint": null
         }
       ]
@@ -656,23 +612,23 @@
     {
       "name": "closeSidebar",
       "kind": "function",
-      "line": 318,
+      "line": 298,
       "signature": "()",
       "complexity": 2,
       "calls": [
         {
           "name": "document.getElementById",
-          "line": 319,
+          "line": 299,
           "module_hint": null
         },
         {
           "name": "el.classList.remove",
-          "line": 321,
+          "line": 301,
           "module_hint": null
         },
         {
           "name": "closeAccessibleOverlay",
-          "line": 322,
+          "line": 302,
           "module_hint": null
         }
       ]
@@ -890,56 +846,14 @@
       "review_priority": 0.47
     },
     {
-      "function": "toggleReactionPicker",
+      "function": "_guessMediaType",
       "line": 187,
       "metrics": {
-        "cyclomatic": 4,
+        "cyclomatic": 5,
         "cognitive": 4,
-        "size": 10,
-        "nesting": 2,
-        "token_count": 67
-      },
-      "findings": [],
-      "estimated_complexity": {
-        "time": "O(1)",
-        "space": "unknown"
-      },
-      "contract_status": {
-        "status": "unknown",
-        "mismatch": "No performance contract annotation available for this function"
-      },
-      "review_priority": 0.0
-    },
-    {
-      "function": "toggleComments",
-      "line": 199,
-      "metrics": {
-        "cyclomatic": 6,
-        "cognitive": 8,
-        "size": 16,
-        "nesting": 3,
-        "token_count": 107
-      },
-      "findings": [],
-      "estimated_complexity": {
-        "time": "O(1)",
-        "space": "unknown"
-      },
-      "contract_status": {
-        "status": "unknown",
-        "mismatch": "No performance contract annotation available for this function"
-      },
-      "review_priority": 0.0
-    },
-    {
-      "function": "postComment",
-      "line": 217,
-      "metrics": {
-        "cyclomatic": 6,
-        "cognitive": 5,
-        "size": 30,
-        "nesting": 2,
-        "token_count": 193
+        "size": 8,
+        "nesting": 1,
+        "token_count": 55
       },
       "findings": [
         {
@@ -947,16 +861,16 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 219,
-              "line_end": 219
+              "line_start": 190,
+              "line_end": 190
             },
             {
-              "line_start": 225,
-              "line_end": 225
+              "line_start": 191,
+              "line_end": 191
             },
             {
-              "line_start": 241,
-              "line_end": 241
+              "line_start": 192,
+              "line_end": 192
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -975,13 +889,13 @@
     },
     {
       "function": "openLightbox",
-      "line": 249,
+      "line": 196,
       "metrics": {
-        "cyclomatic": 4,
-        "cognitive": 1,
-        "size": 36,
-        "nesting": 1,
-        "token_count": 252
+        "cyclomatic": 8,
+        "cognitive": 6,
+        "size": 59,
+        "nesting": 2,
+        "token_count": 391
       },
       "findings": [
         {
@@ -989,28 +903,94 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 253,
-              "line_end": 253
+              "line_start": 202,
+              "line_end": 202
             },
             {
-              "line_start": 263,
-              "line_end": 263
+              "line_start": 211,
+              "line_end": 211
             },
             {
-              "line_start": 272,
-              "line_end": 272
+              "line_start": 220,
+              "line_end": 220
             },
             {
-              "line_start": 250,
-              "line_end": 250
+              "line_start": 233,
+              "line_end": 233
+            },
+            {
+              "line_start": 234,
+              "line_end": 234
+            },
+            {
+              "line_start": 241,
+              "line_end": 241
+            },
+            {
+              "line_start": 228,
+              "line_end": 236
+            },
+            {
+              "line_start": 236,
+              "line_end": 244
+            },
+            {
+              "line_start": 205,
+              "line_end": 205
+            },
+            {
+              "line_start": 214,
+              "line_end": 214
+            },
+            {
+              "line_start": 222,
+              "line_end": 222
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_closeLightbox",
+      "line": 256,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 9,
+        "nesting": 1,
+        "token_count": 51
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 258,
+              "line_end": 258
+            },
+            {
+              "line_start": 259,
+              "line_end": 259
             },
             {
               "line_start": 260,
               "line_end": 260
             },
             {
-              "line_start": 270,
-              "line_end": 270
+              "line_start": 261,
+              "line_end": 261
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1029,7 +1009,7 @@
     },
     {
       "function": "uploadMedia",
-      "line": 287,
+      "line": 267,
       "metrics": {
         "cyclomatic": 8,
         "cognitive": 12,
@@ -1043,20 +1023,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 281,
+              "line_end": 281
+            },
+            {
               "line_start": 288,
               "line_end": 288
             },
             {
-              "line_start": 299,
-              "line_end": 299
+              "line_start": 268,
+              "line_end": 268
             },
             {
-              "line_start": 301,
-              "line_end": 301
-            },
-            {
-              "line_start": 308,
-              "line_end": 308
+              "line_start": 279,
+              "line_end": 279
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1075,7 +1055,7 @@
     },
     {
       "function": "closeSidebar",
-      "line": 318,
+      "line": 298,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -1103,13 +1083,12 @@
     "security_issues": [],
     "side_effects": [
       "network: fetch() at line 149",
-      "network: fetch() at line 229",
-      "network: fetch() at line 295",
-      "network: fetch() at line 303"
+      "network: fetch() at line 275",
+      "network: fetch() at line 283"
     ],
     "purity": "network",
     "todo_count": 0,
-    "churn_count": 3,
+    "churn_count": 5,
     "change_risk": "high",
     "domain": null,
     "observability_patterns": [],
@@ -1117,21 +1096,20 @@
     "databases": [],
     "services": [
       "service:fetch-api: fetch() at line 149",
-      "service:fetch-api: fetch() at line 229",
-      "service:fetch-api: fetch() at line 295",
-      "service:fetch-api: fetch() at line 303"
+      "service:fetch-api: fetch() at line 275",
+      "service:fetch-api: fetch() at line 283"
     ],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 2.0,
+    "change_velocity": 4.0,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-24T14:06:44-04:00",
+    "last_modified": "2026-03-26T10:51:09-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
-    "convention_compliance": 0.5625,
-    "convention_consistency": 0.8782,
+    "convention_compliance": 0.5357,
+    "convention_consistency": 0.9029,
     "dominant_conventions": {
       "module": "snake_case",
       "function": "camelCase",
@@ -1142,14 +1120,14 @@
     ]
   },
   "testability_score": 0.2,
-  "attention_score": 0.43,
+  "attention_score": 0.55,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.28,
+    "understandability": 0.18,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,
-    "stability": 0.6
+    "stability": 0.37
   },
   "domain_role": "utility",
   "detected_patterns": null,

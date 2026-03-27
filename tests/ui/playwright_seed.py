@@ -1,11 +1,9 @@
 import asyncio
-from datetime import datetime, timezone
 
 from sqlalchemy import delete
 
 from app.database import async_session_factory, engine
 from app.models.base import Base
-from app.models.moments import Moment, MomentVisibility
 from app.models.person import AccountState, Person, PersonSource
 from app.models.relationships import ParentChild, Partnership
 from app.services.auth_service import create_session
@@ -23,7 +21,6 @@ async def seed() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
     async with async_session_factory() as session:
-        await session.execute(delete(Moment))
         await session.execute(delete(Partnership))
         await session.execute(delete(ParentChild))
 
@@ -105,18 +102,6 @@ async def seed() -> None:
                 ),
             ]
         )
-
-        seeded_story = Moment(
-            person_id=TYLER_ID,
-            posted_by=TYLER_ID,
-            kind="story",
-            title="Seeded family story",
-            body="A shared story is already in the archive.",
-            occurred_at=datetime(2024, 6, 1, 12, 0, tzinfo=timezone.utc),
-            visibility=MomentVisibility.members.value,
-        )
-        seeded_story.tagged_person_ids = [MEMBER_ID]
-        session.add(seeded_story)
 
         admin_session = await create_session(
             session,

@@ -1,13 +1,13 @@
 {
   "id": "app/models/media.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "8a1f5686",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "0bb2ddfa",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 2,
-    "lines": 73,
+    "lines": 75,
     "rating": "green"
   },
   "dependencies": {
@@ -20,10 +20,10 @@
       "app/models/__init__.py",
       "app/routes/demo.py",
       "app/routes/media.py",
-      "app/routes/moments.py",
       "app/routes/pages.py",
+      "app/routes/persons.py",
+      "app/routes/tree.py",
       "app/services/media_service.py",
-      "app/services/moment_service.py",
       "tests/test_models.py"
     ],
     "tested_by": [
@@ -42,14 +42,14 @@
       "name": "MediaSource",
       "type": "class",
       "summary": null,
-      "line": 20,
+      "line": 21,
       "signature": null
     },
     {
       "name": "Media",
       "type": "class",
       "summary": null,
-      "line": 33,
+      "line": 34,
       "signature": null
     }
   ],
@@ -65,7 +65,7 @@
     {
       "name": "MediaSource",
       "kind": "class",
-      "line": 20,
+      "line": 21,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -73,7 +73,7 @@
     {
       "name": "Media",
       "kind": "class",
-      "line": 33,
+      "line": 34,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -82,7 +82,7 @@
   "function_audits": [
     {
       "function": "__repr__",
-      "line": 62,
+      "line": 64,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -103,7 +103,7 @@
     },
     {
       "function": "tagged_person_ids",
-      "line": 66,
+      "line": 68,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -124,7 +124,7 @@
     },
     {
       "function": "tagged_person_ids",
-      "line": 72,
+      "line": 74,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -153,8 +153,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
-    "change_risk": "medium",
+    "churn_count": 4,
+    "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -166,11 +166,11 @@
       "MediaType"
     ],
     "package": null,
-    "change_velocity": 1.0,
-    "bus_factor": 2,
+    "change_velocity": 3.0,
+    "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-22T23:40:48-04:00",
-    "recency_score": 0.99,
+    "last_modified": "2026-03-26T13:33:21-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -182,16 +182,16 @@
     "outlier_identifiers": null
   },
   "testability_score": 1.0,
-  "attention_score": 0.16,
-  "centrality_score": 0.37,
+  "attention_score": 0.15,
+  "centrality_score": 0.61,
   "quality_radar": {
-    "understandability": 0.94,
-    "changeability": 0.85,
+    "understandability": 0.95,
+    "changeability": 0.89,
     "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.45
+    "stability": 0.43
   },
-  "domain_role": "utility",
+  "domain_role": "core",
   "detected_patterns": null,
   "detected_anti_patterns": null,
   "agent_briefing": null

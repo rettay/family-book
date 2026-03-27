@@ -1,0 +1,1661 @@
+{
+  "id": "app/services/relationship_calculator.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "ff3d7124",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 85,
+    "lines": 374,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/person.py",
+      "app/models/relationships.py"
+    ],
+    "imported_by": [
+      "app/routes/relationships.py",
+      "app/routes/timeline.py",
+      "tests/test_timeline.py"
+    ],
+    "tested_by": [
+      "tests/test_timeline.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "get_ancestors",
+      "type": "function",
+      "summary": null,
+      "line": 16,
+      "signature": "(db: AsyncSession, person_id: str) -> set[str]"
+    },
+    {
+      "name": "get_descendants",
+      "type": "function",
+      "summary": null,
+      "line": 36,
+      "signature": "(db: AsyncSession, person_id: str) -> set[str]"
+    },
+    {
+      "name": "get_lineage",
+      "type": "function",
+      "summary": null,
+      "line": 56,
+      "signature": "(db: AsyncSession, person_id: str) -> set[str]"
+    },
+    {
+      "name": "RelationshipResult",
+      "type": "class",
+      "summary": null,
+      "line": 63,
+      "signature": null
+    },
+    {
+      "name": "find_relationship",
+      "type": "function",
+      "summary": null,
+      "line": 78,
+      "signature": "( db: AsyncSession, from_id: str, to_id: str, ) -> RelationshipResult"
+    },
+    {
+      "name": "_load_graph",
+      "type": "function",
+      "summary": null,
+      "line": 133,
+      "signature": "( db: AsyncSession, ) -> tuple[dict[str, list[str]], dict[tuple[str, str], dict], dict[str, str]]"
+    },
+    {
+      "name": "_build_path_details",
+      "type": "function",
+      "summary": null,
+      "line": 174,
+      "signature": "( path: list[str], edge_meta: dict[tuple[str, str], dict], names: dict[str, str], ) -> list[dict]"
+    },
+    {
+      "name": "_label_relationship",
+      "type": "function",
+      "summary": null,
+      "line": 195,
+      "signature": "( path: list[str], edge_meta: dict[tuple[str, str], dict], names: dict[str, str], ) -> str"
+    },
+    {
+      "name": "_label_from_steps",
+      "type": "function",
+      "summary": null,
+      "line": 313,
+      "signature": "(steps: list[str]) -> str | None"
+    },
+    {
+      "name": "_cousin_label",
+      "type": "function",
+      "summary": null,
+      "line": 340,
+      "signature": "(degree: int, removed: int) -> str"
+    },
+    {
+      "name": "_kind_prefix",
+      "type": "function",
+      "summary": null,
+      "line": 352,
+      "signature": "(kind: str, edge_type: str | None) -> str"
+    },
+    {
+      "name": "_partner_label",
+      "type": "function",
+      "summary": null,
+      "line": 361,
+      "signature": "(kind: str) -> str"
+    },
+    {
+      "name": "_generic_label",
+      "type": "function",
+      "summary": null,
+      "line": 372,
+      "signature": "(distance: int) -> str"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "get_ancestors",
+      "kind": "function",
+      "line": 16,
+      "signature": "(db: AsyncSession, person_id: str) -> set[str]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 19,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 19,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 20,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 20,
+          "module_hint": null
+        },
+        {
+          "name": "child_to_parents.setdefault(e.child_id, []).append",
+          "line": 23,
+          "module_hint": null
+        },
+        {
+          "name": "child_to_parents.setdefault",
+          "line": 23,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "deque",
+          "line": 26,
+          "module_hint": "collections"
+        },
+        {
+          "name": "child_to_parents.get",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "queue.popleft",
+          "line": 28,
+          "module_hint": null
+        },
+        {
+          "name": "ancestors.add",
+          "line": 31,
+          "module_hint": null
+        },
+        {
+          "name": "queue.extend",
+          "line": 32,
+          "module_hint": null
+        },
+        {
+          "name": "child_to_parents.get",
+          "line": 32,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_descendants",
+      "kind": "function",
+      "line": 36,
+      "signature": "(db: AsyncSession, person_id: str) -> set[str]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 39,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "parent_to_children.setdefault(e.parent_id, []).append",
+          "line": 43,
+          "module_hint": null
+        },
+        {
+          "name": "parent_to_children.setdefault",
+          "line": 43,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 45,
+          "module_hint": null
+        },
+        {
+          "name": "deque",
+          "line": 46,
+          "module_hint": "collections"
+        },
+        {
+          "name": "parent_to_children.get",
+          "line": 46,
+          "module_hint": null
+        },
+        {
+          "name": "queue.popleft",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "descendants.add",
+          "line": 51,
+          "module_hint": null
+        },
+        {
+          "name": "queue.extend",
+          "line": 52,
+          "module_hint": null
+        },
+        {
+          "name": "parent_to_children.get",
+          "line": 52,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_lineage",
+      "kind": "function",
+      "line": 56,
+      "signature": "(db: AsyncSession, person_id: str) -> set[str]",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "get_ancestors",
+          "line": 58,
+          "module_hint": null
+        },
+        {
+          "name": "get_descendants",
+          "line": 59,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "RelationshipResult",
+      "kind": "class",
+      "line": 63,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "find_relationship",
+      "kind": "function",
+      "line": 78,
+      "signature": "( db: AsyncSession, from_id: str, to_id: str, ) -> RelationshipResult",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "RelationshipResult",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "_load_graph",
+          "line": 93,
+          "module_hint": null
+        },
+        {
+          "name": "RelationshipResult",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "deque",
+          "line": 105,
+          "module_hint": "collections"
+        },
+        {
+          "name": "queue.popleft",
+          "line": 108,
+          "module_hint": null
+        },
+        {
+          "name": "adj.get",
+          "line": 109,
+          "module_hint": null
+        },
+        {
+          "name": "visited.add",
+          "line": 112,
+          "module_hint": null
+        },
+        {
+          "name": "_build_path_details",
+          "line": 115,
+          "module_hint": null
+        },
+        {
+          "name": "_label_relationship",
+          "line": 116,
+          "module_hint": null
+        },
+        {
+          "name": "RelationshipResult",
+          "line": 117,
+          "module_hint": null
+        },
+        {
+          "name": "queue.append",
+          "line": 123,
+          "module_hint": null
+        },
+        {
+          "name": "RelationshipResult",
+          "line": 125,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_load_graph",
+      "kind": "function",
+      "line": 133,
+      "signature": "( db: AsyncSession, ) -> tuple[dict[str, list[str]], dict[tuple[str, str], dict], dict[str, str]]",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 141,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 142,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 142,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 144,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 144,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault",
+          "line": 147,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 150,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 151,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 151,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault(pc.parent_id, []).append",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault(pc.child_id, []).append",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 161,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault(p.person_a_id, []).append",
+          "line": 165,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault",
+          "line": 165,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault(p.person_b_id, []).append",
+          "line": 166,
+          "module_hint": null
+        },
+        {
+          "name": "adj.setdefault",
+          "line": 166,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_build_path_details",
+      "kind": "function",
+      "line": 174,
+      "signature": "( path: list[str], edge_meta: dict[tuple[str, str], dict], names: dict[str, str], ) -> list[dict]",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "range",
+          "line": 181,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 181,
+          "module_hint": null
+        },
+        {
+          "name": "edge_meta.get",
+          "line": 183,
+          "module_hint": null
+        },
+        {
+          "name": "details.append",
+          "line": 184,
+          "module_hint": null
+        },
+        {
+          "name": "names.get",
+          "line": 186,
+          "module_hint": null
+        },
+        {
+          "name": "names.get",
+          "line": 188,
+          "module_hint": null
+        },
+        {
+          "name": "meta.get",
+          "line": 189,
+          "module_hint": null
+        },
+        {
+          "name": "meta.get",
+          "line": 190,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_label_relationship",
+      "kind": "function",
+      "line": 195,
+      "signature": "( path: list[str], edge_meta: dict[tuple[str, str], dict], names: dict[str, str], ) -> str",
+      "complexity": 44,
+      "calls": [
+        {
+          "name": "len",
+          "line": 201,
+          "module_hint": null
+        },
+        {
+          "name": "range",
+          "line": 206,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 206,
+          "module_hint": null
+        },
+        {
+          "name": "edge_meta.get",
+          "line": 208,
+          "module_hint": null
+        },
+        {
+          "name": "meta.get",
+          "line": 209,
+          "module_hint": null
+        },
+        {
+          "name": "steps.append",
+          "line": 210,
+          "module_hint": null
+        },
+        {
+          "name": "meta.get",
+          "line": 211,
+          "module_hint": null
+        },
+        {
+          "name": "meta.get",
+          "line": 212,
+          "module_hint": null
+        },
+        {
+          "name": "steps.append",
+          "line": 213,
+          "module_hint": null
+        },
+        {
+          "name": "steps.append",
+          "line": 215,
+          "module_hint": null
+        },
+        {
+          "name": "steps.append",
+          "line": 217,
+          "module_hint": null
+        },
+        {
+          "name": "edge_meta.get",
+          "line": 220,
+          "module_hint": null
+        },
+        {
+          "name": "first_meta.get",
+          "line": 221,
+          "module_hint": null
+        },
+        {
+          "name": "_kind_prefix",
+          "line": 222,
+          "module_hint": null
+        },
+        {
+          "name": "first_meta.get",
+          "line": 222,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "_partner_label",
+          "line": 231,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 234,
+          "module_hint": null
+        },
+        {
+          "name": "tuple",
+          "line": 235,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 254,
+          "module_hint": null
+        },
+        {
+          "name": "tuple",
+          "line": 255,
+          "module_hint": null
+        },
+        {
+          "name": "min",
+          "line": 296,
+          "module_hint": null
+        },
+        {
+          "name": "abs",
+          "line": 297,
+          "module_hint": null
+        },
+        {
+          "name": "_cousin_label",
+          "line": 298,
+          "module_hint": null
+        },
+        {
+          "name": "_label_from_steps",
+          "line": 305,
+          "module_hint": null
+        },
+        {
+          "name": "_generic_label",
+          "line": 310,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 310,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_label_from_steps",
+      "kind": "function",
+      "line": 313,
+      "signature": "(steps: list[str]) -> str | None",
+      "complexity": 18,
+      "calls": [
+        {
+          "name": "sum",
+          "line": 317,
+          "module_hint": null
+        },
+        {
+          "name": "sum",
+          "line": 318,
+          "module_hint": null
+        },
+        {
+          "name": "min",
+          "line": 334,
+          "module_hint": null
+        },
+        {
+          "name": "abs",
+          "line": 335,
+          "module_hint": null
+        },
+        {
+          "name": "_cousin_label",
+          "line": 336,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_cousin_label",
+      "kind": "function",
+      "line": 340,
+      "signature": "(degree: int, removed: int) -> str",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "ordinals.get",
+          "line": 345,
+          "module_hint": null
+        },
+        {
+          "name": "removal_words.get",
+          "line": 348,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_kind_prefix",
+      "kind": "function",
+      "line": 352,
+      "signature": "(kind: str, edge_type: str | None) -> str",
+      "complexity": 3,
+      "calls": []
+    },
+    {
+      "name": "_partner_label",
+      "kind": "function",
+      "line": 361,
+      "signature": "(kind: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "labels.get",
+          "line": 369,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_generic_label",
+      "kind": "function",
+      "line": 372,
+      "signature": "(distance: int) -> str",
+      "complexity": 1,
+      "calls": []
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "get_ancestors",
+      "line": 16,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 4,
+        "size": 17,
+        "nesting": 2,
+        "token_count": 139
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_descendants",
+      "line": 36,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 4,
+        "size": 17,
+        "nesting": 2,
+        "token_count": 139
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_lineage",
+      "line": 56,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 4,
+        "nesting": 0,
+        "token_count": 31
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 58,
+              "line_end": 58
+            },
+            {
+              "line_start": 59,
+              "line_end": 59
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "__init__",
+      "line": 64,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 4,
+        "nesting": 0,
+        "token_count": 25
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "find_relationship",
+      "line": 78,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 11,
+        "size": 48,
+        "nesting": 3,
+        "token_count": 214
+      },
+      "findings": [
+        {
+          "rule_id": "perf.nested_linear_membership",
+          "category": "algorithmic_inefficiency",
+          "evidence_spans": [
+            {
+              "line_start": 110,
+              "line_end": 110
+            }
+          ],
+          "estimated_effect": "Potential O(n^2) behavior from nested iteration + linear membership",
+          "confidence": 0.88
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 96,
+              "line_end": 101
+            },
+            {
+              "line_start": 125,
+              "line_end": 130
+            },
+            {
+              "line_start": 96,
+              "line_end": 101
+            },
+            {
+              "line_start": 125,
+              "line_end": 130
+            },
+            {
+              "line_start": 115,
+              "line_end": 115
+            },
+            {
+              "line_start": 116,
+              "line_end": 116
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n^2)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.84
+    },
+    {
+      "function": "_load_graph",
+      "line": 133,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 7,
+        "size": 36,
+        "nesting": 2,
+        "token_count": 388
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 152,
+              "line_end": 158
+            },
+            {
+              "line_start": 163,
+              "line_end": 169
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 167,
+              "line_end": 167
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 155,
+              "line_end": 155
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 150,
+              "line_end": 150
+            },
+            {
+              "line_start": 161,
+              "line_end": 161
+            },
+            {
+              "line_start": 152,
+              "line_end": 152
+            },
+            {
+              "line_start": 163,
+              "line_end": 163
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 167,
+              "line_end": 167
+            },
+            {
+              "line_start": 157,
+              "line_end": 157
+            },
+            {
+              "line_start": 158,
+              "line_end": 158
+            },
+            {
+              "line_start": 168,
+              "line_end": 168
+            },
+            {
+              "line_start": 157,
+              "line_end": 157
+            },
+            {
+              "line_start": 158,
+              "line_end": 158
+            },
+            {
+              "line_start": 168,
+              "line_end": 168
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 155,
+              "line_end": 155
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 144,
+              "line_end": 144
+            },
+            {
+              "line_start": 151,
+              "line_end": 151
+            },
+            {
+              "line_start": 162,
+              "line_end": 162
+            },
+            {
+              "line_start": 151,
+              "line_end": 158
+            },
+            {
+              "line_start": 162,
+              "line_end": 169
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 167,
+              "line_end": 167
+            },
+            {
+              "line_start": 150,
+              "line_end": 150
+            },
+            {
+              "line_start": 161,
+              "line_end": 161
+            },
+            {
+              "line_start": 152,
+              "line_end": 153
+            },
+            {
+              "line_start": 163,
+              "line_end": 164
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 155,
+              "line_end": 155
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_build_path_details",
+      "line": 174,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 14,
+        "nesting": 1,
+        "token_count": 135
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 189,
+              "line_end": 189
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 186,
+              "line_end": 186
+            },
+            {
+              "line_start": 188,
+              "line_end": 188
+            },
+            {
+              "line_start": 189,
+              "line_end": 189
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 189,
+              "line_end": 189
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 186,
+              "line_end": 186
+            },
+            {
+              "line_start": 188,
+              "line_end": 188
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_label_relationship",
+      "line": 195,
+      "metrics": {
+        "cyclomatic": 44,
+        "cognitive": 74,
+        "size": 111,
+        "nesting": 4,
+        "token_count": 879
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 293,
+              "line_end": 293
+            },
+            {
+              "line_start": 290,
+              "line_end": 290
+            },
+            {
+              "line_start": 287,
+              "line_end": 287
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 209,
+              "line_end": 209
+            },
+            {
+              "line_start": 211,
+              "line_end": 211
+            },
+            {
+              "line_start": 209,
+              "line_end": 209
+            },
+            {
+              "line_start": 210,
+              "line_end": 210
+            },
+            {
+              "line_start": 211,
+              "line_end": 211
+            },
+            {
+              "line_start": 213,
+              "line_end": 213
+            },
+            {
+              "line_start": 215,
+              "line_end": 215
+            },
+            {
+              "line_start": 226,
+              "line_end": 227
+            },
+            {
+              "line_start": 228,
+              "line_end": 229
+            },
+            {
+              "line_start": 206,
+              "line_end": 206
+            },
+            {
+              "line_start": 310,
+              "line_end": 310
+            },
+            {
+              "line_start": 240,
+              "line_end": 241
+            },
+            {
+              "line_start": 244,
+              "line_end": 245
+            },
+            {
+              "line_start": 246,
+              "line_end": 247
+            },
+            {
+              "line_start": 256,
+              "line_end": 256
+            },
+            {
+              "line_start": 258,
+              "line_end": 258
+            },
+            {
+              "line_start": 260,
+              "line_end": 260
+            },
+            {
+              "line_start": 256,
+              "line_end": 256
+            },
+            {
+              "line_start": 258,
+              "line_end": 258
+            },
+            {
+              "line_start": 260,
+              "line_end": 260
+            },
+            {
+              "line_start": 286,
+              "line_end": 286
+            },
+            {
+              "line_start": 291,
+              "line_end": 291
+            },
+            {
+              "line_start": 236,
+              "line_end": 237
+            },
+            {
+              "line_start": 238,
+              "line_end": 239
+            },
+            {
+              "line_start": 236,
+              "line_end": 236
+            },
+            {
+              "line_start": 238,
+              "line_end": 238
+            },
+            {
+              "line_start": 240,
+              "line_end": 240
+            },
+            {
+              "line_start": 289,
+              "line_end": 290
+            },
+            {
+              "line_start": 292,
+              "line_end": 293
+            },
+            {
+              "line_start": 256,
+              "line_end": 257
+            },
+            {
+              "line_start": 258,
+              "line_end": 259
+            },
+            {
+              "line_start": 260,
+              "line_end": 261
+            },
+            {
+              "line_start": 226,
+              "line_end": 226
+            },
+            {
+              "line_start": 228,
+              "line_end": 228
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 236,
+              "line_end": 236
+            },
+            {
+              "line_start": 238,
+              "line_end": 238
+            },
+            {
+              "line_start": 240,
+              "line_end": 240
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "_label_from_steps",
+      "line": 313,
+      "metrics": {
+        "cyclomatic": 18,
+        "cognitive": 9,
+        "size": 24,
+        "nesting": 1,
+        "token_count": 180
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 317,
+              "line_end": 317
+            },
+            {
+              "line_start": 318,
+              "line_end": 318
+            },
+            {
+              "line_start": 319,
+              "line_end": 320
+            },
+            {
+              "line_start": 321,
+              "line_end": 322
+            },
+            {
+              "line_start": 323,
+              "line_end": 324
+            },
+            {
+              "line_start": 317,
+              "line_end": 317
+            },
+            {
+              "line_start": 318,
+              "line_end": 318
+            },
+            {
+              "line_start": 317,
+              "line_end": 317
+            },
+            {
+              "line_start": 318,
+              "line_end": 318
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_cousin_label",
+      "line": 340,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 9,
+        "nesting": 1,
+        "token_count": 118
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 345,
+              "line_end": 345
+            },
+            {
+              "line_start": 348,
+              "line_end": 348
+            },
+            {
+              "line_start": 345,
+              "line_end": 345
+            },
+            {
+              "line_start": 348,
+              "line_end": 348
+            },
+            {
+              "line_start": 345,
+              "line_end": 345
+            },
+            {
+              "line_start": 348,
+              "line_end": 348
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_kind_prefix",
+      "line": 352,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 6,
+        "nesting": 1,
+        "token_count": 42
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_partner_label",
+      "line": 361,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 8,
+        "nesting": 0,
+        "token_count": 61
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 363,
+              "line_end": 363
+            },
+            {
+              "line_start": 364,
+              "line_end": 364
+            },
+            {
+              "line_start": 365,
+              "line_end": 365
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_generic_label",
+      "line": 372,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 2,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "RelationshipResult",
+      "_build_path_details",
+      "_cousin_label",
+      "_generic_label",
+      "_kind_prefix",
+      "_label_from_steps",
+      "_label_relationship",
+      "_load_graph",
+      "_partner_label",
+      "find_relationship",
+      "get_ancestors",
+      "get_descendants",
+      "get_lineage"
+    ],
+    "package": null,
+    "change_velocity": 1.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T10:51:09-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case",
+      "class": "PascalCase"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.2,
+  "centrality_score": 0.11,
+  "quality_radar": {
+    "understandability": 0.3,
+    "changeability": 0.97,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.57
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": [
+    {
+      "name": "primitive_obsession",
+      "evidence": "_build_path_details() has 6 params (line 174); _label_relationship() has 6 params (line 195)",
+      "severity": "medium"
+    }
+  ],
+  "agent_briefing": null
+}

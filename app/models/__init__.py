@@ -2,7 +2,6 @@ from app.models.base import Base
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
 from app.models.media import Media
-from app.models.moments import Moment, MomentReaction, MomentComment
 from app.models.auth import UserSession, Invite, MagicLinkToken
 from app.models.audit import AuditLog
 from app.models.revisions import EntityRevision
@@ -25,9 +24,6 @@ __all__ = [
     "ParentChild",
     "Partnership",
     "Media",
-    "Moment",
-    "MomentReaction",
-    "MomentComment",
     "UserSession",
     "Invite",
     "MagicLinkToken",

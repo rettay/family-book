@@ -1,13 +1,13 @@
 {
   "id": "app/routes/relationships.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
-  "source_hash": "dcdf8434",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "79ac8fdb",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 24,
-    "lines": 238,
+    "cyclomatic": 23,
+    "lines": 290,
     "rating": "red"
   },
   "dependencies": {
@@ -18,91 +18,131 @@
       "app/models/person.py",
       "app/models/relationships.py",
       "app/schemas.py",
-      "app/services/audit_service.py"
+      "app/services/audit_service.py",
+      "app/services/relationship_calculator.py"
     ],
     "imported_by": [
       "app/main.py",
       "tests/conftest.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/conftest.py"
+    ]
   },
   "exports": [
+    {
+      "name": "PathEdge",
+      "type": "class",
+      "summary": null,
+      "line": 31,
+      "signature": null
+    },
+    {
+      "name": "RelationshipPathResponse",
+      "type": "class",
+      "summary": null,
+      "line": 40,
+      "signature": null
+    },
     {
       "name": "_would_create_ancestry_cycle",
       "type": "function",
       "summary": null,
-      "line": 26,
+      "line": 70,
       "signature": "( db: AsyncSession, parent_id: str, child_id: str, ) -> bool"
     },
     {
       "name": "_partnership_exists",
       "type": "function",
       "summary": null,
-      "line": 50,
+      "line": 94,
       "signature": "( db: AsyncSession, person_a_id: str, person_b_id: str, kind: str, start_date: str | None, ) -> bool"
+    },
+    {
+      "name": "_require_manageable_person",
+      "type": "function",
+      "summary": null,
+      "line": 115,
+      "signature": "( db: AsyncSession, current_user: Person, person_id: str, ) -> Person"
     }
   ],
   "constructs": [
     {
+      "name": "PathEdge",
+      "kind": "class",
+      "line": 31,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
+      "name": "RelationshipPathResponse",
+      "kind": "class",
+      "line": 40,
+      "signature": null,
+      "complexity": null,
+      "calls": []
+    },
+    {
       "name": "_would_create_ancestry_cycle",
       "kind": "function",
-      "line": 26,
+      "line": 70,
       "signature": "( db: AsyncSession, parent_id: str, child_id: str, ) -> bool",
       "complexity": 5,
       "calls": [
         {
           "name": "db.execute",
-          "line": 31,
+          "line": 75,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 31,
+          "line": 75,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "result.all",
-          "line": 33,
+          "line": 77,
           "module_hint": null
         },
         {
           "name": "descendants_by_parent.setdefault(existing_parent_id, set()).add",
-          "line": 34,
+          "line": 78,
           "module_hint": null
         },
         {
           "name": "descendants_by_parent.setdefault",
-          "line": 34,
+          "line": 78,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 34,
+          "line": 78,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 37,
+          "line": 81,
           "module_hint": null
         },
         {
           "name": "stack.pop",
-          "line": 39,
+          "line": 83,
           "module_hint": null
         },
         {
           "name": "visited.add",
-          "line": 44,
+          "line": 88,
           "module_hint": null
         },
         {
           "name": "stack.extend",
-          "line": 45,
+          "line": 89,
           "module_hint": null
         },
         {
           "name": "descendants_by_parent.get",
-          "line": 45,
+          "line": 89,
           "module_hint": null
         }
       ]
@@ -110,57 +150,122 @@
     {
       "name": "_partnership_exists",
       "kind": "function",
-      "line": 50,
+      "line": 94,
       "signature": "( db: AsyncSession, person_a_id: str, person_b_id: str, kind: str, start_date: str | None, ) -> bool",
       "complexity": 2,
       "calls": [
         {
           "name": "select(Partnership.id).where",
-          "line": 57,
+          "line": 101,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 57,
+          "line": 101,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "query.where",
-          "line": 63,
+          "line": 107,
           "module_hint": null
         },
         {
           "name": "Partnership.start_date.is_",
-          "line": 63,
+          "line": 107,
           "module_hint": null
         },
         {
           "name": "query.where",
-          "line": 65,
+          "line": 109,
           "module_hint": null
         },
         {
           "name": "db.execute",
-          "line": 67,
+          "line": 111,
           "module_hint": null
         },
         {
           "name": "query.limit",
-          "line": 67,
+          "line": 111,
           "module_hint": null
         },
         {
           "name": "result.scalar_one_or_none",
-          "line": 68,
+          "line": 112,
           "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_require_manageable_person",
+      "kind": "function",
+      "line": 115,
+      "signature": "( db: AsyncSession, current_user: Person, person_id: str, ) -> Person",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 120,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 121,
+          "module_hint": null
+        },
+        {
+          "name": "HTTPException",
+          "line": 123,
+          "module_hint": "fastapi"
+        },
+        {
+          "name": "can_manage_person",
+          "line": 124,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "HTTPException",
+          "line": 125,
+          "module_hint": "fastapi"
         }
       ]
     }
   ],
   "function_audits": [
     {
+      "function": "get_relationship_path",
+      "line": 48,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 14,
+        "nesting": 2,
+        "token_count": 103
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
       "function": "_would_create_ancestry_cycle",
-      "line": 26,
+      "line": 70,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 6,
@@ -181,7 +286,7 @@
     },
     {
       "function": "_partnership_exists",
-      "line": 50,
+      "line": 94,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -201,14 +306,35 @@
       "review_priority": 0.0
     },
     {
-      "function": "create_parent_child",
-      "line": 74,
+      "function": "_require_manageable_person",
+      "line": 115,
       "metrics": {
-        "cyclomatic": 8,
-        "cognitive": 8,
-        "size": 42,
-        "nesting": 2,
-        "token_count": 306
+        "cyclomatic": 4,
+        "cognitive": 2,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 84
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "create_parent_child",
+      "line": 132,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 36,
+        "nesting": 1,
+        "token_count": 232
       },
       "findings": [
         {
@@ -216,40 +342,40 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 80,
-              "line_end": 80
+              "line_start": 169,
+              "line_end": 169
             },
             {
-              "line_start": 89,
-              "line_end": 89
+              "line_start": 169,
+              "line_end": 169
             },
             {
-              "line_start": 92,
-              "line_end": 95
+              "line_start": 169,
+              "line_end": 169
             },
             {
-              "line_start": 80,
-              "line_end": 80
+              "line_start": 138,
+              "line_end": 138
             },
             {
-              "line_start": 89,
-              "line_end": 89
+              "line_start": 144,
+              "line_end": 147
             },
             {
-              "line_start": 92,
-              "line_end": 95
+              "line_start": 166,
+              "line_end": 166
             },
             {
-              "line_start": 117,
-              "line_end": 117
+              "line_start": 138,
+              "line_end": 138
             },
             {
-              "line_start": 117,
-              "line_end": 117
+              "line_start": 144,
+              "line_end": 147
             },
             {
-              "line_start": 117,
-              "line_end": 117
+              "line_start": 166,
+              "line_end": 166
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -268,13 +394,13 @@
     },
     {
       "function": "delete_parent_child",
-      "line": 124,
+      "line": 176,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
-        "size": 11,
+        "size": 14,
         "nesting": 1,
-        "token_count": 118
+        "token_count": 138
       },
       "findings": [
         {
@@ -282,12 +408,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 135,
-              "line_end": 135
+              "line_start": 186,
+              "line_end": 186
             },
             {
-              "line_start": 135,
-              "line_end": 135
+              "line_start": 187,
+              "line_end": 187
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
+            },
+            {
+              "line_start": 190,
+              "line_end": 190
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -306,13 +440,13 @@
     },
     {
       "function": "create_partnership",
-      "line": 145,
+      "line": 200,
       "metrics": {
-        "cyclomatic": 8,
-        "cognitive": 8,
-        "size": 43,
-        "nesting": 2,
-        "token_count": 317
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 37,
+        "nesting": 1,
+        "token_count": 243
       },
       "findings": [
         {
@@ -320,28 +454,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 151,
-              "line_end": 151
+              "line_start": 206,
+              "line_end": 206
             },
             {
-              "line_start": 163,
-              "line_end": 163
+              "line_start": 215,
+              "line_end": 215
             },
             {
-              "line_start": 166,
-              "line_end": 166
+              "line_start": 235,
+              "line_end": 235
             },
             {
-              "line_start": 151,
-              "line_end": 151
+              "line_start": 206,
+              "line_end": 206
             },
             {
-              "line_start": 163,
-              "line_end": 163
+              "line_start": 215,
+              "line_end": 215
             },
             {
-              "line_start": 166,
-              "line_end": 166
+              "line_start": 235,
+              "line_end": 235
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -360,7 +494,7 @@
     },
     {
       "function": "update_partnership",
-      "line": 196,
+      "line": 245,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -381,13 +515,13 @@
     },
     {
       "function": "delete_partnership",
-      "line": 222,
+      "line": 271,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
-        "size": 12,
+        "size": 15,
         "nesting": 1,
-        "token_count": 118
+        "token_count": 138
       },
       "findings": [
         {
@@ -395,12 +529,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 233,
-              "line_end": 233
+              "line_start": 285,
+              "line_end": 285
             },
             {
-              "line_start": 234,
-              "line_end": 234
+              "line_start": 286,
+              "line_end": 286
+            },
+            {
+              "line_start": 281,
+              "line_end": 281
+            },
+            {
+              "line_start": 282,
+              "line_end": 282
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -427,55 +569,60 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 4,
+    "churn_count": 7,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
-      "logging: logger.info() at line 118",
-      "logging: logger.info() at line 136",
-      "logging: logger.info() at line 190",
-      "logging: logger.info() at line 216",
-      "logging: logger.info() at line 235"
+      "logging: logger.info() at line 170",
+      "logging: logger.info() at line 191",
+      "logging: logger.info() at line 239",
+      "logging: logger.info() at line 265",
+      "logging: logger.info() at line 287"
     ],
     "endpoints": [
-      "endpoint:fastapi: @router.post() at line 73",
-      "endpoint:fastapi: @router.delete() at line 123",
-      "endpoint:fastapi: @router.post() at line 144",
-      "endpoint:fastapi: @router.put() at line 195",
-      "endpoint:fastapi: @router.delete() at line 221"
+      "endpoint:fastapi: @router.get() at line 47",
+      "endpoint:fastapi: @router.post() at line 131",
+      "endpoint:fastapi: @router.delete() at line 175",
+      "endpoint:fastapi: @router.post() at line 199",
+      "endpoint:fastapi: @router.put() at line 244",
+      "endpoint:fastapi: @router.delete() at line 270"
     ],
     "databases": [],
     "services": [],
     "unused_exports": [
+      "PathEdge",
+      "RelationshipPathResponse",
       "_partnership_exists",
+      "_require_manageable_person",
       "_would_create_ancestry_cycle"
     ],
     "package": null,
-    "change_velocity": 1.0,
-    "bus_factor": 2,
+    "change_velocity": 2.5,
+    "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T21:12:49-04:00",
-    "recency_score": 1.0,
+    "last_modified": "2026-03-25T21:42:10-04:00",
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
     "convention_consistency": 1.0,
     "dominant_conventions": {
       "module": "snake_case",
+      "class": "PascalCase",
       "function": "snake_case",
       "parameter": "snake_case"
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.4,
-  "attention_score": 0.38,
-  "centrality_score": 0.0,
+  "testability_score": 0.7,
+  "attention_score": 0.34,
+  "centrality_score": 0.04,
   "quality_radar": {
-    "understandability": 0.4,
-    "changeability": 0.6,
-    "correctness": 0.5,
+    "understandability": 0.31,
+    "changeability": 0.98,
+    "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.67
+    "stability": 0.4
   },
   "domain_role": "utility",
   "detected_patterns": null,

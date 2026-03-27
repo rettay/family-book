@@ -1,13 +1,13 @@
 {
   "id": "app/services/protection_service.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "77508ed3",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "ee3a6471",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 16,
-    "lines": 166,
+    "lines": 153,
     "rating": "yellow"
   },
   "dependencies": {
@@ -19,9 +19,7 @@
       "app/main.py",
       "tests/test_protection_service.py"
     ],
-    "tested_by": [
-      "tests/test_protection_service.py"
-    ]
+    "tested_by": []
   },
   "exports": [
     {
@@ -49,7 +47,7 @@
       "name": "ensure_sensitive_person_fields_protected",
       "type": "function",
       "summary": null,
-      "line": 149,
+      "line": 136,
       "signature": "( session_factory: async_sessionmaker | None = None, ) -> int"
     }
   ],
@@ -195,83 +193,93 @@
       "complexity": 9,
       "calls": [
         {
-          "name": "session.execute",
+          "name": "\", \".join",
           "line": 104,
           "module_hint": null
         },
         {
-          "name": "text",
+          "name": "\" OR \".join",
           "line": 105,
+          "module_hint": null
+        },
+        {
+          "name": "session.execute",
+          "line": 108,
+          "module_hint": null
+        },
+        {
+          "name": "text",
+          "line": 109,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "person_result.mappings().first",
-          "line": 124,
+          "line": 111,
           "module_hint": null
         },
         {
           "name": "person_result.mappings",
-          "line": 124,
+          "line": 111,
           "module_hint": null
         },
         {
           "name": "str(value).startswith",
-          "line": 128,
+          "line": 115,
           "module_hint": null
         },
         {
           "name": "str",
-          "line": 128,
+          "line": 115,
           "module_hint": null
         },
         {
           "name": "decrypt_string",
-          "line": 129,
+          "line": 116,
           "module_hint": "app.services.field_protection"
         },
         {
           "name": "session.execute",
-          "line": 131,
+          "line": 118,
           "module_hint": null
         },
         {
           "name": "text",
-          "line": 132,
+          "line": 119,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "revision_result.mappings().all",
-          "line": 141,
+          "line": 128,
           "module_hint": null
         },
         {
           "name": "revision_result.mappings",
-          "line": 141,
+          "line": 128,
           "module_hint": null
         },
         {
           "name": "json.loads",
-          "line": 142,
+          "line": 129,
           "module_hint": "json"
         },
         {
           "name": "snapshot.get",
-          "line": 144,
+          "line": 131,
           "module_hint": null
         },
         {
           "name": "str(value).startswith",
-          "line": 145,
+          "line": 132,
           "module_hint": null
         },
         {
           "name": "str",
-          "line": 145,
+          "line": 132,
           "module_hint": null
         },
         {
           "name": "decrypt_string",
-          "line": 146,
+          "line": 133,
           "module_hint": "app.services.field_protection"
         }
       ]
@@ -279,43 +287,43 @@
     {
       "name": "ensure_sensitive_person_fields_protected",
       "kind": "function",
-      "line": 149,
+      "line": 136,
       "signature": "( session_factory: async_sessionmaker | None = None, ) -> int",
       "complexity": 4,
       "calls": [
         {
           "name": "get_fernet",
-          "line": 152,
+          "line": 139,
           "module_hint": "app.services.field_protection"
         },
         {
           "name": "factory",
-          "line": 154,
+          "line": 141,
           "module_hint": null
         },
         {
           "name": "_protect_person_rows",
-          "line": 155,
+          "line": 142,
           "module_hint": null
         },
         {
           "name": "_protect_revision_rows",
-          "line": 156,
+          "line": 143,
           "module_hint": null
         },
         {
           "name": "session.commit",
-          "line": 157,
+          "line": 144,
           "module_hint": null
         },
         {
           "name": "_assert_readable_protected_data",
-          "line": 158,
+          "line": 145,
           "module_hint": null
         },
         {
           "name": "logger.info",
-          "line": 161,
+          "line": 148,
           "module_hint": null
         }
       ]
@@ -338,6 +346,14 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 72,
+              "line_end": 72
+            },
+            {
               "line_start": 67,
               "line_end": 67
             },
@@ -348,14 +364,6 @@
             {
               "line_start": 69,
               "line_end": 69
-            },
-            {
-              "line_start": 71,
-              "line_end": 71
-            },
-            {
-              "line_start": 72,
-              "line_end": 72
             },
             {
               "line_start": 67,
@@ -424,9 +432,9 @@
       "metrics": {
         "cyclomatic": 9,
         "cognitive": 12,
-        "size": 43,
+        "size": 30,
         "nesting": 3,
-        "token_count": 133
+        "token_count": 171
       },
       "findings": [
         {
@@ -434,52 +442,36 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 104,
-              "line_end": 123
-            },
-            {
-              "line_start": 131,
-              "line_end": 140
-            },
-            {
-              "line_start": 124,
-              "line_end": 124
-            },
-            {
-              "line_start": 141,
-              "line_end": 141
+              "line_start": 111,
+              "line_end": 111
             },
             {
               "line_start": 128,
               "line_end": 128
             },
             {
-              "line_start": 145,
-              "line_end": 145
+              "line_start": 115,
+              "line_end": 115
             },
             {
-              "line_start": 128,
-              "line_end": 128
+              "line_start": 132,
+              "line_end": 132
             },
             {
-              "line_start": 145,
-              "line_end": 145
+              "line_start": 115,
+              "line_end": 115
             },
             {
-              "line_start": 128,
-              "line_end": 129
+              "line_start": 132,
+              "line_end": 132
             },
             {
-              "line_start": 145,
-              "line_end": 146
+              "line_start": 115,
+              "line_end": 116
             },
             {
-              "line_start": 104,
-              "line_end": 123
-            },
-            {
-              "line_start": 131,
-              "line_end": 140
+              "line_start": 132,
+              "line_end": 133
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -498,7 +490,7 @@
     },
     {
       "function": "ensure_sensitive_person_fields_protected",
-      "line": 149,
+      "line": 136,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 1,
@@ -527,11 +519,11 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
+    "churn_count": 3,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
-      "logging: logger.info() at line 161"
+      "logging: logger.info() at line 148"
     ],
     "endpoints": [],
     "databases": [
@@ -539,9 +531,9 @@
       "database:sqlalchemy: session.execute() at line 51",
       "database:sqlalchemy: session.execute() at line 79",
       "database:sqlalchemy: session.execute() at line 95",
-      "database:sqlalchemy: session.execute() at line 104",
-      "database:sqlalchemy: session.execute() at line 131",
-      "database:sqlalchemy: session.commit() at line 157"
+      "database:sqlalchemy: session.execute() at line 108",
+      "database:sqlalchemy: session.execute() at line 118",
+      "database:sqlalchemy: session.commit() at line 144"
     ],
     "services": [],
     "unused_exports": [
@@ -551,10 +543,10 @@
       "ensure_sensitive_person_fields_protected"
     ],
     "package": null,
-    "change_velocity": 1.0,
+    "change_velocity": 0.5,
     "bus_factor": 1,
     "author_count": 1,
-    "last_modified": "2026-03-23T21:12:49-04:00",
+    "last_modified": "2026-03-26T15:43:44-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -567,15 +559,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.85,
-  "attention_score": 0.2,
-  "centrality_score": 0.03,
+  "testability_score": 0.55,
+  "attention_score": 0.25,
+  "centrality_score": 0.04,
   "quality_radar": {
-    "understandability": 0.62,
-    "changeability": 0.97,
-    "correctness": 1.0,
+    "understandability": 0.65,
+    "changeability": 0.68,
+    "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.4
+    "stability": 0.6
   },
   "domain_role": "utility",
   "detected_patterns": null,

@@ -2,14 +2,13 @@ import logging
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import case, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import get_accessible_person_ids, get_person_access, redact_person_summary
 from app.auth import require_auth
 from app.database import get_db
 from app.models.media import Media
-from app.models.moments import Moment, MomentLifecycleState, MomentVisibility
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.preferences import DEFAULT_TREE_PREFERENCES, TreePreference
 from app.models.relationships import ParentChild, Partnership
@@ -96,24 +95,9 @@ async def _person_metric_maps(
     db: AsyncSession,
     current_user: Person,
     person_ids: set[str],
-) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
+) -> dict[str, int]:
     if not person_ids:
-        return {}, {}, {}
-
-    moment_query = (
-        select(
-            Moment.person_id,
-            func.count(Moment.id),
-            func.sum(case((Moment.kind == "story", 1), else_=0)),
-        )
-        .where(
-            Moment.person_id.in_(person_ids),
-            Moment.lifecycle_state == MomentLifecycleState.active.value,
-        )
-        .group_by(Moment.person_id)
-    )
-    if not current_user.is_admin:
-        moment_query = moment_query.where(Moment.visibility == MomentVisibility.members.value)
+        return {}
 
     media_query = (
         select(Media.person_id, func.count(Media.id))
@@ -121,13 +105,10 @@ async def _person_metric_maps(
         .group_by(Media.person_id)
     )
 
-    moment_rows = (await db.execute(moment_query)).all()
     media_rows = (await db.execute(media_query)).all()
 
-    moment_counts = {person_id: count for person_id, count, _ in moment_rows}
-    story_counts = {person_id: story_count or 0 for person_id, _, story_count in moment_rows}
     media_counts = {person_id: count for person_id, count in media_rows}
-    return moment_counts, story_counts, media_counts
+    return media_counts
 
 
 @router.get("/tree", response_model=TreeResponse)
@@ -156,7 +137,7 @@ async def get_tree(
         living=living,
     )
     visible_person_ids = {person.id for person in persons}
-    moment_counts, story_counts, media_counts = await _person_metric_maps(
+    media_counts = await _person_metric_maps(
         db, current_user, visible_person_ids
     )
 
@@ -172,8 +153,6 @@ async def get_tree(
     summaries = []
     for person in persons:
         summary = redact_person_summary(person, await get_person_access(db, current_user, person))
-        summary.moment_count = moment_counts.get(person.id, 0)
-        summary.story_count = story_counts.get(person.id, 0)
         summary.media_count = media_counts.get(person.id, 0)
         summaries.append(summary)
 

@@ -1,13 +1,13 @@
 {
   "id": "app/templates/partials/person_sidebar.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
-  "source_hash": "f7c94c08",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "84cd4d82",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 244,
+    "lines": 1019,
     "rating": "green"
   },
   "dependencies": {
@@ -27,8 +27,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 6,
-    "change_risk": "medium",
+    "churn_count": 22,
+    "change_risk": "high",
     "domain": null,
     "observability_patterns": [],
     "endpoints": [],
@@ -36,16 +36,13 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 0.2,
+    "change_velocity": 3.4,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-24T14:06:44-04:00",
+    "last_modified": "2026-03-26T16:47:46-04:00",
     "recency_score": 1.0,
     "co_change_partners": [
-      "app/templates/partials/moment_card.html",
       "app/templates/partials/people_grid.html",
-      "app/templates/person.html",
-      "app/templates/person_edit.html",
       "app/static/js/tree.js"
     ],
     "attack_surface": false,
@@ -55,14 +52,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.13,
+  "attention_score": 0.3,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.9,
+    "understandability": 0.8,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.65
+    "stability": 0.3
   },
   "domain_role": "utility",
   "detected_patterns": null,

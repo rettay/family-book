@@ -4,7 +4,7 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import (
@@ -17,7 +17,6 @@ from app.access_control import (
 from app.auth import require_admin, require_auth
 from app.database import get_db
 from app.models.media import Media
-from app.models.moments import Moment, MomentLifecycleState
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.schemas import (
     PersonCreate,
@@ -156,18 +155,9 @@ async def get_completeness(
 
     person_ids = [p.id for p in persons]
 
-    # Count persons who have at least one moment/story/media
-    persons_with_stories = set()
+    # Count persons who have at least one media
     persons_with_media = set()
     if person_ids:
-        story_rows = await db.execute(
-            select(Moment.person_id).where(
-                Moment.person_id.in_(person_ids),
-                Moment.lifecycle_state == MomentLifecycleState.active.value,
-            ).group_by(Moment.person_id)
-        )
-        persons_with_stories = {row[0] for row in story_rows.all()}
-
         media_rows = await db.execute(
             select(Media.person_id).where(
                 Media.person_id.in_(person_ids),
@@ -181,7 +171,6 @@ async def get_completeness(
         "no_bio": 0,
         "no_birth_place": 0,
         "no_gender": 0,
-        "no_stories": 0,
         "no_media": 0,
     }
     for person in persons:
@@ -195,8 +184,6 @@ async def get_completeness(
             gaps["no_birth_place"] += 1
         if not person.gender:
             gaps["no_gender"] += 1
-        if person.id not in persons_with_stories:
-            gaps["no_stories"] += 1
         if person.id not in persons_with_media:
             gaps["no_media"] += 1
 

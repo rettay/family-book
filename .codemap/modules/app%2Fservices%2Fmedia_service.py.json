@@ -1,13 +1,13 @@
 {
   "id": "app/services/media_service.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "a12e40d0",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "c2f389cb",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 49,
-    "lines": 379,
+    "cyclomatic": 51,
+    "lines": 386,
     "rating": "red"
   },
   "dependencies": {
@@ -16,121 +16,124 @@
       "app/models/media.py"
     ],
     "imported_by": [
-      "app/routes/media.py"
+      "app/routes/media.py",
+      "tests/test_multimedia.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/test_multimedia.py"
+    ]
   },
   "exports": [
     {
       "name": "_category_for_mime",
       "type": "function",
       "summary": null,
-      "line": 31,
+      "line": 34,
       "signature": "(mime_type: str) -> str"
     },
     {
       "name": "_media_type_for_mime",
       "type": "function",
       "summary": null,
-      "line": 41,
+      "line": 46,
       "signature": "(mime_type: str) -> str"
     },
     {
       "name": "compute_sha256",
       "type": "function",
       "summary": null,
-      "line": 53,
+      "line": 60,
       "signature": "(data: bytes) -> str"
     },
     {
       "name": "strip_exif",
       "type": "function",
       "summary": null,
-      "line": 57,
+      "line": 64,
       "signature": "(data: bytes, mime_type: str) -> bytes"
     },
     {
       "name": "generate_thumbnail",
       "type": "function",
       "summary": null,
-      "line": 73,
+      "line": 80,
       "signature": "(data: bytes, mime_type: str) -> bytes | None"
     },
     {
       "name": "get_image_dimensions",
       "type": "function",
       "summary": null,
-      "line": 90,
+      "line": 97,
       "signature": "(data: bytes, mime_type: str) -> tuple[int | None, int | None]"
     },
     {
       "name": "check_duplicate",
       "type": "function",
       "summary": null,
-      "line": 100,
+      "line": 107,
       "signature": "(db: AsyncSession, file_hash: str) -> Media | None"
     },
     {
       "name": "save_media_file",
       "type": "function",
       "summary": null,
-      "line": 105,
+      "line": 112,
       "signature": "( db: AsyncSession, file_data: bytes, filename: str, mime_type: str, person_id: str, uploaded_by: str, caption: str | None = None, tagged_person_ids: list[str] | None = None, data_dir: str | None = None, ) -> tuple[Media, bool]"
     },
     {
       "name": "save_media_temp_file",
       "type": "function",
       "summary": null,
-      "line": 189,
+      "line": 196,
       "signature": "( db: AsyncSession, temp_path: str, file_size: int, file_hash: str, filename: str, mime_type: str, person_id: str, uploaded_by: str, caption: str | None = None, tagged_person_ids: list[str] | None = None, data_dir: str | None = None, ) -> tuple[Media, bool]"
     },
     {
       "name": "_validate_media_upload",
       "type": "function",
       "summary": null,
-      "line": 246,
+      "line": 253,
       "signature": "(mime_type: str, file_size: int) -> None"
     },
     {
       "name": "_merge_duplicate_and_cleanup",
       "type": "function",
       "summary": null,
-      "line": 256,
+      "line": 263,
       "signature": "( db: AsyncSession, existing: Media, temp_path: str, caption: str | None, tagged_person_ids: list[str] | None, ) -> tuple[Media, bool]"
     },
     {
       "name": "_allocate_media_paths",
       "type": "function",
       "summary": null,
-      "line": 272,
+      "line": 279,
       "signature": "(data_dir: str, filename: str) -> tuple[str, str, str, str]"
     },
     {
       "name": "_persist_streamed_media",
       "type": "function",
       "summary": null,
-      "line": 282,
+      "line": 289,
       "signature": "( *, temp_path: str, mime_type: str, file_path: str, media_dir: str, media_id: str, ) -> tuple[int | None, int | None, int]"
     },
     {
       "name": "_build_media_record",
       "type": "function",
       "summary": null,
-      "line": 307,
+      "line": 314,
       "signature": "( *, media_id: str, person_id: str, relative_path: str, filename: str, mime_type: str, width: int | None, height: int | None, stored_size: int, file_hash: str, caption: str | None, uploaded_by: str, tagged_person_ids: list[str] | None, ) -> Media"
     },
     {
       "name": "_persist_temp_image",
       "type": "function",
       "summary": null,
-      "line": 341,
+      "line": 348,
       "signature": "( *, temp_path: str, mime_type: str, file_path: str, media_dir: str, media_id: str, ) -> tuple[int | None, int | None, int]"
     },
     {
       "name": "delete_media_files",
       "type": "function",
       "summary": null,
-      "line": 368,
+      "line": 375,
       "signature": "(media: Media, data_dir: str | None = None) -> None"
     }
   ],
@@ -138,23 +141,23 @@
     {
       "name": "_category_for_mime",
       "kind": "function",
-      "line": 31,
+      "line": 34,
       "signature": "(mime_type: str) -> str",
-      "complexity": 4,
+      "complexity": 5,
       "calls": [
         {
           "name": "mime_type.startswith",
-          "line": 32,
+          "line": 37,
           "module_hint": null
         },
         {
           "name": "mime_type.startswith",
-          "line": 34,
+          "line": 39,
           "module_hint": null
         },
         {
           "name": "mime_type.startswith",
-          "line": 36,
+          "line": 41,
           "module_hint": null
         }
       ]
@@ -162,23 +165,23 @@
     {
       "name": "_media_type_for_mime",
       "kind": "function",
-      "line": 41,
+      "line": 46,
       "signature": "(mime_type: str) -> str",
-      "complexity": 5,
+      "complexity": 6,
       "calls": [
         {
           "name": "mime_type.startswith",
-          "line": 44,
+          "line": 51,
           "module_hint": null
         },
         {
           "name": "mime_type.startswith",
-          "line": 46,
+          "line": 53,
           "module_hint": null
         },
         {
           "name": "mime_type.startswith",
-          "line": 48,
+          "line": 55,
           "module_hint": null
         }
       ]
@@ -186,18 +189,18 @@
     {
       "name": "compute_sha256",
       "kind": "function",
-      "line": 53,
+      "line": 60,
       "signature": "(data: bytes) -> str",
       "complexity": 1,
       "calls": [
         {
           "name": "hashlib.sha256(data).hexdigest",
-          "line": 54,
+          "line": 61,
           "module_hint": null
         },
         {
           "name": "hashlib.sha256",
-          "line": 54,
+          "line": 61,
           "module_hint": "hashlib"
         }
       ]
@@ -205,43 +208,43 @@
     {
       "name": "strip_exif",
       "kind": "function",
-      "line": 57,
+      "line": 64,
       "signature": "(data: bytes, mime_type: str) -> bytes",
       "complexity": 6,
       "calls": [
         {
           "name": "Image.open",
-          "line": 62,
+          "line": 69,
           "module_hint": "PIL"
         },
         {
           "name": "BytesIO",
-          "line": 62,
+          "line": 69,
           "module_hint": "io"
         },
         {
           "name": "Image.new",
-          "line": 63,
+          "line": 70,
           "module_hint": "PIL"
         },
         {
           "name": "clean.paste",
-          "line": 64,
+          "line": 71,
           "module_hint": null
         },
         {
           "name": "BytesIO",
-          "line": 65,
+          "line": 72,
           "module_hint": "io"
         },
         {
           "name": "clean.save",
-          "line": 67,
+          "line": 74,
           "module_hint": null
         },
         {
           "name": "buf.getvalue",
-          "line": 68,
+          "line": 75,
           "module_hint": null
         }
       ]
@@ -249,48 +252,48 @@
     {
       "name": "generate_thumbnail",
       "kind": "function",
-      "line": 73,
+      "line": 80,
       "signature": "(data: bytes, mime_type: str) -> bytes | None",
       "complexity": 3,
       "calls": [
         {
           "name": "Image.open",
-          "line": 78,
+          "line": 85,
           "module_hint": "PIL"
         },
         {
           "name": "BytesIO",
-          "line": 78,
+          "line": 85,
           "module_hint": "io"
         },
         {
           "name": "img.thumbnail",
-          "line": 79,
+          "line": 86,
           "module_hint": null
         },
         {
           "name": "Image.new",
-          "line": 81,
+          "line": 88,
           "module_hint": "PIL"
         },
         {
           "name": "clean.paste",
-          "line": 82,
+          "line": 89,
           "module_hint": null
         },
         {
           "name": "BytesIO",
-          "line": 83,
+          "line": 90,
           "module_hint": "io"
         },
         {
           "name": "clean.save",
-          "line": 84,
+          "line": 91,
           "module_hint": null
         },
         {
           "name": "buf.getvalue",
-          "line": 85,
+          "line": 92,
           "module_hint": null
         }
       ]
@@ -298,18 +301,18 @@
     {
       "name": "get_image_dimensions",
       "kind": "function",
-      "line": 90,
+      "line": 97,
       "signature": "(data: bytes, mime_type: str) -> tuple[int | None, int | None]",
       "complexity": 3,
       "calls": [
         {
           "name": "Image.open",
-          "line": 94,
+          "line": 101,
           "module_hint": "PIL"
         },
         {
           "name": "BytesIO",
-          "line": 94,
+          "line": 101,
           "module_hint": "io"
         }
       ]
@@ -317,28 +320,28 @@
     {
       "name": "check_duplicate",
       "kind": "function",
-      "line": 100,
+      "line": 107,
       "signature": "(db: AsyncSession, file_hash: str) -> Media | None",
       "complexity": 1,
       "calls": [
         {
           "name": "db.execute",
-          "line": 101,
+          "line": 108,
           "module_hint": null
         },
         {
           "name": "select(Media).where",
-          "line": 101,
+          "line": 108,
           "module_hint": null
         },
         {
           "name": "select",
-          "line": 101,
+          "line": 108,
           "module_hint": "sqlalchemy"
         },
         {
           "name": "result.scalar_one_or_none",
-          "line": 102,
+          "line": 109,
           "module_hint": null
         }
       ]
@@ -346,124 +349,104 @@
     {
       "name": "save_media_file",
       "kind": "function",
-      "line": 105,
+      "line": 112,
       "signature": "( db: AsyncSession, file_data: bytes, filename: str, mime_type: str, person_id: str, uploaded_by: str, caption: str | None = None, tagged_person_ids: list[str] | None = None, data_dir: str | None = None, ) -> tuple[Media, bool]",
       "complexity": 13,
       "calls": [
         {
           "name": "ValueError",
-          "line": 121,
-          "module_hint": null
-        },
-        {
-          "name": "_category_for_mime",
-          "line": 123,
-          "module_hint": null
-        },
-        {
-          "name": "len",
-          "line": 125,
-          "module_hint": null
-        },
-        {
-          "name": "ValueError",
-          "line": 126,
-          "module_hint": null
-        },
-        {
-          "name": "len",
-          "line": 126,
-          "module_hint": null
-        },
-        {
-          "name": "compute_sha256",
           "line": 128,
           "module_hint": null
         },
         {
-          "name": "check_duplicate",
+          "name": "_category_for_mime",
           "line": 130,
           "module_hint": null
         },
         {
+          "name": "len",
+          "line": 132,
+          "module_hint": null
+        },
+        {
+          "name": "ValueError",
+          "line": 133,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 133,
+          "module_hint": null
+        },
+        {
+          "name": "compute_sha256",
+          "line": 135,
+          "module_hint": null
+        },
+        {
+          "name": "check_duplicate",
+          "line": 137,
+          "module_hint": null
+        },
+        {
           "name": "sorted",
-          "line": 133,
-          "module_hint": null
-        },
-        {
-          "name": "set",
-          "line": 133,
-          "module_hint": null
-        },
-        {
-          "name": "set",
-          "line": 133,
-          "module_hint": null
-        },
-        {
-          "name": "db.flush",
-          "line": 136,
-          "module_hint": null
-        },
-        {
-          "name": "strip_exif",
           "line": 140,
           "module_hint": null
         },
         {
-          "name": "get_settings",
+          "name": "set",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "set",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
           "line": 143,
+          "module_hint": null
+        },
+        {
+          "name": "strip_exif",
+          "line": 147,
+          "module_hint": null
+        },
+        {
+          "name": "get_settings",
+          "line": 150,
           "module_hint": "app.config"
         },
         {
           "name": "str",
-          "line": 145,
-          "module_hint": null
-        },
-        {
-          "name": "uuid.uuid4",
-          "line": 145,
-          "module_hint": "uuid"
-        },
-        {
-          "name": "os.path.splitext(filename)[1].lower",
-          "line": 146,
-          "module_hint": null
-        },
-        {
-          "name": "os.path.splitext",
-          "line": 146,
-          "module_hint": null
-        },
-        {
-          "name": "os.path.join",
-          "line": 149,
-          "module_hint": null
-        },
-        {
-          "name": "os.makedirs",
-          "line": 150,
-          "module_hint": "os"
-        },
-        {
-          "name": "os.path.join",
           "line": 152,
           "module_hint": null
         },
         {
-          "name": "open",
+          "name": "uuid.uuid4",
+          "line": 152,
+          "module_hint": "uuid"
+        },
+        {
+          "name": "os.path.splitext(filename)[1].lower",
           "line": 153,
           "module_hint": null
         },
         {
-          "name": "f.write",
-          "line": 154,
+          "name": "os.path.splitext",
+          "line": 153,
           "module_hint": null
         },
         {
-          "name": "generate_thumbnail",
-          "line": 157,
+          "name": "os.path.join",
+          "line": 156,
           "module_hint": null
+        },
+        {
+          "name": "os.makedirs",
+          "line": 157,
+          "module_hint": "os"
         },
         {
           "name": "os.path.join",
@@ -471,53 +454,73 @@
           "module_hint": null
         },
         {
-          "name": "os.makedirs",
-          "line": 160,
-          "module_hint": "os"
-        },
-        {
-          "name": "os.path.join",
-          "line": 161,
-          "module_hint": null
-        },
-        {
           "name": "open",
-          "line": 162,
+          "line": 160,
           "module_hint": null
         },
         {
           "name": "f.write",
-          "line": 163,
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "generate_thumbnail",
+          "line": 164,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 166,
+          "module_hint": null
+        },
+        {
+          "name": "os.makedirs",
+          "line": 167,
+          "module_hint": "os"
+        },
+        {
+          "name": "os.path.join",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "open",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "f.write",
+          "line": 170,
           "module_hint": null
         },
         {
           "name": "get_image_dimensions",
-          "line": 165,
-          "module_hint": null
-        },
-        {
-          "name": "Media",
-          "line": 167,
-          "module_hint": "app.models.media"
-        },
-        {
-          "name": "_media_type_for_mime",
           "line": 172,
           "module_hint": null
         },
         {
-          "name": "len",
-          "line": 176,
+          "name": "Media",
+          "line": 174,
+          "module_hint": "app.models.media"
+        },
+        {
+          "name": "_media_type_for_mime",
+          "line": 179,
           "module_hint": null
         },
         {
-          "name": "db.add",
+          "name": "len",
           "line": 183,
           "module_hint": null
         },
         {
+          "name": "db.add",
+          "line": 190,
+          "module_hint": null
+        },
+        {
           "name": "db.flush",
-          "line": 184,
+          "line": 191,
           "module_hint": null
         }
       ]
@@ -525,53 +528,53 @@
     {
       "name": "save_media_temp_file",
       "kind": "function",
-      "line": 189,
+      "line": 196,
       "signature": "( db: AsyncSession, temp_path: str, file_size: int, file_hash: str, filename: str, mime_type: str, person_id: str, uploaded_by: str, caption: str | None = None, tagged_person_ids: list[str] | None = None, data_dir: str | None = None, ) -> tuple[Media, bool]",
       "complexity": 3,
       "calls": [
         {
           "name": "_validate_media_upload",
-          "line": 203,
+          "line": 210,
           "module_hint": null
         },
         {
           "name": "check_duplicate",
-          "line": 205,
+          "line": 212,
           "module_hint": null
         },
         {
           "name": "_merge_duplicate_and_cleanup",
-          "line": 207,
+          "line": 214,
           "module_hint": null
         },
         {
           "name": "get_settings",
-          "line": 216,
+          "line": 223,
           "module_hint": "app.config"
         },
         {
           "name": "_allocate_media_paths",
-          "line": 218,
+          "line": 225,
           "module_hint": null
         },
         {
           "name": "_persist_streamed_media",
-          "line": 219,
-          "module_hint": null
-        },
-        {
-          "name": "_build_media_record",
           "line": 226,
           "module_hint": null
         },
         {
+          "name": "_build_media_record",
+          "line": 233,
+          "module_hint": null
+        },
+        {
           "name": "db.add",
-          "line": 240,
+          "line": 247,
           "module_hint": null
         },
         {
           "name": "db.flush",
-          "line": 241,
+          "line": 248,
           "module_hint": null
         }
       ]
@@ -579,23 +582,23 @@
     {
       "name": "_validate_media_upload",
       "kind": "function",
-      "line": 246,
+      "line": 253,
       "signature": "(mime_type: str, file_size: int) -> None",
       "complexity": 3,
       "calls": [
         {
           "name": "ValueError",
-          "line": 248,
+          "line": 255,
           "module_hint": null
         },
         {
           "name": "_category_for_mime",
-          "line": 250,
+          "line": 257,
           "module_hint": null
         },
         {
           "name": "ValueError",
-          "line": 253,
+          "line": 260,
           "module_hint": null
         }
       ]
@@ -603,33 +606,33 @@
     {
       "name": "_merge_duplicate_and_cleanup",
       "kind": "function",
-      "line": 256,
+      "line": 263,
       "signature": "( db: AsyncSession, existing: Media, temp_path: str, caption: str | None, tagged_person_ids: list[str] | None, ) -> tuple[Media, bool]",
       "complexity": 4,
       "calls": [
         {
           "name": "sorted",
-          "line": 264,
+          "line": 271,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 264,
+          "line": 271,
           "module_hint": null
         },
         {
           "name": "set",
-          "line": 264,
+          "line": 271,
           "module_hint": null
         },
         {
           "name": "db.flush",
-          "line": 267,
+          "line": 274,
           "module_hint": null
         },
         {
           "name": "os.unlink",
-          "line": 268,
+          "line": 275,
           "module_hint": "os"
         }
       ]
@@ -637,43 +640,43 @@
     {
       "name": "_allocate_media_paths",
       "kind": "function",
-      "line": 272,
+      "line": 279,
       "signature": "(data_dir: str, filename: str) -> tuple[str, str, str, str]",
       "complexity": 2,
       "calls": [
         {
           "name": "str",
-          "line": 273,
+          "line": 280,
           "module_hint": null
         },
         {
           "name": "uuid.uuid4",
-          "line": 273,
+          "line": 280,
           "module_hint": "uuid"
         },
         {
           "name": "os.path.splitext(filename)[1].lower",
-          "line": 274,
+          "line": 281,
           "module_hint": null
         },
         {
           "name": "os.path.splitext",
-          "line": 274,
+          "line": 281,
           "module_hint": null
         },
         {
           "name": "os.path.join",
-          "line": 276,
+          "line": 283,
           "module_hint": null
         },
         {
           "name": "os.makedirs",
-          "line": 277,
+          "line": 284,
           "module_hint": "os"
         },
         {
           "name": "os.path.join",
-          "line": 278,
+          "line": 285,
           "module_hint": null
         }
       ]
@@ -681,38 +684,38 @@
     {
       "name": "_persist_streamed_media",
       "kind": "function",
-      "line": 282,
+      "line": 289,
       "signature": "( *, temp_path: str, mime_type: str, file_path: str, media_dir: str, media_id: str, ) -> tuple[int | None, int | None, int]",
       "complexity": 4,
       "calls": [
         {
           "name": "mime_type.startswith",
-          "line": 291,
+          "line": 298,
           "module_hint": null
         },
         {
           "name": "_persist_temp_image",
-          "line": 292,
+          "line": 299,
           "module_hint": null
         },
         {
           "name": "shutil.move",
-          "line": 299,
+          "line": 306,
           "module_hint": "shutil"
         },
         {
           "name": "os.path.getsize",
-          "line": 300,
+          "line": 307,
           "module_hint": null
         },
         {
           "name": "os.path.exists",
-          "line": 302,
+          "line": 309,
           "module_hint": null
         },
         {
           "name": "os.unlink",
-          "line": 303,
+          "line": 310,
           "module_hint": "os"
         }
       ]
@@ -720,18 +723,18 @@
     {
       "name": "_build_media_record",
       "kind": "function",
-      "line": 307,
+      "line": 314,
       "signature": "( *, media_id: str, person_id: str, relative_path: str, filename: str, mime_type: str, width: int | None, height: int | None, stored_size: int, file_hash: str, caption: str | None, uploaded_by: str, tagged_person_ids: list[str] | None, ) -> Media",
       "complexity": 2,
       "calls": [
         {
           "name": "Media",
-          "line": 322,
+          "line": 329,
           "module_hint": "app.models.media"
         },
         {
           "name": "_media_type_for_mime",
-          "line": 327,
+          "line": 334,
           "module_hint": null
         }
       ]
@@ -739,78 +742,78 @@
     {
       "name": "_persist_temp_image",
       "kind": "function",
-      "line": 341,
+      "line": 348,
       "signature": "( *, temp_path: str, mime_type: str, file_path: str, media_dir: str, media_id: str, ) -> tuple[int | None, int | None, int]",
       "complexity": 5,
       "calls": [
         {
           "name": "open",
-          "line": 349,
+          "line": 356,
           "module_hint": null
         },
         {
           "name": "temp_file.read",
-          "line": 350,
-          "module_hint": null
-        },
-        {
-          "name": "strip_exif",
-          "line": 351,
-          "module_hint": null
-        },
-        {
-          "name": "open",
-          "line": 352,
-          "module_hint": null
-        },
-        {
-          "name": "output_file.write",
-          "line": 353,
-          "module_hint": null
-        },
-        {
-          "name": "generate_thumbnail",
-          "line": 355,
-          "module_hint": null
-        },
-        {
-          "name": "os.path.join",
           "line": 357,
           "module_hint": null
         },
         {
-          "name": "os.makedirs",
+          "name": "strip_exif",
           "line": 358,
-          "module_hint": "os"
-        },
-        {
-          "name": "os.path.join",
-          "line": 359,
           "module_hint": null
         },
         {
           "name": "open",
+          "line": 359,
+          "module_hint": null
+        },
+        {
+          "name": "output_file.write",
           "line": 360,
           "module_hint": null
         },
         {
+          "name": "generate_thumbnail",
+          "line": 362,
+          "module_hint": null
+        },
+        {
+          "name": "os.path.join",
+          "line": 364,
+          "module_hint": null
+        },
+        {
+          "name": "os.makedirs",
+          "line": 365,
+          "module_hint": "os"
+        },
+        {
+          "name": "os.path.join",
+          "line": 366,
+          "module_hint": null
+        },
+        {
+          "name": "open",
+          "line": 367,
+          "module_hint": null
+        },
+        {
           "name": "thumb_file.write",
-          "line": 361,
+          "line": 368,
           "module_hint": null
         },
         {
           "name": "get_image_dimensions",
-          "line": 363,
+          "line": 370,
           "module_hint": null
         },
         {
           "name": "os.unlink",
-          "line": 364,
+          "line": 371,
           "module_hint": "os"
         },
         {
           "name": "len",
-          "line": 365,
+          "line": 372,
           "module_hint": null
         }
       ]
@@ -818,43 +821,43 @@
     {
       "name": "delete_media_files",
       "kind": "function",
-      "line": 368,
+      "line": 375,
       "signature": "(media: Media, data_dir: str | None = None) -> None",
       "complexity": 5,
       "calls": [
         {
           "name": "get_settings",
-          "line": 370,
+          "line": 377,
           "module_hint": "app.config"
         },
         {
           "name": "os.path.join",
-          "line": 373,
+          "line": 380,
           "module_hint": null
         },
         {
           "name": "os.path.isfile",
-          "line": 374,
+          "line": 381,
           "module_hint": null
         },
         {
           "name": "os.unlink",
-          "line": 375,
+          "line": 382,
           "module_hint": "os"
         },
         {
           "name": "os.path.join",
-          "line": 377,
+          "line": 384,
           "module_hint": null
         },
         {
           "name": "os.path.isfile",
-          "line": 378,
+          "line": 385,
           "module_hint": null
         },
         {
           "name": "os.unlink",
-          "line": 379,
+          "line": 386,
           "module_hint": "os"
         }
       ]
@@ -863,13 +866,13 @@
   "function_audits": [
     {
       "function": "_category_for_mime",
-      "line": 31,
+      "line": 34,
       "metrics": {
-        "cyclomatic": 4,
-        "cognitive": 3,
-        "size": 7,
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 9,
         "nesting": 1,
-        "token_count": 54
+        "token_count": 67
       },
       "findings": [
         {
@@ -877,28 +880,28 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 32,
-              "line_end": 32
-            },
-            {
-              "line_start": 34,
-              "line_end": 34
-            },
-            {
-              "line_start": 36,
-              "line_end": 36
-            },
-            {
-              "line_start": 32,
-              "line_end": 33
-            },
-            {
-              "line_start": 34,
-              "line_end": 35
-            },
-            {
-              "line_start": 36,
+              "line_start": 37,
               "line_end": 37
+            },
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 41,
+              "line_end": 41
+            },
+            {
+              "line_start": 37,
+              "line_end": 38
+            },
+            {
+              "line_start": 39,
+              "line_end": 40
+            },
+            {
+              "line_start": 41,
+              "line_end": 42
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -917,13 +920,13 @@
     },
     {
       "function": "_media_type_for_mime",
-      "line": 41,
+      "line": 46,
       "metrics": {
-        "cyclomatic": 5,
-        "cognitive": 4,
-        "size": 9,
+        "cyclomatic": 6,
+        "cognitive": 5,
+        "size": 11,
         "nesting": 1,
-        "token_count": 72
+        "token_count": 86
       },
       "findings": [
         {
@@ -931,28 +934,36 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 44,
-              "line_end": 45
+              "line_start": 51,
+              "line_end": 51
             },
             {
-              "line_start": 46,
-              "line_end": 47
+              "line_start": 53,
+              "line_end": 53
             },
             {
-              "line_start": 48,
-              "line_end": 49
+              "line_start": 55,
+              "line_end": 55
             },
             {
-              "line_start": 44,
-              "line_end": 44
-            },
-            {
-              "line_start": 46,
-              "line_end": 46
-            },
-            {
-              "line_start": 48,
+              "line_start": 47,
               "line_end": 48
+            },
+            {
+              "line_start": 49,
+              "line_end": 50
+            },
+            {
+              "line_start": 51,
+              "line_end": 52
+            },
+            {
+              "line_start": 53,
+              "line_end": 54
+            },
+            {
+              "line_start": 55,
+              "line_end": 56
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -971,7 +982,7 @@
     },
     {
       "function": "compute_sha256",
-      "line": 53,
+      "line": 60,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -992,7 +1003,7 @@
     },
     {
       "function": "strip_exif",
-      "line": 57,
+      "line": 64,
       "metrics": {
         "cyclomatic": 6,
         "cognitive": 5,
@@ -1013,7 +1024,7 @@
     },
     {
       "function": "generate_thumbnail",
-      "line": 73,
+      "line": 80,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -1034,7 +1045,7 @@
     },
     {
       "function": "get_image_dimensions",
-      "line": 90,
+      "line": 97,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -1055,7 +1066,7 @@
     },
     {
       "function": "check_duplicate",
-      "line": 100,
+      "line": 107,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -1076,7 +1087,7 @@
     },
     {
       "function": "save_media_file",
-      "line": 105,
+      "line": 112,
       "metrics": {
         "cyclomatic": 13,
         "cognitive": 10,
@@ -1090,52 +1101,52 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 153,
-              "line_end": 153
+              "line_start": 160,
+              "line_end": 161
             },
             {
-              "line_start": 162,
-              "line_end": 162
+              "line_start": 169,
+              "line_end": 170
             },
             {
-              "line_start": 153,
-              "line_end": 154
+              "line_start": 156,
+              "line_end": 156
             },
             {
-              "line_start": 162,
-              "line_end": 163
+              "line_start": 166,
+              "line_end": 166
             },
             {
-              "line_start": 150,
-              "line_end": 150
+              "line_start": 157,
+              "line_end": 157
+            },
+            {
+              "line_start": 167,
+              "line_end": 167
+            },
+            {
+              "line_start": 156,
+              "line_end": 156
+            },
+            {
+              "line_start": 166,
+              "line_end": 166
             },
             {
               "line_start": 160,
               "line_end": 160
             },
             {
-              "line_start": 149,
-              "line_end": 149
+              "line_start": 169,
+              "line_end": 169
             },
             {
-              "line_start": 159,
-              "line_end": 159
+              "line_start": 160,
+              "line_end": 160
             },
             {
-              "line_start": 153,
-              "line_end": 153
-            },
-            {
-              "line_start": 162,
-              "line_end": 162
-            },
-            {
-              "line_start": 149,
-              "line_end": 149
-            },
-            {
-              "line_start": 159,
-              "line_end": 159
+              "line_start": 169,
+              "line_end": 169
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1154,7 +1165,7 @@
     },
     {
       "function": "save_media_temp_file",
-      "line": 189,
+      "line": 196,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -1168,20 +1179,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 207,
-              "line_end": 213
+              "line_start": 214,
+              "line_end": 220
             },
             {
-              "line_start": 219,
-              "line_end": 225
+              "line_start": 226,
+              "line_end": 232
             },
             {
-              "line_start": 207,
-              "line_end": 213
+              "line_start": 214,
+              "line_end": 220
             },
             {
-              "line_start": 219,
-              "line_end": 225
+              "line_start": 226,
+              "line_end": 232
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1200,7 +1211,7 @@
     },
     {
       "function": "_validate_media_upload",
-      "line": 246,
+      "line": 253,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -1221,7 +1232,7 @@
     },
     {
       "function": "_merge_duplicate_and_cleanup",
-      "line": 256,
+      "line": 263,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 2,
@@ -1242,7 +1253,7 @@
     },
     {
       "function": "_allocate_media_paths",
-      "line": 272,
+      "line": 279,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -1263,7 +1274,7 @@
     },
     {
       "function": "_persist_streamed_media",
-      "line": 282,
+      "line": 289,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 4,
@@ -1277,12 +1288,12 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 300,
-              "line_end": 300
+              "line_start": 307,
+              "line_end": 307
             },
             {
-              "line_start": 302,
-              "line_end": 302
+              "line_start": 309,
+              "line_end": 309
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1301,7 +1312,7 @@
     },
     {
       "function": "_build_media_record",
-      "line": 307,
+      "line": 314,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 0,
@@ -1322,7 +1333,7 @@
     },
     {
       "function": "_persist_temp_image",
-      "line": 341,
+      "line": 348,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 1,
@@ -1336,36 +1347,36 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 349,
-              "line_end": 349
-            },
-            {
-              "line_start": 352,
-              "line_end": 352
-            },
-            {
-              "line_start": 360,
+              "line_start": 359,
               "line_end": 360
             },
             {
-              "line_start": 349,
-              "line_end": 349
+              "line_start": 367,
+              "line_end": 368
             },
             {
-              "line_start": 352,
-              "line_end": 352
+              "line_start": 356,
+              "line_end": 356
             },
             {
-              "line_start": 360,
-              "line_end": 360
+              "line_start": 359,
+              "line_end": 359
             },
             {
-              "line_start": 352,
-              "line_end": 353
+              "line_start": 367,
+              "line_end": 367
             },
             {
-              "line_start": 360,
-              "line_end": 361
+              "line_start": 356,
+              "line_end": 356
+            },
+            {
+              "line_start": 359,
+              "line_end": 359
+            },
+            {
+              "line_start": 367,
+              "line_end": 367
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1384,7 +1395,7 @@
     },
     {
       "function": "delete_media_files",
-      "line": 368,
+      "line": 375,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 5,
@@ -1398,20 +1409,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 374,
-              "line_end": 375
+              "line_start": 381,
+              "line_end": 381
             },
             {
-              "line_start": 378,
-              "line_end": 379
+              "line_start": 385,
+              "line_end": 385
             },
             {
-              "line_start": 374,
-              "line_end": 374
+              "line_start": 381,
+              "line_end": 382
             },
             {
-              "line_start": 378,
-              "line_end": 378
+              "line_start": 385,
+              "line_end": 386
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -1436,25 +1447,25 @@
     "is_test_file": false,
     "security_issues": [],
     "side_effects": [
-      "filesystem: os.makedirs() at line 150",
-      "filesystem: open() at line 153",
-      "filesystem: os.makedirs() at line 160",
-      "filesystem: open() at line 162",
-      "filesystem: os.unlink() at line 268",
-      "filesystem: os.makedirs() at line 277",
-      "filesystem: shutil.move() at line 299",
-      "filesystem: os.unlink() at line 303",
-      "filesystem: open() at line 349",
-      "filesystem: open() at line 352",
-      "filesystem: os.makedirs() at line 358",
-      "filesystem: open() at line 360",
-      "filesystem: os.unlink() at line 364",
-      "filesystem: os.unlink() at line 375",
-      "filesystem: os.unlink() at line 379"
+      "filesystem: os.makedirs() at line 157",
+      "filesystem: open() at line 160",
+      "filesystem: os.makedirs() at line 167",
+      "filesystem: open() at line 169",
+      "filesystem: os.unlink() at line 275",
+      "filesystem: os.makedirs() at line 284",
+      "filesystem: shutil.move() at line 306",
+      "filesystem: os.unlink() at line 310",
+      "filesystem: open() at line 356",
+      "filesystem: open() at line 359",
+      "filesystem: os.makedirs() at line 365",
+      "filesystem: open() at line 367",
+      "filesystem: os.unlink() at line 371",
+      "filesystem: os.unlink() at line 382",
+      "filesystem: os.unlink() at line 386"
     ],
     "purity": "filesystem",
     "todo_count": 0,
-    "churn_count": 4,
+    "churn_count": 5,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -1480,10 +1491,10 @@
       "strip_exif"
     ],
     "package": null,
-    "change_velocity": 3.0,
+    "change_velocity": 4.0,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T23:07:35-04:00",
+    "last_modified": "2026-03-26T10:51:09-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -1496,15 +1507,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.2,
-  "attention_score": 0.58,
-  "centrality_score": 0.06,
+  "testability_score": 0.5,
+  "attention_score": 0.41,
+  "centrality_score": 0.07,
   "quality_radar": {
     "understandability": 0.18,
-    "changeability": 0.69,
-    "correctness": 0.5,
+    "changeability": 0.98,
+    "correctness": 1.0,
     "security": 0.88,
-    "stability": 0.3
+    "stability": 0.37
   },
   "domain_role": "utility",
   "detected_patterns": [
@@ -1513,10 +1524,10 @@
       "confidence": "medium",
       "tier": 1,
       "evidence": [
-        "get_image_dimensions() at line 90",
-        "save_media_file() at line 105",
-        "save_media_temp_file() at line 189",
-        "delete_media_files() at line 368"
+        "get_image_dimensions() at line 97",
+        "save_media_file() at line 112",
+        "save_media_temp_file() at line 196",
+        "delete_media_files() at line 375"
       ],
       "notes": "Matched CRUD prefixes: delete, get, save"
     }
@@ -1524,7 +1535,7 @@
   "detected_anti_patterns": [
     {
       "name": "primitive_obsession",
-      "evidence": "save_media_file() has 9 params (line 105); save_media_temp_file() has 11 params (line 189); _build_media_record() has 12 params (line 307)",
+      "evidence": "save_media_file() has 9 params (line 112); save_media_temp_file() has 11 params (line 196); _build_media_record() has 12 params (line 314)",
       "severity": "medium"
     }
   ],

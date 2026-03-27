@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.models.media import Media
-from app.models.moments import Moment, MomentLifecycleState
 from app.models.person import AccountState, Person, PersonLifecycleState, Visibility
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonDetail, PersonSummary
@@ -123,40 +122,6 @@ async def can_view_media(
     return (await get_person_access(db, current_user, person)).can_view
 
 
-async def can_view_moment(
-    db: AsyncSession,
-    current_user: Person,
-    moment: Moment,
-) -> bool:
-    if moment.lifecycle_state == MomentLifecycleState.deleted.value:
-        logger.debug("Deleted moment %s hidden from user %s", moment.id, current_user.id)
-        return False
-    if moment.lifecycle_state == MomentLifecycleState.moderated.value and not current_user.is_admin:
-        logger.debug("Moderated moment %s denied to non-admin %s", moment.id, current_user.id)
-        return False
-    if not current_user.is_admin:
-        if moment.visibility in {"hidden", "admins"}:
-            logger.debug("Moment %s visibility %s denied to %s", moment.id, moment.visibility, current_user.id)
-            return False
-
-    result = await db.execute(select(Person).where(Person.id == moment.person_id))
-    person = result.scalar_one_or_none()
-    if not person:
-        return False
-
-    return (await get_person_access(db, current_user, person)).can_view
-
-
-def can_manage_moment(current_user: Person, moment: Moment) -> bool:
-    if moment.lifecycle_state != MomentLifecycleState.active.value:
-        return current_user.is_admin and moment.lifecycle_state == MomentLifecycleState.moderated.value
-    return current_user.is_admin or moment.posted_by == current_user.id
-
-
-def can_create_moment_for_person(current_user: Person, person: Person) -> bool:
-    return can_manage_person(current_user, person)
-
-
 def redact_person_detail(person: Person, access: PersonAccess) -> PersonDetail:
     payload = _detail_identity_payload(person, access)
     payload.update(_detail_profile_payload(person, access))
@@ -175,8 +140,6 @@ def redact_person_summary(person: Person, access: PersonAccess) -> PersonSummary
         branch=person.branch if access.can_view_profile else None,
         is_living=person.is_living,
         visibility=person.visibility,
-        moment_count=getattr(person, "moment_count", 0) or 0,
-        story_count=getattr(person, "story_count", 0) or 0,
         media_count=getattr(person, "media_count", 0) or 0,
     )
 

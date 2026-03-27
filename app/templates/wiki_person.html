@@ -7,7 +7,7 @@
     <a href="/wiki" class="wiki-page__back-link">&larr; {{ t('wiki.index_title') }}</a>
     <div class="wiki-page__nav-actions">
       <a href="/tree?focus={{ person.id }}" class="btn btn--sm btn--outline">{{ t('wiki.view_in_tree') }}</a>
-      <a href="/people/{{ person.id }}" class="btn btn--sm btn--outline">{{ t('wiki.view_profile') }}</a>
+      <a href="/people/{{ person.id }}/edit" class="btn btn--sm btn--outline">{{ t('common.edit') }}</a>
       {% if not person.is_root %}
       <a href="/research?person_id={{ person.id }}" class="btn btn--sm btn--outline">{{ t('nav.research') }}</a>
       {% endif %}

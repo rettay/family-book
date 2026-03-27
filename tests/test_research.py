@@ -181,7 +181,8 @@ async def test_research_cross_links_person_profile(admin_client: AsyncClient):
     assert resp.status_code == 201
     person_id = resp.json()["id"]
 
-    resp = await admin_client.get(f"/people/{person_id}")
+    slug = resp.json()["slug"]
+    resp = await admin_client.get(f"/wiki/{slug}")
     assert resp.status_code == 200
     assert f"/research?person_id={person_id}" in resp.text
 
@@ -200,6 +201,10 @@ async def test_root_person_no_research_link(admin_client: AsyncClient):
         root = result.scalar_one_or_none()
 
     if root:
-        resp = await admin_client.get(f"/people/{root.id}", follow_redirects=True)
-        if resp.status_code == 200:
+        # Fetch root's slug via API (seed data may not have one)
+        api_resp = await admin_client.get(f"/api/persons/{root.id}")
+        slug = api_resp.json().get("slug") if api_resp.status_code == 200 else None
+        if slug:
+            resp = await admin_client.get(f"/wiki/{slug}")
+            assert resp.status_code == 200
             assert f"/research?person_id={root.id}" not in resp.text

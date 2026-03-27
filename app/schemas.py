@@ -178,8 +178,6 @@ class PersonSummary(BaseModel):
     branch: str | None
     is_living: bool
     visibility: str
-    moment_count: int = 0
-    story_count: int = 0
     media_count: int = 0
 
     model_config = {"from_attributes": True}
@@ -250,8 +248,6 @@ def person_to_summary(person) -> PersonSummary:
         branch=person.branch,
         is_living=person.is_living,
         visibility=person.visibility,
-        moment_count=getattr(person, "moment_count", 0) or 0,
-        story_count=getattr(person, "story_count", 0) or 0,
         media_count=getattr(person, "media_count", 0) or 0,
     )
 
@@ -268,8 +264,6 @@ def person_to_detail(person) -> PersonDetail:
             branch=person.branch,
             is_living=person.is_living,
             visibility=person.visibility,
-            moment_count=getattr(person, "moment_count", 0) or 0,
-            story_count=getattr(person, "story_count", 0) or 0,
             media_count=getattr(person, "media_count", 0) or 0,
             first_name=None,
             last_name=None,
@@ -287,8 +281,6 @@ def person_to_detail(person) -> PersonDetail:
         branch=person.branch,
         is_living=person.is_living,
         visibility=person.visibility,
-        moment_count=getattr(person, "moment_count", 0) or 0,
-        story_count=getattr(person, "story_count", 0) or 0,
         media_count=getattr(person, "media_count", 0) or 0,
         first_name=person.first_name,
         last_name=person.last_name,

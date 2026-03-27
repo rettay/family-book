@@ -183,68 +183,6 @@ function showToast(msg) {
   }
 })();
 
-// Reaction picker toggle
-function toggleReactionPicker(momentId, trigger) {
-  var el = document.getElementById('reaction-picker-' + momentId);
-  if (!el) return;
-  var shouldOpen = el.classList.contains('hidden');
-  el.classList.toggle('hidden', !shouldOpen);
-  el.hidden = !shouldOpen;
-  if (trigger) {
-    trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-  }
-}
-
-// Comments toggle
-function toggleComments(momentId, trigger) {
-  var el = document.getElementById('comments-' + momentId);
-  if (el) {
-    var shouldOpen = el.classList.contains('hidden');
-    el.classList.toggle('hidden', !shouldOpen);
-    el.hidden = !shouldOpen;
-    if (trigger) {
-      trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-    }
-    if (shouldOpen && !el.dataset.loaded) {
-      el.dataset.loaded = '1';
-      el.setAttribute('aria-busy', 'true');
-      htmx.trigger(el, 'toggle-comments-' + momentId);
-    }
-  }
-}
-
-// Post comment
-async function postComment(e, momentId) {
-  e.preventDefault();
-  var input = e.target.querySelector('input[name="body"]');
-  var statusNode = document.getElementById('comment-status-' + momentId);
-  var body = input.value.trim();
-  if (!body) return;
-  if (statusNode) {
-    statusNode.textContent = '';
-    statusNode.classList.add('hidden');
-  }
-  input.disabled = true;
-  try {
-    var resp = await fetch('/api/moments/' + momentId + '/comments', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({body: body})
-    });
-    if (resp.ok) {
-      input.value = '';
-      // Reload comments
-      htmx.ajax('GET', '/partials/comments/' + momentId, '#comments-' + momentId);
-    } else if (statusNode) {
-      var data = await resp.json().catch(function() { return {}; });
-      statusNode.textContent = data.detail || 'Could not add comment';
-      statusNode.classList.remove('hidden');
-    }
-  } finally {
-    input.disabled = false;
-  }
-}
-
 // Lightbox — supports image, video, and audio
 function _guessMediaType(url) {
   if (!url) return 'image';

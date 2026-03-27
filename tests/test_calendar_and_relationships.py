@@ -1,7 +1,5 @@
 """Tests for family calendar, relationship calculator, and visual relationship types."""
 
-from datetime import datetime, timezone
-
 import pytest
 from httpx import AsyncClient
 
@@ -313,27 +311,6 @@ async def test_calendar_year_only_precision_excluded(admin_client: AsyncClient):
         data = resp.json()
         yearonly_events = [e for e in data["events"] if "YearOnly" in e.get("label", "")]
         assert len(yearonly_events) == 0
-
-
-@pytest.mark.asyncio
-async def test_calendar_moment_event_appears(admin_client: AsyncClient):
-    """Moment with occurred_at should appear on calendar for that month."""
-    tyler_id = "tyler-000-0000-0000-000000000002"
-    resp = await admin_client.post("/api/moments", json={
-        "kind": "story",
-        "person_id": tyler_id,
-        "title": "CalTest Summer Trip",
-        "body": "A family trip to test the calendar.",
-        "occurred_at": "2026-08-14T10:00:00Z",
-    })
-    assert resp.status_code == 201
-
-    resp = await admin_client.get("/api/calendar?month=2026-08")
-    assert resp.status_code == 200
-    data = resp.json()
-    moment_events = [e for e in data["events"] if e["type"] == "moment" and "CalTest Summer Trip" in e["label"]]
-    assert len(moment_events) >= 1
-    assert moment_events[0]["day"] == 14
 
 
 @pytest.mark.asyncio

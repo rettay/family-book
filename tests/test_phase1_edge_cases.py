@@ -270,4 +270,4 @@ async def test_hidden_person_edit_page_is_not_accessible_to_member(
 
     resp = await member_client.get(f"/people/{hidden_person.id}/edit", follow_redirects=False)
     assert resp.status_code == 302
-    assert resp.headers["location"] == "/people"
+    assert resp.headers["location"] == "/tree"

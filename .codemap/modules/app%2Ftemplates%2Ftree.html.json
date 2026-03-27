@@ -1,13 +1,13 @@
 {
   "id": "app/templates/tree.html",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T20:11:35.215631+00:00",
-  "source_hash": "4ba5aa48",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "1b913cb4",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 185,
+    "lines": 314,
     "rating": "green"
   },
   "dependencies": {
@@ -27,8 +27,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 6,
-    "change_risk": "medium",
+    "churn_count": 14,
+    "change_risk": "high",
     "domain": null,
     "observability_patterns": [],
     "endpoints": [],
@@ -36,14 +36,14 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 1.0,
-    "bus_factor": 2,
+    "change_velocity": 3.67,
+    "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-24T14:06:44-04:00",
+    "last_modified": "2026-03-26T12:57:35-04:00",
     "recency_score": 1.0,
     "co_change_partners": [
       "app/static/js/tree.js",
-      "app/templates/base.html"
+      "app/static/css/main.css"
     ],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -52,14 +52,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.16,
+  "attention_score": 0.3,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.92,
+    "understandability": 0.8,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.65
+    "stability": 0.3
   },
   "domain_role": "utility",
   "detected_patterns": null,

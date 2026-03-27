@@ -70,7 +70,7 @@
   }
 
   function navigateToPerson(personId) {
-    window.location.assign('/people/' + encodeURIComponent(personId));
+    window.location.assign('/people/' + encodeURIComponent(personId) + '/edit');
   }
 
   function drawBackdrop() {

@@ -1,0 +1,1750 @@
+{
+  "id": "app/services/external_records.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "fcd4aa83",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 56,
+    "lines": 414,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py"
+    ],
+    "imported_by": [
+      "app/routes/external_records.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "_cache_key",
+      "type": "function",
+      "summary": null,
+      "line": 32,
+      "signature": "(source: str, params: dict) -> str"
+    },
+    {
+      "name": "_get_cached",
+      "type": "function",
+      "summary": null,
+      "line": 37,
+      "signature": "(source: str, params: dict) -> list[dict] | None"
+    },
+    {
+      "name": "_set_cached",
+      "type": "function",
+      "summary": null,
+      "line": 47,
+      "signature": "(source: str, params: dict, data: list[dict]) -> None"
+    },
+    {
+      "name": "search_chronicling_america",
+      "type": "function",
+      "summary": null,
+      "line": 86,
+      "signature": "(params: SearchParams) -> SourceResults"
+    },
+    {
+      "name": "search_nara",
+      "type": "function",
+      "summary": null,
+      "line": 132,
+      "signature": "(params: SearchParams) -> SourceResults"
+    },
+    {
+      "name": "search_trove",
+      "type": "function",
+      "summary": null,
+      "line": 181,
+      "signature": "(params: SearchParams) -> SourceResults"
+    },
+    {
+      "name": "search_dpla",
+      "type": "function",
+      "summary": null,
+      "line": 237,
+      "signature": "(params: SearchParams) -> SourceResults"
+    },
+    {
+      "name": "search_familysearch",
+      "type": "function",
+      "summary": null,
+      "line": 297,
+      "signature": "(params: SearchParams) -> SourceResults"
+    },
+    {
+      "name": "search_antenati",
+      "type": "function",
+      "summary": null,
+      "line": 334,
+      "signature": "(params: SearchParams) -> SourceResults"
+    },
+    {
+      "name": "search_all_sources",
+      "type": "function",
+      "summary": null,
+      "line": 375,
+      "signature": "(params: SearchParams) -> list[SourceResults]"
+    },
+    {
+      "name": "_result_to_dict",
+      "type": "function",
+      "summary": null,
+      "line": 395,
+      "signature": "(r: SearchResult) -> dict"
+    },
+    {
+      "name": "source_results_to_dict",
+      "type": "function",
+      "summary": null,
+      "line": 407,
+      "signature": "(sr: SourceResults) -> dict"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_cache_key",
+      "kind": "function",
+      "line": 32,
+      "signature": "(source: str, params: dict) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "sorted",
+          "line": 33,
+          "module_hint": null
+        },
+        {
+          "name": "params.items",
+          "line": 33,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256(raw.encode()).hexdigest",
+          "line": 34,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256",
+          "line": 34,
+          "module_hint": "hashlib"
+        },
+        {
+          "name": "raw.encode",
+          "line": 34,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_get_cached",
+      "kind": "function",
+      "line": 37,
+      "signature": "(source: str, params: dict) -> list[dict] | None",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "_cache_key",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "_cache.get",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "time.time",
+          "line": 40,
+          "module_hint": "time"
+        }
+      ]
+    },
+    {
+      "name": "_set_cached",
+      "kind": "function",
+      "line": 47,
+      "signature": "(source: str, params: dict, data: list[dict]) -> None",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_cache_key",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "time.time",
+          "line": 49,
+          "module_hint": "time"
+        }
+      ]
+    },
+    {
+      "name": "search_chronicling_america",
+      "kind": "function",
+      "line": 86,
+      "signature": "(params: SearchParams) -> SourceResults",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "f\"{params.first_name} {params.last_name}\".strip",
+          "line": 89,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 91,
+          "module_hint": null
+        },
+        {
+          "name": "_get_cached",
+          "line": 94,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 96,
+          "module_hint": null
+        },
+        {
+          "name": "httpx.AsyncClient",
+          "line": 99,
+          "module_hint": "httpx"
+        },
+        {
+          "name": "client.get",
+          "line": 100,
+          "module_hint": null
+        },
+        {
+          "name": "resp.raise_for_status",
+          "line": 104,
+          "module_hint": null
+        },
+        {
+          "name": "resp.json",
+          "line": 105,
+          "module_hint": null
+        },
+        {
+          "name": "data.get",
+          "line": 107,
+          "module_hint": null
+        },
+        {
+          "name": "results.append",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "item.get",
+          "line": 112,
+          "module_hint": null
+        },
+        {
+          "name": "item.get",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "item.get",
+          "line": 114,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 114,
+          "module_hint": null
+        },
+        {
+          "name": "item.get",
+          "line": 114,
+          "module_hint": null
+        },
+        {
+          "name": "item.get",
+          "line": 115,
+          "module_hint": null
+        },
+        {
+          "name": "item.get",
+          "line": 116,
+          "module_hint": null
+        },
+        {
+          "name": "_set_cached",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "_result_to_dict",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 121,
+          "module_hint": null
+        },
+        {
+          "name": "data.get",
+          "line": 121,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 121,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 125,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 125,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_nara",
+      "kind": "function",
+      "line": 132,
+      "signature": "(params: SearchParams) -> SourceResults",
+      "complexity": 13,
+      "calls": [
+        {
+          "name": "f\"{params.first_name} {params.last_name}\".strip",
+          "line": 135,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 137,
+          "module_hint": null
+        },
+        {
+          "name": "_get_cached",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 142,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 142,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 142,
+          "module_hint": null
+        },
+        {
+          "name": "httpx.AsyncClient",
+          "line": 145,
+          "module_hint": "httpx"
+        },
+        {
+          "name": "client.get",
+          "line": 146,
+          "module_hint": null
+        },
+        {
+          "name": "resp.raise_for_status",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "resp.json",
+          "line": 151,
+          "module_hint": null
+        },
+        {
+          "name": "data.get",
+          "line": 153,
+          "module_hint": null
+        },
+        {
+          "name": "body.get(\"hits\", {}).get",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "body.get",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "hit.get",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "src.get",
+          "line": 158,
+          "module_hint": null
+        },
+        {
+          "name": "results.append",
+          "line": 159,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 159,
+          "module_hint": null
+        },
+        {
+          "name": "desc.get",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "desc.get(\"productionDateArray\", [{}])[0].get(\"proposableQualifiableDate\", {}).get",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "desc.get(\"productionDateArray\", [{}])[0].get",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "desc.get",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "desc.get",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "hit.get",
+          "line": 164,
+          "module_hint": null
+        },
+        {
+          "name": "desc.get",
+          "line": 165,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 165,
+          "module_hint": null
+        },
+        {
+          "name": "_set_cached",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "_result_to_dict",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "body.get(\"hits\", {}).get(\"total\", {}).get",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "body.get(\"hits\", {}).get",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "body.get",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 170,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 173,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 174,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 174,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_trove",
+      "kind": "function",
+      "line": 181,
+      "signature": "(params: SearchParams) -> SourceResults",
+      "complexity": 14,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 184,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "getattr",
+          "line": 185,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 187,
+          "module_hint": null
+        },
+        {
+          "name": "f\"{params.first_name} {params.last_name}\".strip",
+          "line": 189,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 191,
+          "module_hint": null
+        },
+        {
+          "name": "_get_cached",
+          "line": 194,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 196,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 196,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 196,
+          "module_hint": null
+        },
+        {
+          "name": "httpx.AsyncClient",
+          "line": 199,
+          "module_hint": "httpx"
+        },
+        {
+          "name": "client.get",
+          "line": 200,
+          "module_hint": null
+        },
+        {
+          "name": "resp.raise_for_status",
+          "line": 204,
+          "module_hint": null
+        },
+        {
+          "name": "resp.json",
+          "line": 205,
+          "module_hint": null
+        },
+        {
+          "name": "data.get",
+          "line": 207,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 209,
+          "module_hint": null
+        },
+        {
+          "name": "category[0].get(\"records\", {}).get",
+          "line": 210,
+          "module_hint": null
+        },
+        {
+          "name": "category[0].get",
+          "line": 210,
+          "module_hint": null
+        },
+        {
+          "name": "results.append",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get",
+          "line": 216,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get",
+          "line": 217,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get(\"title\", {}).get",
+          "line": 218,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get",
+          "line": 218,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 218,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get",
+          "line": 218,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get",
+          "line": 219,
+          "module_hint": null
+        },
+        {
+          "name": "rec.get",
+          "line": 220,
+          "module_hint": null
+        },
+        {
+          "name": "_set_cached",
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "_result_to_dict",
+          "line": 224,
+          "module_hint": null
+        },
+        {
+          "name": "category[0].get(\"records\", {}).get",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "category[0].get",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "str(total_str).isdigit",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 229,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 230,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 230,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_dpla",
+      "kind": "function",
+      "line": 237,
+      "signature": "(params: SearchParams) -> SourceResults",
+      "complexity": 14,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 240,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "getattr",
+          "line": 241,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 243,
+          "module_hint": null
+        },
+        {
+          "name": "f\"{params.first_name} {params.last_name}\".strip",
+          "line": 245,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 247,
+          "module_hint": null
+        },
+        {
+          "name": "_get_cached",
+          "line": 250,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 252,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 252,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 252,
+          "module_hint": null
+        },
+        {
+          "name": "httpx.AsyncClient",
+          "line": 255,
+          "module_hint": "httpx"
+        },
+        {
+          "name": "client.get",
+          "line": 256,
+          "module_hint": null
+        },
+        {
+          "name": "resp.raise_for_status",
+          "line": 260,
+          "module_hint": null
+        },
+        {
+          "name": "resp.json",
+          "line": 261,
+          "module_hint": null
+        },
+        {
+          "name": "data.get",
+          "line": 263,
+          "module_hint": null
+        },
+        {
+          "name": "doc.get",
+          "line": 266,
+          "module_hint": null
+        },
+        {
+          "name": "src.get",
+          "line": 267,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 268,
+          "module_hint": null
+        },
+        {
+          "name": "src.get",
+          "line": 270,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 271,
+          "module_hint": null
+        },
+        {
+          "name": "date_val[0].get",
+          "line": 272,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 272,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 272,
+          "module_hint": null
+        },
+        {
+          "name": "doc.get(\"provider\", {}).get",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "doc.get",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "doc.get",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "results.append",
+          "line": 276,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 276,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 278,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 279,
+          "module_hint": null
+        },
+        {
+          "name": "doc.get",
+          "line": 281,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 282,
+          "module_hint": null
+        },
+        {
+          "name": "src.get",
+          "line": 282,
+          "module_hint": null
+        },
+        {
+          "name": "_set_cached",
+          "line": 285,
+          "module_hint": null
+        },
+        {
+          "name": "_result_to_dict",
+          "line": 285,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 286,
+          "module_hint": null
+        },
+        {
+          "name": "data.get",
+          "line": 286,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 286,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 289,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 290,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 290,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_familysearch",
+      "kind": "function",
+      "line": 297,
+      "signature": "(params: SearchParams) -> SourceResults",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "f\"{params.first_name} {params.last_name}\".strip",
+          "line": 304,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 306,
+          "module_hint": null
+        },
+        {
+          "name": "urllib.parse.urlencode",
+          "line": 317,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 319,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 327,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_antenati",
+      "kind": "function",
+      "line": 334,
+      "signature": "(params: SearchParams) -> SourceResults",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "SourceResults",
+          "line": 343,
+          "module_hint": null
+        },
+        {
+          "name": "urllib.parse.urlencode",
+          "line": 348,
+          "module_hint": null
+        },
+        {
+          "name": "SearchResult",
+          "line": 350,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 358,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_all_sources",
+      "kind": "function",
+      "line": 375,
+      "signature": "(params: SearchParams) -> list[SourceResults]",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "fn",
+          "line": 377,
+          "module_hint": null
+        },
+        {
+          "name": "ALL_SOURCES.values",
+          "line": 377,
+          "module_hint": null
+        },
+        {
+          "name": "asyncio.gather",
+          "line": 378,
+          "module_hint": "asyncio"
+        },
+        {
+          "name": "zip",
+          "line": 381,
+          "module_hint": null
+        },
+        {
+          "name": "ALL_SOURCES.keys",
+          "line": 381,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 382,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 383,
+          "module_hint": null
+        },
+        {
+          "name": "source_results.append",
+          "line": 384,
+          "module_hint": null
+        },
+        {
+          "name": "SourceResults",
+          "line": 384,
+          "module_hint": null
+        },
+        {
+          "name": "str",
+          "line": 384,
+          "module_hint": null
+        },
+        {
+          "name": "source_results.append",
+          "line": 386,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_result_to_dict",
+      "kind": "function",
+      "line": 395,
+      "signature": "(r: SearchResult) -> dict",
+      "complexity": 1,
+      "calls": []
+    },
+    {
+      "name": "source_results_to_dict",
+      "kind": "function",
+      "line": 407,
+      "signature": "(sr: SourceResults) -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_result_to_dict",
+          "line": 410,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_cache_key",
+      "line": 32,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 34
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_get_cached",
+      "line": 37,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 2,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 47
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_set_cached",
+      "line": 47,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 21
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "search_chronicling_america",
+      "line": 86,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 6,
+        "size": 39,
+        "nesting": 2,
+        "token_count": 370
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 113,
+              "line_end": 113
+            },
+            {
+              "line_start": 115,
+              "line_end": 115
+            },
+            {
+              "line_start": 116,
+              "line_end": 116
+            },
+            {
+              "line_start": 113,
+              "line_end": 113
+            },
+            {
+              "line_start": 115,
+              "line_end": 115
+            },
+            {
+              "line_start": 116,
+              "line_end": 116
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 113,
+              "line_end": 113
+            },
+            {
+              "line_start": 116,
+              "line_end": 116
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "search_nara",
+      "line": 132,
+      "metrics": {
+        "cyclomatic": 13,
+        "cognitive": 12,
+        "size": 42,
+        "nesting": 2,
+        "token_count": 483
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 162,
+              "line_end": 162
+            },
+            {
+              "line_start": 164,
+              "line_end": 164
+            },
+            {
+              "line_start": 153,
+              "line_end": 153
+            },
+            {
+              "line_start": 157,
+              "line_end": 157
+            },
+            {
+              "line_start": 158,
+              "line_end": 158
+            },
+            {
+              "line_start": 153,
+              "line_end": 153
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 157,
+              "line_end": 157
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 169,
+              "line_end": 169
+            },
+            {
+              "line_start": 161,
+              "line_end": 161
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 161,
+              "line_end": 161
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "search_trove",
+      "line": 181,
+      "metrics": {
+        "cyclomatic": 14,
+        "cognitive": 10,
+        "size": 49,
+        "nesting": 2,
+        "token_count": 542
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 217,
+              "line_end": 217
+            },
+            {
+              "line_start": 220,
+              "line_end": 220
+            },
+            {
+              "line_start": 193,
+              "line_end": 193
+            },
+            {
+              "line_start": 193,
+              "line_end": 193
+            },
+            {
+              "line_start": 193,
+              "line_end": 193
+            },
+            {
+              "line_start": 217,
+              "line_end": 217
+            },
+            {
+              "line_start": 219,
+              "line_end": 219
+            },
+            {
+              "line_start": 220,
+              "line_end": 220
+            },
+            {
+              "line_start": 210,
+              "line_end": 210
+            },
+            {
+              "line_start": 225,
+              "line_end": 225
+            },
+            {
+              "line_start": 216,
+              "line_end": 216
+            },
+            {
+              "line_start": 225,
+              "line_end": 225
+            },
+            {
+              "line_start": 217,
+              "line_end": 217
+            },
+            {
+              "line_start": 218,
+              "line_end": 218
+            },
+            {
+              "line_start": 219,
+              "line_end": 219
+            },
+            {
+              "line_start": 210,
+              "line_end": 210
+            },
+            {
+              "line_start": 225,
+              "line_end": 225
+            },
+            {
+              "line_start": 194,
+              "line_end": 194
+            },
+            {
+              "line_start": 224,
+              "line_end": 224
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "search_dpla",
+      "line": 237,
+      "metrics": {
+        "cyclomatic": 14,
+        "cognitive": 17,
+        "size": 53,
+        "nesting": 3,
+        "token_count": 518
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 266,
+              "line_end": 266
+            },
+            {
+              "line_start": 275,
+              "line_end": 275
+            },
+            {
+              "line_start": 272,
+              "line_end": 272
+            },
+            {
+              "line_start": 275,
+              "line_end": 275
+            },
+            {
+              "line_start": 281,
+              "line_end": 281
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "search_familysearch",
+      "line": 297,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 30,
+        "nesting": 1,
+        "token_count": 185
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 310,
+              "line_end": 310
+            },
+            {
+              "line_start": 310,
+              "line_end": 310
+            },
+            {
+              "line_start": 312,
+              "line_end": 312
+            },
+            {
+              "line_start": 313,
+              "line_end": 313
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "search_antenati",
+      "line": 334,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 24,
+        "nesting": 1,
+        "token_count": 122
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "search_all_sources",
+      "line": 375,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 13,
+        "nesting": 2,
+        "token_count": 101
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_result_to_dict",
+      "line": 395,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 9,
+        "nesting": 0,
+        "token_count": 59
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 397,
+              "line_end": 397
+            },
+            {
+              "line_start": 398,
+              "line_end": 398
+            },
+            {
+              "line_start": 399,
+              "line_end": 399
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "source_results_to_dict",
+      "line": 407,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 7,
+        "nesting": 0,
+        "token_count": 50
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 409,
+              "line_end": 409
+            },
+            {
+              "line_start": 411,
+              "line_end": 411
+            },
+            {
+              "line_start": 412,
+              "line_end": 412
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.warning() at line 124",
+      "logging: logger.warning() at line 173",
+      "logging: logger.warning() at line 229",
+      "logging: logger.warning() at line 289",
+      "logging: logger.warning() at line 383"
+    ],
+    "endpoints": [],
+    "databases": [],
+    "services": [
+      "service:http-client: client.get() at line 100",
+      "service:http-client: client.get() at line 146",
+      "service:http-client: client.get() at line 200",
+      "service:http-client: client.get() at line 256"
+    ],
+    "unused_exports": [
+      "_cache_key",
+      "_get_cached",
+      "_result_to_dict",
+      "_set_cached",
+      "search_all_sources",
+      "search_antenati",
+      "search_chronicling_america",
+      "search_dpla",
+      "search_familysearch",
+      "search_nara",
+      "search_trove",
+      "source_results_to_dict"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-25T20:08:34-04:00",
+    "recency_score": 0.99,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 0.9655,
+    "convention_consistency": 0.9792,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": [
+      "r"
+    ]
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.28,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.3,
+    "changeability": 0.69,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.88
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

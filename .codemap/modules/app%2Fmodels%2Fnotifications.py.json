@@ -1,13 +1,13 @@
 {
   "id": "app/models/notifications.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "b3daa878",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "18c7d61f",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 100,
+    "lines": 99,
     "rating": "green"
   },
   "dependencies": {
@@ -31,49 +31,49 @@
       "name": "Notification",
       "type": "class",
       "summary": null,
-      "line": 20,
+      "line": 19,
       "signature": null
     },
     {
       "name": "DeliveryChannel",
       "type": "class",
       "summary": null,
-      "line": 36,
+      "line": 35,
       "signature": null
     },
     {
       "name": "DeliveryStatus",
       "type": "class",
       "summary": null,
-      "line": 45,
+      "line": 44,
       "signature": null
     },
     {
       "name": "NotificationDelivery",
       "type": "class",
       "summary": null,
-      "line": 53,
+      "line": 52,
       "signature": null
     },
     {
       "name": "PushChannel",
       "type": "class",
       "summary": null,
-      "line": 70,
+      "line": 69,
       "signature": null
     },
     {
       "name": "PushFrequency",
       "type": "class",
       "summary": null,
-      "line": 80,
+      "line": 79,
       "signature": null
     },
     {
       "name": "NotificationPreference",
       "type": "class",
       "summary": null,
-      "line": 86,
+      "line": 85,
       "signature": null
     }
   ],
@@ -89,7 +89,7 @@
     {
       "name": "Notification",
       "kind": "class",
-      "line": 20,
+      "line": 19,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -97,7 +97,7 @@
     {
       "name": "DeliveryChannel",
       "kind": "class",
-      "line": 36,
+      "line": 35,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -105,7 +105,7 @@
     {
       "name": "DeliveryStatus",
       "kind": "class",
-      "line": 45,
+      "line": 44,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -113,7 +113,7 @@
     {
       "name": "NotificationDelivery",
       "kind": "class",
-      "line": 53,
+      "line": 52,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -121,7 +121,7 @@
     {
       "name": "PushChannel",
       "kind": "class",
-      "line": 70,
+      "line": 69,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -129,7 +129,7 @@
     {
       "name": "PushFrequency",
       "kind": "class",
-      "line": 80,
+      "line": 79,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -137,7 +137,7 @@
     {
       "name": "NotificationPreference",
       "kind": "class",
-      "line": 86,
+      "line": 85,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -154,7 +154,7 @@
     "purity": "pure",
     "todo_count": 0,
     "churn_count": 1,
-    "change_risk": "medium",
+    "change_risk": "low",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -175,7 +175,7 @@
     "bus_factor": 1,
     "author_count": 1,
     "last_modified": "2026-03-16T18:59:37+01:00",
-    "recency_score": 0.96,
+    "recency_score": 0.94,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -187,14 +187,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.13,
-  "centrality_score": 0.06,
+  "attention_score": 0.08,
+  "centrality_score": 0.07,
   "quality_radar": {
-    "understandability": 0.92,
+    "understandability": 0.94,
     "changeability": 0.69,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.65
+    "stability": 0.93
   },
   "domain_role": "utility",
   "detected_patterns": null,

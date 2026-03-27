@@ -1,0 +1,481 @@
+{
+  "id": "app/services/date_intelligence_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "34577625",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 20,
+    "lines": 93,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/routes/persons.py",
+      "app/services/timeline_service.py",
+      "tests/test_date_intelligence.py"
+    ],
+    "tested_by": [
+      "tests/test_date_intelligence.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "_parse_date_parts",
+      "type": "function",
+      "summary": null,
+      "line": 8,
+      "signature": "(date_str: str | None) -> date | None"
+    },
+    {
+      "name": "_precision_allows_age",
+      "type": "function",
+      "summary": null,
+      "line": 23,
+      "signature": "(precision: str | None) -> bool"
+    },
+    {
+      "name": "compute_age",
+      "type": "function",
+      "summary": null,
+      "line": 30,
+      "signature": "( birth_date_str: str | None, reference_date_str: str | None, birth_precision: str | None = None, reference_precision: str | None = None, ) -> int | None"
+    },
+    {
+      "name": "compute_current_age",
+      "type": "function",
+      "summary": null,
+      "line": 51,
+      "signature": "( birth_date_str: str | None, birth_precision: str | None = None, ) -> int | None"
+    },
+    {
+      "name": "compute_age_at_death",
+      "type": "function",
+      "summary": null,
+      "line": 68,
+      "signature": "( birth_date_str: str | None, death_date_str: str | None, birth_precision: str | None = None, death_precision: str | None = None, ) -> int | None"
+    },
+    {
+      "name": "enrich_person_ages",
+      "type": "function",
+      "summary": null,
+      "line": 78,
+      "signature": "(person_dict: dict) -> dict"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_parse_date_parts",
+      "kind": "function",
+      "line": 8,
+      "signature": "(date_str: str | None) -> date | None",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "date_str.split",
+          "line": 12,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 14,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 15,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 15,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 15,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 15,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 16,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 17,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 17,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 17,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_precision_allows_age",
+      "kind": "function",
+      "line": 23,
+      "signature": "(precision: str | None) -> bool",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "compute_age",
+      "kind": "function",
+      "line": 30,
+      "signature": "( birth_date_str: str | None, reference_date_str: str | None, birth_precision: str | None = None, reference_precision: str | None = None, ) -> int | None",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "_precision_allows_age",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "_precision_allows_age",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date_parts",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date_parts",
+          "line": 42,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "compute_current_age",
+      "kind": "function",
+      "line": 51,
+      "signature": "( birth_date_str: str | None, birth_precision: str | None = None, ) -> int | None",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "_precision_allows_age",
+          "line": 56,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date_parts",
+          "line": 58,
+          "module_hint": null
+        },
+        {
+          "name": "date.today",
+          "line": 61,
+          "module_hint": "datetime"
+        }
+      ]
+    },
+    {
+      "name": "compute_age_at_death",
+      "kind": "function",
+      "line": 68,
+      "signature": "( birth_date_str: str | None, death_date_str: str | None, birth_precision: str | None = None, death_precision: str | None = None, ) -> int | None",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "compute_age",
+          "line": 75,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "enrich_person_ages",
+      "kind": "function",
+      "line": 78,
+      "signature": "(person_dict: dict) -> dict",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "person_dict.get",
+          "line": 80,
+          "module_hint": null
+        },
+        {
+          "name": "person_dict.get",
+          "line": 81,
+          "module_hint": null
+        },
+        {
+          "name": "person_dict.get",
+          "line": 82,
+          "module_hint": null
+        },
+        {
+          "name": "person_dict.get",
+          "line": 83,
+          "module_hint": null
+        },
+        {
+          "name": "person_dict.get",
+          "line": 84,
+          "module_hint": null
+        },
+        {
+          "name": "compute_age_at_death",
+          "line": 87,
+          "module_hint": null
+        },
+        {
+          "name": "compute_current_age",
+          "line": 91,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_parse_date_parts",
+      "line": 8,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 5,
+        "size": 12,
+        "nesting": 2,
+        "token_count": 90
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_precision_allows_age",
+      "line": 23,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 4,
+        "nesting": 1,
+        "token_count": 26
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "compute_age",
+      "line": 30,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 5,
+        "size": 13,
+        "nesting": 1,
+        "token_count": 85
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 37,
+              "line_end": 38
+            },
+            {
+              "line_start": 39,
+              "line_end": 40
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "compute_current_age",
+      "line": 51,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 4,
+        "size": 11,
+        "nesting": 1,
+        "token_count": 74
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "compute_age_at_death",
+      "line": 68,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "enrich_person_ages",
+      "line": 78,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 3,
+        "size": 15,
+        "nesting": 2,
+        "token_count": 108
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 81,
+              "line_end": 81
+            },
+            {
+              "line_start": 82,
+              "line_end": 82
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 81,
+              "line_end": 81
+            },
+            {
+              "line_start": 82,
+              "line_end": 82
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_parse_date_parts",
+      "_precision_allows_age",
+      "compute_age",
+      "compute_age_at_death",
+      "compute_current_age",
+      "enrich_person_ages"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T13:33:21-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.85,
+  "attention_score": 0.04,
+  "centrality_score": 0.14,
+  "quality_radar": {
+    "understandability": 0.69,
+    "changeability": 0.97,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.78
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

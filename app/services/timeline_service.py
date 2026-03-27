@@ -5,7 +5,6 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.moments import Moment, MomentLifecycleState, MomentVisibility
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.relationships import Partnership
 from app.access_control import get_accessible_person_ids
@@ -25,7 +24,7 @@ async def get_timeline_events(
 ) -> tuple[list[dict], int]:
     """Return timeline events sorted by date DESC.
 
-    event_type: filter to 'birth', 'death', 'marriage', 'moment'
+    event_type: filter to 'birth', 'death', 'marriage'
     year_from/year_to: restrict date range
     branch: filter to a specific branch
     lineage_person_ids: if set, restrict to these person IDs (pre-computed by caller)
@@ -131,33 +130,6 @@ async def get_timeline_events(
                 "person_id": p.person_a_id,
                 "person_name": f"{name_a} & {name_b}",
                 "detail": p.kind or "",
-            })
-
-    # Moment events
-    if event_type is None or event_type == "moment":
-        moment_query = select(Moment).where(
-            Moment.lifecycle_state == MomentLifecycleState.active.value,
-        )
-        if not current_user.is_admin:
-            moment_query = moment_query.where(Moment.visibility == MomentVisibility.members.value)
-        result = await db.execute(moment_query)
-        moments = result.scalars().all()
-        for moment in moments:
-            if not moment.occurred_at:
-                continue
-            if moment.person_id not in person_ids_set:
-                continue
-            occ = moment.occurred_at
-            if not _in_year_range(occ.year, year_from, year_to):
-                continue
-            events.append({
-                "date": occ.strftime("%Y-%m-%d"),
-                "year": occ.year,
-                "type": "moment",
-                "label": moment.title or moment.kind,
-                "person_id": moment.person_id,
-                "person_name": names_by_id.get(moment.person_id, "?"),
-                "detail": (moment.body or "")[:120],
             })
 
     # Sort by date DESC

@@ -1,0 +1,573 @@
+{
+  "id": "app/services/calendar_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "993c62e0",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 25,
+    "lines": 124,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/access_control.py",
+      "app/models/person.py",
+      "app/models/relationships.py"
+    ],
+    "imported_by": [
+      "app/routes/calendar.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "get_calendar_events",
+      "type": "function",
+      "summary": null,
+      "line": 14,
+      "signature": "( db: AsyncSession, current_user: Person, year: int, month: int, ) -> list[dict]"
+    },
+    {
+      "name": "get_month_grid",
+      "type": "function",
+      "summary": null,
+      "line": 106,
+      "signature": "(year: int, month: int) -> list[list[int | None]]"
+    },
+    {
+      "name": "_parse_date",
+      "type": "function",
+      "summary": null,
+      "line": 112,
+      "signature": "(date_str: str) -> date | None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "get_calendar_events",
+      "kind": "function",
+      "line": 14,
+      "signature": "( db: AsyncSession, current_user: Person, year: int, month: int, ) -> list[dict]",
+      "complexity": 20,
+      "calls": [
+        {
+          "name": "get_accessible_person_ids",
+          "line": 27,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "db.execute",
+          "line": 30,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 31,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 31,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Person.id.in_",
+          "line": 32,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 37,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date",
+          "line": 46,
+          "module_hint": null
+        },
+        {
+          "name": "events.append",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date",
+          "line": 60,
+          "module_hint": null
+        },
+        {
+          "name": "events.append",
+          "line": 63,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 74,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 74,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date",
+          "line": 87,
+          "module_hint": null
+        },
+        {
+          "name": "names_by_id.get",
+          "line": 91,
+          "module_hint": null
+        },
+        {
+          "name": "names_by_id.get",
+          "line": 92,
+          "module_hint": null
+        },
+        {
+          "name": "events.append",
+          "line": 93,
+          "module_hint": null
+        },
+        {
+          "name": "events.sort",
+          "line": 102,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_month_grid",
+      "kind": "function",
+      "line": 106,
+      "signature": "(year: int, month: int) -> list[list[int | None]]",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "cal_mod.monthcalendar",
+          "line": 108,
+          "module_hint": "calendar"
+        }
+      ]
+    },
+    {
+      "name": "_parse_date",
+      "kind": "function",
+      "line": 112,
+      "signature": "(date_str: str) -> date | None",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "date_str.split",
+          "line": 116,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 118,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 119,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 119,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 119,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 119,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 121,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 121,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 121,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "get_calendar_events",
+      "line": 14,
+      "metrics": {
+        "cyclomatic": 20,
+        "cognitive": 30,
+        "size": 84,
+        "nesting": 4,
+        "token_count": 612
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 37,
+              "line_end": 37
+            },
+            {
+              "line_start": 75,
+              "line_end": 75
+            },
+            {
+              "line_start": 46,
+              "line_end": 56
+            },
+            {
+              "line_start": 60,
+              "line_end": 70
+            },
+            {
+              "line_start": 45,
+              "line_end": 45
+            },
+            {
+              "line_start": 59,
+              "line_end": 59
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 54,
+              "line_end": 54
+            },
+            {
+              "line_start": 68,
+              "line_end": 68
+            },
+            {
+              "line_start": 48,
+              "line_end": 56
+            },
+            {
+              "line_start": 62,
+              "line_end": 70
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 33,
+              "line_end": 33
+            },
+            {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 50,
+              "line_end": 50
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 45,
+              "line_end": 45
+            },
+            {
+              "line_start": 59,
+              "line_end": 59
+            },
+            {
+              "line_start": 85,
+              "line_end": 85
+            },
+            {
+              "line_start": 48,
+              "line_end": 48
+            },
+            {
+              "line_start": 55,
+              "line_end": 55
+            },
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 46,
+              "line_end": 46
+            },
+            {
+              "line_start": 60,
+              "line_end": 60
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 55,
+              "line_end": 55
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 99,
+              "line_end": 99
+            },
+            {
+              "line_start": 50,
+              "line_end": 50
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 45,
+              "line_end": 45
+            },
+            {
+              "line_start": 59,
+              "line_end": 59
+            },
+            {
+              "line_start": 52,
+              "line_end": 52
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            },
+            {
+              "line_start": 96,
+              "line_end": 96
+            },
+            {
+              "line_start": 45,
+              "line_end": 56
+            },
+            {
+              "line_start": 59,
+              "line_end": 70
+            },
+            {
+              "line_start": 48,
+              "line_end": 48
+            },
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 90,
+              "line_end": 90
+            },
+            {
+              "line_start": 37,
+              "line_end": 37
+            },
+            {
+              "line_start": 75,
+              "line_end": 75
+            },
+            {
+              "line_start": 47,
+              "line_end": 56
+            },
+            {
+              "line_start": 61,
+              "line_end": 70
+            },
+            {
+              "line_start": 48,
+              "line_end": 48
+            },
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 90,
+              "line_end": 90
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "get_month_grid",
+      "line": 106,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 31
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_parse_date",
+      "line": 112,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 5,
+        "size": 12,
+        "nesting": 2,
+        "token_count": 90
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_parse_date",
+      "get_calendar_events",
+      "get_month_grid"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-25T21:42:10-04:00",
+    "recency_score": 0.99,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.28,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.42,
+    "changeability": 0.69,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.78
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.media import Media, MediaType
-from app.models.moments import Moment, MomentKind
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
 
@@ -129,23 +128,6 @@ async def test_media_tagged_person_ids_property_round_trip(db: AsyncSession):
     await db.flush()
 
     result = await db.execute(select(Media).where(Media.id == media.id))
-    fetched = result.scalar_one()
-    assert fetched.tagged_person_ids == [owner.id, tagged.id]
-
-
-@pytest.mark.asyncio
-async def test_moment_tagged_person_ids_property_round_trip(db: AsyncSession):
-    owner = Person(first_name="Moment", last_name="Owner")
-    tagged = Person(first_name="Tagged", last_name="Moment")
-    db.add_all([owner, tagged])
-    await db.flush()
-
-    moment = Moment(person_id=owner.id, kind=MomentKind.story.value, posted_by=owner.id)
-    moment.tagged_person_ids = [owner.id, tagged.id]
-    db.add(moment)
-    await db.flush()
-
-    result = await db.execute(select(Moment).where(Moment.id == moment.id))
     fetched = result.scalar_one()
     assert fetched.tagged_person_ids == [owner.id, tagged.id]
 

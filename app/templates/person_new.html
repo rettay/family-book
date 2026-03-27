@@ -8,7 +8,7 @@
       <h1 class="page-header__title">{{ t('person.add') }}</h1>
       <p class="page-header__subtitle">{{ t('person.add_subtitle') }}</p>
     </div>
-    <a href="/people" class="btn btn--ghost btn--sm page-header__actions">{{ t('common.cancel') }}</a>
+    <a href="/tree" class="btn btn--ghost btn--sm page-header__actions">{{ t('common.cancel') }}</a>
   </div>
 
   <form class="card" id="create-person-form" onsubmit="createPerson(event)">
@@ -102,7 +102,7 @@
     </div>
 
     <div class="card__footer card__footer--actions">
-      <a href="/people" class="btn btn--secondary">{{ t('common.cancel') }}</a>
+      <a href="/tree" class="btn btn--secondary">{{ t('common.cancel') }}</a>
       <button type="submit" class="btn btn--primary" id="create-btn">{{ t('person.add') }}</button>
     </div>
   </form>
@@ -131,7 +131,7 @@ async function createPerson(e) {
     });
     if (resp.ok) {
       const person = await resp.json();
-      window.location.href = '/people/' + person.id;
+      window.location.href = '/tree?focus=' + person.id;
     } else {
       const err = await resp.json();
       errorBox.textContent = err.detail || '{{ t("common.error") }}';

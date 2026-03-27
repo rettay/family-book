@@ -1,7 +1,5 @@
 """Tests for family timeline with branch filtering."""
 
-from datetime import datetime, timezone
-
 import pytest
 from httpx import AsyncClient
 
@@ -244,43 +242,6 @@ async def test_hidden_person_excluded_from_member_timeline(
     data = resp.json()
     hidden_events = [e for e in data["events"] if e["person_id"] == hidden_id]
     assert len(hidden_events) == 0
-
-
-@pytest.mark.asyncio
-async def test_admin_only_moment_excluded_from_member_timeline(
-    admin_client: AsyncClient, member_client: AsyncClient
-):
-    """Moments with visibility='admins' should not appear in member's timeline."""
-    # Admin creates a person
-    resp = await admin_client.post("/api/persons", json={
-        "first_name": "MomentVis",
-        "last_name": "Test",
-    })
-    assert resp.status_code == 201
-    person_id = resp.json()["id"]
-
-    # Admin creates an admin-only moment
-    resp = await admin_client.post("/api/moments", json={
-        "kind": "note",
-        "person_id": person_id,
-        "title": "AdminOnlyTimelineMoment",
-        "body": "Secret admin note",
-        "visibility": "admins",
-        "occurred_at": datetime(2000, 6, 15, tzinfo=timezone.utc).isoformat(),
-    })
-    assert resp.status_code == 201
-
-    # Admin should see the moment in timeline
-    resp = await admin_client.get("/api/timeline?event_type=moment")
-    assert resp.status_code == 200
-    admin_moments = [e for e in resp.json()["events"] if "AdminOnlyTimelineMoment" in e["label"]]
-    assert len(admin_moments) >= 1
-
-    # Member should NOT see the admin-only moment
-    resp = await member_client.get("/api/timeline?event_type=moment")
-    assert resp.status_code == 200
-    member_moments = [e for e in resp.json()["events"] if "AdminOnlyTimelineMoment" in e["label"]]
-    assert len(member_moments) == 0
 
 
 @pytest.mark.asyncio

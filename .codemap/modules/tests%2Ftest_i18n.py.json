@@ -1,0 +1,362 @@
+{
+  "id": "tests/test_i18n.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "988f8c1f",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 15,
+    "lines": 62,
+    "rating": "yellow"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "_flatten_keys",
+      "type": "function",
+      "summary": null,
+      "line": 10,
+      "signature": "(data, prefix=\"\")"
+    },
+    {
+      "name": "test_all_locales_have_same_keys",
+      "type": "function",
+      "summary": null,
+      "line": 22,
+      "signature": "()"
+    },
+    {
+      "name": "test_locale_files_are_valid_json",
+      "type": "function",
+      "summary": null,
+      "line": 38,
+      "signature": "()"
+    },
+    {
+      "name": "test_no_empty_translations",
+      "type": "function",
+      "summary": null,
+      "line": 46,
+      "signature": "()"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_flatten_keys",
+      "kind": "function",
+      "line": 10,
+      "signature": "(data, prefix=\"\")",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "set",
+          "line": 12,
+          "module_hint": null
+        },
+        {
+          "name": "data.items",
+          "line": 13,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 15,
+          "module_hint": null
+        },
+        {
+          "name": "_flatten_keys",
+          "line": 16,
+          "module_hint": null
+        },
+        {
+          "name": "keys.add",
+          "line": 18,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "test_all_locales_have_same_keys",
+      "kind": "function",
+      "line": 22,
+      "signature": "()",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "open",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "json.load",
+          "line": 27,
+          "module_hint": "json"
+        },
+        {
+          "name": "_flatten_keys",
+          "line": 28,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "test_locale_files_are_valid_json",
+      "kind": "function",
+      "line": 38,
+      "signature": "()",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "open",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "json.load",
+          "line": 42,
+          "module_hint": "json"
+        },
+        {
+          "name": "isinstance",
+          "line": 43,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "test_no_empty_translations",
+      "kind": "function",
+      "line": 46,
+      "signature": "()",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "open",
+          "line": 49,
+          "module_hint": null
+        },
+        {
+          "name": "json.load",
+          "line": 50,
+          "module_hint": "json"
+        },
+        {
+          "name": "d.items",
+          "line": 53,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 55,
+          "module_hint": null
+        },
+        {
+          "name": "_check_empty",
+          "line": 56,
+          "module_hint": null
+        },
+        {
+          "name": "_check_empty",
+          "line": 62,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_flatten_keys",
+      "line": 10,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 6,
+        "size": 9,
+        "nesting": 2,
+        "token_count": 62
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_all_locales_have_same_keys",
+      "line": 22,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 2,
+        "size": 13,
+        "nesting": 1,
+        "token_count": 104
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
+            },
+            {
+              "line_start": 34,
+              "line_end": 34
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_locale_files_are_valid_json",
+      "line": 38,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 43
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_no_empty_translations",
+      "line": 46,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 9,
+        "size": 16,
+        "nesting": 3,
+        "token_count": 111
+      },
+      "findings": [
+        {
+          "rule_id": "perf.nested_linear_membership",
+          "category": "algorithmic_inefficiency",
+          "evidence_spans": [
+            {
+              "line_start": 58,
+              "line_end": 58
+            }
+          ],
+          "estimated_effect": "Potential O(n^2) behavior from nested iteration + linear membership",
+          "confidence": 0.88
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n^2)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.84
+    },
+    {
+      "function": "_check_empty",
+      "line": 52,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 6,
+        "size": 8,
+        "nesting": 2,
+        "token_count": 60
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": true,
+    "in_cycle": false,
+    "is_test_file": true,
+    "security_issues": [],
+    "side_effects": [
+      "filesystem: open() at line 26",
+      "filesystem: open() at line 41",
+      "filesystem: open() at line 49"
+    ],
+    "purity": "filesystem",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T16:47:46-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": null,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": null,
+  "domain_role": "test-support",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

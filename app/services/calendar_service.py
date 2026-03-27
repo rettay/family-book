@@ -1,4 +1,4 @@
-"""Calendar service — aggregates family events from Person, Partnership, and Moment data."""
+"""Calendar service — aggregates family events from Person and Partnership data."""
 
 import calendar as cal_mod
 from datetime import date
@@ -6,7 +6,6 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.moments import Moment, MomentLifecycleState, MomentVisibility
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.relationships import Partnership
 from app.access_control import get_accessible_person_ids
@@ -24,7 +23,6 @@ async def get_calendar_events(
     - Person birth_date (recurring annual — birthday)
     - Person death_date (recurring annual — remembrance)
     - Partnership start_date (recurring annual — anniversary)
-    - Moment occurred_at (one-time on specific date)
     """
     accessible_ids = await get_accessible_person_ids(db, current_user)
 
@@ -100,29 +98,6 @@ async def get_calendar_events(
             "person_id": None,
             "year_only": partnership.start_date_precision == "month",
         })
-
-    # Moments with occurred_at in this specific month/year
-    moment_query = select(Moment).where(
-        Moment.lifecycle_state == MomentLifecycleState.active.value,
-    )
-    if not current_user.is_admin:
-        moment_query = moment_query.where(Moment.visibility == MomentVisibility.members.value)
-    result = await db.execute(moment_query)
-    moments = result.scalars().all()
-
-    for moment in moments:
-        if not moment.occurred_at:
-            continue
-        occ = moment.occurred_at
-        if occ.year == year and occ.month == month:
-            events.append({
-                "date": f"{year:04d}-{month:02d}-{occ.day:02d}",
-                "day": occ.day,
-                "type": "moment",
-                "label": moment.title or moment.kind,
-                "person_id": moment.person_id,
-                "year_only": False,
-            })
 
     events.sort(key=lambda e: (e["day"], e["type"], e["label"]))
     return events

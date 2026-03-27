@@ -1,0 +1,321 @@
+{
+  "id": "alembic/versions/91c60b8a16f9_add_life_story_fields.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "6d61c69d",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 3,
+    "lines": 44,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "upgrade",
+      "type": "function",
+      "summary": null,
+      "line": 21,
+      "signature": "() -> None"
+    },
+    {
+      "name": "downgrade",
+      "type": "function",
+      "summary": null,
+      "line": 34,
+      "signature": "() -> None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "upgrade",
+      "kind": "function",
+      "line": 21,
+      "signature": "() -> None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "op.batch_alter_table",
+          "line": 24,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.add_column",
+          "line": 25,
+          "module_hint": null
+        },
+        {
+          "name": "sa.Column",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 25,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.add_column",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "sa.Column",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.String",
+          "line": 26,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.add_column",
+          "line": 27,
+          "module_hint": null
+        },
+        {
+          "name": "sa.Column",
+          "line": 27,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 27,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.add_column",
+          "line": 28,
+          "module_hint": null
+        },
+        {
+          "name": "sa.Column",
+          "line": 28,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 28,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "batch_op.add_column",
+          "line": 29,
+          "module_hint": null
+        },
+        {
+          "name": "sa.Column",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "sa.Text",
+          "line": 29,
+          "module_hint": "sqlalchemy"
+        }
+      ]
+    },
+    {
+      "name": "downgrade",
+      "kind": "function",
+      "line": 34,
+      "signature": "() -> None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "op.batch_alter_table",
+          "line": 37,
+          "module_hint": "alembic"
+        },
+        {
+          "name": "batch_op.drop_column",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.drop_column",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.drop_column",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.drop_column",
+          "line": 41,
+          "module_hint": null
+        },
+        {
+          "name": "batch_op.drop_column",
+          "line": 42,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "upgrade",
+      "line": 21,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 10,
+        "nesting": 0,
+        "token_count": 145
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 28,
+              "line_end": 28
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 28,
+              "line_end": 28
+            },
+            {
+              "line_start": 25,
+              "line_end": 25
+            },
+            {
+              "line_start": 27,
+              "line_end": 27
+            },
+            {
+              "line_start": 28,
+              "line_end": 28
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "downgrade",
+      "line": 34,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 10,
+        "nesting": 0,
+        "token_count": 77
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 38,
+              "line_end": 38
+            },
+            {
+              "line_start": 39,
+              "line_end": 39
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": true,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "low",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T10:51:09-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 0.6667,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "mixed",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": {
+    "understandability": 0.97,
+    "changeability": 0.7,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.93
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

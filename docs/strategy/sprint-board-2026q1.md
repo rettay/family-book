@@ -45,6 +45,53 @@ S25 closed the last genealogy-researcher persona gap (research UX). All V1 produ
 
 ---
 
+## Closed Interstitial
+
+### `FB-035 - UI Cleanup: Rebrand Wiki, Remove Moments/People/Health`
+
+Status: Closed
+
+### What This Is
+
+An interstitial cleanup between S25 and S26. Not a full sprint — a focused product-hygiene pass that tightened navigation and removed three redundant feature surfaces.
+
+### Changes Delivered
+
+| # | Change | Scope |
+|---|--------|-------|
+| 1 | Rebrand "Wiki" → "Family Bios" | i18n only — 3 locales updated, no URL changes |
+| 2 | Remove Health Dashboard page | Routes, service, template, tests deleted |
+| 3 | Remove People listing/detail pages | Routes, templates deleted; `/people/{id}/edit`, `/card`, `/new` preserved |
+| 4 | Remove Moments feature entirely | Models, routes, services, templates, JS, tests, i18n cleaned; 3 DB tables dropped |
+
+### Impact
+
+- 59 files changed, -5,502 / +83 lines (net -5,419)
+- 3 database tables dropped (moments, moment_reactions, moment_comments)
+- Migration: `alembic/versions/b48cf4579cfc_drop_moments_tables.py`
+- Nav reduced to: Tree, Family Bios, Map, Calendar, Timeline, Research, Admin, Settings
+
+### Audit Trail
+
+- Builder delivered all 4 changes
+- Auditor found 8 findings (2 P1, 1 P2, 5 P3)
+- Builder fixed all 8 findings
+- Re-audit: PASS — 1 pre-existing P3 noted (root person slug gap in test fixtures), non-blocking
+- CodeMap check: PASS (12 passed, 13 warnings — all pre-existing)
+
+### Closeout Baseline
+
+- `uv run pytest -q`: **401 passed, 0 failed**
+- `uv run pytest tests/test_i18n.py -q`: **3 passed** (locale parity)
+- `codemap check .`: **PASS** (12 pass, 13 warn, 0 fail)
+- Test count delta: 475 → 401 (74 tests removed with deleted features, no regressions)
+
+### Context
+
+- Plan file: `.claude/plans/spicy-bouncing-llama.md`
+
+---
+
 ## Closed Sprint
 
 ### `S25 - Research UX Overhaul and Test Infrastructure`

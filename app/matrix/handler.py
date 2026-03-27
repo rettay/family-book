@@ -1,5 +1,5 @@
 """
-Matrix event handler — converts bridged messages into Moment + Media records.
+Matrix event handler — converts bridged messages into Media records.
 
 Idempotency: Matrix event IDs stored in ExternalIdentity(provider='matrix_event')
 to prevent duplicate creation on reconnection.
@@ -15,7 +15,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.imports import ExternalIdentity
 from app.models.media import Media, MediaSource, MediaType
-from app.models.moments import Moment, MomentKind
 
 logger = logging.getLogger(__name__)
 
@@ -143,21 +142,8 @@ class MatrixEventHandler:
         session.add(media)
         await session.flush()
 
-        # Create Moment
-        kind = MomentKind.photo if media_type == MediaType.image else MomentKind.video
-        moment = Moment(
-            person_id=person_id,
-            kind=kind.value,
-            body=caption if caption != filename else None,
-            occurred_at=timestamp,
-            source="matrix",
-            posted_by=person_id,
-        )
-        moment.media_ids = [media.id]
-        session.add(moment)
-
-        logger.info("Ingested Matrix media: %s → Media %s, Moment %s",
-                     event_id, media.id[:8], moment.id[:8])
+        logger.info("Ingested Matrix media: %s → Media %s",
+                     event_id, media.id[:8])
 
     async def _ingest_text_message(
         self,
@@ -171,16 +157,7 @@ class MatrixEventHandler:
         if not body:
             return
 
-        moment = Moment(
-            person_id=person_id,
-            kind=MomentKind.text.value,
-            body=body,
-            occurred_at=timestamp,
-            source="matrix",
-            posted_by=person_id,
-        )
-        session.add(moment)
-        logger.info("Ingested Matrix text message from event %s", event_id)
+        logger.info("Matrix text message from event %s (no moment created)", event_id)
 
     async def _handle_reaction(self, event: dict) -> None:
         """Convert m.reaction → MomentReaction (stubbed for Phase 2 merge)."""

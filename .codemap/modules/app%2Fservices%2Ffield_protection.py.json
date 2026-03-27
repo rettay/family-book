@@ -1,13 +1,13 @@
 {
   "id": "app/services/field_protection.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
-  "source_hash": "1b65a123",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "e518401f",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 16,
-    "lines": 125,
+    "lines": 128,
     "rating": "yellow"
   },
   "dependencies": {
@@ -17,92 +17,91 @@
     "imported_by": [
       "app/backup/service.py",
       "app/models/person.py",
+      "app/routes/persons.py",
       "app/services/auth_service.py",
       "app/services/bootstrap_service.py",
       "app/services/protection_service.py",
       "app/services/revision_service.py",
       "tests/test_protection_service.py"
     ],
-    "tested_by": [
-      "tests/test_protection_service.py"
-    ]
+    "tested_by": []
   },
   "exports": [
     {
       "name": "ProtectionConfigurationError",
       "type": "class",
       "summary": null,
-      "line": 20,
+      "line": 23,
       "signature": null
     },
     {
       "name": "ProtectedFieldDecryptionError",
       "type": "class",
       "summary": null,
-      "line": 24,
+      "line": 27,
       "signature": null
     },
     {
       "name": "normalize_email_for_lookup",
       "type": "function",
       "summary": null,
-      "line": 28,
+      "line": 31,
       "signature": "(value: str | None) -> str | None"
     },
     {
       "name": "contact_email_lookup_hash",
       "type": "function",
       "summary": null,
-      "line": 35,
+      "line": 38,
       "signature": "(value: str | None) -> str | None"
     },
     {
       "name": "is_valid_fernet_key",
       "type": "function",
       "summary": null,
-      "line": 54,
+      "line": 57,
       "signature": "(raw_key: str | None) -> bool"
     },
     {
       "name": "get_fernet",
       "type": "function",
       "summary": null,
-      "line": 64,
+      "line": 67,
       "signature": "() -> Fernet"
     },
     {
       "name": "encrypt_string",
       "type": "function",
       "summary": null,
-      "line": 69,
+      "line": 72,
       "signature": "(value: str | None) -> str | None"
     },
     {
       "name": "decrypt_string",
       "type": "function",
       "summary": null,
-      "line": 78,
+      "line": 81,
       "signature": "(value: str | None) -> str | None"
     },
     {
       "name": "encrypt_mapping_fields",
       "type": "function",
       "summary": null,
-      "line": 92,
+      "line": 95,
       "signature": "(snapshot: dict, fields: list[str]) -> dict"
     },
     {
       "name": "decrypt_mapping_fields",
       "type": "function",
       "summary": null,
-      "line": 100,
+      "line": 103,
       "signature": "(snapshot: dict, fields: list[str]) -> dict"
     },
     {
       "name": "get_protection_contract",
       "type": "function",
       "summary": null,
-      "line": 108,
+      "line": 111,
       "signature": "() -> dict"
     }
   ],
@@ -110,7 +109,7 @@
     {
       "name": "ProtectionConfigurationError",
       "kind": "class",
-      "line": 20,
+      "line": 23,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -118,7 +117,7 @@
     {
       "name": "ProtectedFieldDecryptionError",
       "kind": "class",
-      "line": 24,
+      "line": 27,
       "signature": null,
       "complexity": null,
       "calls": []
@@ -126,18 +125,18 @@
     {
       "name": "normalize_email_for_lookup",
       "kind": "function",
-      "line": 28,
+      "line": 31,
       "signature": "(value: str | None) -> str | None",
       "complexity": 3,
       "calls": [
         {
           "name": "value.strip().lower",
-          "line": 31,
+          "line": 34,
           "module_hint": null
         },
         {
           "name": "value.strip",
-          "line": 31,
+          "line": 34,
           "module_hint": null
         }
       ]
@@ -145,28 +144,28 @@
     {
       "name": "contact_email_lookup_hash",
       "kind": "function",
-      "line": 35,
+      "line": 38,
       "signature": "(value: str | None) -> str | None",
       "complexity": 2,
       "calls": [
         {
           "name": "normalize_email_for_lookup",
-          "line": 36,
+          "line": 39,
           "module_hint": null
         },
         {
           "name": "hashlib.sha256(normalized.encode(\"utf-8\")).hexdigest",
-          "line": 39,
+          "line": 42,
           "module_hint": null
         },
         {
           "name": "hashlib.sha256",
-          "line": 39,
+          "line": 42,
           "module_hint": "hashlib"
         },
         {
           "name": "normalized.encode",
-          "line": 39,
+          "line": 42,
           "module_hint": null
         }
       ]
@@ -174,13 +173,13 @@
     {
       "name": "is_valid_fernet_key",
       "kind": "function",
-      "line": 54,
+      "line": 57,
       "signature": "(raw_key: str | None) -> bool",
       "complexity": 3,
       "calls": [
         {
           "name": "_normalized_fernet_key",
-          "line": 58,
+          "line": 61,
           "module_hint": null
         }
       ]
@@ -188,23 +187,23 @@
     {
       "name": "get_fernet",
       "kind": "function",
-      "line": 64,
+      "line": 67,
       "signature": "() -> Fernet",
       "complexity": 1,
       "calls": [
         {
           "name": "get_settings",
-          "line": 65,
+          "line": 68,
           "module_hint": "app.config"
         },
         {
           "name": "Fernet",
-          "line": 66,
+          "line": 69,
           "module_hint": "cryptography.fernet"
         },
         {
           "name": "_normalized_fernet_key",
-          "line": 66,
+          "line": 69,
           "module_hint": null
         }
       ]
@@ -212,33 +211,33 @@
     {
       "name": "encrypt_string",
       "kind": "function",
-      "line": 69,
+      "line": 72,
       "signature": "(value: str | None) -> str | None",
       "complexity": 3,
       "calls": [
         {
           "name": "value.startswith",
-          "line": 72,
+          "line": 75,
           "module_hint": null
         },
         {
           "name": "get_fernet().encrypt(value.encode(\"utf-8\")).decode",
-          "line": 74,
+          "line": 77,
           "module_hint": null
         },
         {
           "name": "get_fernet().encrypt",
-          "line": 74,
+          "line": 77,
           "module_hint": null
         },
         {
           "name": "get_fernet",
-          "line": 74,
+          "line": 77,
           "module_hint": null
         },
         {
           "name": "value.encode",
-          "line": 74,
+          "line": 77,
           "module_hint": null
         }
       ]
@@ -246,43 +245,43 @@
     {
       "name": "decrypt_string",
       "kind": "function",
-      "line": 78,
+      "line": 81,
       "signature": "(value: str | None) -> str | None",
       "complexity": 4,
       "calls": [
         {
           "name": "value.startswith",
-          "line": 81,
+          "line": 84,
           "module_hint": null
         },
         {
           "name": "value[len(ENCRYPTED_PREFIX):].encode",
-          "line": 83,
+          "line": 86,
           "module_hint": null
         },
         {
           "name": "len",
-          "line": 83,
+          "line": 86,
           "module_hint": null
         },
         {
           "name": "get_fernet().decrypt(token).decode",
-          "line": 85,
+          "line": 88,
           "module_hint": null
         },
         {
           "name": "get_fernet().decrypt",
-          "line": 85,
+          "line": 88,
           "module_hint": null
         },
         {
           "name": "get_fernet",
-          "line": 85,
+          "line": 88,
           "module_hint": null
         },
         {
           "name": "ProtectedFieldDecryptionError",
-          "line": 87,
+          "line": 90,
           "module_hint": null
         }
       ]
@@ -290,18 +289,18 @@
     {
       "name": "encrypt_mapping_fields",
       "kind": "function",
-      "line": 92,
+      "line": 95,
       "signature": "(snapshot: dict, fields: list[str]) -> dict",
       "complexity": 3,
       "calls": [
         {
           "name": "dict",
-          "line": 93,
+          "line": 96,
           "module_hint": null
         },
         {
           "name": "encrypt_string",
-          "line": 96,
+          "line": 99,
           "module_hint": null
         }
       ]
@@ -309,18 +308,18 @@
     {
       "name": "decrypt_mapping_fields",
       "kind": "function",
-      "line": 100,
+      "line": 103,
       "signature": "(snapshot: dict, fields: list[str]) -> dict",
       "complexity": 3,
       "calls": [
         {
           "name": "dict",
-          "line": 101,
+          "line": 104,
           "module_hint": null
         },
         {
           "name": "decrypt_string",
-          "line": 104,
+          "line": 107,
           "module_hint": null
         }
       ]
@@ -328,33 +327,33 @@
     {
       "name": "get_protection_contract",
       "kind": "function",
-      "line": 108,
+      "line": 111,
       "signature": "() -> dict",
       "complexity": 1,
       "calls": [
         {
           "name": "get_settings",
-          "line": 109,
+          "line": 112,
           "module_hint": "app.config"
         },
         {
           "name": "getattr",
-          "line": 110,
+          "line": 113,
           "module_hint": null
         },
         {
           "name": "getattr",
-          "line": 110,
+          "line": 113,
           "module_hint": null
         },
         {
           "name": "is_valid_fernet_key",
-          "line": 111,
+          "line": 114,
           "module_hint": null
         },
         {
           "name": "getattr",
-          "line": 111,
+          "line": 114,
           "module_hint": null
         }
       ]
@@ -363,7 +362,7 @@
   "function_audits": [
     {
       "function": "normalize_email_for_lookup",
-      "line": 28,
+      "line": 31,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 1,
@@ -384,7 +383,7 @@
     },
     {
       "function": "contact_email_lookup_hash",
-      "line": 35,
+      "line": 38,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -405,7 +404,7 @@
     },
     {
       "function": "_normalized_fernet_key",
-      "line": 43,
+      "line": 46,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -426,7 +425,7 @@
     },
     {
       "function": "is_valid_fernet_key",
-      "line": 54,
+      "line": 57,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -447,7 +446,7 @@
     },
     {
       "function": "get_fernet",
-      "line": 64,
+      "line": 67,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -468,7 +467,7 @@
     },
     {
       "function": "encrypt_string",
-      "line": 69,
+      "line": 72,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -489,7 +488,7 @@
     },
     {
       "function": "decrypt_string",
-      "line": 78,
+      "line": 81,
       "metrics": {
         "cyclomatic": 4,
         "cognitive": 3,
@@ -510,7 +509,7 @@
     },
     {
       "function": "encrypt_mapping_fields",
-      "line": 92,
+      "line": 95,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 3,
@@ -531,7 +530,7 @@
     },
     {
       "function": "decrypt_mapping_fields",
-      "line": 100,
+      "line": 103,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 3,
@@ -552,7 +551,7 @@
     },
     {
       "function": "get_protection_contract",
-      "line": 108,
+      "line": 111,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -581,7 +580,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 1,
+    "churn_count": 2,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -602,10 +601,10 @@
       "normalize_email_for_lookup"
     ],
     "package": null,
-    "change_velocity": null,
+    "change_velocity": 1.0,
     "bus_factor": 1,
     "author_count": 1,
-    "last_modified": "2026-03-23T21:12:49-04:00",
+    "last_modified": "2026-03-26T12:28:25-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -619,15 +618,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.85,
-  "attention_score": 0.13,
-  "centrality_score": 0.63,
+  "testability_score": 0.55,
+  "attention_score": 0.28,
+  "centrality_score": 0.82,
   "quality_radar": {
-    "understandability": 0.65,
-    "changeability": 0.9,
-    "correctness": 1.0,
-    "security": 1.0,
-    "stability": 0.5
+    "understandability": 0.67,
+    "changeability": 0.61,
+    "correctness": 0.5,
+    "security": 0.8,
+    "stability": 0.57
   },
   "domain_role": "core",
   "detected_patterns": null,

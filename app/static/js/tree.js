@@ -11,10 +11,8 @@
   var currentSidebarPersonId = null;
   var sidebarState = {
     activeTab: 'overview',
-    momentFilter: 'all',
     relationshipGroup: '',
     peopleOptions: [],
-    highlightMomentId: '',
     highlightMediaId: '',
     highlightRelatedPersonId: '',
     graphMode: null
@@ -257,15 +255,10 @@
       return sidebarState.activeTab;
     }
     var canManage = card.dataset.treeSidebarCanManage === 'true';
-    var storyCount = Number(card.dataset.treeSidebarStoryCount || 0);
     var mediaCount = Number(card.dataset.treeSidebarMediaCount || 0);
     var relationCount = Number(card.dataset.treeSidebarParentCount || 0) +
       Number(card.dataset.treeSidebarChildCount || 0) +
       Number(card.dataset.treeSidebarPartnerCount || 0);
-    if (canManage && storyCount === 0) {
-      sidebarState.momentFilter = 'story';
-      return 'moments';
-    }
     if (canManage && mediaCount === 0) {
       return 'media';
     }
@@ -328,168 +321,6 @@
       chip.textContent = file.name;
       listNode.appendChild(chip);
     });
-  }
-
-  function createMomentNode(moment) {
-    var article = document.createElement('article');
-    article.className = 'tree-sidebar-moment';
-    if (sidebarState.highlightMomentId && sidebarState.highlightMomentId === moment.id) {
-      article.classList.add('tree-sidebar-moment--highlight');
-    }
-
-    var isSharedEvent = !!(moment.tagged_people && moment.tagged_people.length);
-
-    var meta = document.createElement('div');
-    meta.className = 'tree-sidebar-moment__meta';
-    meta.textContent = moment.kind === 'story'
-      ? root.dataset.treeStoryLabel
-      : root.dataset.treeMomentLabel;
-    if (isSharedEvent) {
-      meta.textContent = root.dataset.treeSharedEventLabel + ' · ' + meta.textContent;
-    }
-    if (moment.occurred_at) {
-      meta.textContent += ' · ' + formatDateLabel(moment.occurred_at);
-    }
-    article.appendChild(meta);
-
-    if (moment.about && moment.about.display_name) {
-      var about = document.createElement('p');
-      about.className = 'tree-sidebar-moment__about';
-      about.textContent = root.dataset.aboutLabel + ' ' + moment.about.display_name;
-      article.appendChild(about);
-    }
-
-    if (moment.title) {
-      var title = document.createElement('h4');
-      title.className = 'tree-sidebar-moment__title';
-      title.textContent = moment.title;
-      article.appendChild(title);
-    }
-
-    if (moment.body) {
-      var body = document.createElement('p');
-      body.className = 'tree-sidebar-moment__body';
-      body.textContent = moment.body;
-      article.appendChild(body);
-    }
-
-    if (moment.media && moment.media.length) {
-      if (moment.media.length > 1) {
-        var bundle = document.createElement('div');
-        bundle.className = 'tree-sidebar-bundle';
-        var bundleLabel = document.createElement('strong');
-        bundleLabel.className = 'tree-sidebar-bundle__title';
-        bundleLabel.textContent = root.dataset.treeBundleLabel;
-        bundle.appendChild(bundleLabel);
-        var bundleMeta = document.createElement('span');
-        bundleMeta.className = 'tree-sidebar-bundle__meta';
-        bundleMeta.textContent = root.dataset.treeBundleItemsLabel.replace('{count}', String(moment.media.length));
-        bundle.appendChild(bundleMeta);
-        article.appendChild(bundle);
-      }
-      var mediaStrip = document.createElement('div');
-      mediaStrip.className = 'tree-sidebar-moment__media-strip';
-      moment.media.slice(0, 3).forEach(function(media) {
-        var thumb = document.createElement('button');
-        thumb.type = 'button';
-        thumb.className = 'tree-sidebar-moment__media-thumb';
-        thumb.addEventListener('click', function() {
-          if (typeof window.openLightbox === 'function') {
-            window.openLightbox('/api/media/' + media.id + '/file', media.caption || root.dataset.openMediaLabel);
-          } else {
-            window.location.href = '/api/media/' + media.id + '/file';
-          }
-        });
-        var img = document.createElement('img');
-        img.src = '/api/media/' + media.id + '/thumbnail';
-        img.alt = media.caption || root.dataset.openMediaLabel;
-        img.loading = 'lazy';
-        thumb.appendChild(img);
-        mediaStrip.appendChild(thumb);
-      });
-      article.appendChild(mediaStrip);
-    }
-
-    var metaRow = document.createElement('div');
-    metaRow.className = 'tree-sidebar-meta-row';
-    if (moment.comment_count) {
-      var commentsChip = document.createElement('span');
-      commentsChip.className = 'tree-sidebar-pill';
-      commentsChip.textContent = moment.comment_count + ' ' + root.dataset.commentCountLabel;
-      metaRow.appendChild(commentsChip);
-    }
-    if (moment.tagged_people && moment.tagged_people.length) {
-      var taggedChip = document.createElement('span');
-      taggedChip.className = 'tree-sidebar-pill';
-      taggedChip.textContent = root.dataset.taggedPeopleLabel + ': ' + buildTaggedPeopleSummary(moment.tagged_people);
-      metaRow.appendChild(taggedChip);
-    }
-    if (metaRow.childElementCount) {
-      article.appendChild(metaRow);
-    }
-
-    var actions = document.createElement('div');
-    actions.className = 'tree-sidebar-item-actions';
-    if (moment.about && moment.about.id) {
-      actions.appendChild(createMiniAction(root.dataset.viewProfileLabel, function() {
-        window.location.href = '/people/' + moment.about.id;
-      }));
-    }
-    actions.appendChild(createMiniAction(root.dataset.openMomentsLabel, function() {
-      var targetId = moment.about && moment.about.id ? moment.about.id : getSidebarPersonId();
-      window.location.href = '/moments?person=' + encodeURIComponent(targetId);
-    }));
-    article.appendChild(actions);
-    return article;
-  }
-
-  function renderTreeMoments(moments) {
-    var container = document.getElementById('tree-sidebar-moments');
-    if (!container) {
-      return;
-    }
-    container.setAttribute('aria-busy', 'false');
-    if (sidebarState.momentFilter === 'shared') {
-      moments = moments.filter(function(moment) {
-        return moment.tagged_people && moment.tagged_people.length;
-      });
-    }
-    if (!moments.length) {
-      renderEmptyTreeStream(
-        container,
-        sidebarState.momentFilter === 'story'
-          ? root.dataset.emptyStoryMoments
-          : (sidebarState.momentFilter === 'shared' ? root.dataset.emptySharedEvents : root.dataset.emptyMoments),
-        getSidebarCanManage() ? (
-          sidebarState.momentFilter === 'story'
-            ? root.dataset.addFirstStory
-            : (sidebarState.momentFilter === 'shared' ? root.dataset.addEventLabel : null)
-        ) : null,
-        function() {
-          var form = document.getElementById('tree-moment-form');
-          if (!form) {
-            return;
-          }
-          if (sidebarState.momentFilter === 'shared') {
-            var scopeSelect = form.querySelector('select[name="authoring_scope"]');
-            if (scopeSelect) {
-              scopeSelect.value = 'shared';
-              toggleTreeMomentFields(form.querySelector('select[name="kind"]').value, 'shared');
-            }
-          }
-          var bodyInput = form.querySelector('textarea[name="body"]');
-          if (bodyInput) {
-            bodyInput.focus();
-          }
-        }
-      );
-      return;
-    }
-    clearNode(container);
-    moments.forEach(function(moment) {
-      container.appendChild(createMomentNode(moment));
-    });
-    sidebarState.highlightMomentId = '';
   }
 
   function createMediaNode(media) {
@@ -608,31 +439,6 @@
     sidebarState.highlightMediaId = '';
   }
 
-  async function loadTreeSidebarMoments(personId) {
-    var container = document.getElementById('tree-sidebar-moments');
-    if (!container) {
-      return;
-    }
-    container.setAttribute('aria-busy', 'true');
-    try {
-      var limit = sidebarState.momentFilter === 'shared' ? 20 : 8;
-      var url = '/api/moments?person=' + encodeURIComponent(personId) + '&limit=' + limit;
-      if (sidebarState.momentFilter === 'story') {
-        url += '&kind=story';
-      } else if (sidebarState.momentFilter === 'shared') {
-        url += '&shared=true';
-      }
-      var resp = await fetch(url);
-      if (!resp.ok) {
-        throw new Error(root.dataset.momentsError);
-      }
-      var data = await resp.json();
-      renderTreeMoments(data);
-    } catch (err) {
-      renderEmptyTreeStream(container, err.message || root.dataset.momentsError);
-    }
-  }
-
   async function loadTreeSidebarMedia(personId) {
     var container = document.getElementById('tree-sidebar-media');
     if (!container) {
@@ -648,19 +454,6 @@
       renderTreeMedia(data);
     } catch (err) {
       renderEmptyTreeStream(container, err.message || root.dataset.mediaError);
-    }
-  }
-
-  function setTreeMomentFilter(filterName) {
-    sidebarState.momentFilter = filterName || 'all';
-    var chips = sidebarContent.querySelectorAll('[data-tree-moment-filter]');
-    Array.prototype.forEach.call(chips, function(chip) {
-      var active = chip.dataset.treeMomentFilter === sidebarState.momentFilter;
-      chip.classList.toggle('tree-sidebar-chip--active', active);
-    });
-    var personId = getSidebarPersonId();
-    if (personId) {
-      loadTreeSidebarMoments(personId);
     }
   }
 
@@ -842,66 +635,6 @@
     });
   }
 
-  function initializeTreeMomentComposer() {
-    var form = document.getElementById('tree-moment-form');
-    if (!form) {
-      return;
-    }
-    if (form.dataset.treeComposerBound === 'true') {
-      if (typeof form._syncTreeMomentComposer === 'function') {
-        form._syncTreeMomentComposer();
-      }
-      return;
-    }
-    var kindSelect = form.querySelector('select[name="kind"]');
-    var scopeSelect = form.querySelector('select[name="authoring_scope"]');
-    var titleInput = form.querySelector('[data-tree-moment-title-input]');
-    var bodyLabel = form.querySelector('[data-tree-moment-body-label]');
-    var bodyInput = form.querySelector('[data-tree-moment-body-input]');
-    var submitButton = form.querySelector('[data-tree-moment-submit]');
-    var fileInput = form.querySelector('[data-tree-story-files]');
-    var fileSummary = document.getElementById('tree-story-files-summary');
-    var fileList = document.getElementById('tree-story-files-list');
-    var modeHint = form.querySelector('[data-tree-story-mode-hint]');
-    if (!kindSelect || !scopeSelect || !titleInput || !bodyLabel || !bodyInput || !submitButton) {
-      return;
-    }
-
-    function syncMomentComposer(kind, scope) {
-      var isStory = kind === 'story';
-      var isShared = scope === 'shared';
-      bodyLabel.textContent = isStory ? root.dataset.storyPromptLabel : root.dataset.notePromptLabel;
-      bodyInput.placeholder = isStory ? root.dataset.storyPromptLabel : root.dataset.notePromptLabel;
-      titleInput.placeholder = isStory ? root.dataset.storyTitlePlaceholder : root.dataset.noteTitlePlaceholder;
-      submitButton.textContent = isShared
-        ? root.dataset.addEventLabel
-        : (isStory ? root.dataset.addStoryLabel : root.dataset.addNoteLabel);
-      if (modeHint) {
-        modeHint.textContent = isShared
-          ? root.dataset.treeStoryFocusSharedHint
-          : root.dataset.treeStoryFocusPersonHint;
-      }
-    }
-    form._syncTreeMomentComposer = function() {
-      syncMomentComposer(kindSelect.value, scopeSelect.value);
-    };
-
-    kindSelect.addEventListener('change', function() {
-      syncMomentComposer(kindSelect.value, scopeSelect.value);
-    });
-    scopeSelect.addEventListener('change', function() {
-      syncMomentComposer(kindSelect.value, scopeSelect.value);
-    });
-    if (fileInput) {
-      fileInput.addEventListener('change', function() {
-        renderComposerFiles(fileInput, fileSummary, fileList);
-      });
-      renderComposerFiles(fileInput, fileSummary, fileList);
-    }
-    form.dataset.treeComposerBound = 'true';
-    syncMomentComposer(kindSelect.value, scopeSelect.value);
-  }
-
   function initializeTreeMediaComposer() {
     var form = document.getElementById('tree-media-form');
     if (!form) {
@@ -926,9 +659,8 @@
     parseSidebarPeopleOptions();
     initializeTreePickers();
     initializeTreeMultiPickers();
-    initializeTreeMomentComposer();
     initializeTreeMediaComposer();
-    switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup || sidebarState.momentFilter);
+    switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup);
     applyRelationshipHighlights();
     updateGraphModeBanner();
   }
@@ -1222,8 +954,6 @@
 
   function addMetricPill(nodeGroup, person, baseY) {
     var metrics = [];
-    if (person.moment_count) metrics.push('M ' + person.moment_count);
-    if (person.story_count) metrics.push('S ' + person.story_count);
     if (person.media_count) metrics.push('Md ' + person.media_count);
     if (!metrics.length) {
       return;
@@ -1382,7 +1112,7 @@
         event.preventDefault();
         return;
       }
-      window.location.href = '/people/' + person.id;
+      window.location.href = '/people/' + person.id + '/edit';
     });
 
     nodeGroup.on('keydown', function(event) {
@@ -1484,8 +1214,6 @@
     if (currentSidebarPersonId && currentSidebarPersonId !== personId) {
       sidebarState.activeTab = '';
       sidebarState.relationshipGroup = '';
-      sidebarState.momentFilter = 'all';
-      sidebarState.highlightMomentId = '';
       sidebarState.highlightMediaId = '';
     }
     sidebarTrigger = triggerNode || document.activeElement;
@@ -1496,13 +1224,6 @@
 
   function switchTreeSidebarTab(tabName, context) {
     sidebarState.activeTab = tabName || 'overview';
-    if (tabName === 'moments') {
-      if (context === 'story' || context === 'all') {
-        sidebarState.momentFilter = context;
-      } else if (!context) {
-        sidebarState.momentFilter = 'all';
-      }
-    }
     if (tabName === 'relationships' && (context === 'parent' || context === 'child' || context === 'partner')) {
       sidebarState.relationshipGroup = context;
     }
@@ -1522,9 +1243,6 @@
 
     if (sidebarState.activeTab === 'relationships') {
       openRelationshipDisclosure(sidebarState.relationshipGroup || context);
-    }
-    if (sidebarState.activeTab === 'moments') {
-      setTreeMomentFilter(sidebarState.momentFilter || 'all');
     }
     if (sidebarState.activeTab === 'media') {
       var personId = getSidebarPersonId();
@@ -1737,18 +1455,6 @@
     }
   }
 
-  function toggleTreeMomentFields(kind, scope) {
-    if (scope === 'shared') {
-      sidebarState.momentFilter = 'shared';
-    } else {
-      sidebarState.momentFilter = kind === 'story' ? 'story' : 'all';
-    }
-    var form = document.getElementById('tree-moment-form');
-    if (form && typeof form._syncTreeMomentComposer === 'function') {
-      form._syncTreeMomentComposer();
-    }
-  }
-
   function normalizeOccurredAt(rawValue) {
     if (!rawValue) {
       return null;
@@ -1802,66 +1508,6 @@
         return null;
       });
     }));
-  }
-
-  async function submitTreeMoment(event, personId) {
-    event.preventDefault();
-    setError('tree-moment-error', '');
-    var form = event.target;
-    var button = form.querySelector('button[type="submit"]');
-    var originalLabel = button.textContent;
-    button.disabled = true;
-    button.textContent = root.dataset.savingLabel;
-    var uploadedFiles = [];
-
-    try {
-      var payload = formDataToJson(form);
-      var authoringScope = payload.authoring_scope || 'person';
-      delete payload.authoring_scope;
-      payload.person_id = personId;
-      payload.occurred_at = normalizeOccurredAt(payload.occurred_at);
-      var taggedPersonIds = parseJsonArray(payload.tagged_person_ids);
-      payload.tagged_person_ids = taggedPersonIds;
-      if (authoringScope === 'shared' && !taggedPersonIds.length) {
-        throw new Error(root.dataset.treeSharedEventRequiresPeople);
-      }
-      var fileInput = form.querySelector('[data-tree-story-files]');
-      if (fileInput && fileInput.files && fileInput.files.length) {
-        uploadedFiles = await uploadTreeFiles(fileInput.files, personId, {
-          caption: payload.title || '',
-          taggedPersonIds: taggedPersonIds
-        });
-        payload.media_ids = uploadedFiles.map(function(item) { return item.id; });
-      }
-      var resp = await fetch('/api/moments', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-      var data = await resp.json().catch(function() { return {}; });
-      if (!resp.ok) {
-        throw new Error(data.detail || root.dataset.updateError);
-      }
-      form.reset();
-      sidebarState.activeTab = 'moments';
-      sidebarState.momentFilter = authoringScope === 'shared'
-        ? 'shared'
-        : (payload.kind === 'story' ? 'story' : 'all');
-      sidebarState.highlightMomentId = data.id || '';
-      await refreshTreeWorkspace(personId);
-      showToastMessage(
-        authoringScope === 'shared'
-          ? root.dataset.treeEventCreated
-          : (payload.kind === 'story' ? root.dataset.treeStoryCreated : root.dataset.treeNoteCreated)
-      );
-    } catch (err) {
-      await cleanupUploadedTreeMedia(uploadedFiles);
-      setError('tree-moment-error', err.message || root.dataset.updateError);
-    } finally {
-      button.disabled = false;
-      button.textContent = originalLabel;
-    }
-    return false;
   }
 
   async function uploadTreeMedia(event, personId) {
@@ -3061,10 +2707,7 @@
   window.openTreeSidebarPerson = openTreeSidebarPerson;
   window.switchTreeSidebarTab = switchTreeSidebarTab;
   window.openSidebarDetailsSection = openSidebarDetailsSection;
-  window.setTreeMomentFilter = setTreeMomentFilter;
-  window.submitTreeMoment = submitTreeMoment;
   window.uploadTreeMedia = uploadTreeMedia;
-  window.toggleTreeMomentFields = toggleTreeMomentFields;
   window.startTreeGraphMode = startTreeGraphMode;
   window.cancelTreeGraphMode = cancelTreeGraphMode;
   window.openTreeRelationshipSearch = openTreeRelationshipSearch;

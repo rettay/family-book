@@ -1,0 +1,759 @@
+{
+  "id": "app/services/cemla_client.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "fd3f0cc9",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 25,
+    "lines": 221,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/routes/external_records.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "_cache_key",
+      "type": "function",
+      "summary": null,
+      "line": 55,
+      "signature": "(surname: str, given_name: str, year_from: str, year_to: str) -> str"
+    },
+    {
+      "name": "_get_cached",
+      "type": "function",
+      "summary": null,
+      "line": 60,
+      "signature": "(surname: str, given_name: str, year_from: str, year_to: str) -> list[dict] | None"
+    },
+    {
+      "name": "_set_cached",
+      "type": "function",
+      "summary": null,
+      "line": 70,
+      "signature": "(surname: str, given_name: str, year_from: str, year_to: str, data: list[dict]) -> None"
+    },
+    {
+      "name": "build_cemla_url",
+      "type": "function",
+      "summary": null,
+      "line": 75,
+      "signature": "(surname: str, given_name: str = \"\", year_from: str = \"\", year_to: str = \"\") -> str"
+    },
+    {
+      "name": "search_cemla",
+      "type": "function",
+      "summary": null,
+      "line": 90,
+      "signature": "( surname: str, given_name: str = \"\", year_from: str = \"\", year_to: str = \"\", ) -> CemlaSearchResponse"
+    },
+    {
+      "name": "_parse_cemla_html",
+      "type": "function",
+      "summary": null,
+      "line": 168,
+      "signature": "(html: str) -> list[CemlaResult]"
+    },
+    {
+      "name": "_result_to_dict",
+      "type": "function",
+      "summary": null,
+      "line": 208,
+      "signature": "(r: CemlaResult) -> dict"
+    },
+    {
+      "name": "cemla_result_to_api_dict",
+      "type": "function",
+      "summary": null,
+      "line": 220,
+      "signature": "(r: CemlaResult) -> dict"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_cache_key",
+      "kind": "function",
+      "line": 55,
+      "signature": "(surname: str, given_name: str, year_from: str, year_to: str) -> str",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "surname.lower",
+          "line": 56,
+          "module_hint": null
+        },
+        {
+          "name": "given_name.lower",
+          "line": 56,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256(raw.encode()).hexdigest",
+          "line": 57,
+          "module_hint": null
+        },
+        {
+          "name": "hashlib.sha256",
+          "line": 57,
+          "module_hint": "hashlib"
+        },
+        {
+          "name": "raw.encode",
+          "line": 57,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_get_cached",
+      "kind": "function",
+      "line": 60,
+      "signature": "(surname: str, given_name: str, year_from: str, year_to: str) -> list[dict] | None",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "_cache_key",
+          "line": 61,
+          "module_hint": null
+        },
+        {
+          "name": "_cemla_cache.get",
+          "line": 62,
+          "module_hint": null
+        },
+        {
+          "name": "time.time",
+          "line": 63,
+          "module_hint": "time"
+        }
+      ]
+    },
+    {
+      "name": "_set_cached",
+      "kind": "function",
+      "line": 70,
+      "signature": "(surname: str, given_name: str, year_from: str, year_to: str, data: list[dict]) -> None",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_cache_key",
+          "line": 71,
+          "module_hint": null
+        },
+        {
+          "name": "time.time",
+          "line": 72,
+          "module_hint": "time"
+        }
+      ]
+    },
+    {
+      "name": "build_cemla_url",
+      "kind": "function",
+      "line": 75,
+      "signature": "(surname: str, given_name: str = \"\", year_from: str = \"\", year_to: str = \"\") -> str",
+      "complexity": 6,
+      "calls": [
+        {
+          "name": "urllib.parse.urlencode",
+          "line": 87,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "search_cemla",
+      "kind": "function",
+      "line": 90,
+      "signature": "( surname: str, given_name: str = \"\", year_from: str = \"\", year_to: str = \"\", ) -> CemlaSearchResponse",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "CemlaSearchResponse",
+          "line": 105,
+          "module_hint": null
+        },
+        {
+          "name": "build_cemla_url",
+          "line": 107,
+          "module_hint": null
+        },
+        {
+          "name": "_get_cached",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "CemlaSearchResponse",
+          "line": 112,
+          "module_hint": null
+        },
+        {
+          "name": "CemlaResult",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 114,
+          "module_hint": null
+        },
+        {
+          "name": "time.time",
+          "line": 120,
+          "module_hint": "time"
+        },
+        {
+          "name": "CemlaSearchResponse",
+          "line": 122,
+          "module_hint": null
+        },
+        {
+          "name": "httpx.AsyncClient",
+          "line": 131,
+          "module_hint": "httpx"
+        },
+        {
+          "name": "client.get",
+          "line": 132,
+          "module_hint": null
+        },
+        {
+          "name": "resp.raise_for_status",
+          "line": 142,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_cemla_html",
+          "line": 144,
+          "module_hint": null
+        },
+        {
+          "name": "_result_to_dict",
+          "line": 146,
+          "module_hint": null
+        },
+        {
+          "name": "_set_cached",
+          "line": 147,
+          "module_hint": null
+        },
+        {
+          "name": "CemlaSearchResponse",
+          "line": 148,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "CemlaSearchResponse",
+          "line": 155,
+          "module_hint": null
+        },
+        {
+          "name": "logger.warning",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "CemlaSearchResponse",
+          "line": 162,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_parse_cemla_html",
+      "kind": "function",
+      "line": 168,
+      "signature": "(html: str) -> list[CemlaResult]",
+      "complexity": 11,
+      "calls": [
+        {
+          "name": "re.search",
+          "line": 182,
+          "module_hint": null
+        },
+        {
+          "name": "re.findall",
+          "line": 186,
+          "module_hint": null
+        },
+        {
+          "name": "table_match.group",
+          "line": 186,
+          "module_hint": null
+        },
+        {
+          "name": "re.findall",
+          "line": 188,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 189,
+          "module_hint": null
+        },
+        {
+          "name": "re.sub(r'<[^>]+>', '', cell).strip",
+          "line": 191,
+          "module_hint": null
+        },
+        {
+          "name": "re.sub",
+          "line": 191,
+          "module_hint": null
+        },
+        {
+          "name": "CemlaResult",
+          "line": 192,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 193,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 194,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 195,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 196,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 197,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 198,
+          "module_hint": null
+        },
+        {
+          "name": "results.append",
+          "line": 201,
+          "module_hint": null
+        },
+        {
+          "name": "logger.debug",
+          "line": 203,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_result_to_dict",
+      "kind": "function",
+      "line": 208,
+      "signature": "(r: CemlaResult) -> dict",
+      "complexity": 1,
+      "calls": []
+    },
+    {
+      "name": "cemla_result_to_api_dict",
+      "kind": "function",
+      "line": 220,
+      "signature": "(r: CemlaResult) -> dict",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_result_to_dict",
+          "line": 221,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_cache_key",
+      "line": 55,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 42
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_get_cached",
+      "line": 60,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 2,
+        "size": 7,
+        "nesting": 1,
+        "token_count": 49
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_set_cached",
+      "line": 70,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 2,
+        "nesting": 0,
+        "token_count": 23
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "build_cemla_url",
+      "line": 75,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 5,
+        "size": 12,
+        "nesting": 1,
+        "token_count": 84
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
+              "line_start": 82,
+              "line_end": 82
+            },
+            {
+              "line_start": 84,
+              "line_end": 84
+            },
+            {
+              "line_start": 79,
+              "line_end": 80
+            },
+            {
+              "line_start": 81,
+              "line_end": 82
+            },
+            {
+              "line_start": 83,
+              "line_end": 84
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "search_cemla",
+      "line": 90,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 5,
+        "size": 70,
+        "nesting": 1,
+        "token_count": 276
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 122,
+              "line_end": 125
+            },
+            {
+              "line_start": 155,
+              "line_end": 158
+            },
+            {
+              "line_start": 162,
+              "line_end": 165
+            },
+            {
+              "line_start": 122,
+              "line_end": 125
+            },
+            {
+              "line_start": 155,
+              "line_end": 158
+            },
+            {
+              "line_start": 162,
+              "line_end": 165
+            },
+            {
+              "line_start": 107,
+              "line_end": 107
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_parse_cemla_html",
+      "line": 168,
+      "metrics": {
+        "cyclomatic": 11,
+        "cognitive": 23,
+        "size": 37,
+        "nesting": 3,
+        "token_count": 244
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 193,
+              "line_end": 193
+            },
+            {
+              "line_start": 194,
+              "line_end": 194
+            },
+            {
+              "line_start": 195,
+              "line_end": 195
+            },
+            {
+              "line_start": 193,
+              "line_end": 193
+            },
+            {
+              "line_start": 194,
+              "line_end": 194
+            },
+            {
+              "line_start": 195,
+              "line_end": 195
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_result_to_dict",
+      "line": 208,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 9,
+        "nesting": 0,
+        "token_count": 59
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 210,
+              "line_end": 210
+            },
+            {
+              "line_start": 211,
+              "line_end": 211
+            },
+            {
+              "line_start": 212,
+              "line_end": 212
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "cemla_result_to_api_dict",
+      "line": 220,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 6
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.warning() at line 161",
+      "logging: logger.debug() at line 203"
+    ],
+    "endpoints": [],
+    "databases": [],
+    "services": [
+      "service:http-client: client.get() at line 132"
+    ],
+    "unused_exports": [
+      "_cache_key",
+      "_get_cached",
+      "_parse_cemla_html",
+      "_result_to_dict",
+      "_set_cached",
+      "build_cemla_url",
+      "cemla_result_to_api_dict",
+      "search_cemla"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-25T20:08:34-04:00",
+    "recency_score": 0.99,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 0.9394,
+    "convention_consistency": 0.9722,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": [
+      "r",
+      "r"
+    ]
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.28,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.36,
+    "changeability": 0.69,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.88
+  },
+  "domain_role": "utility",
+  "detected_patterns": [
+    {
+      "pattern_name": "factory",
+      "confidence": "medium",
+      "tier": 1,
+      "evidence": [
+        "build_cemla_url() at line 75"
+      ],
+      "notes": ""
+    }
+  ],
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

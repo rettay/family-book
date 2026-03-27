@@ -7,7 +7,6 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.moments import Moment
 from app.models.person import Person
 from app.models.revisions import EntityRevision
 from app.services.field_protection import decrypt_mapping_fields, decrypt_string, encrypt_mapping_fields, encrypt_string
@@ -62,21 +61,6 @@ PERSON_MUTABLE_FIELDS = [
     "visibility",
     "lifecycle_state",
     "deleted_at",
-    "deleted_by",
-]
-
-MOMENT_MUTABLE_FIELDS = [
-    "person_id",
-    "kind",
-    "title",
-    "body",
-    "milestone_type",
-    "source",
-    "visibility",
-    "posted_by",
-    "lifecycle_state",
-    "moderated_by",
-    "moderation_reason",
     "deleted_by",
 ]
 
@@ -148,27 +132,6 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
         person.admixture = snapshot["admixture"] or []
     if "medical_conditions" in snapshot:
         person.medical_conditions = snapshot["medical_conditions"] or []
-
-
-def serialize_moment_snapshot(moment: Moment) -> dict:
-    snapshot = {field: getattr(moment, field) for field in MOMENT_MUTABLE_FIELDS}
-    snapshot["occurred_at"] = _serialize_datetime(moment.occurred_at)
-    snapshot["moderated_at"] = _serialize_datetime(moment.moderated_at)
-    snapshot["deleted_at"] = _serialize_datetime(moment.deleted_at)
-    snapshot["media_ids"] = moment.media_ids
-    snapshot["tagged_person_ids"] = moment.tagged_person_ids
-    return snapshot
-
-
-def apply_moment_snapshot(moment: Moment, snapshot: dict) -> None:
-    for field in MOMENT_MUTABLE_FIELDS:
-        if field in snapshot:
-            setattr(moment, field, snapshot[field])
-    moment.occurred_at = _parse_datetime(snapshot.get("occurred_at"))
-    moment.moderated_at = _parse_datetime(snapshot.get("moderated_at"))
-    moment.deleted_at = _parse_datetime(snapshot.get("deleted_at"))
-    moment.media_ids = snapshot.get("media_ids", [])
-    moment.tagged_person_ids = snapshot.get("tagged_person_ids", [])
 
 
 async def record_revision(

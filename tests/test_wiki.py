@@ -41,7 +41,7 @@ async def test_wiki_index_renders(admin_client: AsyncClient):
     """GET /wiki returns 200."""
     resp = await admin_client.get("/wiki")
     assert resp.status_code == 200
-    assert "wiki" in resp.text.lower() or "Wiki" in resp.text
+    assert "Family Bios" in resp.text
 
 
 @pytest.mark.asyncio
@@ -229,7 +229,7 @@ async def test_wiki_cross_links_in_person_page(admin_client: AsyncClient):
     person_id = resp.json()["id"]
     slug = resp.json()["slug"]
 
-    resp = await admin_client.get(f"/people/{person_id}")
+    resp = await admin_client.get(f"/people/{person_id}/edit")
     assert resp.status_code == 200
     assert f"/wiki/{slug}" in resp.text
 

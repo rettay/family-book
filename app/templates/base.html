@@ -15,9 +15,7 @@
   <nav class="nav" id="main-nav">
     <a href="/demo" class="nav__brand">{{ t('app.name') }} <span class="nav__brand-demo">Demo</span></a>
     <div class="nav__links" id="nav-links">
-      <a href="/demo" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
       <a href="/demo/tree" class="nav__link {% if active_page == 'tree' %}nav__link--active{% endif %}">{{ t('nav.tree') }}</a>
-      <a href="/demo/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>
       <a href="/login" class="nav__link">{{ t('nav.login') }}</a>
     </div>
     <button class="nav__hamburger" type="button" onclick="toggleNav()" aria-label="Menu" aria-controls="nav-links" aria-expanded="false">&#9776;</button>
@@ -33,15 +31,12 @@
   <nav class="nav" id="main-nav">
     <a href="/tree" class="nav__brand">{{ brand_display_name }}</a>
     <div class="nav__links" id="nav-links">
-      <a href="/moments" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
       <a href="/tree" class="nav__link {% if active_page == 'tree' %}nav__link--active{% endif %}">{{ t('nav.tree') }}</a>
       <a href="/map" class="nav__link {% if active_page == 'map' %}nav__link--active{% endif %}">{{ t('nav.map') }}</a>
-      <a href="/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>
       <a href="/calendar" class="nav__link {% if active_page == 'calendar' %}nav__link--active{% endif %}">{{ t('nav.calendar') }}</a>
       <a href="/timeline" class="nav__link {% if active_page == 'timeline' %}nav__link--active{% endif %}">{{ t('nav.timeline') }}</a>
       <a href="/wiki" class="nav__link {% if active_page == 'wiki' %}nav__link--active{% endif %}">{{ t('nav.wiki') }}</a>
       <a href="/research" class="nav__link {% if active_page == 'research' %}nav__link--active{% endif %}">{{ t('nav.research') }}</a>
-      <a href="/health-dashboard" class="nav__link {% if active_page == 'health' %}nav__link--active{% endif %}">{{ t('nav.health') }}</a>
       {% if current_user.is_admin %}
       <a href="/admin" class="nav__link {% if active_page == 'admin' %}nav__link--active{% endif %}">{{ t('nav.admin') }}</a>
       {% endif %}

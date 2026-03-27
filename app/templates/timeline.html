@@ -19,7 +19,6 @@
       <option value="birth" {% if event_type == 'birth' %}selected{% endif %}>{{ t('timeline.filter_births') }}</option>
       <option value="death" {% if event_type == 'death' %}selected{% endif %}>{{ t('timeline.filter_deaths') }}</option>
       <option value="marriage" {% if event_type == 'marriage' %}selected{% endif %}>{{ t('timeline.filter_marriages') }}</option>
-      <option value="moment" {% if event_type == 'moment' %}selected{% endif %}>{{ t('timeline.filter_moments') }}</option>
     </select>
     <input type="number" class="form-input timeline-filter-input" name="year_from" placeholder="{{ t('timeline.year_from') }}"
            value="{{ year_from }}" style="width:100px;"

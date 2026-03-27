@@ -99,32 +99,7 @@ async def test_member_tree_redacts_branch_and_country(member_client: AsyncClient
     tyler = next(person for person in resp.json()["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
     assert tyler["branch"] == "martin"
     assert tyler["residence_country_code"] == "ES"
-    assert "moment_count" in tyler
-    assert "story_count" in tyler
     assert "media_count" in tyler
-
-
-@pytest.mark.asyncio
-async def test_tree_richness_counts_reflect_person_content(admin_client: AsyncClient):
-    moment_resp = await admin_client.post("/api/moments", json={
-        "person_id": "tyler-000-0000-0000-000000000002",
-        "kind": "story",
-        "title": "Tree depth",
-        "body": "Testing tree counts",
-    })
-    assert moment_resp.status_code == 201
-
-    media_resp = await admin_client.post("/api/media", data={
-        "person_id": "tyler-000-0000-0000-000000000002",
-    }, files={"file": ("tree-counts.jpg", b"fake-image", "image/jpeg")})
-    assert media_resp.status_code == 201
-
-    resp = await admin_client.get("/api/tree")
-    assert resp.status_code == 200
-    tyler = next(person for person in resp.json()["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
-    assert tyler["moment_count"] >= 1
-    assert tyler["story_count"] >= 1
-    assert tyler["media_count"] >= 1
 
 
 @pytest.mark.asyncio
@@ -739,18 +714,9 @@ async def test_person_page_reuses_family_graph_per_request(member_client: AsyncC
 
     monkeypatch.setattr(access_control, "_family_graph", counted_graph)
 
-    resp = await member_client.get("/people/tyler-000-0000-0000-000000000002")
+    resp = await member_client.get("/people/tyler-000-0000-0000-000000000002/card")
     assert resp.status_code == 200
     assert call_count == 0
-
-
-@pytest.mark.asyncio
-async def test_home_page_uses_selected_person_for_media_upload_and_handles_create_failures(admin_client: AsyncClient):
-    resp = await admin_client.get("/moments")
-    assert resp.status_code == 200
-    assert "fd.append('person_id', aboutPersonId ||" in resp.text
-    assert "await cleanupUploadedMedia(mediaIds);" in resp.text
-    assert "if (!createResp.ok)" in resp.text
 
 
 # --- Auth route tests ---
@@ -804,7 +770,7 @@ async def test_completeness_returns_gap_counts(admin_client: AsyncClient):
     assert "gaps" in data
     assert data["total_persons"] >= 1
     gaps = data["gaps"]
-    for key in ["no_birth_date", "no_photo", "no_bio", "no_birth_place", "no_gender", "no_stories", "no_media"]:
+    for key in ["no_birth_date", "no_photo", "no_bio", "no_birth_place", "no_gender", "no_media"]:
         assert key in gaps
         assert isinstance(gaps[key], int)
 

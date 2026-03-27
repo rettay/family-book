@@ -19,6 +19,7 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-035 | UI Cleanup: Rebrand Wiki, Remove Moments/People/Health | P1 | Interstitial — `.claude/plans/spicy-bouncing-llama.md` |
 | FB-031 | Research Tools UX Overhaul | P1 | `task_packets/FB-031_research_tools_ux_overhaul.md` |
 | FB-032 | i18n Test Parity | P2 | `task_packets/FB-032_i18n_test_parity.md` |
 | FB-029 | Tree Photo Headshots and Add-Photo Prompt | P2 | `task_packets/FB-029_tree_photo_headshots_and_add_photo_prompt.md` |

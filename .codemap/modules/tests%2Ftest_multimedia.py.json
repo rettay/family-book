@@ -1,0 +1,463 @@
+{
+  "id": "tests/test_multimedia.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "b17b5c50",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 1,
+    "lines": 102,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/services/media_service.py"
+    ],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "test_media_type_for_mime_pdf",
+      "type": "function",
+      "summary": null,
+      "line": 11,
+      "signature": "()"
+    },
+    {
+      "name": "test_media_type_for_mime_audio_mpeg",
+      "type": "function",
+      "summary": null,
+      "line": 15,
+      "signature": "()"
+    },
+    {
+      "name": "test_media_type_for_mime_video",
+      "type": "function",
+      "summary": null,
+      "line": 19,
+      "signature": "()"
+    },
+    {
+      "name": "test_category_for_mime_pdf",
+      "type": "function",
+      "summary": null,
+      "line": 23,
+      "signature": "()"
+    },
+    {
+      "name": "test_category_for_mime_audio",
+      "type": "function",
+      "summary": null,
+      "line": 27,
+      "signature": "()"
+    },
+    {
+      "name": "test_pdf_in_allowed_mime_types",
+      "type": "function",
+      "summary": null,
+      "line": 31,
+      "signature": "()"
+    },
+    {
+      "name": "test_audio_mpeg_in_allowed_mime_types",
+      "type": "function",
+      "summary": null,
+      "line": 35,
+      "signature": "()"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "test_media_type_for_mime_pdf",
+      "kind": "function",
+      "line": 11,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_media_type_for_mime",
+          "line": 12,
+          "module_hint": "app.services.media_service"
+        }
+      ]
+    },
+    {
+      "name": "test_media_type_for_mime_audio_mpeg",
+      "kind": "function",
+      "line": 15,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_media_type_for_mime",
+          "line": 16,
+          "module_hint": "app.services.media_service"
+        }
+      ]
+    },
+    {
+      "name": "test_media_type_for_mime_video",
+      "kind": "function",
+      "line": 19,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_media_type_for_mime",
+          "line": 20,
+          "module_hint": "app.services.media_service"
+        }
+      ]
+    },
+    {
+      "name": "test_category_for_mime_pdf",
+      "kind": "function",
+      "line": 23,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_category_for_mime",
+          "line": 24,
+          "module_hint": "app.services.media_service"
+        }
+      ]
+    },
+    {
+      "name": "test_category_for_mime_audio",
+      "kind": "function",
+      "line": 27,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "_category_for_mime",
+          "line": 28,
+          "module_hint": "app.services.media_service"
+        }
+      ]
+    },
+    {
+      "name": "test_pdf_in_allowed_mime_types",
+      "kind": "function",
+      "line": 31,
+      "signature": "()",
+      "complexity": 1,
+      "calls": []
+    },
+    {
+      "name": "test_audio_mpeg_in_allowed_mime_types",
+      "kind": "function",
+      "line": 35,
+      "signature": "()",
+      "complexity": 1,
+      "calls": []
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "test_media_type_for_mime_pdf",
+      "line": 11,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_media_type_for_mime_audio_mpeg",
+      "line": 15,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_media_type_for_mime_video",
+      "line": 19,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_category_for_mime_pdf",
+      "line": 23,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_category_for_mime_audio",
+      "line": 27,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 14
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_pdf_in_allowed_mime_types",
+      "line": 31,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_audio_mpeg_in_allowed_mime_types",
+      "line": 35,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 8
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_upload_pdf_accepted",
+      "line": 42,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 20,
+        "nesting": 0,
+        "token_count": 150
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 46,
+              "line_end": 46
+            },
+            {
+              "line_start": 47,
+              "line_end": 47
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_upload_audio_accepted",
+      "line": 66,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 19,
+        "nesting": 0,
+        "token_count": 145
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 70,
+              "line_end": 70
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_media_list_includes_media_type",
+      "line": 89,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 13,
+        "nesting": 0,
+        "token_count": 95
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 92,
+              "line_end": 92
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": true,
+    "in_cycle": false,
+    "is_test_file": true,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "low",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T10:51:09-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": null,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": null,
+  "domain_role": "test-support",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}
