@@ -1,6 +1,8 @@
 <div
   class="tree-sidebar-card"
   data-tree-sidebar-person-id="{{ person.id }}"
+  data-tree-sidebar-person-name="{{ person.display_name }}"
+  data-tree-sidebar-is-root="{{ 'true' if person.is_root else 'false' }}"
   data-tree-sidebar-default-tab="overview"
   data-tree-sidebar-media-count="{{ person_metrics.media_count }}"
   data-tree-sidebar-parent-count="{{ parent_people|length }}"
@@ -33,6 +35,40 @@
       {% endif %}
     </div>
   </div>
+
+  <section class="tree-sidebar-card__section tree-sidebar-card__section--first tree-sidebar-context">
+    <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+      <div>
+        <h3 class="tree-sidebar-card__section-title">{{ t('tree.family_context') }}</h3>
+        <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.family_context_hint') }}</p>
+      </div>
+      <div class="tree-sidebar-pill-row tree-sidebar-context__badges">
+        {% if person.is_root %}
+        <span class="tree-sidebar-pill tree-sidebar-pill--accent">{{ t('tree.family_root') }}</span>
+        {% endif %}
+        <span class="tree-sidebar-pill tree-sidebar-pill--focus" id="tree-sidebar-focus-badge" hidden>{{ t('tree.current_focus') }}</span>
+      </div>
+    </div>
+    <div class="tree-sidebar-context__summary">
+      {% if parent_people %}
+      <p><strong>{{ t('tree.child_of') }}</strong> {% for related in parent_people %}{% if not loop.first %}{% if loop.last %} {{ t('tree.and_label') }} {% else %}, {% endif %}{% endif %}<a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a>{% endfor %}.</p>
+      {% endif %}
+      {% if partner_people %}
+      <p><strong>{{ t('tree.partner_of') }}</strong> {% for related in partner_people %}{% if not loop.first %}{% if loop.last %} {{ t('tree.and_label') }} {% else %}, {% endif %}{% endif %}<a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a>{% endfor %}.</p>
+      {% endif %}
+      {% if child_people %}
+      <p><strong>{{ t('tree.parent_of') }}</strong> {% for related in child_people %}{% if not loop.first %}{% if loop.last %} {{ t('tree.and_label') }} {% else %}, {% endif %}{% endif %}<a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a>{% endfor %}.</p>
+      {% endif %}
+      {% if not parent_people and not partner_people and not child_people %}
+      <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+      {% endif %}
+    </div>
+    <div class="tree-sidebar-prompts tree-sidebar-context__actions">
+      <button type="button" class="btn btn--secondary btn--sm" id="tree-sidebar-set-focus" onclick="setTreeFocus('{{ person.id }}')">{{ t('tree.set_focus_here') }}</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-return-focus" onclick="treeReturnToFocus()" hidden>{{ t('tree.return_to_focus') }}</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-center-root" onclick="treeCenterRoot()">{{ t('tree.center_root') }}</button>
+    </div>
+  </section>
 
   <nav class="tree-sidebar-tabs" aria-label="{{ t('tree.workspace_sections') }}">
     <button

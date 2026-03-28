@@ -14,6 +14,8 @@ TYLER_ID = "tyler-000-0000-0000-000000000002"
 YULIYA_ID = "yuliya-00-0000-0000-000000000003"
 GRANDPA_ID = "grndpa-00-0000-0000-000000000004"
 MEMBER_ID = "member-00-0000-0000-000000000005"
+ALEX_ID = "alex-000-0000-0000-000000000006"
+JORDAN_ID = "jrdn-000-0000-0000-000000000007"
 
 
 async def seed() -> None:
@@ -24,7 +26,7 @@ async def seed() -> None:
         await session.execute(delete(Partnership))
         await session.execute(delete(ParentChild))
 
-        for person_id in [ROOT_ID, TYLER_ID, YULIYA_ID, GRANDPA_ID, MEMBER_ID]:
+        for person_id in [ROOT_ID, TYLER_ID, YULIYA_ID, GRANDPA_ID, MEMBER_ID, ALEX_ID, JORDAN_ID]:
             person = await session.get(Person, person_id)
             if person:
                 await session.delete(person)
@@ -90,8 +92,28 @@ async def seed() -> None:
             source=PersonSource.manual.value,
             account_state=AccountState.active.value,
         )
+        alex = Person(
+            id=ALEX_ID,
+            first_name="Alex",
+            last_name="Stone",
+            residence_country_code="US",
+            residence_place="Chicago",
+            branch="stone",
+            source=PersonSource.manual.value,
+            account_state=AccountState.active.value,
+        )
+        jordan = Person(
+            id=JORDAN_ID,
+            first_name="Jordan",
+            last_name="Stone",
+            residence_country_code="US",
+            residence_place="Chicago",
+            branch="stone",
+            source=PersonSource.manual.value,
+            account_state=AccountState.active.value,
+        )
 
-        session.add_all([root, tyler, yuliya, grandpa, member])
+        session.add_all([root, tyler, yuliya, grandpa, member, alex, jordan])
         await session.flush()
 
         session.add_all(
@@ -100,6 +122,8 @@ async def seed() -> None:
                 ParentChild(parent_id=YULIYA_ID, child_id=ROOT_ID, kind="biological"),
                 ParentChild(parent_id=GRANDPA_ID, child_id=TYLER_ID, kind="biological"),
                 ParentChild(parent_id=GRANDPA_ID, child_id=MEMBER_ID, kind="biological"),
+                ParentChild(parent_id=MEMBER_ID, child_id=JORDAN_ID, kind="biological"),
+                ParentChild(parent_id=ALEX_ID, child_id=JORDAN_ID, kind="biological"),
                 Partnership(
                     person_a_id=min(TYLER_ID, YULIYA_ID),
                     person_b_id=max(TYLER_ID, YULIYA_ID),

@@ -1,0 +1,386 @@
+{
+  "rules": [
+    {
+      "name": "Changed UI surfaces",
+      "status": "PASS",
+      "message": "1 member-facing surface(s) changed; 3 persona(s), 3 scenario(s), 2 viewport(s), and 2 locale(s) required",
+      "details": [
+        "tree_workspace: files=app/static/js/tree.js, app/templates/partials/person_sidebar.html, app/templates/tree.html; personas=Contributing Family Member, Family Admin, Mobile-First Relative; scenarios=find_person_in_tree, open_sidebar_and_edit_overview, add_relative_from_tree_context; viewports=desktop, mobile; locales=en, es",
+        "unmatched: app/static/css/main.css",
+        "unmatched: locales/en.json",
+        "unmatched: locales/es.json",
+        "unmatched: tests/ui/playwright-flow-checks.sh",
+        "unmatched: tests/ui/playwright_cli.sh"
+      ],
+      "metadata": {
+        "surfaceIds": [
+          "tree_workspace"
+        ],
+        "personaIds": [
+          "contributing_member",
+          "family_admin",
+          "mobile_first_relative"
+        ],
+        "scenarioIds": [
+          "find_person_in_tree",
+          "open_sidebar_and_edit_overview",
+          "add_relative_from_tree_context"
+        ],
+        "viewports": [
+          "desktop",
+          "mobile"
+        ],
+        "locales": [
+          "en",
+          "es"
+        ],
+        "unmatchedFiles": [
+          "app/static/css/main.css",
+          "locales/en.json",
+          "locales/es.json",
+          "tests/ui/playwright-flow-checks.sh",
+          "tests/ui/playwright_cli.sh"
+        ],
+        "surfaces": [
+          {
+            "surfaceId": "tree_workspace",
+            "changedFiles": [
+              "app/static/js/tree.js",
+              "app/templates/partials/person_sidebar.html",
+              "app/templates/tree.html"
+            ],
+            "routes": [
+              "/",
+              "/tree"
+            ],
+            "personaIds": [
+              "contributing_member",
+              "family_admin",
+              "mobile_first_relative"
+            ],
+            "scenarioIds": [
+              "find_person_in_tree",
+              "open_sidebar_and_edit_overview",
+              "add_relative_from_tree_context"
+            ],
+            "viewports": [
+              "desktop",
+              "mobile"
+            ],
+            "locales": [
+              "en",
+              "es"
+            ],
+            "visualRubric": [
+              "hierarchy_and_readability",
+              "control_discoverability",
+              "mobile_fit"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "Untested critical modules",
+      "status": "PASS",
+      "message": "All high-attention modules have test coverage",
+      "details": []
+    },
+    {
+      "name": "Dependency cycles",
+      "status": "WARN",
+      "message": "2 module(s) in dependency cycles",
+      "details": [
+        "app/models/settings.py",
+        "app/services/theme_service.py"
+      ]
+    },
+    {
+      "name": "Security issues",
+      "status": "WARN",
+      "message": "1 module(s) with security issues",
+      "details": [
+        "app/static/js/tree.js (8 issues)"
+      ]
+    },
+    {
+      "name": "Attention concentration",
+      "status": "PASS",
+      "message": "0/152 (0%) modules are high-attention",
+      "details": []
+    },
+    {
+      "name": "Critical path untested",
+      "status": "WARN",
+      "message": "1 high-centrality module(s) have no tests",
+      "details": [
+        "app/services/field_protection.py (centrality=0.82)"
+      ]
+    },
+    {
+      "name": "Boundary violations",
+      "status": "PASS",
+      "message": "No boundary rules configured",
+      "details": []
+    },
+    {
+      "name": "unobservable-critical",
+      "status": "WARN",
+      "message": "6 critical module(s) have no observability patterns: app/config.py (centrality=1.00), app/models/base.py (centrality=1.00), app/models/media.py (centrality=0.61), app/models/person.py (centrality=0.75), app/schemas.py (centrality=0.50)",
+      "details": [
+        "app/config.py (centrality=1.00)",
+        "app/models/base.py (centrality=1.00)",
+        "app/models/media.py (centrality=0.61)",
+        "app/models/person.py (centrality=0.75)",
+        "app/schemas.py (centrality=0.50)",
+        "app/services/field_protection.py (centrality=0.82)"
+      ]
+    },
+    {
+      "name": "uninstrumented-endpoints",
+      "status": "WARN",
+      "message": "7 module(s) define endpoints but have no observability patterns: app/routes/calendar.py (3 endpoint(s)), app/routes/demo.py (6 endpoint(s)), app/routes/external_records.py (2 endpoint(s)), app/routes/imports.py (2 endpoint(s)), app/routes/research.py (4 endpoint(s))",
+      "details": [
+        "app/routes/calendar.py (3 endpoint(s))",
+        "app/routes/demo.py (6 endpoint(s))",
+        "app/routes/external_records.py (2 endpoint(s))",
+        "app/routes/imports.py (2 endpoint(s))",
+        "app/routes/research.py (4 endpoint(s))",
+        "app/routes/timeline.py (3 endpoint(s))",
+        "app/routes/wiki.py (5 endpoint(s))"
+      ]
+    },
+    {
+      "name": "unaddressed-decisions",
+      "status": "PASS",
+      "message": "No architectural decision patterns detected.",
+      "details": []
+    },
+    {
+      "name": "Complex modules",
+      "status": "PASS",
+      "message": "All modules have <= 50 constructs",
+      "details": []
+    },
+    {
+      "name": "Complex functions",
+      "status": "WARN",
+      "message": "8 function(s) exceed complexity 15",
+      "details": [
+        "app/importers/gedcom_parser.py:135 _parse_date_to_raw_and_iso (complexity=18)",
+        "app/importers/gedcom_parser.py:189 parse_gedcom (complexity=54)",
+        "app/services/calendar_service.py:14 get_calendar_events (complexity=20)",
+        "app/services/import_service.py:91 import_gedcom (complexity=32)",
+        "app/services/relationship_calculator.py:195 _label_relationship (complexity=44)",
+        "app/services/relationship_calculator.py:313 _label_from_steps (complexity=18)",
+        "app/services/revision_service.py:114 apply_person_snapshot (complexity=19)",
+        "app/services/timeline_service.py:13 get_timeline_events (complexity=31)"
+      ]
+    },
+    {
+      "name": "Hardcoded secrets",
+      "status": "PASS",
+      "message": "No hardcoded secrets",
+      "details": []
+    },
+    {
+      "name": "Injection/XSS risks",
+      "status": "WARN",
+      "message": "1 module(s) with injection or XSS risks",
+      "details": [
+        "app/static/js/tree.js (8 risks)"
+      ]
+    },
+    {
+      "name": "Untested attack surface",
+      "status": "WARN",
+      "message": "5 untested module(s) handling untrusted input",
+      "details": [
+        "app/routes/imports.py (untested attack surface)",
+        "app/services/calendar_service.py (untested attack surface)",
+        "app/services/cemla_client.py (untested attack surface)",
+        "app/services/revision_service.py (untested attack surface)",
+        "app/services/timeline_service.py (untested attack surface)"
+      ]
+    },
+    {
+      "name": "Cross-package imports",
+      "status": "PASS",
+      "message": "No workspace packages detected",
+      "details": []
+    },
+    {
+      "name": "Bus factor risk",
+      "status": "WARN",
+      "message": "5 single-author critical module(s) \u2014 knowledge risk",
+      "details": [
+        "app/config.py (centrality=1.00, bus_factor=1)",
+        "app/models/media.py (centrality=0.61, bus_factor=1)",
+        "app/models/person.py (centrality=0.75, bus_factor=1)",
+        "app/schemas.py (centrality=0.50, bus_factor=1)",
+        "app/services/field_protection.py (centrality=0.82, bus_factor=1)"
+      ]
+    },
+    {
+      "name": "Hidden coupling",
+      "status": "WARN",
+      "message": "11 hidden dependency pair(s) \u2014 co-change without import link",
+      "details": [
+        "app/routes/media.py <-> tests/test_media.py (co-change without import)",
+        "app/static/css/main.css <-> app/templates/tree.html (co-change without import)",
+        "app/static/css/main.css <-> app/static/js/tree.js (co-change without import)",
+        "app/static/js/tree.js <-> app/templates/tree.html (co-change without import)",
+        "app/static/js/tree.js <-> app/templates/partials/person_sidebar.html (co-change without import)",
+        "app/static/js/tree.js <-> app/templates/partials/people_grid.html (co-change without import)",
+        "app/templates/partials/person_sidebar.html <-> app/templates/partials/people_grid.html (co-change without import)",
+        "app/templates/person_edit.html <-> app/templates/partials/people_grid.html (co-change without import)",
+        "locales/en.json <-> locales/es.json (co-change without import)",
+        "locales/en.json <-> locales/ru.json (co-change without import)",
+        "locales/es.json <-> locales/ru.json (co-change without import)"
+      ]
+    },
+    {
+      "name": "Convention consistency",
+      "status": "PASS",
+      "message": "All modules meet convention consistency threshold",
+      "details": []
+    },
+    {
+      "name": "Convention outlier",
+      "status": "WARN",
+      "message": "3 module(s) are convention outliers",
+      "details": [
+        "app/i18n.py: consistency=0.93 (lang=python, mean=1.00, threshold=0.99)",
+        "app/services/cemla_client.py: consistency=0.97 (lang=python, mean=1.00, threshold=0.99)",
+        "app/services/external_records.py: consistency=0.98 (lang=python, mean=1.00, threshold=0.99)"
+      ]
+    },
+    {
+      "name": "Opaque naming",
+      "status": "PASS",
+      "message": "No opaque single-letter identifiers found",
+      "details": []
+    },
+    {
+      "name": "Missing CSS selectors",
+      "status": "WARN",
+      "message": "15 UI class reference(s) missing stylesheet coverage",
+      "details": [
+        ".cal referenced at /Users/cheech/code/family-book/app/templates/partials/calendar_grid.html:1",
+        ".cal__day-detail-body referenced at /Users/cheech/code/family-book/app/templates/partials/calendar_grid.html:99",
+        ".calendar-page__header referenced at /Users/cheech/code/family-book/app/templates/calendar.html:6",
+        ".research-page__search referenced at /Users/cheech/code/family-book/app/templates/research.html:48",
+        ".research-page__sources referenced at /Users/cheech/code/family-book/app/templates/research.html:75",
+        ".research-search-form referenced at /Users/cheech/code/family-book/app/templates/research.html:49",
+        ".stack referenced at /Users/cheech/code/family-book/app/templates/partials/person_history.html:2",
+        ".tree-gedcom-preview referenced at /Users/cheech/code/family-book/app/static/js/tree.js:3279",
+        ".tree-gedcom-preview__actions referenced at /Users/cheech/code/family-book/app/static/js/tree.js:3335",
+        ".tree-gedcom-preview__dupes referenced at /Users/cheech/code/family-book/app/static/js/tree.js:3291",
+        ".tree-picker__input referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:805, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:843, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:881",
+        ".tree-relcalc-result__details referenced at /Users/cheech/code/family-book/app/templates/tree.html:407",
+        ".tree-saved-records referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:989",
+        ".tree-sidebar-context__badges referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:45",
+        ".tree-sidebar-panel--active referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:121"
+      ]
+    },
+    {
+      "name": "Hardcoded UI copy",
+      "status": "WARN",
+      "message": "42 localized UI string(s) appear hardcoded in source",
+      "details": [
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:33 hardcodes 'Institution' (locale key: person.education_institution)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:34 hardcodes 'Degree' (locale key: person.education_degree)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:35 hardcodes 'Field of Study' (locale key: person.education_field)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:53 hardcodes 'Employer' (locale key: person.career_employer)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:56 hardcodes 'Location' (locale key: person.career_location)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:73 hardcodes 'Year Joined' (locale key: person.org_year_joined)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:74 hardcodes 'Year Left' (locale key: person.org_year_left)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:88 hardcodes 'Confirmed' (locale key: person.confidence_confirmed)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:89 hardcodes 'Probable' (locale key: person.confidence_probable)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:90 hardcodes 'Uncertain' (locale key: person.confidence_uncertain)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:91 hardcodes 'Unknown' (locale key: person.confidence_unknown)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:147 hardcodes 'Institution' (locale key: person.education_institution)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:147 hardcodes 'Degree' (locale key: person.education_degree)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:147 hardcodes 'Field of Study' (locale key: person.education_field)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:149 hardcodes 'Employer' (locale key: person.career_employer)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:149 hardcodes 'Location' (locale key: person.career_location)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:150 hardcodes 'Year Joined' (locale key: person.org_year_joined)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:150 hardcodes 'Year Left' (locale key: person.org_year_left)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:158 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:160 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:199 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:204 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:224 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:494 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:500 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:511 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:527 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:531 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:567 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:567 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:568 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:581 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:593 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:601 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:603 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:606 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:609 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:615 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:620 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:632 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:649 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:650 hardcodes 'Weight' (locale key: person.weight)"
+      ]
+    },
+    {
+      "name": "New cycle introduced",
+      "status": "PASS",
+      "message": "No new cycles introduced",
+      "details": []
+    },
+    {
+      "name": "Attention regression",
+      "status": "WARN",
+      "message": "10 module(s) with attention score increase >= 0.1",
+      "details": [
+        "app/models/person.py (0.35 -> 0.45, +0.10)",
+        "app/services/field_protection.py (0.13 -> 0.28, +0.15)",
+        "app/services/revision_service.py (0.11 -> 0.46, +0.35)",
+        "app/static/css/main.css (0.16 -> 0.30, +0.14)",
+        "app/static/js/main.js (0.43 -> 0.55, +0.12)",
+        "app/static/js/tree.js (0.42 -> 0.57, +0.15)",
+        "app/templates/base.html (0.16 -> 0.30, +0.14)",
+        "app/templates/partials/person_sidebar.html (0.13 -> 0.30, +0.17)",
+        "app/templates/person_edit.html (0.18 -> 0.28, +0.10)",
+        "app/templates/tree.html (0.16 -> 0.30, +0.14)"
+      ]
+    },
+    {
+      "name": "Coupling increase",
+      "status": "WARN",
+      "message": "2 module(s) with imported_by increase >= 3",
+      "details": [
+        "app/access_control.py (8 -> 11, +3)",
+        "app/models/person.py (27 -> 37, +10)"
+      ]
+    },
+    {
+      "name": "New boundary violation",
+      "status": "PASS",
+      "message": "No boundary rules configured",
+      "details": []
+    },
+    {
+      "name": "Convention drift",
+      "status": "PASS",
+      "message": "No significant convention consistency regressions",
+      "details": []
+    }
+  ],
+  "passed": true,
+  "counts": {
+    "PASS": 13,
+    "FAIL": 0,
+    "WARN": 15
+  }
+}

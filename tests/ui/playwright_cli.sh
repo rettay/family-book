@@ -24,4 +24,20 @@ if [[ "${has_session_flag}" != "true" && -n "${PLAYWRIGHT_CLI_SESSION:-}" ]]; th
 fi
 cmd+=("$@")
 
-exec "${cmd[@]}"
+tmp_output="$(mktemp "${TMPDIR:-/tmp}/playwright-cli.XXXXXX")"
+trap 'rm -f "${tmp_output}"' EXIT
+
+set +e
+"${cmd[@]}" >"${tmp_output}" 2>&1
+status=$?
+set -e
+
+cat "${tmp_output}"
+
+if [[ ${status} -ne 0 ]]; then
+  exit "${status}"
+fi
+
+if grep -q '^### Error' "${tmp_output}"; then
+  exit 1
+fi
