@@ -145,6 +145,27 @@
     return null;
   }
 
+  function pushUnique(map, key, value) {
+    if (!map[key]) {
+      map[key] = [];
+    }
+    if (map[key].indexOf(value) === -1) {
+      map[key].push(value);
+    }
+  }
+
+  function averageValues(values) {
+    var filtered = (values || []).filter(function(value) {
+      return value !== null && value !== undefined;
+    });
+    if (!filtered.length) {
+      return null;
+    }
+    return filtered.reduce(function(total, value) {
+      return total + value;
+    }, 0) / filtered.length;
+  }
+
   function currentFilters() {
     return {
       living: document.getElementById('tree-filter-living').value,
@@ -931,6 +952,48 @@
     return payload;
   }
 
+  function relationshipMetaFromForm(form, mode) {
+    var raw = formDataToJson(form, {
+      nullableFields: ['confidence', 'source_detail', 'notes', 'start_date', 'end_date']
+    });
+    if (mode === 'partner') {
+      return {
+        kind: raw.kind || 'married',
+        status: raw.status || 'active',
+        start_date: raw.start_date,
+        start_date_precision: raw.start_date_precision,
+        end_date: raw.end_date,
+        end_date_precision: raw.end_date_precision,
+        source: raw.source,
+        notes: raw.notes
+      };
+    }
+    return {
+      kind: raw.kind || 'biological',
+      confidence: raw.confidence || 'confirmed',
+      source: raw.source,
+      source_detail: raw.source_detail,
+      notes: raw.notes,
+      start_date: raw.start_date,
+      end_date: raw.end_date
+    };
+  }
+
+  function treeRelativeCreatePayload(form) {
+    var payload = {};
+    ['first_name', 'last_name', 'branch'].forEach(function(field) {
+      var input = form.querySelector('[name="' + field + '"]');
+      if (!input) {
+        return;
+      }
+      var value = String(input.value || '').trim();
+      if (value) {
+        payload[field] = value;
+      }
+    });
+    return payload;
+  }
+
   async function loadPreferences() {
     var resp = await fetch('/api/tree/preferences');
     if (resp.status === 401) {
@@ -1061,6 +1124,35 @@
     var parentToChildren = {};
     var partnerMap = {};
     var partnershipByPair = {};
+    var partnershipsByPair = {};
+    var parentChildByEdge = {};
+
+    function pushUnique(map, key, value) {
+      if (!map[key]) {
+        map[key] = [];
+      }
+      if (map[key].indexOf(value) === -1) {
+        map[key].push(value);
+      }
+    }
+
+    function partnershipPriority(partnership) {
+      if (!partnership) {
+        return -1;
+      }
+      var statusScore = partnership.status === 'active'
+        ? 4
+        : partnership.status === 'widowed'
+          ? 3
+          : partnership.status === 'separated'
+            ? 2
+            : partnership.status === 'dissolved'
+              ? 1
+              : 0;
+      var dateScore = Number(String(partnership.start_date || '').replace(/-/g, '')) || 0;
+      return statusScore * 100000000 + dateScore;
+    }
+
     treeData.parent_child.forEach(function(parentChild) {
       if (!childToParents[parentChild.child_id]) {
         childToParents[parentChild.child_id] = [];
@@ -1070,35 +1162,122 @@
         parentToChildren[parentChild.parent_id] = [];
       }
       parentToChildren[parentChild.parent_id].push(parentChild.child_id);
+      parentChildByEdge[parentChild.parent_id + '|' + parentChild.child_id] = parentChild;
     });
 
     treeData.partnerships.forEach(function(partnership) {
       var pair = [partnership.person_a_id, partnership.person_b_id].sort();
       var key = pair.join('|');
-      partnershipByPair[key] = partnership;
-      if (!partnerMap[pair[0]]) {
-        partnerMap[pair[0]] = [];
+      if (!partnershipsByPair[key]) {
+        partnershipsByPair[key] = [];
       }
-      if (!partnerMap[pair[1]]) {
-        partnerMap[pair[1]] = [];
+      partnershipsByPair[key].push(partnership);
+      if (!partnershipByPair[key] || partnershipPriority(partnership) >= partnershipPriority(partnershipByPair[key])) {
+        partnershipByPair[key] = partnership;
       }
-      partnerMap[pair[0]].push(pair[1]);
-      partnerMap[pair[1]].push(pair[0]);
+      pushUnique(partnerMap, pair[0], pair[1]);
+      pushUnique(partnerMap, pair[1], pair[0]);
     });
 
+    var familyUnitsByKey = {};
     var familyUnitsByPair = {};
+
+    function ensureFamilyUnit(key, payload) {
+      if (!familyUnitsByKey[key]) {
+        familyUnitsByKey[key] = {
+          id: 'family-unit:' + key,
+          key: key,
+          renderKey: payload.renderKey || key,
+          parentIds: (payload.parentIds || []).slice(),
+          childIds: [],
+          explicitPartnership: !!payload.explicitPartnership,
+          partnership: payload.partnership || null,
+          partnershipKind: payload.partnershipKind || null,
+          partnershipStatus: payload.partnershipStatus || null,
+          unitType: payload.unitType || 'family'
+        };
+      } else if (payload.partnership && !familyUnitsByKey[key].partnership) {
+        familyUnitsByKey[key].partnership = payload.partnership;
+        familyUnitsByKey[key].partnershipKind = payload.partnershipKind || familyUnitsByKey[key].partnershipKind;
+        familyUnitsByKey[key].partnershipStatus = payload.partnershipStatus || familyUnitsByKey[key].partnershipStatus;
+        familyUnitsByKey[key].explicitPartnership = familyUnitsByKey[key].explicitPartnership || !!payload.explicitPartnership;
+      }
+      return familyUnitsByKey[key];
+    }
+
+    Object.keys(partnershipByPair).forEach(function(pairKey) {
+      var primaryPartnership = partnershipByPair[pairKey];
+      ensureFamilyUnit('pair:' + pairKey, {
+        renderKey: pairKey,
+        parentIds: pairKey.split('|'),
+        explicitPartnership: true,
+        partnership: primaryPartnership,
+        partnershipKind: primaryPartnership.kind || 'married',
+        partnershipStatus: primaryPartnership.status || 'active',
+        unitType: 'pair'
+      });
+    });
+
     Object.keys(childToParents).forEach(function(childId) {
-      var pair = choosePrimaryParentPair(childToParents[childId], partnershipByPair);
-      if (!pair) {
+      var parentIds = Array.from(new Set((childToParents[childId] || []).filter(Boolean))).sort();
+      if (!parentIds.length) {
         return;
       }
-      var key = pair.join('|');
-      if (!familyUnitsByPair[key]) {
-        familyUnitsByPair[key] = [];
+      var selectedParents = null;
+      if (parentIds.length === 1) {
+        selectedParents = [parentIds[0]];
+      } else if (parentIds.length === 2) {
+        selectedParents = parentIds.slice();
+      } else {
+        selectedParents = choosePrimaryParentPair(parentIds, partnershipByPair) || parentIds.slice(0, 2);
       }
-      if (familyUnitsByPair[key].indexOf(childId) === -1) {
-        familyUnitsByPair[key].push(childId);
+      if (!selectedParents || !selectedParents.length) {
+        return;
       }
+      var unitKey = selectedParents.length === 1
+        ? 'single:' + selectedParents[0]
+        : 'pair:' + selectedParents.slice().sort().join('|');
+      var pairKey = selectedParents.length === 2 ? selectedParents.slice().sort().join('|') : '';
+      var primaryPartnership = pairKey ? (partnershipByPair[pairKey] || null) : null;
+      var unit = ensureFamilyUnit(unitKey, {
+        renderKey: pairKey || unitKey,
+        parentIds: selectedParents,
+        explicitPartnership: !!primaryPartnership,
+        partnership: primaryPartnership,
+        partnershipKind: primaryPartnership ? primaryPartnership.kind : null,
+        partnershipStatus: primaryPartnership ? primaryPartnership.status : null,
+        unitType: selectedParents.length === 1 ? 'single-parent' : 'pair'
+      });
+      if (unit.childIds.indexOf(childId) === -1) {
+        unit.childIds.push(childId);
+      }
+      if (selectedParents.length === 2) {
+        if (!familyUnitsByPair[pairKey]) {
+          familyUnitsByPair[pairKey] = [];
+        }
+        if (familyUnitsByPair[pairKey].indexOf(childId) === -1) {
+          familyUnitsByPair[pairKey].push(childId);
+        }
+        pushUnique(partnerMap, selectedParents[0], selectedParents[1]);
+        pushUnique(partnerMap, selectedParents[1], selectedParents[0]);
+      }
+    });
+
+    var familyUnits = Object.keys(familyUnitsByKey).map(function(key) {
+      return familyUnitsByKey[key];
+    });
+    var familyUnitsByPerson = {};
+    var incomingFamilyUnitByChild = {};
+    familyUnits.forEach(function(unit) {
+      unit.parentIds.forEach(function(parentId) {
+        pushUnique(familyUnitsByPerson, parentId, unit.key);
+      });
+      unit.childIds.forEach(function(childId) {
+        pushUnique(familyUnitsByPerson, childId, unit.key);
+        if (!incomingFamilyUnitByChild[childId] || unit.parentIds.length > familyUnitsByKey[incomingFamilyUnitByChild[childId]].parentIds.length) {
+          incomingFamilyUnitByChild[childId] = unit.key;
+        }
+      });
     });
 
     return {
@@ -1107,7 +1286,12 @@
       parentToChildren: parentToChildren,
       partnerMap: partnerMap,
       partnershipByPair: partnershipByPair,
-      familyUnitsByPair: familyUnitsByPair
+      partnershipsByPair: partnershipsByPair,
+      familyUnitsByPair: familyUnitsByPair,
+      familyUnits: familyUnits,
+      familyUnitsByPerson: familyUnitsByPerson,
+      incomingFamilyUnitByChild: incomingFamilyUnitByChild,
+      parentChildByEdge: parentChildByEdge
     };
   }
 
@@ -1123,7 +1307,7 @@
     return rootId;
   }
 
-  function layoutTree(rootId, parentToChildren, childToParents, partnerMap, familyUnitsByPair, viewportWidth) {
+  function layoutTree(rootId, parentToChildren, childToParents, partnerMap, familyUnitsByPair, partnershipByPair, familyUnits, familyUnitsByPerson, incomingFamilyUnitByChild, viewportWidth) {
     var visited = new Set();
     var nodePositions = {};
     var nodeLookup = {};
@@ -1181,6 +1365,27 @@
         placed[id] = true;
         var nd = depthOf[id];
         var node = {id: id, children: [], depth: nd, x: 0, y: 0};
+        var partners = [];
+        (partnerMap[id] || []).forEach(function(partnerId) {
+          if (!placed[partnerId] && depthOf[partnerId] === nd) {
+            partners.push(partnerId);
+          }
+        });
+        partners.sort(function(a, b) {
+          var aHasFamily = ((familyUnitsByPair[[a, id].sort().join('|')] || []).length) > 0;
+          var bHasFamily = ((familyUnitsByPair[[b, id].sort().join('|')] || []).length) > 0;
+          if (aHasFamily !== bHasFamily) {
+            return aHasFamily ? -1 : 1;
+          }
+          return a.localeCompare(b);
+        });
+        partners.forEach(function(partnerId) {
+          if (!placed[partnerId]) {
+            var partnerNode = buildNode(partnerId);
+            partnerNode.parent = node;
+            node.children.push(partnerNode);
+          }
+        });
         var deeper = [];
         (parentToChildren[id] || []).forEach(function(cid) {
           if (!placed[cid] && depthOf[cid] === nd + 1) deeper.push(cid);
@@ -1314,112 +1519,202 @@
         rowsByDepth[node.depth].push(node);
       });
 
-      Object.keys(rowsByDepth).forEach(function(depthKey) {
-        var rowNodes = rowsByDepth[depthKey].slice().sort(function(a, b) {
-          return a.x - b.x;
+      function familyUnitCenter(unit) {
+        var values = [];
+        unit.parentIds.forEach(function(parentId) {
+          if (nodePositions[parentId]) {
+            values.push(nodePositions[parentId].x);
+          }
         });
-        var nodeById = {};
-        rowNodes.forEach(function(node) {
-          nodeById[node.id] = node;
+        unit.childIds.forEach(function(childId) {
+          if (nodePositions[childId]) {
+            values.push(nodePositions[childId].x);
+          }
+        });
+        return average(values) || 0;
+      }
+
+      function nodeDesiredCenter(node, unitCenters) {
+        var anchors = [node.x];
+        var ancestryAnchor = ancestryAnchorX(node.id, node.depth);
+        if (ancestryAnchor !== null && ancestryAnchor !== undefined) {
+          anchors.push(ancestryAnchor);
+        }
+        var childAverage = average((parentToChildren[node.id] || []).map(function(childId) {
+          return nodePositions[childId] ? nodePositions[childId].x : null;
+        }).filter(function(value) {
+          return value !== null && value !== undefined;
+        }));
+        if (childAverage !== null && childAverage !== undefined) {
+          anchors.push(childAverage);
+        }
+        var incomingUnitKey = incomingFamilyUnitByChild[node.id];
+        if (incomingUnitKey && unitCenters[incomingUnitKey] !== undefined) {
+          anchors.push(unitCenters[incomingUnitKey]);
+        }
+        (familyUnitsByPerson[node.id] || []).forEach(function(unitKey) {
+          if (unitCenters[unitKey] !== undefined) {
+            anchors.push(unitCenters[unitKey]);
+          }
+        });
+        return average(anchors.filter(function(value) {
+          return value !== null && value !== undefined;
+        })) || node.x;
+      }
+
+      for (var pass = 0; pass < 4; pass += 1) {
+        var unitCenters = {};
+        (familyUnits || []).forEach(function(unit) {
+          unitCenters[unit.key] = familyUnitCenter(unit);
         });
 
-        var pairItems = [];
-        Object.keys(familyUnitsByPair || {}).forEach(function(pairKey) {
-          var pair = pairKey.split('|');
-          var aId = pair[0];
-          var bId = pair[1];
-          var aNode = nodeById[aId];
-          var bNode = nodeById[bId];
-          if (!aNode || !bNode || aNode.depth !== bNode.depth) {
-            return;
-          }
-          var sharedChildren = (familyUnitsByPair[pairKey] || []).filter(function(childId) {
-            return !!nodePositions[childId];
+        Object.keys(rowsByDepth).forEach(function(depthKey) {
+          var rowNodes = rowsByDepth[depthKey].slice().sort(function(a, b) {
+            return a.x - b.x;
           });
-          if (!sharedChildren.length) {
-            return;
-          }
-          var desiredCenter = sharedChildren.reduce(function(total, childId) {
-            var childPosition = nodePositions[childId];
-            return total + (childPosition ? childPosition.x : 0);
-          }, 0) / sharedChildren.length;
-          pairItems.push({
-            type: 'pair',
-            ids: orderedPairIds(aId, bId, desiredCenter),
-            desiredCenter: desiredCenter,
-            width: PARTNER_GAP_X,
-            sharedChildren: sharedChildren
+          var nodeById = {};
+          rowNodes.forEach(function(node) {
+            nodeById[node.id] = node;
           });
-        });
 
-        pairItems.sort(function(a, b) {
-          return b.sharedChildren.length - a.sharedChildren.length;
-        });
-
-        var claimed = {};
-        var items = [];
-        pairItems.forEach(function(item) {
-          if (claimed[item.ids[0]] || claimed[item.ids[1]]) {
-            return;
-          }
-          claimed[item.ids[0]] = true;
-          claimed[item.ids[1]] = true;
-          items.push(item);
-        });
-
-        rowNodes.forEach(function(node) {
-          if (claimed[node.id]) {
-            return;
-          }
-          items.push({
-            type: 'single',
-            ids: [node.id],
-            desiredCenter: node.x,
-            width: Math.max(NODE_SPACING_X * 0.95, (treeNodeLabel(lookupPerson(node.id)).length * 7))
+          var rowPeerGraph = {};
+          rowNodes.forEach(function(node) {
+            rowPeerGraph[node.id] = [];
           });
-        });
 
-        items.sort(function(a, b) {
-          return a.desiredCenter - b.desiredCenter;
-        });
-
-        var previousRight = null;
-        items.forEach(function(item) {
-          var halfWidth = item.width / 2;
-          var center = item.desiredCenter;
-          if (previousRight !== null) {
-            center = Math.max(center, previousRight + FAMILY_UNIT_GAP_X / 2 + halfWidth);
-          }
-          item.center = center;
-          previousRight = center + halfWidth;
-        });
-
-        items.forEach(function(item) {
-          if (item.type === 'pair') {
-            var leftId = item.ids[0];
-            var rightId = item.ids[1];
-            var leftNode = nodeLookup[leftId];
-            var rightNode = nodeLookup[rightId];
-            var leftX = item.center - PARTNER_GAP_X / 2;
-            var rightX = item.center + PARTNER_GAP_X / 2;
-            if (leftNode) {
-              leftNode.x = leftX;
-              nodePositions[leftId].x = leftX;
+          (familyUnits || []).forEach(function(unit) {
+            var unitParentIds = unit.parentIds.filter(function(parentId) {
+              var parentNode = nodeById[parentId];
+              return !!parentNode;
+            });
+            if (unitParentIds.length < 2) {
+              return;
             }
-            if (rightNode) {
-              rightNode.x = rightX;
-              nodePositions[rightId].x = rightX;
+            for (var index = 0; index < unitParentIds.length; index += 1) {
+              for (var otherIndex = index + 1; otherIndex < unitParentIds.length; otherIndex += 1) {
+                pushUnique(rowPeerGraph, unitParentIds[index], unitParentIds[otherIndex]);
+                pushUnique(rowPeerGraph, unitParentIds[otherIndex], unitParentIds[index]);
+              }
             }
-            return;
-          }
-          var singleId = item.ids[0];
-          var singleNode = nodeLookup[singleId];
-          if (singleNode) {
-            singleNode.x = item.center;
-            nodePositions[singleId].x = item.center;
-          }
+          });
+
+          var claimed = {};
+          var items = [];
+          rowNodes.forEach(function(node) {
+            if (claimed[node.id]) {
+              return;
+            }
+            var queue = [node.id];
+            var componentIds = [];
+            while (queue.length) {
+              var currentId = queue.shift();
+              if (claimed[currentId]) {
+                continue;
+              }
+              claimed[currentId] = true;
+              componentIds.push(currentId);
+              (rowPeerGraph[currentId] || []).forEach(function(peerId) {
+                if (!claimed[peerId]) {
+                  queue.push(peerId);
+                }
+              });
+            }
+            if (componentIds.length === 1) {
+              items.push({
+                type: 'single',
+                ids: componentIds,
+                desiredCenter: nodeDesiredCenter(nodeById[componentIds[0]], unitCenters),
+                width: Math.max(NODE_SPACING_X * 0.92, (treeNodeLabel(lookupPerson(componentIds[0])).length * 7))
+              });
+              return;
+            }
+            var orderedIds = componentIds.slice().sort(function(aId, bId) {
+              var aNode = nodeById[aId];
+              var bNode = nodeById[bId];
+              var aDesired = nodeDesiredCenter(aNode, unitCenters);
+              var bDesired = nodeDesiredCenter(bNode, unitCenters);
+              if (aDesired !== bDesired) {
+                return aDesired - bDesired;
+              }
+              return aNode.x - bNode.x;
+            });
+            var componentDegrees = {};
+            componentIds.forEach(function(personId) {
+              componentDegrees[personId] = (rowPeerGraph[personId] || []).filter(function(peerId) {
+                return componentIds.indexOf(peerId) !== -1;
+              }).length;
+            });
+            var pathEndpoints = componentIds.filter(function(personId) {
+              return componentDegrees[personId] <= 1;
+            }).sort(function(aId, bId) {
+              return nodeDesiredCenter(nodeById[aId], unitCenters) - nodeDesiredCenter(nodeById[bId], unitCenters);
+            });
+            if (pathEndpoints.length) {
+              var walkedIds = [];
+              var seenIds = {};
+              var currentId = pathEndpoints[0];
+              var previousId = '';
+              while (currentId && !seenIds[currentId]) {
+                walkedIds.push(currentId);
+                seenIds[currentId] = true;
+                var nextIds = (rowPeerGraph[currentId] || []).filter(function(peerId) {
+                  return componentIds.indexOf(peerId) !== -1 && peerId !== previousId && !seenIds[peerId];
+                });
+                previousId = currentId;
+                currentId = nextIds.length ? nextIds.sort(function(aId, bId) {
+                  return nodeDesiredCenter(nodeById[aId], unitCenters) - nodeDesiredCenter(nodeById[bId], unitCenters);
+                })[0] : '';
+              }
+              if (walkedIds.length === componentIds.length) {
+                orderedIds = walkedIds;
+              }
+            }
+            var desiredCenter = average(orderedIds.map(function(personId) {
+              return nodeDesiredCenter(nodeById[personId], unitCenters);
+            }));
+            items.push({
+              type: 'cluster',
+              ids: orderedIds,
+              desiredCenter: desiredCenter,
+              width: Math.max((orderedIds.length - 1) * PARTNER_GAP_X + NODE_SPACING_X * 0.9, orderedIds.length * 84)
+            });
+          });
+
+          items.sort(function(a, b) {
+            return a.desiredCenter - b.desiredCenter;
+          });
+
+          var previousRight = null;
+          items.forEach(function(item) {
+            var halfWidth = item.width / 2;
+            var center = item.desiredCenter;
+            if (previousRight !== null) {
+              center = Math.max(center, previousRight + FAMILY_UNIT_GAP_X / 2 + halfWidth);
+            }
+            item.center = center;
+            previousRight = center + halfWidth;
+          });
+
+          items.forEach(function(item) {
+            if (item.type === 'single') {
+              var singleId = item.ids[0];
+              if (nodeLookup[singleId]) {
+                nodeLookup[singleId].x = item.center;
+                nodePositions[singleId].x = item.center;
+              }
+              return;
+            }
+            var spanStart = item.center - ((item.ids.length - 1) * PARTNER_GAP_X) / 2;
+            item.ids.forEach(function(personId, memberIndex) {
+              var memberX = spanStart + memberIndex * PARTNER_GAP_X;
+              if (nodeLookup[personId]) {
+                nodeLookup[personId].x = memberX;
+                nodePositions[personId].x = memberX;
+              }
+            });
+          });
         });
-      });
+      }
     }
 
     var rootNode = buildHierarchy(rootId);
@@ -1541,31 +1836,69 @@
   function collectFamilyUnits(structures, layout, pcKindLookup) {
     var familyUnits = [];
     var coveredEdges = {};
-    Object.keys(structures.familyUnitsByPair || {}).forEach(function(unitKey) {
-      var parentIds = unitKey.split('|');
-      if (!layout.nodePositions[parentIds[0]] || !layout.nodePositions[parentIds[1]]) {
+    (structures.familyUnits || []).forEach(function(structuralUnit) {
+      var parentIds = (structuralUnit.parentIds || []).filter(function(parentId) {
+        return !!layout.nodePositions[parentId];
+      });
+      if (!parentIds.length) {
         return;
       }
-      var childIds = (structures.familyUnitsByPair[unitKey] || []).filter(function(childId) {
+      var childIds = (structuralUnit.childIds || []).filter(function(childId) {
         return !!layout.nodePositions[childId];
       });
       if (!childIds.length) {
         return;
       }
-      familyUnits.push({
-        key: unitKey,
-        parentIds: parentIds,
-        childIds: childIds.slice(),
-        kind: pcKindLookup[parentIds[0] + '|' + childIds[0]] || pcKindLookup[parentIds[1] + '|' + childIds[0]] || 'biological'
-      });
+      var renderChildIds = [];
+      var childKinds = {};
       childIds.forEach(function(childId) {
-        coveredEdges[parentIds[0] + '|' + childId] = true;
-        coveredEdges[parentIds[1] + '|' + childId] = true;
+        var edgeKinds = parentIds.map(function(parentId) {
+          return pcKindLookup[parentId + '|' + childId] || null;
+        }).filter(Boolean);
+        if (!edgeKinds.length) {
+          return;
+        }
+        var firstKind = edgeKinds[0];
+        var allSameKind = edgeKinds.every(function(kind) {
+          return kind === firstKind;
+        });
+        if (!allSameKind) {
+          return;
+        }
+        renderChildIds.push(childId);
+        childKinds[childId] = firstKind;
+        parentIds.forEach(function(parentId) {
+          coveredEdges[parentId + '|' + childId] = true;
+        });
+      });
+      var renderByKind = {};
+      renderChildIds.forEach(function(childId) {
+        var renderKind = childKinds[childId] || 'biological';
+        if (!renderByKind[renderKind]) {
+          renderByKind[renderKind] = [];
+        }
+        renderByKind[renderKind].push(childId);
+      });
+      Object.keys(renderByKind).forEach(function(renderKind) {
+        familyUnits.push({
+          key: structuralUnit.key + '|kind:' + renderKind,
+          renderKey: structuralUnit.renderKey,
+          parentIds: parentIds.slice(),
+          childIds: childIds.slice(),
+          renderChildIds: renderByKind[renderKind].slice(),
+          childKinds: childKinds,
+          partnershipKind: structuralUnit.partnershipKind || null,
+          partnershipStatus: structuralUnit.partnershipStatus || null,
+          unitType: structuralUnit.unitType || 'family'
+        });
       });
     });
 
     familyUnits.forEach(function(unit) {
       unit.childIds.sort(function(a, b) {
+        return layout.nodePositions[a].x - layout.nodePositions[b].x;
+      });
+      unit.renderChildIds.sort(function(a, b) {
         return layout.nodePositions[a].x - layout.nodePositions[b].x;
       });
     });
@@ -1954,6 +2287,10 @@
       structures.childToParents,
       structures.partnerMap,
       structures.familyUnitsByPair,
+      structures.partnershipByPair,
+      structures.familyUnits,
+      structures.familyUnitsByPerson,
+      structures.incomingFamilyUnitByChild,
       w
     );
     currentRootPersonId = rootId;
@@ -1991,16 +2328,18 @@
         .attr('d', lineGen([[parentPos.x, parentPos.y + NODE_RADIUS], [childPos.x, childPos.y - NODE_RADIUS]]));
     });
 
-    treeData.partnerships.forEach(function(partnership) {
+    Object.keys(structures.partnershipByPair || {}).forEach(function(pairKey) {
+      var partnership = structures.partnershipByPair[pairKey];
       var posA = layout.nodePositions[partnership.person_a_id];
       var posB = layout.nodePositions[partnership.person_b_id];
       if (!posA || !posB) {
         return;
       }
-      var dissolved = partnership.status === 'dissolved' || partnership.status === 'separated';
+      var former = partnership.status && partnership.status !== 'active';
       var pKind = partnership.kind || 'married';
       g.append('line')
-        .attr('class', 'partnership-line partnership-line--' + pKind + (dissolved ? ' partnership-line--dissolved' : ''))
+        .attr('class', 'partnership-line partnership-line--' + pKind +
+          (former ? ' partnership-line--former partnership-line--status-' + partnership.status : ''))
         .attr('data-from', partnership.person_a_id)
         .attr('data-to', partnership.person_b_id)
         .attr('x1', posA.x)
@@ -2017,21 +2356,29 @@
     });
 
     families.familyUnits.forEach(function(unit) {
-      if (!unit.childIds.length) {
+      if (!unit.renderChildIds.length) {
         return;
       }
-      var parentA = layout.nodePositions[unit.parentIds[0]];
-      var parentB = layout.nodePositions[unit.parentIds[1]];
-      if (!parentA || !parentB) {
+      var visibleParents = unit.parentIds.map(function(parentId) {
+        return layout.nodePositions[parentId] ? {
+          id: parentId,
+          pos: layout.nodePositions[parentId]
+        } : null;
+      }).filter(Boolean);
+      if (!visibleParents.length) {
         return;
       }
-      var familyCenterX = (parentA.x + parentB.x) / 2;
-      var familyTopY = Math.max(parentA.y, parentB.y) + NODE_RADIUS;
+      var familyCenterX = averageValues(visibleParents.map(function(parent) {
+        return parent.pos.x;
+      }));
+      var familyTopY = Math.max.apply(Math, visibleParents.map(function(parent) {
+        return parent.pos.y;
+      })) + NODE_RADIUS;
       var familyRailY = familyTopY + 34;
-      var childXs = unit.childIds.map(function(childId) {
+      var childXs = unit.renderChildIds.map(function(childId) {
         return layout.nodePositions[childId].x;
       });
-      var kind = unit.kind || 'biological';
+      var kind = unit.childKinds[unit.renderChildIds[0]] || 'biological';
 
       g.append('line')
         .attr('class', 'family-unit-stem parent-child-line parent-child-line--' + kind)
@@ -2039,7 +2386,7 @@
         .attr('y1', familyTopY - 4)
         .attr('x2', familyCenterX)
         .attr('y2', familyRailY)
-        .attr('data-family-unit', unit.key);
+        .attr('data-family-unit', unit.renderKey || unit.key);
       g.append('circle')
         .attr('class', 'family-unit-anchor')
         .attr('cx', familyCenterX)
@@ -2052,9 +2399,9 @@
           .attr('y1', familyRailY)
           .attr('x2', Math.max.apply(Math, childXs))
           .attr('y2', familyRailY)
-          .attr('data-family-unit', unit.key);
+          .attr('data-family-unit', unit.renderKey || unit.key);
       }
-      unit.childIds.forEach(function(childId) {
+      unit.renderChildIds.forEach(function(childId) {
         var childPos = layout.nodePositions[childId];
         if (!childPos) {
           return;
@@ -2065,7 +2412,7 @@
           .attr('y1', childXs.length > 1 ? familyRailY : familyTopY + 8)
           .attr('x2', childPos.x)
           .attr('y2', childPos.y - NODE_RADIUS)
-          .attr('data-from', unit.key)
+          .attr('data-from', unit.renderKey || unit.key)
           .attr('marker-end', 'url(#tree-parent-arrow)')
           .attr('data-to', childId);
       });
@@ -2354,6 +2701,18 @@
     }
   }
 
+  function syncPersonIntoTreeData(personId, detail) {
+    if (!treeData || !treeData.persons || !detail || !personId) {
+      return;
+    }
+    treeData.persons = treeData.persons.map(function(person) {
+      if (person.id !== personId) {
+        return person;
+      }
+      return Object.assign({}, person, detail);
+    });
+  }
+
   function normalizeOccurredAt(rawValue) {
     if (!rawValue) {
       return null;
@@ -2538,7 +2897,9 @@
         throw new Error(data.detail || root.dataset.updateError);
       }
       sidebarState.activeTab = 'details';
-      await refreshTreeWorkspace(personId);
+      syncPersonIntoTreeData(personId, data);
+      render();
+      await renderSidebar(personId);
       showToastMessage(root.dataset.savedMessage);
     } catch (err) {
       setError('tree-person-edit-error', err.message || root.dataset.updateError);
@@ -2560,7 +2921,12 @@
     }
 
     try {
-      await executeRelationshipRequest(relationshipPayload(personId, relatedId, mode));
+      await executeRelationshipRequest(relationshipPayload(
+        personId,
+        relatedId,
+        mode,
+        relationshipMetaFromForm(form, mode)
+      ));
       form.reset();
       sidebarState.activeTab = 'relationships';
       sidebarState.relationshipGroup = mode;
@@ -2586,14 +2952,19 @@
       var createResp = await fetch('/api/persons', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(formDataToJson(form))
+        body: JSON.stringify(treeRelativeCreatePayload(form))
       });
       var created = await createResp.json().catch(function() { return {}; });
       if (!createResp.ok) {
         throw new Error(created.detail || root.dataset.updateError);
       }
 
-      await executeRelationshipRequest(relationshipPayload(personId, created.id, mode));
+      await executeRelationshipRequest(relationshipPayload(
+        personId,
+        created.id,
+        mode,
+        relationshipMetaFromForm(form, mode)
+      ));
 
       form.reset();
       sidebarState.activeTab = 'relationships';

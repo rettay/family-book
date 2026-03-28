@@ -2397,9 +2397,12 @@ body.has-overlay { overflow: hidden; }
 .tree-legend__line--step { border-top-color: var(--edge-step); border-top-style: dotted; }
 .tree-legend__line--foster { border-top-color: var(--edge-foster); border-top-style: dashed; border-top-width: 1px; }
 .tree-legend__line--guardian { border-top-color: var(--edge-guardian); border-top-style: dashed; border-top-width: 1px; }
+.tree-legend__line--unknown { border-top-color: var(--edge-unknown); border-top-style: solid; }
 .tree-legend__line--married { border-top-color: var(--edge-partnership); border-top-style: solid; }
 .tree-legend__line--domestic_partner { border-top-color: var(--edge-partnership); border-top-style: dashed; }
 .tree-legend__line--co_parent { border-top-color: var(--edge-partnership); border-top-style: dotted; }
+.tree-legend__line--engaged { border-top-color: var(--edge-partnership); border-top-style: solid; border-top-width: 1px; }
+.tree-legend__line--former { border-top-color: var(--edge-partnership); border-top-style: dashed; opacity: 0.45; }
 
 /* ── Tree Edge Styles (SVG) ──────────────────────────────────────── */
 .parent-child-line { fill: none; stroke: var(--edge-biological); stroke-width: 2; }
@@ -2415,7 +2418,11 @@ body.has-overlay { overflow: hidden; }
 .partnership-line--co_parent { stroke-dasharray: 3 3; }
 .partnership-line--engaged { stroke-width: 1; }
 .partnership-line--other { stroke-opacity: 0.4; }
-.partnership-line--dissolved { stroke-opacity: 0.3; }
+.partnership-line--former { stroke-opacity: 0.28; stroke-dasharray: 7 4; }
+.partnership-line--status-dissolved { stroke-opacity: 0.24; }
+.partnership-line--status-separated { stroke-opacity: 0.28; stroke-dasharray: 7 4; }
+.partnership-line--status-widowed { stroke-opacity: 0.22; stroke-dasharray: 1 5; }
+.partnership-line--status-annulled { stroke-opacity: 0.22; stroke-dasharray: 3 5; }
 
 /* Path highlight */
 .edge--path-highlight { stroke: var(--accent, #2563eb) !important; stroke-width: 3.5 !important; stroke-opacity: 1 !important; }

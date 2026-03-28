@@ -2,6 +2,89 @@
 
 ## Current Sprint
 
+### `S28 - Genealogy-Grade Tree Semantics and Complex Families`
+
+Status: Planned
+
+### Sprint Goal
+
+Make the tree trustworthy for real family structures by moving from heuristic person-only layout toward genealogy-grade family-unit semantics, then layering in correct handling for remarriage, adoptions and other non-biological relationships, and special edge cases such as pets, unknown parents, and detached sparse branches.
+
+### Why This Sprint Next
+
+Recent live debugging showed the core blocker is no longer basic tree availability but tree truthfulness. The database can be correct while the rendered graph still misleads members about spouses, in-laws, siblings, and parents. This is a direct hit to CFLSR because once the tree looks wrong, members stop trusting it enough to contribute. The next sprint should therefore improve semantic correctness before adding more peripheral features.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 39 | FB-039 | Genealogy Graph Architecture and Family-Unit Layout Foundation | P0 | todo |
+| 40 | FB-040 | Multi-Partnership Households and Remarriage Correctness | P1 | todo |
+| 41 | FB-041 | Genogram Semantics for Non-Biological and Partnership States | P1 | todo |
+| 42 | FB-042 | Non-Person Nodes, Unknown Parents, and Sparse-Branch Readability | P2 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S28-1 | Family-unit layout foundation and layered genealogy graph | planned |
+| S28-2 | Multi-household/remarriage correctness | planned |
+| S28-3 | Genogram semantics for non-biological and partnership states | planned |
+| S28-4 | Special nodes, unknown parents, and sparse-branch readability | planned |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- tree layout uses explicit family-unit semantics rather than treating partner edges as decorative afterthoughts
+- spouses, co-parents, and in-laws no longer read like false ancestry in seeded and prod-like cases
+- one person can participate in multiple households without duplication and without attaching children to the wrong partner
+- current/former partnership states and at least one non-biological parent-child kind are visually distinguishable
+- relationship cues are understandable to non-expert family members through a legend or equally clear affordance
+- single-parent and unknown-parent structures render truthfully without inventing unsupported facts
+- detached branches and lightly connected people remain readable on desktop and mobile
+- if pets or other non-person nodes are supported in launch scope, they are visually distinct and explicitly explained
+- i18n parity is maintained for all new tree-facing copy across `en`, `es`, and `ru`
+- test and browser baselines remain intact
+
+### Verification Expectations
+
+- Structural lane:
+  - CodeMap over `tree_workspace` for each packet
+- Rendered-behavior lane:
+  - deterministic Playwright geometry/assertion coverage for households, remarriage, non-biological ties, and sparse branches
+- Visual/persona lane:
+  - persona-backed desktop and mobile review for `contributing_member`, `family_admin`, and `mobile_first_relative`
+
+### Risks to Watch
+
+- layout-engine refactor may become a stealth rewrite if packet boundaries slip
+- multi-partnership correctness can tempt duplicate-person shortcuts
+- genogram semantics can become too expert-coded or too subtle to matter
+- non-person support can sprawl into a broader entity-model project if not tightly bounded
+
+### Deferred Beyond S28
+
+| ID | Title | Reason |
+|---|---|---|
+| G-11 | Fan Chart / Pedigree View | Alternative view mode; blocked on main tree semantics being trustworthy first |
+| G-12 | Duplicate Person Detection and Merge | Valuable but not the current trust blocker on `/tree` |
+| G-14 | Print / Export Family Sheet | Better tackled after the tree semantics stabilize |
+| FB-031 | Research Tools UX Overhaul | Important but lower priority than fixing core tree truthfulness |
+| FB-032 | i18n Test Parity | Should still land, but can ship in the next sprint once tree packet copy stabilizes |
+
+### Context
+
+- Packet files:
+  - `task_packets/FB-039_genealogy_graph_architecture_and_family_unit_layout_foundation.md`
+  - `task_packets/FB-040_multi_partnership_households_and_remarriage_correctness.md`
+  - `task_packets/FB-041_genogram_semantics_for_non_biological_and_partnership_states.md`
+  - `task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md`
+
+---
+
+## Closed Sprint
+
 ### `S27 - Tree Interaction UX and Form Polish`
 
 Status: Closed
@@ -60,15 +143,6 @@ The sprint is successful when all are true:
   - `uv run pytest tests/test_i18n.py -q`: **3 passed** (locale parity)
   - Test count delta: 445 → 445 (no backend changes, test count unchanged from S26)
   - Commit: `cf2009c`
-
-### Deferred to S28
-
-| ID | Title | Reason |
-|---|---|---|
-| G-11 | Fan Chart / Pedigree View | High complexity, alternative D3 layout |
-| G-12 | Duplicate Person Detection and Merge | High complexity, fuzzy matching + merge UX |
-| G-14 | Print / Export Family Sheet | Medium complexity, PDF library decision pending |
-| — | i18n for tree left panel (search, relcalc, legend) | ~15 pre-existing hardcoded strings, backlog hygiene |
 
 ### Context
 

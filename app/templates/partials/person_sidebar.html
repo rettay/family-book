@@ -480,7 +480,7 @@
                 <div class="tree-related-card__identity">
                   <strong class="tree-related-card__name">{{ related.display_name }}</strong>
                   {% if related.relationship_kind %}
-                  <span class="tree-related-card__meta">{{ related.relationship_kind|title }}</span>
+                  <span class="tree-related-card__meta">{{ t('tree.relationship_kind_' ~ related.relationship_kind) }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -525,7 +525,7 @@
                 <div class="tree-related-card__identity">
                   <strong class="tree-related-card__name">{{ related.display_name }}</strong>
                   {% if related.relationship_kind %}
-                  <span class="tree-related-card__meta">{{ related.relationship_kind|title }}</span>
+                  <span class="tree-related-card__meta">{{ t('tree.relationship_kind_' ~ related.relationship_kind) }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -570,9 +570,9 @@
                 <div class="tree-related-card__identity">
                   <strong class="tree-related-card__name">{{ related.display_name }}</strong>
                   {% if related.relationship_status %}
-                  <span class="tree-related-card__meta">{{ related.relationship_status|title }}</span>
+                  <span class="tree-related-card__meta">{{ t('tree.partnership_status_' ~ related.relationship_status) }}</span>
                   {% elif related.relationship_kind %}
-                  <span class="tree-related-card__meta">{{ related.relationship_kind|title }}</span>
+                  <span class="tree-related-card__meta">{{ t('tree.partnership_kind_' ~ related.relationship_kind) }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -612,6 +612,28 @@
                 <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
               </div>
             </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
             <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_parent') }}</button>
           </form>
           <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="parent" onsubmit="createTreeRelative(event, '{{ person.id }}', 'parent')">
@@ -629,6 +651,28 @@
               {{ t('tree.filter_branch') }}
               <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
             </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
             <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_parent') }}</button>
           </form>
         </details>
@@ -650,6 +694,28 @@
                 <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
               </div>
             </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
             <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_child') }}</button>
           </form>
           <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="child" onsubmit="createTreeRelative(event, '{{ person.id }}', 'child')">
@@ -667,6 +733,28 @@
               {{ t('tree.filter_branch') }}
               <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
             </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
             <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_child') }}</button>
           </form>
         </details>
@@ -688,6 +776,28 @@
                 <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
               </div>
             </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.partnership_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="married">{{ t('tree.partnership_kind_married') }}</option>
+                  <option value="domestic_partner">{{ t('tree.partnership_kind_domestic_partner') }}</option>
+                  <option value="co_parent">{{ t('tree.partnership_kind_co_parent') }}</option>
+                  <option value="engaged">{{ t('tree.partnership_kind_engaged') }}</option>
+                  <option value="other">{{ t('tree.partnership_kind_other') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.partnership_status_label') }}
+                <select class="form-input" name="status">
+                  <option value="active">{{ t('tree.partnership_status_active') }}</option>
+                  <option value="dissolved">{{ t('tree.partnership_status_dissolved') }}</option>
+                  <option value="separated">{{ t('tree.partnership_status_separated') }}</option>
+                  <option value="widowed">{{ t('tree.partnership_status_widowed') }}</option>
+                  <option value="annulled">{{ t('tree.partnership_status_annulled') }}</option>
+                </select>
+              </label>
+            </div>
             <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_partner') }}</button>
           </form>
           <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="partner" onsubmit="createTreeRelative(event, '{{ person.id }}', 'partner')">
@@ -705,6 +815,28 @@
               {{ t('tree.filter_branch') }}
               <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
             </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.partnership_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="married">{{ t('tree.partnership_kind_married') }}</option>
+                  <option value="domestic_partner">{{ t('tree.partnership_kind_domestic_partner') }}</option>
+                  <option value="co_parent">{{ t('tree.partnership_kind_co_parent') }}</option>
+                  <option value="engaged">{{ t('tree.partnership_kind_engaged') }}</option>
+                  <option value="other">{{ t('tree.partnership_kind_other') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.partnership_status_label') }}
+                <select class="form-input" name="status">
+                  <option value="active">{{ t('tree.partnership_status_active') }}</option>
+                  <option value="dissolved">{{ t('tree.partnership_status_dissolved') }}</option>
+                  <option value="separated">{{ t('tree.partnership_status_separated') }}</option>
+                  <option value="widowed">{{ t('tree.partnership_status_widowed') }}</option>
+                  <option value="annulled">{{ t('tree.partnership_status_annulled') }}</option>
+                </select>
+              </label>
+            </div>
             <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_partner') }}</button>
           </form>
         </details>

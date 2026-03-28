@@ -342,15 +342,19 @@
       <details class="tree-legend">
         <summary>{{ t('tree.relationship_legend') }}</summary>
         <ul class="tree-legend__list">
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--biological"></span> Biological</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--adoptive"></span> Adoptive</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--step"></span> Step</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--foster"></span> Foster</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--guardian"></span> Guardian</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--married"></span> Married</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--domestic_partner"></span> Partner</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--co_parent"></span> Co-parent</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--biological"></span> {{ t('tree.relationship_kind_biological') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--adoptive"></span> {{ t('tree.relationship_kind_adoptive') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--step"></span> {{ t('tree.relationship_kind_step') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--foster"></span> {{ t('tree.relationship_kind_foster') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--guardian"></span> {{ t('tree.relationship_kind_guardian') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--unknown"></span> {{ t('tree.relationship_kind_unknown') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--married"></span> {{ t('tree.partnership_kind_married') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--domestic_partner"></span> {{ t('tree.partnership_kind_domestic_partner') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--co_parent"></span> {{ t('tree.partnership_kind_co_parent') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--engaged"></span> {{ t('tree.partnership_kind_engaged') }}</li>
+          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--former"></span> {{ t('tree.partnership_status_former') }}</li>
         </ul>
+        <p class="tree-panel__hint" style="margin-top:0.65rem">{{ t('tree.relationship_legend_hint') }}</p>
       </details>
     </section>
 

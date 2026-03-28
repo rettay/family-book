@@ -1,31 +1,40 @@
 # Family Book Backlog
 
-Sprint: `S25 - Research UX Overhaul and Test Infrastructure`
+Sprint: `S28 - Genealogy-Grade Tree Semantics and Complex Families`
 Status: Planning
 
-## Current Sprint `S25 - Research UX Overhaul and Test Infrastructure`
+## Current Sprint `S28 - Genealogy-Grade Tree Semantics and Complex Families`
 
 Sprint goal:
-- Transform "External Records" into a polished top-level "Research" experience with source management, saved records, and graceful degradation. Add i18n test parity.
+- Make the tree trustworthy for real multigenerational families by adopting a genealogy-grade layout foundation, rendering multiple households and non-biological relationships correctly, and supporting edge cases such as pets, unknown parents, and sparse detached branches without sacrificing readability.
 
 Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-031 | Research Tools UX Overhaul | P1 | todo | `task_packets/FB-031_research_tools_ux_overhaul.md` |
-| FB-032 | i18n Test Parity | P2 | todo | `task_packets/FB-032_i18n_test_parity.md` |
+| FB-039 | Genealogy Graph Architecture and Family-Unit Layout Foundation | P0 | todo | `task_packets/FB-039_genealogy_graph_architecture_and_family_unit_layout_foundation.md` |
+| FB-040 | Multi-Partnership Households and Remarriage Correctness | P1 | todo | `task_packets/FB-040_multi_partnership_households_and_remarriage_correctness.md` |
+| FB-041 | Genogram Semantics for Non-Biological and Partnership States | P1 | todo | `task_packets/FB-041_genogram_semantics_for_non_biological_and_partnership_states.md` |
+| FB-042 | Non-Person Nodes, Unknown Parents, and Sparse-Branch Readability | P2 | todo | `task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md` |
 
 Execution slices:
-- `S25-1` Research Rename, Index Page, and Source Visibility
-- `S25-2` Saved Records Model and Per-Person Research
-- `S25-3` Unified Search UX and Cross-Links
-- `S25-4` i18n Test Parity
+- `S28-1` Family-unit layout foundation and layered genealogy graph
+- `S28-2` Multi-household/remarriage correctness
+- `S28-3` Genogram semantics for non-biological and partnership states
+- `S28-4` Special nodes, unknown parents, and sparse-branch readability
 
 ## Planned Follow-Up Sprints
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S26 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
+| S29 | Research UX Overhaul and Test Infrastructure | FB-031, FB-032 | candidate |
+| S30 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
+
+## Long Horizon
+
+| Sprint | Title | Packets | Status |
+|---|---|---|---|
+| Long horizon | AI family memorial | G-21 | candidate |
 
 ## Closed Sprint `S24 - Tree Photo Headshots and Person Wiki Pages`
 
@@ -60,11 +69,7 @@ Execution slices:
 - `S23-2` Document vs. Evidence Media Classification
 - `S23-3` Date Math and Age Display
 
-## Planned Follow-Up Sprints
-
-| Sprint | Title | Packets | Status |
-|---|---|---|---|
-Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done). Concrete user-facing features (S24-S25) come first.
+Long horizon: G-21 (AI family memorial) — prerequisites met (G-19, G-22, G-23 done). Concrete user-facing features and tree trustworthiness come first.
 
 ## Closed Sprint `S22 - Genetic Profile, Physical Attributes, and Family Health Intelligence`
 

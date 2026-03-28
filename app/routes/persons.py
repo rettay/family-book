@@ -386,6 +386,8 @@ async def update_person(
                     old_value=old_snapshot,
                     new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())})
     logger.info("Person %s updated by %s", person.id, current_user.id)
+    await db.commit()
+    await db.refresh(person)
 
     access = await get_person_access(db, current_user, person)
     return redact_person_detail(person, access)
