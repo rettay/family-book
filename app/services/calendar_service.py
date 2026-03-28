@@ -55,6 +55,7 @@ async def get_calendar_events(
         )
         if birth_date and birth_precision in ("exact", "month", None) and birth_date.month == month:
             day = birth_date.day if birth_precision != "month" else 1
+            age_turning = year - birth_date.year if birth_date.year and year >= birth_date.year else None
             events.append(
                 {
                     "date": f"{year:04d}-{month:02d}-{day:02d}",
@@ -62,6 +63,8 @@ async def get_calendar_events(
                     "type": "birthday",
                     "label": f"{name}'s birthday",
                     "person_id": person.id,
+                    "person_name": name,
+                    "age_turning": age_turning,
                     "year_only": birth_precision == "month",
                     "source_name": None,
                     "source_type": None,
@@ -82,6 +85,7 @@ async def get_calendar_events(
                     "type": "remembrance",
                     "label": f"Remembering {name}",
                     "person_id": person.id,
+                    "person_name": name,
                     "year_only": death_precision == "month",
                     "source_name": None,
                     "source_type": None,
@@ -106,6 +110,7 @@ async def get_calendar_events(
         day = start_date.day if partnership.start_date_precision != "month" else 1
         name_a = names_by_id.get(partnership.person_a_id, "?")
         name_b = names_by_id.get(partnership.person_b_id, "?")
+        anniversary_years = year - start_date.year if start_date.year and year >= start_date.year else None
         events.append(
             {
                 "date": f"{year:04d}-{month:02d}-{day:02d}",
@@ -113,6 +118,9 @@ async def get_calendar_events(
                 "type": "anniversary",
                 "label": f"{name_a} & {name_b} anniversary",
                 "person_id": None,
+                "name_a": name_a,
+                "name_b": name_b,
+                "anniversary_years": anniversary_years,
                 "year_only": partnership.start_date_precision == "month",
                 "source_name": None,
                 "source_type": None,
@@ -400,6 +408,9 @@ async def _fetch_external_source_events(
                 "label": summary,
                 "person_id": None,
                 "year_only": False,
+                "person_name": None,
+                "age_turning": None,
+                "anniversary_years": None,
                 "source_name": source.name,
                 "source_type": source.source_type,
             }

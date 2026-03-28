@@ -128,11 +128,8 @@ surfaces:
   moments_and_timeline:
     file_globs:
       - app/templates/timeline.html
-      - app/templates/calendar.html
       - app/templates/partials/timeline_events.html
-      - app/templates/partials/calendar_grid.html
       - app/routes/timeline.py
-      - app/routes/calendar.py
     routes:
       - /timeline
       - /moments
@@ -153,6 +150,38 @@ surfaces:
       - content_prominence
       - readability
       - workflow_clarity
+
+  calendar_workspace:
+    file_globs:
+      - app/templates/calendar.html
+      - app/templates/partials/calendar_grid.html
+      - app/routes/calendar.py
+      - app/services/calendar_service.py
+      - app/static/css/main.css
+    routes:
+      - /calendar
+      - /calendar/feed.ics
+    primary_personas:
+      - contributing_member
+    safety_personas:
+      - family_admin
+      - mobile_first_relative
+    required_scenarios:
+      - view_month_and_toggle_layers
+      - open_manage_calendars_and_subscribe
+      - inspect_day_details_and_upcoming_events
+      - add_holiday_layer_or_recover_from_empty_state
+    required_viewports:
+      - desktop
+      - mobile
+    required_locales:
+      - en
+      - es
+    visual_rubric:
+      - content_prominence
+      - control_discoverability
+      - workflow_clarity
+      - mobile_fit
 
   media_and_tagging:
     file_globs:
@@ -292,6 +321,14 @@ scenario_library:
     summary: User contributes a lightweight memory or note without process friction.
   view_recent_family_activity:
     summary: User understands recent family contributions from the activity surface.
+  view_month_and_toggle_layers:
+    summary: User lands on the calendar, immediately understands the month view, and can control visible event layers without hunting.
+  open_manage_calendars_and_subscribe:
+    summary: User opens calendar management, finds a desired family or holiday feed, and completes a clear subscribe or copy action.
+  inspect_day_details_and_upcoming_events:
+    summary: User can inspect a busy day or month and still understand what is happening soon and why it matters.
+  add_holiday_layer_or_recover_from_empty_state:
+    summary: User recovers from an empty or sparse calendar by following an obvious path to add family or holiday layers.
   upload_media:
     summary: User adds media and sees a coherent upload state.
   tag_people_in_media:

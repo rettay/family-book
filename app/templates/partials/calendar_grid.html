@@ -1,165 +1,333 @@
-<div class="cal" id="calendar-grid" aria-label="Family calendar for {{ month_name }} {{ year }}">
-  {# Month navigation #}
-  <div class="cal__nav">
-    <button class="btn btn--sm cal__nav-btn"
-            hx-get="/partials/calendar-grid?month={{ prev_month }}"
-            hx-target="#calendar-grid-container"
-            hx-swap="innerHTML"
-            aria-label="{{ t('calendar.previous_month') }}">&larr;</button>
-    <h2 class="cal__month-title">{{ month_name }} {{ year }}</h2>
-    <select class="cal__jump-select" aria-label="{{ t('calendar.jump_to_month') }}"
-            onchange="if(this.value) htmx.ajax('GET','/partials/calendar-grid?month='+this.value,{target:'#calendar-grid-container',swap:'innerHTML'})">
-      {% for m in range(1, 13) %}
-      <option value="{{ year }}-{{ '%02d' % m }}" {% if m == month %}selected{% endif %}>{{ t('calendar.month_' + m|string) }}</option>
-      {% endfor %}
-    </select>
-    <button class="btn btn--sm cal__nav-btn"
-            hx-get="/partials/calendar-grid?month={{ next_month }}"
-            hx-target="#calendar-grid-container"
-            hx-swap="innerHTML"
-            aria-label="{{ t('calendar.next_month') }}">&rarr;</button>
-  </div>
-
-  {# Event type filter #}
-  <div class="cal__filters" role="group" aria-label="Event type filters">
-    <label class="cal__filter">
-      <input type="checkbox" checked onchange="toggleCalFilter('birthday', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--birthday"></span> {{ t('calendar.birthdays') }}
-    </label>
-    <label class="cal__filter">
-      <input type="checkbox" checked onchange="toggleCalFilter('remembrance', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--remembrance"></span> {{ t('calendar.remembrances') }}
-    </label>
-    <label class="cal__filter">
-      <input type="checkbox" checked onchange="toggleCalFilter('anniversary', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--anniversary"></span> {{ t('calendar.anniversaries') }}
-    </label>
-    <label class="cal__filter">
-      <input type="checkbox" checked onchange="toggleCalFilter('external', this.checked)">
-      <span class="cal__filter-dot cal__filter-dot--external"></span> {{ t('calendar.external_events') }}
-    </label>
-  </div>
-
-  {# Desktop grid view #}
-  <div class="cal__grid" role="grid" aria-label="Calendar grid">
-    <div class="cal__grid-header" role="row">
-      {% for dh in day_headers %}
-      <div class="cal__grid-header-cell" role="columnheader">{{ dh }}</div>
-      {% endfor %}
-    </div>
-    {% for week in grid %}
-    <div class="cal__grid-row" role="row">
-      {% for day in week %}
-      {% if day %}
-      <div class="cal__grid-cell {% if day == today_day %}cal__grid-cell--today{% endif %} {% if day in events_by_day %}cal__grid-cell--has-events{% endif %}"
-           role="gridcell"
-           {% if day in events_by_day %}tabindex="0" onclick="showDayDetail({{ day }})" onkeydown="if(event.key==='Enter')showDayDetail({{ day }})"{% endif %}
-           aria-label="{{ month_name }} {{ day }}{% if day in events_by_day %}, {{ events_by_day[day]|length }} event{{ 's' if events_by_day[day]|length > 1 else '' }}{% endif %}">
-        <span class="cal__grid-day-num">{{ day }}</span>
-        {% if day in events_by_day %}
-        <div class="cal__grid-dots">
-          {% for ev in events_by_day[day][:3] %}
-          <span class="cal__dot cal__dot--{{ ev.type }}" data-event-type="{{ ev.type }}" title="{{ ev.label }}"></span>
-          {% endfor %}
-          {% if events_by_day[day]|length > 3 %}
-          <span class="cal__dot-more">+{{ events_by_day[day]|length - 3 }}</span>
-          {% endif %}
-        </div>
-        {% endif %}
+<div
+  class="cal"
+  id="calendar-grid"
+  aria-label="Family calendar for {{ month_name }} {{ year }}"
+  data-default-selected-day="{{ default_selected_day or '' }}"
+  data-current-month="{{ 'true' if today_day else 'false' }}"
+  data-today-day="{{ today_day or '' }}"
+>
+  <div class="cal__toolbar">
+    <div class="cal__nav">
+      <button class="btn btn--sm cal__nav-btn"
+              hx-get="/partials/calendar-grid?month={{ prev_month }}"
+              hx-target="#calendar-grid-container"
+              hx-swap="innerHTML"
+              aria-label="{{ t('calendar.previous_month') }}">&larr;</button>
+      <div class="cal__nav-copy">
+        <h2 class="cal__month-title">{{ month_name }} {{ year }}</h2>
+        <p class="cal__month-subtitle">{{ t('calendar.this_month_title') }}</p>
       </div>
-      {% else %}
-      <div class="cal__grid-cell cal__grid-cell--empty" role="gridcell" aria-hidden="true"></div>
-      {% endif %}
-      {% endfor %}
+      <select class="cal__jump-select" aria-label="{{ t('calendar.jump_to_month') }}"
+              onchange="if(this.value) htmx.ajax('GET','/partials/calendar-grid?month='+this.value,{target:'#calendar-grid-container',swap:'innerHTML'})">
+        {% for m in range(1, 13) %}
+        <option value="{{ year }}-{{ '%02d' % m }}" {% if m == month %}selected{% endif %}>{{ t('calendar.month_' + m|string) }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn--sm cal__nav-btn"
+              hx-get="/partials/calendar-grid?month={{ next_month }}"
+              hx-target="#calendar-grid-container"
+              hx-swap="innerHTML"
+              aria-label="{{ t('calendar.next_month') }}">&rarr;</button>
+      <button class="btn btn--ghost btn--sm cal__today-btn"
+              hx-get="/partials/calendar-grid?month={{ today_month }}"
+              hx-target="#calendar-grid-container"
+              hx-swap="innerHTML">
+        {{ t('calendar.today_button') }}
+      </button>
     </div>
-    {% endfor %}
+
+    <div class="cal__filters" role="group" aria-label="{{ t('calendar.filters_title') }}">
+      <label class="cal__filter">
+        <input type="checkbox" checked data-calendar-filter="birthday">
+        <span class="cal__filter-dot cal__filter-dot--birthday"></span> {{ t('calendar.birthdays') }}
+      </label>
+      <label class="cal__filter">
+        <input type="checkbox" checked data-calendar-filter="anniversary">
+        <span class="cal__filter-dot cal__filter-dot--anniversary"></span> {{ t('calendar.anniversaries') }}
+      </label>
+      <label class="cal__filter">
+        <input type="checkbox" checked data-calendar-filter="remembrance">
+        <span class="cal__filter-dot cal__filter-dot--remembrance"></span> {{ t('calendar.remembrances') }}
+      </label>
+      <label class="cal__filter">
+        <input type="checkbox" checked data-calendar-filter="external">
+        <span class="cal__filter-dot cal__filter-dot--external"></span> {{ t('calendar.external_events') }}
+      </label>
+    </div>
   </div>
 
-  {# Mobile list view #}
-  <div class="cal__list" role="list" aria-label="Calendar events list">
-    {% if events %}
-    {% set ns = namespace(current_day=0) %}
-    {% for ev in events %}
-    {% if ev.day != ns.current_day %}
-    {% set ns.current_day = ev.day %}
-    <div class="cal__list-date" role="heading" aria-level="3">{{ month_name }} {{ ev.day }}</div>
-    {% endif %}
-    <div class="cal__list-event cal__list-event--{{ ev.type }}" role="listitem" data-event-type="{{ ev.type }}">
-      <span class="cal__dot cal__dot--{{ ev.type }}"></span>
-      <span class="cal__list-label">
-        {{ ev.label }}
-        {% if ev.source_name %}
-        <span class="cal__list-source">{{ ev.source_name }}</span>
-        {% endif %}
-      </span>
-    </div>
-    {% endfor %}
-    {% else %}
-    <p class="cal__empty">{{ t('calendar.no_events') }}</p>
-    {% endif %}
-  </div>
+  <div class="cal__surface">
+    <div class="cal__main">
+      <div class="cal__grid" role="grid" aria-label="{{ t('calendar.grid_title') }}">
+        <div class="cal__grid-header" role="row">
+          {% for dh in day_headers %}
+          <div class="cal__grid-header-cell" role="columnheader">{{ dh }}</div>
+          {% endfor %}
+        </div>
+        {% for week in grid %}
+        <div class="cal__grid-row" role="row">
+          {% for day in week %}
+          {% if day %}
+          <div
+            class="cal__grid-cell {% if day == today_day %}cal__grid-cell--today{% endif %}"
+            role="gridcell"
+            data-day="{{ day }}"
+            tabindex="0"
+            aria-label="{{ month_name }} {{ day }}"
+          >
+            <span class="cal__grid-day-num">{{ day }}</span>
+            <div class="cal__grid-events" data-day-events="{{ day }}"></div>
+          </div>
+          {% else %}
+          <div class="cal__grid-cell cal__grid-cell--empty" role="gridcell" aria-hidden="true"></div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
 
-  {# Day detail panel (populated via JS) #}
-  <div class="cal__day-detail" id="cal-day-detail" role="dialog" aria-label="Day events" aria-hidden="true">
-    <div class="cal__day-detail-header">
-      <h3 class="cal__day-detail-title" id="cal-day-detail-title"></h3>
-      <button class="btn btn--sm" onclick="closeDayDetail()" aria-label="Close">&times;</button>
+      <div class="cal__list" id="cal-list" role="list" aria-label="{{ t('calendar.agenda_title') }}"></div>
     </div>
-    <div class="cal__day-detail-body" id="cal-day-detail-body"></div>
+
+    <aside class="cal__sidebar">
+      <section class="cal__panel">
+        <div class="cal__panel-head">
+          <h3>{{ t('calendar.upcoming_title') }}</h3>
+          <p>{{ t('calendar.upcoming_copy') }}</p>
+        </div>
+        <div class="cal__upcoming" id="cal-upcoming-list"></div>
+      </section>
+
+      <section class="cal__panel cal__panel--detail" id="cal-day-detail" aria-live="polite">
+        <div class="cal__panel-head">
+          <h3 id="cal-day-detail-title">{{ t('calendar.selected_day_title') }}</h3>
+          <p id="cal-day-detail-subtitle">{{ t('calendar.selected_day_copy') }}</p>
+        </div>
+        <div class="cal__day-detail-body" id="cal-day-detail-body"></div>
+      </section>
+    </aside>
   </div>
 </div>
 
 <script>
 (function() {
-  // Store events for day detail panel
+  var root = document.getElementById('calendar-grid');
+  if (!root) return;
+
   var calEvents = {{ events | tojson }};
   var monthName = {{ month_name | tojson }};
   var noEventsLabel = {{ t('calendar.no_events_day') | tojson }};
+  var noUpcomingLabel = {{ t('calendar.no_upcoming_events') | tojson }};
+  var selectedDayTitle = {{ t('calendar.selected_day_title') | tojson }};
+  var filterState = window.familyBookCalendarFilters || { birthday: true, anniversary: true, remembrance: true, external: true };
+  var isCurrentMonth = root.getAttribute('data-current-month') === 'true';
+  var todayDay = Number(root.getAttribute('data-today-day')) || null;
+  var selectedDay = null;
 
-  window.showDayDetail = function(day) {
-    var detail = document.getElementById('cal-day-detail');
-    var title = document.getElementById('cal-day-detail-title');
-    var body = document.getElementById('cal-day-detail-body');
-    var dayEvents = calEvents.filter(function(e) { return e.day === day; });
-    title.textContent = monthName + ' ' + day;
-    body.innerHTML = '';
-    if (dayEvents.length === 0) {
-      body.innerHTML = '<p class="text-muted">' + noEventsLabel + '</p>';
-    } else {
-      dayEvents.forEach(function(ev) {
-        var div = document.createElement('div');
-        div.className = 'cal__day-detail-event cal__day-detail-event--' + ev.type;
-        div.setAttribute('data-event-type', ev.type);
-        var dot = document.createElement('span');
-        dot.className = 'cal__dot cal__dot--' + ev.type;
-        var label = document.createElement('span');
-        label.textContent = ev.label;
-        if (ev.source_name) {
-          var source = document.createElement('span');
-          source.className = 'cal__day-detail-source';
-          source.textContent = ' · ' + ev.source_name;
-          label.appendChild(source);
-        }
-        div.appendChild(dot);
-        div.appendChild(label);
-        body.appendChild(div);
-      });
-    }
-    detail.setAttribute('aria-hidden', 'false');
-    detail.classList.add('cal__day-detail--open');
-  };
-
-  window.closeDayDetail = function() {
-    var detail = document.getElementById('cal-day-detail');
-    detail.setAttribute('aria-hidden', 'true');
-    detail.classList.remove('cal__day-detail--open');
-  };
-
-  window.toggleCalFilter = function(eventType, visible) {
-    var items = document.querySelectorAll('[data-event-type="' + eventType + '"]');
-    items.forEach(function(el) {
-      el.style.display = visible ? '' : 'none';
+  function visibleEvents() {
+    return calEvents.filter(function(event) {
+      return filterState[event.type] !== false;
     });
-  };
+  }
+
+  function eventsForDay(day) {
+    return visibleEvents().filter(function(event) {
+      return event.day === day;
+    });
+  }
+
+  function buildEventChip(event) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'cal__event-chip cal__event-chip--' + event.type;
+    chip.setAttribute('data-event-type', event.type);
+    chip.title = event.display_label || event.label;
+    chip.textContent = event.display_short_label || event.display_label || event.label;
+    chip.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      showDayDetail(event.day);
+    });
+    return chip;
+  }
+
+  function renderGrid() {
+    Array.prototype.slice.call(root.querySelectorAll('[data-day]')).forEach(function(cell) {
+      var day = Number(cell.getAttribute('data-day'));
+      var slot = cell.querySelector('[data-day-events]');
+      var dayEvents = eventsForDay(day);
+      slot.replaceChildren();
+      cell.classList.toggle('cal__grid-cell--has-events', dayEvents.length > 0);
+      cell.setAttribute('aria-label', monthName + ' ' + day + (dayEvents.length ? ', ' + dayEvents.length + ' events' : ''));
+      dayEvents.slice(0, 2).forEach(function(event) {
+        slot.appendChild(buildEventChip(event));
+      });
+      if (dayEvents.length > 2) {
+        var more = document.createElement('span');
+        more.className = 'cal__dot-more';
+        more.textContent = '+' + (dayEvents.length - 2);
+        slot.appendChild(more);
+      }
+    });
+  }
+
+  function renderAgenda() {
+    var list = document.getElementById('cal-list');
+    if (!list) return;
+    list.replaceChildren();
+    var day = null;
+    visibleEvents().forEach(function(event) {
+      if (event.day !== day) {
+        day = event.day;
+        var heading = document.createElement('div');
+        heading.className = 'cal__list-date';
+        heading.setAttribute('role', 'heading');
+        heading.setAttribute('aria-level', '3');
+        heading.textContent = monthName + ' ' + day;
+        list.appendChild(heading);
+      }
+      var row = document.createElement('div');
+      row.className = 'cal__list-event cal__list-event--' + event.type;
+      row.setAttribute('role', 'listitem');
+      row.setAttribute('data-event-type', event.type);
+      var badge = document.createElement('span');
+      badge.className = 'cal__dot cal__dot--' + event.type;
+      var label = document.createElement('span');
+      label.className = 'cal__list-label';
+      label.textContent = event.display_label || event.label;
+      if (event.source_name) {
+        var source = document.createElement('span');
+        source.className = 'cal__list-source';
+        source.textContent = ' · ' + event.source_name;
+        label.appendChild(source);
+      }
+      row.appendChild(badge);
+      row.appendChild(label);
+      row.addEventListener('click', function() { showDayDetail(event.day); });
+      list.appendChild(row);
+    });
+    if (!list.childNodes.length) {
+      var empty = document.createElement('p');
+      empty.className = 'cal__empty';
+      empty.textContent = noEventsLabel;
+      list.appendChild(empty);
+    }
+  }
+
+  function renderUpcoming() {
+    var upcoming = document.getElementById('cal-upcoming-list');
+    if (!upcoming) return;
+    upcoming.replaceChildren();
+    var entries = visibleEvents();
+    if (isCurrentMonth && todayDay) {
+      var futureEntries = entries.filter(function(event) {
+        return event.day >= todayDay;
+      });
+      if (futureEntries.length) entries = futureEntries;
+    }
+    entries = entries.slice(0, 6);
+    if (!entries.length) {
+      var empty = document.createElement('p');
+      empty.className = 'cal__empty';
+      empty.textContent = noUpcomingLabel;
+      upcoming.appendChild(empty);
+      return;
+    }
+    entries.forEach(function(event) {
+      var row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'cal__upcoming-item cal__upcoming-item--' + event.type;
+      row.addEventListener('click', function() { showDayDetail(event.day); });
+      var day = document.createElement('span');
+      day.className = 'cal__upcoming-day';
+      day.textContent = event.day;
+      var text = document.createElement('span');
+      text.className = 'cal__upcoming-copy';
+      var title = document.createElement('strong');
+      title.textContent = event.display_label || event.label;
+      text.appendChild(title);
+      var meta = document.createElement('span');
+      meta.textContent = event.source_name || event.type_label || '';
+      text.appendChild(meta);
+      row.appendChild(day);
+      row.appendChild(text);
+      upcoming.appendChild(row);
+    });
+  }
+
+  function renderDayDetail(day) {
+    var title = document.getElementById('cal-day-detail-title');
+    var subtitle = document.getElementById('cal-day-detail-subtitle');
+    var body = document.getElementById('cal-day-detail-body');
+    var dayEvents = eventsForDay(day);
+    title.textContent = day ? (monthName + ' ' + day) : selectedDayTitle;
+    subtitle.textContent = dayEvents.length ? '' : noEventsLabel;
+    body.replaceChildren();
+    if (!dayEvents.length) {
+      var empty = document.createElement('p');
+      empty.className = 'cal__empty';
+      empty.textContent = noEventsLabel;
+      body.appendChild(empty);
+      return;
+    }
+    dayEvents.forEach(function(event) {
+      var row = document.createElement('div');
+      row.className = 'cal__day-detail-event cal__day-detail-event--' + event.type;
+      var badge = document.createElement('span');
+      badge.className = 'cal__dot cal__dot--' + event.type;
+      var text = document.createElement('div');
+      text.className = 'cal__day-detail-copy';
+      var label = document.createElement('strong');
+      label.textContent = event.display_label || event.label;
+      text.appendChild(label);
+      var meta = document.createElement('span');
+      meta.textContent = event.source_name ? ((event.type_label || '') + ' · ' + event.source_name).trim() : (event.type_label || '');
+      text.appendChild(meta);
+      row.appendChild(badge);
+      row.appendChild(text);
+      body.appendChild(row);
+    });
+  }
+
+  function showDayDetail(day) {
+    selectedDay = day;
+    renderDayDetail(day);
+  }
+
+  function applyFilters() {
+    window.familyBookCalendarFilters = filterState;
+    renderGrid();
+    renderAgenda();
+    renderUpcoming();
+    if (!eventsForDay(selectedDay).length) {
+      var first = visibleEvents()[0];
+      selectedDay = first ? first.day : null;
+    }
+    renderDayDetail(selectedDay);
+  }
+
+  Array.prototype.slice.call(root.querySelectorAll('[data-calendar-filter]')).forEach(function(input) {
+    input.checked = filterState[input.getAttribute('data-calendar-filter')] !== false;
+    input.addEventListener('change', function() {
+      filterState[input.getAttribute('data-calendar-filter')] = input.checked;
+      applyFilters();
+    });
+  });
+
+  Array.prototype.slice.call(root.querySelectorAll('[data-day]')).forEach(function(cell) {
+    cell.addEventListener('click', function() {
+      var day = Number(cell.getAttribute('data-day'));
+      if (eventsForDay(day).length) showDayDetail(day);
+    });
+    cell.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        var day = Number(cell.getAttribute('data-day'));
+        if (eventsForDay(day).length) showDayDetail(day);
+      }
+    });
+  });
+
+  selectedDay = Number(root.getAttribute('data-default-selected-day')) || (visibleEvents()[0] && visibleEvents()[0].day) || null;
+  applyFilters();
 })();
 </script>

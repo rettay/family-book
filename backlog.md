@@ -1,34 +1,34 @@
 # Family Book Backlog
 
-Sprint: `S28 - Genealogy-Grade Tree Semantics and Complex Families`
+Sprint: `S29 - Calendar as Primary Surface and Family Calendar Discovery`
 Status: Planning
 
-## Current Sprint `S28 - Genealogy-Grade Tree Semantics and Complex Families`
+## Current Sprint `S29 - Calendar as Primary Surface and Family Calendar Discovery`
 
 Sprint goal:
-- Make the tree trustworthy for real multigenerational families by adopting a genealogy-grade layout foundation, rendering multiple households and non-biological relationships correctly, and handling shipped edge cases such as unknown parents and sparse detached branches without sacrificing readability. Non-person nodes are deferred pending a separate entity-model decision.
+- Make `/calendar` feel like a consumer family calendar instead of a feed-plumbing page by elevating the month view to the hero surface, moving subscriptions into a clear management layer, improving event meaning and density handling, and making holiday layers discoverable on desktop and mobile.
 
 Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-039 | Genealogy Graph Architecture and Family-Unit Layout Foundation | P0 | todo | `task_packets/FB-039_genealogy_graph_architecture_and_family_unit_layout_foundation.md` |
-| FB-040 | Multi-Partnership Households and Remarriage Correctness | P1 | todo | `task_packets/FB-040_multi_partnership_households_and_remarriage_correctness.md` |
-| FB-041 | Genogram Semantics for Non-Biological and Partnership States | P1 | todo | `task_packets/FB-041_genogram_semantics_for_non_biological_and_partnership_states.md` |
-| FB-042 | Unknown Parents and Sparse-Branch Readability | P2 | todo | `task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md` |
+| FB-043 | Calendar Primary Surface and Layout Hierarchy | P0 | todo | `task_packets/FB-043_calendar_primary_surface_and_layout_hierarchy.md` |
+| FB-044 | Manage Calendars Drawer and Subscription UX | P1 | todo | `task_packets/FB-044_manage_calendars_drawer_and_subscription_ux.md` |
+| FB-045 | Calendar Event Density, Discovery, and Detail Intelligence | P1 | todo | `task_packets/FB-045_calendar_event_density_discovery_and_detail_intelligence.md` |
+| FB-046 | Guided Holiday Layers, Mobile Agenda, and Empty States | P1 | todo | `task_packets/FB-046_guided_holiday_layers_mobile_agenda_and_empty_states.md` |
 
 Execution slices:
-- `S28-1` Family-unit layout foundation and layered genealogy graph
-- `S28-2` Multi-household/remarriage correctness
-- `S28-3` Genogram semantics for non-biological and partnership states
-- `S28-4` Unknown parents and sparse-branch readability
+- `S29-1` Calendar hero layout and page shell
+- `S29-2` Manage Calendars grouping, search, and subscribe actions
+- `S29-3` Event density, detail intelligence, and upcoming discovery
+- `S29-4` Holiday-layer onboarding, mobile agenda, and empty-state recovery
 
 ## Planned Follow-Up Sprints
 
 | Sprint | Title | Packets | Status |
 |---|---|---|---|
-| S29 | Research UX Overhaul and Test Infrastructure | FB-031, FB-032 | candidate |
-| S30 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
+| S30 | Research UX Overhaul and Test Infrastructure | FB-031, FB-032 | candidate |
+| S31 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
 
 ## Long Horizon
 

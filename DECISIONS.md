@@ -114,3 +114,14 @@ The existing `medical_history` field is a single encrypted text blob — adequat
 - Family health dashboard for cross-person condition aggregation
 
 All genetic and medical data is encrypted at rest. Visibility policy for health/genetic data across family members requires an explicit decision before implementation — the current flat-access model may need a per-field or per-person opt-in for this category.
+
+### 19. Calendar is a primary family surface; feed management is secondary
+
+`/calendar` is not a feed-administration page. Its primary job is to help family members understand what is happening this month and why it matters. The month or agenda surface should therefore be the hero at first render, while outbound subscriptions and inbound holiday/source configuration live behind a clear secondary management affordance such as `Manage Calendars` or `Add Holidays`.
+
+Implications:
+
+- the calendar surface should be visible above the fold before any long list of feed links
+- family-feed subscription and holiday-layer setup are distinct concepts in the UI
+- raw URLs are transport details, not the main UX
+- event detail should emphasize family meaning such as birthdays, anniversaries, and upcoming milestones rather than generic labels alone

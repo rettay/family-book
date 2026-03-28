@@ -216,6 +216,24 @@ assert_run "admin can create a new person from the browser flow" \
 assert_run "tree focus recovery controls restore the focused person from URL context" \
   "${PWCLI}" run-code "async page => { const focusId = await page.evaluate(() => new window.URL(window.location.href).searchParams.get('focus')); if (!focusId) throw new Error('missing focus parameter'); await page.locator('#tree-focus-status').waitFor(); const focusText = await page.locator('#tree-focus-status').textContent(); if (!focusText || !focusText.includes('Playwright Relative')) throw new Error('focus status missing focused person'); await page.locator('#tree-center-root').click(); await page.waitForTimeout(700); await page.locator('#tree-return-focus').click(); await page.waitForTimeout(700); const box = await page.locator('#tree-svg [data-id=\"' + focusId + '\"]').first().boundingBox(); if (!box) throw new Error('focused node not found'); const viewport = page.viewportSize(); const centerOffset = Math.abs((box.x + box.width / 2) - (viewport.width / 2)); if (centerOffset > 180) throw new Error('return-to-focus did not recenter the focused node'); }"
 
+"${PWCLI}" goto "${BASE_URL}/calendar?month=2026-03"
+"${PWCLI}" run-code "async page => { await page.locator('#calendar-grid').waitFor(); await page.locator('#cal-upcoming-list .cal__upcoming-item').first().waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/calendar-hero.png" --full-page true >/dev/null
+
+assert_run "calendar lands on the month surface before feed management" \
+  "${PWCLI}" run-code "async page => { const grid = await page.locator('#calendar-grid').boundingBox(); if (!grid) throw new Error('calendar grid missing'); const viewport = page.viewportSize(); if (grid.y > viewport.height - 120) throw new Error('calendar grid rendered below the initial viewport'); if (await page.locator('#calendar-manager').isVisible()) throw new Error('calendar manager should be hidden by default'); const title = await page.locator('.calendar-page__title').textContent(); if (!title || !title.includes('Family Calendar')) throw new Error('calendar title missing'); }"
+
+assert_run "calendar surfaces richer family-event labels in month discovery rails" \
+  "${PWCLI}" run-code "async page => { const text = await page.locator('#calendar-grid').textContent(); if (!text || !text.includes('Tyler Martin turns 41')) throw new Error('birthday age label missing from calendar'); if (!text.includes('12th anniversary')) throw new Error('anniversary years label missing from calendar'); }"
+
+assert_run "calendar manager groups feed actions and supports search plus copy" \
+  "${PWCLI}" run-code "async page => { await page.evaluate(() => { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async (value) => { window.__calendarCopied = value; } } }); window.__calendarCopied = ''; }); await page.getByRole('button', { name: 'Manage Calendars' }).click(); await page.locator('#calendar-manager:not([hidden])').waitFor(); const managerText = await page.locator('#calendar-manager').textContent(); if (!managerText || !managerText.includes('Family overview') || !managerText.includes('Focused feed slices')) throw new Error('calendar manager missing grouped feed sections'); const search = page.locator('#calendar-feed-search'); await search.fill('clean recurring'); await page.waitForFunction(() => document.querySelectorAll('[data-feed-card]:not([hidden])').length === 1); const visibleCopy = page.locator('[data-feed-card]:not([hidden]) [data-calendar-copy-link]').first(); await visibleCopy.click(); await page.waitForFunction(() => !!window.__calendarCopied); const copied = await page.evaluate(() => window.__calendarCopied || ''); if (!copied.includes('/calendar/feed.ics?token=')) throw new Error('calendar copy action did not capture feed URL'); }"
+
+assert_run "calendar holiday manager exposes preset layers separately from family feeds" \
+  "${PWCLI}" run-code "async page => { await page.locator('[data-calendar-manager-close]').first().click(); await page.waitForFunction(() => document.getElementById('calendar-manager')?.hidden === true); await page.getByRole('button', { name: 'Add Holidays' }).click(); await page.locator('#calendar-manager:not([hidden])').waitFor(); const section = page.locator('#calendar-holidays'); await section.scrollIntoViewIfNeeded(); const text = await section.textContent(); if (!text || !text.includes('United States holidays')) throw new Error('holiday presets missing from manager'); if (!text.includes('Imported calendars')) throw new Error('holiday/import section missing enabled layers section'); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/calendar-manager.png" --full-page true >/dev/null
+"${PWCLI}" run-code "async page => { await page.locator('[data-calendar-manager-close]').first().click(); await page.waitForFunction(() => document.getElementById('calendar-manager')?.hidden === true); }"
+
 "${PWCLI}" goto "${BASE_URL}/wiki/tyler-martin"
 "${PWCLI}" run-code "async page => { await page.locator('.wiki-infobox').waitFor(); await page.locator('.wiki-infobox__social-link').first().waitFor(); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/wiki-person.png" --full-page true >/dev/null
@@ -238,6 +256,13 @@ assert_run "tree quick edit details surface uses locale strings in Spanish" \
 
 assert_run "person edit surface uses locale strings for social and date controls" \
   "${PWCLI}" run-code "async page => { const socialHeading = page.getByRole('heading', { name: 'Perfiles Sociales' }); await socialHeading.waitFor(); const birthInput = page.locator('#edit-birth-date-text'); await birthInput.waitFor(); const placeholder = await birthInput.getAttribute('placeholder'); if (!placeholder || !placeholder.includes('1985')) throw new Error('birth date unified input missing Spanish placeholder'); const calBtn = page.locator('.date-input-unified__picker-btn').first(); const calTitle = await calBtn.getAttribute('title'); if (calTitle !== 'Calendario') throw new Error('calendar button title not Spanish: ' + calTitle); }"
+
+"${PWCLI}" goto "${BASE_URL}/calendar?month=2026-03"
+"${PWCLI}" run-code "async page => { await page.locator('#calendar-grid').waitFor(); await page.locator('#cal-upcoming-list').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/calendar-es.png" --full-page true >/dev/null
+
+assert_run "calendar surface uses locale strings in Spanish" \
+  "${PWCLI}" run-code "async page => { const gridText = await page.locator('#calendar-grid').textContent(); if (!gridText || !gridText.includes('12 años')) throw new Error('calendar anniversary copy did not localize to Spanish'); await page.getByRole('button', { name: 'Gestionar calendarios' }).click(); await page.locator('#calendar-manager:not([hidden])').waitFor(); const managerText = await page.locator('#calendar-manager').textContent(); if (!managerText || !managerText.includes('Cerrar')) throw new Error('calendar manager close label not localized to Spanish'); if (managerText.includes('common.close')) throw new Error('calendar manager leaked raw close i18n key'); await page.locator('[data-calendar-manager-close]').first().click(); await page.waitForFunction(() => document.getElementById('calendar-manager')?.hidden === true); }"
 
 "${PWCLI}" cookie-set locale en --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
 
@@ -264,6 +289,15 @@ assert_run "admin dashboard exposes backup status and theme controls" \
   "${PWCLI}" run-code "async page => { const text = await page.locator('#backup-status').textContent(); if (!text || !text.includes('Protected fields')) throw new Error('backup status missing'); if (!await page.locator('#theme-settings-form').count()) throw new Error('theme form missing'); }"
 
 "${PWCLI}" resize 390 844
+"${PWCLI}" goto "${BASE_URL}/calendar?month=2026-03"
+"${PWCLI}" run-code "async page => { await page.locator('#calendar-grid').waitFor(); await page.locator('#cal-list').waitFor(); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/calendar-mobile.png" --full-page true >/dev/null
+
+assert_run "calendar mobile view uses agenda fallback without overflow" \
+  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('calendar page overflows horizontally on mobile'); const listVisible = await page.locator('#cal-list').evaluate((el) => getComputedStyle(el).display !== 'none'); const gridVisible = await page.locator('.cal__grid').evaluate((el) => getComputedStyle(el).display !== 'none'); if (!listVisible || gridVisible) throw new Error('calendar mobile view did not use agenda fallback'); const managerBtn = await page.getByRole('button', { name: 'Manage Calendars' }).boundingBox(); if (!managerBtn) throw new Error('calendar manager button missing on mobile'); }"
+
+"${PWCLI}" goto "${BASE_URL}/admin"
+"${PWCLI}" run-code "async page => { await page.locator('#admin-page').waitFor(); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/admin-mobile.png" --full-page true >/dev/null
 
 assert_run "admin dashboard avoids horizontal overflow on mobile" \

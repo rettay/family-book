@@ -2,84 +2,86 @@
 
 ## Current Sprint
 
-### `S28 - Genealogy-Grade Tree Semantics and Complex Families`
+### `S29 - Calendar as Primary Surface and Family Calendar Discovery`
 
 Status: Planned
 
 ### Sprint Goal
 
-Make the tree trustworthy for real family structures by moving from heuristic person-only layout toward genealogy-grade family-unit semantics, then layering in correct handling for remarriage, adoptions and other non-biological relationships, and shipped edge cases such as unknown parents and detached sparse branches. Non-person nodes such as pets and institutions are deferred pending a separate entity-model decision.
+Make `/calendar` feel like the place families actually use: the month view should be the hero above the fold, feed management should move into a deliberate secondary layer, family and holiday subscriptions should be easy to discover and understand, and dense months should still communicate meaningful event context on desktop and mobile.
 
 ### Why This Sprint Next
 
-Recent live debugging showed the core blocker is no longer basic tree availability but tree truthfulness. The database can be correct while the rendered graph still misleads members about spouses, in-laws, siblings, and parents. This is a direct hit to CFLSR because once the tree looks wrong, members stop trusting it enough to contribute. The next sprint should therefore improve semantic correctness before adding more peripheral features.
+Recent calendar work delivered functionality, inbound/outbound ICS support, and correct event plumbing, but the live UX is still configuration-first. The current page opens with a wall of raw subscription links and admin controls before the actual month grid, which makes the product feel like feed infrastructure rather than a family calendar. This is a direct hit to CFLSR because the surface that should reward date entry and drive recurring visits is visually buried and thin on meaning. The next sprint should therefore convert `/calendar` into a primary member-facing surface before expanding adjacent features.
 
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 39 | FB-039 | Genealogy Graph Architecture and Family-Unit Layout Foundation | P0 | todo |
-| 40 | FB-040 | Multi-Partnership Households and Remarriage Correctness | P1 | todo |
-| 41 | FB-041 | Genogram Semantics for Non-Biological and Partnership States | P1 | todo |
-| 42 | FB-042 | Unknown Parents and Sparse-Branch Readability | P2 | todo |
+| 43 | FB-043 | Calendar Primary Surface and Layout Hierarchy | P0 | todo |
+| 44 | FB-044 | Manage Calendars Drawer and Subscription UX | P1 | todo |
+| 45 | FB-045 | Calendar Event Density, Discovery, and Detail Intelligence | P1 | todo |
+| 46 | FB-046 | Guided Holiday Layers, Mobile Agenda, and Empty States | P1 | todo |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S28-1 | Family-unit layout foundation and layered genealogy graph | planned |
-| S28-2 | Multi-household/remarriage correctness | planned |
-| S28-3 | Genogram semantics for non-biological and partnership states | planned |
-| S28-4 | Unknown parents and sparse-branch readability | planned |
+| S29-1 | Calendar hero layout and page shell | planned |
+| S29-2 | Grouped feed management and subscribe actions | planned |
+| S29-3 | Event density, details, and discovery | planned |
+| S29-4 | Holiday onboarding, mobile agenda, and empty-state recovery | planned |
 
 ### Sprint Exit Criteria
 
 The sprint is successful when all are true:
 
-- tree layout uses explicit family-unit semantics rather than treating partner edges as decorative afterthoughts
-- spouses, co-parents, and in-laws no longer read like false ancestry in seeded and prod-like cases
-- one person can participate in multiple households without duplication and without attaching children to the wrong partner
-- current/former partnership states and at least one non-biological parent-child kind are visually distinguishable
-- relationship cues are understandable to non-expert family members through a legend or equally clear affordance
-- single-parent and unknown-parent structures render truthfully without inventing unsupported facts
-- detached branches and lightly connected people remain readable on desktop and mobile
-- the shipped launch scope does not imply support for pets, institutions, or other non-person nodes that the model does not provide
-- i18n parity is maintained for all new tree-facing copy across `en`, `es`, and `ru`
+- the calendar month or agenda surface is visible above the fold on first load and clearly dominates `/calendar`
+- feed and source management are available through a secondary `Manage Calendars` style interaction rather than a raw wall of links
+- outbound subscriptions are grouped and action-oriented, with truthful support for the feed scopes the product exposes
+- family subscriptions and holiday layers are clearly separated concepts in the UI
+- birthdays and anniversaries carry meaningful context such as age-turning and years-married when data supports it
+- mixed family and imported events are visually distinguishable and dense months remain readable
+- desktop includes an adjacent discovery surface such as selected-day or upcoming context
+- mobile provides a usable agenda/list-first recovery path without management clutter taking over the screen
+- empty or sparse states invite setup through obvious next actions instead of dead labels
+- i18n parity is maintained for all new calendar-facing copy across `en`, `es`, and `ru`
 - test and browser baselines remain intact
 
 ### Verification Expectations
 
 - Structural lane:
-  - CodeMap over `tree_workspace` for each packet
+  - CodeMap over `calendar_workspace` for each packet
 - Rendered-behavior lane:
-  - deterministic Playwright geometry/assertion coverage for households, remarriage, non-biological ties, and sparse branches
+  - deterministic Playwright checks for first-viewport hierarchy, feed management interactions, dense-month behavior, holiday setup, and mobile agenda usability
 - Visual/persona lane:
   - persona-backed desktop and mobile review for `contributing_member`, `family_admin`, and `mobile_first_relative`
 
 ### Risks to Watch
 
-- layout-engine refactor may become a stealth rewrite if packet boundaries slip
-- multi-partnership correctness can tempt duplicate-person shortcuts
-- genogram semantics can become too expert-coded or too subtle to matter
-- non-person support can sprawl into a broader entity-model project if not tightly bounded, so it is explicitly deferred out of this sprint
+- page-shell work can quietly sprawl into a broad design-system rewrite if packet boundaries slip
+- feed grouping can become untruthful if UI promises branch/person feeds the backend does not actually serve
+- holiday onboarding can regress back into raw-URL-first behavior if preset support is weak
+- dense-month improvements can add noise instead of clarity if event styling is not tested on real crowded data
+- mobile management patterns can hide or clip critical actions if not explicitly validated
 
-### Deferred Beyond S28
+### Deferred Beyond S29
 
 | ID | Title | Reason |
 |---|---|---|
-| G-11 | Fan Chart / Pedigree View | Alternative view mode; blocked on main tree semantics being trustworthy first |
-| G-12 | Duplicate Person Detection and Merge | Valuable but not the current trust blocker on `/tree` |
-| G-14 | Print / Export Family Sheet | Better tackled after the tree semantics stabilize |
-| FB-031 | Research Tools UX Overhaul | Important but lower priority than fixing core tree truthfulness |
-| FB-032 | i18n Test Parity | Should still land, but can ship in the next sprint once tree packet copy stabilizes |
+| G-15 | Calendar notifications / reminders | Useful but lower leverage than fixing the primary calendar UX first |
+| G-16 | Week view / multi-view calendar modes | Valuable later; month and agenda clarity are the current blocker |
+| G-17 | Persistent subscription tracking / favorites | Nice-to-have only after truthful grouped subscription UX exists |
+| FB-031 | Research Tools UX Overhaul | Important but lower priority than making `/calendar` a credible recurring-use surface |
+| FB-032 | i18n Test Parity | Should still land, but can ship after calendar copy stabilizes |
 
 ### Context
 
 - Packet files:
-  - `task_packets/FB-039_genealogy_graph_architecture_and_family_unit_layout_foundation.md`
-  - `task_packets/FB-040_multi_partnership_households_and_remarriage_correctness.md`
-  - `task_packets/FB-041_genogram_semantics_for_non_biological_and_partnership_states.md`
-  - `task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md`
+  - `task_packets/FB-043_calendar_primary_surface_and_layout_hierarchy.md`
+  - `task_packets/FB-044_manage_calendars_drawer_and_subscription_ux.md`
+  - `task_packets/FB-045_calendar_event_density_discovery_and_detail_intelligence.md`
+  - `task_packets/FB-046_guided_holiday_layers_mobile_agenda_and_empty_states.md`
 
 ---
 

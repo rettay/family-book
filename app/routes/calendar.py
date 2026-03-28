@@ -138,6 +138,11 @@ class CalendarEvent(BaseModel):
     type: str
     label: str
     person_id: str | None
+    person_name: str | None = None
+    name_a: str | None = None
+    name_b: str | None = None
+    age_turning: int | None = None
+    anniversary_years: int | None = None
     year_only: bool = False
     source_name: str | None = None
     source_type: str | None = None
@@ -150,24 +155,188 @@ class CalendarResponse(BaseModel):
     events: list[CalendarEvent]
 
 
-def _build_feed_links(current_user: Person) -> list[dict[str, str]]:
-    feed_definitions = [
-        ("calendar.feed_all", None),
-        ("calendar.feed_birthdays", {"birthday"}),
-        ("calendar.feed_remembrances", {"remembrance"}),
-        ("calendar.feed_anniversaries", {"anniversary"}),
-        ("calendar.feed_external", {"external"}),
-    ]
-    links = []
-    for label_key, event_types in feed_definitions:
-        links.append(
+_FEED_GROUP_DEFINITIONS = (
+    (
+        "calendar.feed_group_family",
+        "calendar.feed_group_family_copy",
+        (
+            ("calendar.feed_all", "calendar.feed_all_desc", None),
+        ),
+    ),
+    (
+        "calendar.feed_group_event_types",
+        "calendar.feed_group_event_types_copy",
+        (
+            ("calendar.feed_birthdays", "calendar.feed_birthdays_desc", {"birthday"}),
+            ("calendar.feed_anniversaries", "calendar.feed_anniversaries_desc", {"anniversary"}),
+            ("calendar.feed_remembrances", "calendar.feed_remembrances_desc", {"remembrance"}),
+            ("calendar.feed_external", "calendar.feed_external_desc", {"external"}),
+        ),
+    ),
+)
+
+_HOLIDAY_PRESETS = (
+    {
+        "label_key": "calendar.preset_us_holidays",
+        "name": "US Holidays",
+        "url": "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics",
+        "source_type": "holiday",
+    },
+    {
+        "label_key": "calendar.preset_australia_holidays",
+        "name": "Australia Holidays",
+        "url": "https://calendar.google.com/calendar/ical/en.australian%23holiday%40group.v.calendar.google.com/public/basic.ics",
+        "source_type": "holiday",
+    },
+    {
+        "label_key": "calendar.preset_argentina_holidays",
+        "name": "Argentina Holidays",
+        "url": "https://calendar.google.com/calendar/ical/en.ar%23holiday%40group.v.calendar.google.com/public/basic.ics",
+        "source_type": "holiday",
+    },
+    {
+        "label_key": "calendar.preset_italy_holidays",
+        "name": "Italy Holidays",
+        "url": "https://calendar.google.com/calendar/ical/en.italian%23holiday%40group.v.calendar.google.com/public/basic.ics",
+        "source_type": "holiday",
+    },
+)
+
+
+def _ordinal_en(value: int) -> str:
+    if 10 <= value % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(value % 10, "th")
+    return f"{value}{suffix}"
+
+
+def _decorate_calendar_events(events: list[dict], locale: str) -> list[dict]:
+    def t(key: str) -> str:
+        return translate(key, locale)
+
+    decorated: list[dict] = []
+    for event in events:
+        item = dict(event)
+        item["type_label"] = t(f"calendar.type_{event['type']}")
+        item["source_badge"] = None
+        if event["type"] == "birthday":
+            person_name = event.get("person_name") or event["label"].removesuffix("'s birthday")
+            if event.get("age_turning"):
+                item["display_label"] = t("calendar.event_birthday_turns").format(
+                    name=person_name,
+                    age=event["age_turning"],
+                )
+                item["display_short_label"] = t("calendar.event_turns_short").format(age=event["age_turning"])
+            else:
+                item["display_label"] = t("calendar.event_birthday").format(name=person_name)
+                item["display_short_label"] = person_name
+        elif event["type"] == "anniversary":
+            name_a = event.get("name_a") or "?"
+            name_b = event.get("name_b") or "?"
+            if event.get("anniversary_years"):
+                years_value = int(event["anniversary_years"])
+                if locale == "en":
+                    years_label = _ordinal_en(years_value)
+                    label_key = "calendar.event_anniversary_years"
+                    short_key = "calendar.event_anniversary_short"
+                else:
+                    years_label = str(years_value)
+                    label_key = "calendar.event_anniversary_years_count"
+                    short_key = "calendar.event_anniversary_short_count"
+                item["display_label"] = t(label_key).format(name_a=name_a, name_b=name_b, years=years_label)
+                item["display_short_label"] = t(short_key).format(years=years_label)
+            else:
+                item["display_label"] = t("calendar.event_anniversary").format(name_a=name_a, name_b=name_b)
+                item["display_short_label"] = t("calendar.anniversaries")
+        elif event["type"] == "remembrance":
+            person_name = event.get("person_name") or event["label"].replace("Remembering ", "", 1)
+            item["display_label"] = t("calendar.event_remembrance").format(name=person_name)
+            item["display_short_label"] = person_name
+        else:
+            item["display_label"] = event["label"]
+            item["display_short_label"] = event["label"]
+
+        if event.get("source_name"):
+            source_type = event.get("source_type") or "other"
+            source_key = f"calendar.source_type_{source_type}"
+            source_label = translate(source_key, locale)
+            item["source_badge"] = source_label if source_label != source_key else source_type
+
+        decorated.append(item)
+    return decorated
+
+
+def _build_feed_groups(current_user: Person, locale: str) -> list[dict]:
+    def t(key: str) -> str:
+        return translate(key, locale)
+
+    groups: list[dict] = []
+    for title_key, copy_key, items in _FEED_GROUP_DEFINITIONS:
+        group_items = []
+        for label_key, description_key, event_types in items:
+            label = t(label_key)
+            description = t(description_key)
+            group_items.append(
+                {
+                    "label_key": label_key,
+                    "label": label,
+                    "description": description,
+                    "https_url": build_calendar_feed_url(current_user.calendar_feed_token, event_types=event_types),
+                    "webcal_url": build_calendar_feed_url(current_user.calendar_feed_token, event_types=event_types, webcal=True),
+                    "search_text": f"{label} {description}".lower(),
+                }
+            )
+        groups.append(
             {
-                "label_key": label_key,
-                "https_url": build_calendar_feed_url(current_user.calendar_feed_token, event_types=event_types),
-                "webcal_url": build_calendar_feed_url(current_user.calendar_feed_token, event_types=event_types, webcal=True),
+                "title": t(title_key),
+                "copy": t(copy_key),
+                "items": group_items,
             }
         )
-    return links
+    return groups
+
+
+def _build_holiday_presets(locale: str) -> list[dict]:
+    def t(key: str) -> str:
+        return translate(key, locale)
+
+    presets: list[dict] = []
+    for preset in _HOLIDAY_PRESETS:
+        presets.append(
+            {
+                **preset,
+                "label": t(preset["label_key"]),
+                "source_type_label": t("calendar.source_type_holiday"),
+            }
+        )
+    return presets
+
+
+def _build_calendar_stats(events: list[dict], locale: str) -> list[dict]:
+    def t(key: str) -> str:
+        return translate(key, locale)
+
+    counts = {"birthday": 0, "anniversary": 0, "remembrance": 0, "external": 0}
+    for event in events:
+        counts[event["type"]] = counts.get(event["type"], 0) + 1
+    return [
+        {"label": t("calendar.birthdays"), "value": counts["birthday"], "type": "birthday"},
+        {"label": t("calendar.anniversaries"), "value": counts["anniversary"], "type": "anniversary"},
+        {"label": t("calendar.remembrances"), "value": counts["remembrance"], "type": "remembrance"},
+        {"label": t("calendar.external_events"), "value": counts["external"], "type": "external"},
+    ]
+
+
+def _default_selected_day(events: list[dict], year: int, month: int) -> int | None:
+    if not events:
+        return None
+    today = date.today()
+    if today.year == year and today.month == month:
+        same_or_future = [event["day"] for event in events if event["day"] >= today.day]
+        if same_or_future:
+            return same_or_future[0]
+    return events[0]["day"]
 
 
 @router.get("/api/calendar", response_model=CalendarResponse)
@@ -326,7 +495,10 @@ async def calendar_page(
 
     month_name = t(f"calendar.month_{mon}")
     day_headers = [t(key) for key in DAY_HEADER_KEYS]
+    rendered_events = _decorate_calendar_events(events, locale)
     external_sources = await list_external_calendar_sources(db) if current_user.is_admin else []
+    enabled_external_sources = await list_external_calendar_sources(db, enabled_only=True)
+    visible_external_sources = external_sources if current_user.is_admin else enabled_external_sources
     settings = get_settings()
 
     return templates.TemplateResponse(
@@ -339,15 +511,22 @@ async def calendar_page(
             month=mon,
             month_name=month_name,
             grid=grid,
-            events=events,
+            events=rendered_events,
             events_by_day=events_by_day,
             day_headers=day_headers,
             today_day=date.today().day if date.today().year == year and date.today().month == mon else None,
+            today_month=f"{date.today().year:04d}-{date.today().month:02d}",
             prev_month=prev_month,
             next_month=next_month,
             current_month=f"{year:04d}-{mon:02d}",
             external_sources=external_sources,
-            calendar_feed_links=_build_feed_links(current_user),
+            enabled_external_sources=enabled_external_sources,
+            visible_external_sources=visible_external_sources,
+            calendar_feed_groups=_build_feed_groups(current_user, locale),
+            holiday_presets=_build_holiday_presets(locale),
+            calendar_stats=_build_calendar_stats(rendered_events, locale),
+            default_selected_day=_default_selected_day(rendered_events, year, mon),
+            sparse_month=len(rendered_events) < 4,
             calendar_feed_token=current_user.calendar_feed_token,
             base_url=settings.BASE_URL.rstrip("/"),
         ),
@@ -451,6 +630,7 @@ async def partial_calendar_grid(
 
     month_name = t(f"calendar.month_{mon}")
     day_headers = [t(key) for key in DAY_HEADER_KEYS]
+    rendered_events = _decorate_calendar_events(events, locale)
 
     return templates.TemplateResponse(
         "partials/calendar_grid.html",
@@ -461,12 +641,14 @@ async def partial_calendar_grid(
             month=mon,
             month_name=month_name,
             grid=grid,
-            events=events,
+            events=rendered_events,
             events_by_day=events_by_day,
             day_headers=day_headers,
             today_day=date.today().day if date.today().year == year and date.today().month == mon else None,
+            today_month=f"{date.today().year:04d}-{date.today().month:02d}",
             prev_month=prev_month,
             next_month=next_month,
             current_month=f"{year:04d}-{mon:02d}",
+            default_selected_day=_default_selected_day(rendered_events, year, mon),
         ),
     )

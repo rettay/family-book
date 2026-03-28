@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from sqlalchemy import select
 
 from app.models.person import Person
+from app.routes.calendar import _decorate_calendar_events
 from app.services.calendar_service import clear_external_calendar_cache
 
 
@@ -68,6 +69,8 @@ async def test_calendar_events_have_expected_fields(admin_client: AsyncClient):
     ev = birthday_events[0]
     assert ev["day"] == 15
     assert "person_id" in ev
+    assert ev["person_name"] == "CalendarTest Person"
+    assert ev["age_turning"] == 36
 
 
 @pytest.mark.asyncio
@@ -105,7 +108,9 @@ async def test_calendar_partnership_anniversary(admin_client: AsyncClient):
     data = resp.json()
     anniv_events = [e for e in data["events"] if e["type"] == "anniversary"]
     assert len(anniv_events) >= 1
-    assert any("AnnivA" in e["label"] or "AnnivB" in e["label"] for e in anniv_events)
+    matching = [e for e in anniv_events if "AnnivA" in e["label"] or "AnnivB" in e["label"]]
+    assert matching
+    assert matching[0]["anniversary_years"] == 26
 
 
 @pytest.mark.asyncio
@@ -128,6 +133,9 @@ async def test_calendar_page_renders(admin_client: AsyncClient):
     assert resp.status_code == 200
     # Title comes from i18n key calendar.title (en: "Family Calendar")
     assert "Family Calendar" in resp.text
+    assert resp.text.index('id="calendar-grid-container"') < resp.text.index('id="calendar-manager"')
+    assert "Close" in resp.text
+    assert "common.close" not in resp.text
 
 
 @pytest.mark.asyncio
@@ -198,7 +206,45 @@ async def test_calendar_page_renders_external_sources_panel_for_admin(admin_clie
     assert resp.status_code == 200
     assert "Imported calendars" in resp.text
     assert "Add feed" in resp.text
+    assert "Manage Calendars" in resp.text
     assert "Subscribe to this calendar" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_calendar_page_uses_richer_event_labels(admin_client: AsyncClient):
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "Aging",
+        "last_name": "Person",
+        "birth_date": "1990-03-15",
+        "birth_date_precision": "exact",
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/partials/calendar-grid?month=2026-03")
+    assert resp.status_code == 200
+    assert "Aging Person turns 36" in resp.text
+
+
+def test_calendar_event_decoration_uses_locale_safe_anniversary_copy():
+    events = _decorate_calendar_events(
+        [
+            {
+                "date": "2026-03-20",
+                "day": 20,
+                "type": "anniversary",
+                "label": "Pareja Uno & Pareja Dos anniversary",
+                "person_id": None,
+                "name_a": "Pareja Uno",
+                "name_b": "Pareja Dos",
+                "anniversary_years": 12,
+                "source_name": None,
+                "source_type": None,
+            }
+        ],
+        "es",
+    )
+    assert events[0]["display_label"] == "Pareja Uno y Pareja Dos celebran 12 años juntos"
+    assert events[0]["display_short_label"] == "12 años"
 
 
 @pytest.mark.asyncio
