@@ -828,10 +828,15 @@ body.has-overlay { overflow: hidden; }
   stroke-width: 4;
   filter: drop-shadow(0 4px 14px rgba(36, 87, 182, 0.22));
 }
+.person-node--selected circle.photo-clip {
+  stroke: #1d4ed8;
+  stroke-width: 6;
+  filter: drop-shadow(0 6px 18px rgba(29, 78, 216, 0.34));
+}
 .person-node--lineage circle.photo-clip {
   stroke: #2457b6;
-  stroke-width: 4.5;
-  filter: drop-shadow(0 4px 16px rgba(36, 87, 182, 0.28));
+  stroke-width: 5;
+  filter: drop-shadow(0 4px 16px rgba(36, 87, 182, 0.3));
 }
 .person-node--lineage text.name-label,
 .person-node--lineage text.rel-label,
@@ -839,14 +844,24 @@ body.has-overlay { overflow: hidden; }
   fill: #1d4ed8;
   font-weight: 700;
 }
+.person-node--selected text.name-label,
+.person-node--selected text.rel-label,
+.person-node--selected text.metric-label {
+  fill: #1d4ed8;
+  font-weight: 800;
+}
 .person-node--lineage rect.metric-pill {
   fill: rgba(219, 234, 254, 0.96);
   stroke: rgba(37, 99, 235, 0.45);
 }
+.person-node--selected rect.metric-pill {
+  fill: rgba(219, 234, 254, 0.98);
+  stroke: rgba(29, 78, 216, 0.6);
+}
 .person-node--context circle.photo-clip {
   stroke: var(--green-deep);
-  stroke-width: 3;
-  filter: drop-shadow(0 2px 10px rgba(45, 80, 22, 0.18));
+  stroke-width: 3.5;
+  filter: drop-shadow(0 2px 10px rgba(45, 80, 22, 0.2));
 }
 .person-node--context text.name-label,
 .person-node--context text.rel-label,
@@ -857,6 +872,21 @@ body.has-overlay { overflow: hidden; }
 .person-node--context rect.metric-pill {
   fill: rgba(231, 244, 224, 0.96);
   stroke: rgba(45, 80, 22, 0.24);
+}
+.person-node--muted {
+  opacity: 0.26;
+}
+.person-node--muted circle.photo-clip {
+  filter: none !important;
+}
+.person-node--muted text.name-label,
+.person-node--muted text.rel-label,
+.person-node--muted text.metric-label {
+  fill: rgba(77, 68, 55, 0.6);
+}
+.person-node--muted rect.metric-pill {
+  fill: rgba(255, 253, 248, 0.72);
+  stroke: rgba(201, 188, 171, 0.42);
 }
 .person-node--root circle.photo-clip {
   stroke-dasharray: 5 3;
@@ -879,6 +909,9 @@ body.has-overlay { overflow: hidden; }
   opacity: 0.9;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+.tree-edge--muted {
+  opacity: 0.15 !important;
 }
 .family-unit-anchor {
   fill: var(--warm-white);

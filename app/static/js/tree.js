@@ -1959,7 +1959,24 @@
     });
   }
 
-  function drawComponentFrames(layout) {
+  function componentLineLabel(component, structures, detachedIndex) {
+    var person = structures && structures.personsById ? structures.personsById[component.id] : null;
+    var surname = person && (person.last_name || person.birth_last_name || '').trim();
+    if (surname) {
+      return formatTemplate(root.dataset.treeDetachedLineTemplate || '{surname} line', {
+        surname: surname
+      });
+    }
+    var displayName = person && person.display_name ? person.display_name.trim() : '';
+    if (displayName) {
+      return formatTemplate(root.dataset.treeDetachedLineTemplate || '{surname} line', {
+        surname: displayName
+      });
+    }
+    return formatTemplate(root.dataset.treeDetachedComponentTemplate, {index: detachedIndex});
+  }
+
+  function drawComponentFrames(layout, structures) {
     if (!layout || !layout.components || layout.components.length < 2) {
       return;
     }
@@ -1987,7 +2004,7 @@
         .attr('class', 'tree-component-label')
         .attr('x', frameX + 20)
         .attr('y', frameY + 28)
-        .text(formatTemplate(root.dataset.treeDetachedComponentTemplate, {index: detachedIndex}));
+        .text(componentLineLabel(component, structures, detachedIndex));
     });
   }
 
@@ -2008,8 +2025,12 @@
 
   function applyContextHighlight(personId, structures) {
     d3.selectAll('.tree-node')
+      .classed('tree-node--selected', false)
       .classed('tree-node--context', false)
-      .classed('tree-node--lineage', false);
+      .classed('tree-node--lineage', false)
+      .classed('tree-node--muted', false);
+    d3.selectAll('.parent-child-line, .partnership-line, .partnership-knot')
+      .classed('tree-edge--muted', false);
     if (!personId || !structures) {
       return;
     }
@@ -2039,11 +2060,25 @@
     });
 
     d3.selectAll('.tree-node')
+      .classed('tree-node--selected', function() {
+        return d3.select(this).attr('data-person-id') === personId;
+      })
       .classed('tree-node--context', function() {
         return contextIds.has(d3.select(this).attr('data-person-id'));
       })
       .classed('tree-node--lineage', function() {
         return lineageIds.has(d3.select(this).attr('data-person-id'));
+      })
+      .classed('tree-node--muted', function() {
+        return !contextIds.has(d3.select(this).attr('data-person-id'));
+      });
+
+    d3.selectAll('.parent-child-line, .partnership-line, .partnership-knot')
+      .classed('tree-edge--muted', function() {
+        var el = d3.select(this);
+        var from = el.attr('data-from');
+        var to = el.attr('data-to');
+        return !((from && contextIds.has(from)) || (to && contextIds.has(to)));
       });
   }
 
@@ -2323,7 +2358,7 @@
     }
 
     drawGenerationBands(layout);
-    drawComponentFrames(layout);
+    drawComponentFrames(layout, structures);
 
     var lineGen = d3.line().curve(d3.curveBumpY);
     treeData.parent_child.forEach(function(parentChild) {

@@ -281,6 +281,7 @@
     "focus_current_template": "En foco: {name}",
     "generation_label": "Generación {index}",
     "detached_component": "Rama separada {index}",
+    "detached_line": "Línea {surname}",
     "family_context": "Contexto familiar",
     "family_context_hint": "Usa este resumen rápido para verificar a esta persona antes de editar relaciones.",
     "child_of": "Hijo/a de",
