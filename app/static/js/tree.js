@@ -2062,6 +2062,7 @@
         (isFocusPerson ? ' person-node--focus' : '') +
         (isRootPerson ? ' person-node--root' : ''))
       .attr('data-id', person.id)
+      .attr('data-render-label', nodeLabel)
       .attr('data-person-id', person.id)
       .attr('transform', 'translate(' + node.x + ',' + node.y + ')')
       .attr('tabindex', '0')
