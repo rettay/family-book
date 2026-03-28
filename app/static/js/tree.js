@@ -1917,82 +1917,6 @@
       .text(label);
   }
 
-  function collectFamilyUnits(structures, layout, pcKindLookup) {
-    var familyUnits = [];
-    var coveredEdges = {};
-    (structures.familyUnits || []).forEach(function(structuralUnit) {
-      var parentIds = (structuralUnit.parentIds || []).filter(function(parentId) {
-        return !!layout.nodePositions[parentId];
-      });
-      if (!parentIds.length) {
-        return;
-      }
-      var childIds = (structuralUnit.childIds || []).filter(function(childId) {
-        return !!layout.nodePositions[childId];
-      });
-      if (!childIds.length) {
-        return;
-      }
-      var renderChildIds = [];
-      var childKinds = {};
-      childIds.forEach(function(childId) {
-        var edgeKinds = parentIds.map(function(parentId) {
-          return pcKindLookup[parentId + '|' + childId] || null;
-        }).filter(Boolean);
-        if (!edgeKinds.length) {
-          return;
-        }
-        var firstKind = edgeKinds[0];
-        var allSameKind = edgeKinds.every(function(kind) {
-          return kind === firstKind;
-        });
-        if (!allSameKind) {
-          return;
-        }
-        renderChildIds.push(childId);
-        childKinds[childId] = firstKind;
-        parentIds.forEach(function(parentId) {
-          coveredEdges[parentId + '|' + childId] = true;
-        });
-      });
-      var renderByKind = {};
-      renderChildIds.forEach(function(childId) {
-        var renderKind = childKinds[childId] || 'biological';
-        if (!renderByKind[renderKind]) {
-          renderByKind[renderKind] = [];
-        }
-        renderByKind[renderKind].push(childId);
-      });
-      Object.keys(renderByKind).forEach(function(renderKind) {
-        familyUnits.push({
-          key: structuralUnit.key + '|kind:' + renderKind,
-          renderKey: structuralUnit.renderKey,
-          parentIds: parentIds.slice(),
-          childIds: childIds.slice(),
-          renderChildIds: renderByKind[renderKind].slice(),
-          childKinds: childKinds,
-          partnershipKind: structuralUnit.partnershipKind || null,
-          partnershipStatus: structuralUnit.partnershipStatus || null,
-          unitType: structuralUnit.unitType || 'family'
-        });
-      });
-    });
-
-    familyUnits.forEach(function(unit) {
-      unit.childIds.sort(function(a, b) {
-        return layout.nodePositions[a].x - layout.nodePositions[b].x;
-      });
-      unit.renderChildIds.sort(function(a, b) {
-        return layout.nodePositions[a].x - layout.nodePositions[b].x;
-      });
-    });
-
-    return {
-      familyUnits: familyUnits,
-      coveredEdges: coveredEdges
-    };
-  }
-
   function drawGenerationBands(layout) {
     var targetNodes = layout && layout.primaryComponent ? layout.primaryComponent.nodes : layout.allNodes;
     var levels = {};
@@ -2086,9 +2010,6 @@
     d3.selectAll('.tree-node')
       .classed('tree-node--context', false)
       .classed('tree-node--lineage', false);
-    d3.selectAll('.parent-child-line, .partnership-line, .partnership-knot, .family-unit-parent-link, .family-unit-stem, .family-unit-rail, .family-unit-drop')
-      .classed('edge--context', false)
-      .classed('edge--lineage', false);
     if (!personId || !structures) {
       return;
     }
@@ -2104,11 +2025,6 @@
           }
         });
       }
-    }
-
-    function attrIds(el, attrName) {
-      var raw = el.attr(attrName) || '';
-      return raw ? raw.split('|').filter(Boolean) : [];
     }
 
     var lineageIds = new Set([personId]);
@@ -2128,47 +2044,6 @@
       })
       .classed('tree-node--lineage', function() {
         return lineageIds.has(d3.select(this).attr('data-person-id'));
-      });
-
-    d3.selectAll('.parent-child-line, .partnership-line, .partnership-knot, .family-unit-parent-link, .family-unit-stem, .family-unit-rail, .family-unit-drop')
-      .classed('edge--context', function() {
-        var el = d3.select(this);
-        var from = el.attr('data-from');
-        var to = el.attr('data-to');
-        var parentIds = attrIds(el, 'data-parent-ids');
-        var childIds = attrIds(el, 'data-child-ids');
-        if ((from && contextIds.has(from)) || (to && contextIds.has(to))) {
-          return true;
-        }
-        if (parentIds.some(function(parentId) { return contextIds.has(parentId); })) {
-          return true;
-        }
-        return childIds.some(function(childId) {
-          return contextIds.has(childId);
-        });
-      })
-      .classed('edge--lineage', function() {
-        var el = d3.select(this);
-        var from = el.attr('data-from');
-        var to = el.attr('data-to');
-        var parentIds = attrIds(el, 'data-parent-ids');
-        var childIds = attrIds(el, 'data-child-ids');
-        if (from && to && lineageIds.has(from) && lineageIds.has(to)) {
-          return true;
-        }
-        var hasLineageParent = parentIds.some(function(parentId) {
-          return lineageIds.has(parentId);
-        });
-        var hasLineageChild = childIds.some(function(childId) {
-          return lineageIds.has(childId);
-        });
-        if (hasLineageParent && hasLineageChild) {
-          return true;
-        }
-        if (from && to && ((lineageIds.has(from) && contextIds.has(to)) || (lineageIds.has(to) && contextIds.has(from)))) {
-          return el.classed('partnership-line') || el.classed('partnership-knot');
-        }
-        return false;
       });
   }
 
@@ -2447,22 +2322,11 @@
       currentFocusPersonId = '';
     }
 
-    // Build parent-child kind lookup: "parentId|childId" → kind
-    var pcKindLookup = {};
-    treeData.parent_child.forEach(function(pc) {
-      pcKindLookup[pc.parent_id + '|' + pc.child_id] = pc.kind || 'biological';
-    });
-
     drawGenerationBands(layout);
     drawComponentFrames(layout);
 
-    var families = collectFamilyUnits(structures, layout, pcKindLookup);
     var lineGen = d3.line().curve(d3.curveBumpY);
     treeData.parent_child.forEach(function(parentChild) {
-      var fromKey = parentChild.parent_id + '|' + parentChild.child_id;
-      if (families.coveredEdges[fromKey]) {
-        return;
-      }
       var parentPos = layout.nodePositions[parentChild.parent_id];
       var childPos = layout.nodePositions[parentChild.child_id];
       if (!parentPos || !childPos) {
@@ -2502,92 +2366,6 @@
         .attr('r', 5)
         .attr('data-from', partnership.person_a_id)
         .attr('data-to', partnership.person_b_id);
-    });
-
-    families.familyUnits.forEach(function(unit) {
-      if (!unit.renderChildIds.length) {
-        return;
-      }
-      var visibleParents = unit.parentIds.map(function(parentId) {
-        return layout.nodePositions[parentId] ? {
-          id: parentId,
-          pos: layout.nodePositions[parentId]
-        } : null;
-      }).filter(Boolean);
-      if (!visibleParents.length) {
-        return;
-      }
-      var familyCenterX = averageValues(visibleParents.map(function(parent) {
-        return parent.pos.x;
-      }));
-      var familyTopY = Math.max.apply(Math, visibleParents.map(function(parent) {
-        return parent.pos.y;
-      })) + NODE_RADIUS;
-      var familyRailY = familyTopY + 34;
-      var childXs = unit.renderChildIds.map(function(childId) {
-        return layout.nodePositions[childId].x;
-      });
-      var kind = unit.childKinds[unit.renderChildIds[0]] || 'biological';
-      var parentIdsAttr = visibleParents.map(function(parent) {
-        return parent.id;
-      }).join('|');
-      var childIdsAttr = unit.renderChildIds.join('|');
-
-      if (visibleParents.length > 1) {
-        visibleParents.forEach(function(parent) {
-          g.append('path')
-            .attr('class', 'family-unit-parent-link parent-child-line parent-child-line--' + kind)
-            .attr('data-from', parent.id)
-            .attr('data-to', unit.renderKey || unit.key)
-            .attr('data-parent-ids', parentIdsAttr)
-            .attr('data-child-ids', childIdsAttr)
-            .attr('d', 'M ' + parent.pos.x + ' ' + (parent.pos.y + NODE_RADIUS - 2) +
-              ' L ' + familyCenterX + ' ' + (familyTopY - 4));
-        });
-      }
-
-      g.append('line')
-        .attr('class', 'family-unit-stem parent-child-line parent-child-line--' + kind)
-        .attr('x1', familyCenterX)
-        .attr('y1', familyTopY - 4)
-        .attr('x2', familyCenterX)
-        .attr('y2', familyRailY)
-        .attr('data-family-unit', unit.renderKey || unit.key)
-        .attr('data-parent-ids', parentIdsAttr)
-        .attr('data-child-ids', childIdsAttr);
-      g.append('circle')
-        .attr('class', 'family-unit-anchor')
-        .attr('cx', familyCenterX)
-        .attr('cy', familyTopY - 6)
-        .attr('r', 5);
-      if (childXs.length > 1) {
-        g.append('line')
-          .attr('class', 'family-unit-rail parent-child-line parent-child-line--' + kind)
-          .attr('x1', Math.min.apply(Math, childXs))
-          .attr('y1', familyRailY)
-          .attr('x2', Math.max.apply(Math, childXs))
-          .attr('y2', familyRailY)
-          .attr('data-family-unit', unit.renderKey || unit.key)
-          .attr('data-parent-ids', parentIdsAttr)
-          .attr('data-child-ids', childIdsAttr);
-      }
-      unit.renderChildIds.forEach(function(childId) {
-        var childPos = layout.nodePositions[childId];
-        if (!childPos) {
-          return;
-        }
-        g.append('line')
-          .attr('class', 'family-unit-drop parent-child-line parent-child-line--' + kind)
-          .attr('x1', childPos.x)
-          .attr('y1', childXs.length > 1 ? familyRailY : familyTopY + 8)
-          .attr('x2', childPos.x)
-          .attr('y2', childPos.y - NODE_RADIUS)
-          .attr('data-from', unit.renderKey || unit.key)
-          .attr('data-parent-ids', parentIdsAttr)
-          .attr('data-child-ids', childIdsAttr)
-          .attr('marker-end', 'url(#tree-parent-arrow)')
-          .attr('data-to', childId);
-      });
     });
 
     layout.allNodes.forEach(function(node) {
