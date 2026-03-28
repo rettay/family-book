@@ -749,6 +749,19 @@ body.has-overlay { overflow: hidden; }
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+.tree-component-frame {
+  fill: rgba(255, 253, 248, 0.78);
+  stroke: rgba(125, 163, 98, 0.28);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 6;
+}
+.tree-component-label {
+  fill: rgba(45, 80, 22, 0.7);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 
 /* Tree nodes */
 .person-node { cursor: pointer; }
@@ -815,6 +828,10 @@ body.has-overlay { overflow: hidden; }
   stroke-width: 4;
   filter: drop-shadow(0 4px 14px rgba(36, 87, 182, 0.22));
 }
+.person-node--context circle.photo-clip {
+  stroke: var(--green-deep);
+  stroke-width: 3;
+}
 .person-node--root circle.photo-clip {
   stroke-dasharray: 5 3;
 }
@@ -846,6 +863,15 @@ body.has-overlay { overflow: hidden; }
 .family-unit-drop {
   stroke-width: 2.2;
   opacity: 0.72;
+}
+.partnership-knot {
+  fill: var(--warm-white);
+  stroke: var(--edge-partnership);
+  stroke-width: 2;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.08));
+}
+.tree-parent-arrow {
+  fill: var(--edge-biological);
 }
 
 /* Hover tooltip for tree nodes */
@@ -2393,6 +2419,7 @@ body.has-overlay { overflow: hidden; }
 
 /* Path highlight */
 .edge--path-highlight { stroke: var(--accent, #2563eb) !important; stroke-width: 3.5 !important; stroke-opacity: 1 !important; }
+.edge--context { stroke-width: 3 !important; stroke-opacity: 0.95 !important; }
 .tree-node--path-highlight circle.photo-clip { stroke: var(--accent, #2563eb) !important; stroke-width: 3 !important; }
 .tree-node--relcalc-selected circle.photo-clip { stroke: #059669 !important; stroke-width: 3 !important; }
 

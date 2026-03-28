@@ -280,6 +280,7 @@
     "no_focus_selected": "No focus person selected yet.",
     "focus_current_template": "Focused on {name}",
     "generation_label": "Generation {index}",
+    "detached_component": "Separate branch {index}",
     "family_context": "Family context",
     "family_context_hint": "Use this quick summary to verify this person before editing relationships.",
     "child_of": "Child of",

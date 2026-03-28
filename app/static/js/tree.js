@@ -29,6 +29,10 @@
   var NODE_SPACING_Y = 150;
   var PARTNER_GAP_X = 120;
   var FAMILY_UNIT_GAP_X = 190;
+  var COMPONENT_PADDING_X = 88;
+  var COMPONENT_PADDING_Y = 72;
+  var DETACHED_COMPONENT_GAP_X = 72;
+  var DETACHED_COMPONENT_GAP_Y = 110;
   var lastFitTransform = null;
   var currentRootPersonId = '';
   var currentFocusPersonId = '';
@@ -1119,10 +1123,11 @@
     return rootId;
   }
 
-  function layoutTree(rootId, parentToChildren, childToParents, partnerMap, familyUnitsByPair) {
+  function layoutTree(rootId, parentToChildren, childToParents, partnerMap, familyUnitsByPair, viewportWidth) {
     var visited = new Set();
     var nodePositions = {};
     var nodeLookup = {};
+    var components = [];
 
     function buildHierarchy(rootNodeId) {
       // Phase 1: Direction-aware BFS to assign generation depths.
@@ -1236,33 +1241,47 @@
       return nextX;
     }
 
-    var rootNode = buildHierarchy(rootId);
-    var maxDepth = {value: 0};
-    applyLayout(rootNode, 0, 60, maxDepth);
-
-    var allNodes = [];
-    function collectNodes(node) {
-      allNodes.push(node);
-      nodeLookup[node.id] = node;
-      nodePositions[node.id] = {x: node.x, y: node.y};
-      node.children.forEach(collectNodes);
+    function collectComponentNodes(rootNode) {
+      var nodes = [];
+      function walk(node) {
+        nodes.push(node);
+        nodeLookup[node.id] = node;
+        nodePositions[node.id] = {x: node.x, y: node.y};
+        node.children.forEach(walk);
+      }
+      walk(rootNode);
+      return nodes;
     }
-    collectNodes(rootNode);
 
-    var detachedY = (maxDepth.value + 2) * NODE_SPACING_Y + 60;
-    var detachedX = 0;
-    var unvisited = treeData.persons.filter(function(person) {
-      return !visited.has(person.id);
-    });
-    while (unvisited.length > 0) {
-      var componentRoot = buildHierarchy(unvisited[0].id);
-      var componentMaxDepth = {value: 0};
-      var nextX = applyLayout(componentRoot, detachedX, detachedY, componentMaxDepth);
-      collectNodes(componentRoot);
-      detachedX = nextX + NODE_SPACING_X / 2;
-      unvisited = treeData.persons.filter(function(person) {
-        return !visited.has(person.id);
+    function componentBounds(nodes) {
+      var minX = Infinity;
+      var maxX = -Infinity;
+      var minY = Infinity;
+      var maxY = -Infinity;
+      nodes.forEach(function(node) {
+        minX = Math.min(minX, node.x);
+        maxX = Math.max(maxX, node.x);
+        minY = Math.min(minY, node.y);
+        maxY = Math.max(maxY, node.y);
       });
+      return {
+        minX: minX,
+        maxX: maxX,
+        minY: minY,
+        maxY: maxY,
+        width: Math.max(maxX - minX, 0),
+        height: Math.max(maxY - minY, 0)
+      };
+    }
+
+    function shiftComponent(component, dx, dy) {
+      component.nodes.forEach(function(node) {
+        node.x += dx;
+        node.y += dy;
+        nodePositions[node.id].x = node.x;
+        nodePositions[node.id].y = node.y;
+      });
+      component.bounds = componentBounds(component.nodes);
     }
 
     function average(values) {
@@ -1286,6 +1305,189 @@
       }));
     }
 
+    function packComponentRows(component) {
+      var rowsByDepth = {};
+      component.nodes.forEach(function(node) {
+        if (!rowsByDepth[node.depth]) {
+          rowsByDepth[node.depth] = [];
+        }
+        rowsByDepth[node.depth].push(node);
+      });
+
+      Object.keys(rowsByDepth).forEach(function(depthKey) {
+        var rowNodes = rowsByDepth[depthKey].slice().sort(function(a, b) {
+          return a.x - b.x;
+        });
+        var nodeById = {};
+        rowNodes.forEach(function(node) {
+          nodeById[node.id] = node;
+        });
+
+        var pairItems = [];
+        Object.keys(familyUnitsByPair || {}).forEach(function(pairKey) {
+          var pair = pairKey.split('|');
+          var aId = pair[0];
+          var bId = pair[1];
+          var aNode = nodeById[aId];
+          var bNode = nodeById[bId];
+          if (!aNode || !bNode || aNode.depth !== bNode.depth) {
+            return;
+          }
+          var sharedChildren = (familyUnitsByPair[pairKey] || []).filter(function(childId) {
+            return !!nodePositions[childId];
+          });
+          if (!sharedChildren.length) {
+            return;
+          }
+          var desiredCenter = sharedChildren.reduce(function(total, childId) {
+            var childPosition = nodePositions[childId];
+            return total + (childPosition ? childPosition.x : 0);
+          }, 0) / sharedChildren.length;
+          pairItems.push({
+            type: 'pair',
+            ids: orderedPairIds(aId, bId, desiredCenter),
+            desiredCenter: desiredCenter,
+            width: PARTNER_GAP_X,
+            sharedChildren: sharedChildren
+          });
+        });
+
+        pairItems.sort(function(a, b) {
+          return b.sharedChildren.length - a.sharedChildren.length;
+        });
+
+        var claimed = {};
+        var items = [];
+        pairItems.forEach(function(item) {
+          if (claimed[item.ids[0]] || claimed[item.ids[1]]) {
+            return;
+          }
+          claimed[item.ids[0]] = true;
+          claimed[item.ids[1]] = true;
+          items.push(item);
+        });
+
+        rowNodes.forEach(function(node) {
+          if (claimed[node.id]) {
+            return;
+          }
+          items.push({
+            type: 'single',
+            ids: [node.id],
+            desiredCenter: node.x,
+            width: Math.max(NODE_SPACING_X * 0.95, (treeNodeLabel(lookupPerson(node.id)).length * 7))
+          });
+        });
+
+        items.sort(function(a, b) {
+          return a.desiredCenter - b.desiredCenter;
+        });
+
+        var previousRight = null;
+        items.forEach(function(item) {
+          var halfWidth = item.width / 2;
+          var center = item.desiredCenter;
+          if (previousRight !== null) {
+            center = Math.max(center, previousRight + FAMILY_UNIT_GAP_X / 2 + halfWidth);
+          }
+          item.center = center;
+          previousRight = center + halfWidth;
+        });
+
+        items.forEach(function(item) {
+          if (item.type === 'pair') {
+            var leftId = item.ids[0];
+            var rightId = item.ids[1];
+            var leftNode = nodeLookup[leftId];
+            var rightNode = nodeLookup[rightId];
+            var leftX = item.center - PARTNER_GAP_X / 2;
+            var rightX = item.center + PARTNER_GAP_X / 2;
+            if (leftNode) {
+              leftNode.x = leftX;
+              nodePositions[leftId].x = leftX;
+            }
+            if (rightNode) {
+              rightNode.x = rightX;
+              nodePositions[rightId].x = rightX;
+            }
+            return;
+          }
+          var singleId = item.ids[0];
+          var singleNode = nodeLookup[singleId];
+          if (singleNode) {
+            singleNode.x = item.center;
+            nodePositions[singleId].x = item.center;
+          }
+        });
+      });
+    }
+
+    var rootNode = buildHierarchy(rootId);
+    var maxDepth = {value: 0};
+    applyLayout(rootNode, 0, 0, maxDepth);
+    components.push({
+      id: rootNode.id,
+      isPrimary: true,
+      nodes: collectComponentNodes(rootNode),
+      bounds: null
+    });
+
+    var unvisited = treeData.persons.filter(function(person) {
+      return !visited.has(person.id);
+    });
+    while (unvisited.length > 0) {
+      var componentRoot = buildHierarchy(unvisited[0].id);
+      var componentMaxDepth = {value: 0};
+      applyLayout(componentRoot, 0, 0, componentMaxDepth);
+      components.push({
+        id: componentRoot.id,
+        isPrimary: false,
+        nodes: collectComponentNodes(componentRoot),
+        bounds: null
+      });
+      unvisited = treeData.persons.filter(function(person) {
+        return !visited.has(person.id);
+      });
+    }
+
+    components.forEach(function(component) {
+      packComponentRows(component);
+      component.bounds = componentBounds(component.nodes);
+    });
+
+    var primaryComponent = components[0];
+    shiftComponent(primaryComponent, COMPONENT_PADDING_X - primaryComponent.bounds.minX, 60 - primaryComponent.bounds.minY);
+
+    var availableWidth = Math.max((viewportWidth || 1400) - 120, 520);
+    var detachedTop = primaryComponent.bounds.maxY + NODE_SPACING_Y;
+    var cursorX = 40;
+    var cursorY = detachedTop;
+    var rowMaxHeight = 0;
+    components.slice(1).forEach(function(component) {
+      var neededWidth = component.bounds.width + COMPONENT_PADDING_X * 2;
+      var neededHeight = component.bounds.height + COMPONENT_PADDING_Y * 2;
+      if (cursorX > 40 && cursorX + neededWidth > availableWidth) {
+        cursorX = 40;
+        cursorY += rowMaxHeight + DETACHED_COMPONENT_GAP_Y;
+        rowMaxHeight = 0;
+      }
+      shiftComponent(
+        component,
+        cursorX + COMPONENT_PADDING_X - component.bounds.minX,
+        cursorY + COMPONENT_PADDING_Y - component.bounds.minY
+      );
+      cursorX += neededWidth + DETACHED_COMPONENT_GAP_X;
+      rowMaxHeight = Math.max(rowMaxHeight, neededHeight);
+    });
+
+    var allNodes = [];
+    components.forEach(function(component) {
+      component.bounds = componentBounds(component.nodes);
+      component.nodes.forEach(function(node) {
+        allNodes.push(node);
+      });
+    });
+
     function orderedPairIds(aId, bId, desiredCenter) {
       var aNode = nodeLookup[aId];
       var bNode = nodeLookup[bId];
@@ -1307,122 +1509,12 @@
       return [aId, bId];
     }
 
-    var rowsByDepth = {};
-    allNodes.forEach(function(node) {
-      if (!rowsByDepth[node.depth]) {
-        rowsByDepth[node.depth] = [];
-      }
-      rowsByDepth[node.depth].push(node);
-    });
-
-    Object.keys(rowsByDepth).forEach(function(depthKey) {
-      var rowNodes = rowsByDepth[depthKey].slice().sort(function(a, b) {
-        return a.x - b.x;
-      });
-      var nodeById = {};
-      rowNodes.forEach(function(node) {
-        nodeById[node.id] = node;
-      });
-
-      var pairItems = [];
-      Object.keys(familyUnitsByPair || {}).forEach(function(pairKey) {
-        var pair = pairKey.split('|');
-        var aId = pair[0];
-        var bId = pair[1];
-        var aNode = nodeById[aId];
-        var bNode = nodeById[bId];
-        if (!aNode || !bNode || aNode.depth !== bNode.depth) {
-          return;
-        }
-        var sharedChildren = (familyUnitsByPair[pairKey] || []).filter(function(childId) {
-          return !!nodePositions[childId];
-        });
-        if (!sharedChildren.length) {
-          return;
-        }
-        var desiredCenter = sharedChildren.reduce(function(total, childId) {
-          var childPosition = nodePositions[childId];
-          return total + (childPosition ? childPosition.x : 0);
-        }, 0) / sharedChildren.length;
-        pairItems.push({
-          type: 'pair',
-          ids: orderedPairIds(aId, bId, desiredCenter),
-          desiredCenter: desiredCenter,
-          width: PARTNER_GAP_X,
-          sharedChildren: sharedChildren
-        });
-      });
-
-      pairItems.sort(function(a, b) {
-        return b.sharedChildren.length - a.sharedChildren.length;
-      });
-
-      var claimed = {};
-      var items = [];
-      pairItems.forEach(function(item) {
-        if (claimed[item.ids[0]] || claimed[item.ids[1]]) {
-          return;
-        }
-        claimed[item.ids[0]] = true;
-        claimed[item.ids[1]] = true;
-        items.push(item);
-      });
-
-      rowNodes.forEach(function(node) {
-        if (claimed[node.id]) {
-          return;
-        }
-        items.push({
-          type: 'single',
-          ids: [node.id],
-          desiredCenter: node.x,
-          width: NODE_SPACING_X * 0.8
-        });
-      });
-
-      items.sort(function(a, b) {
-        return a.desiredCenter - b.desiredCenter;
-      });
-
-      var previousRight = null;
-      items.forEach(function(item) {
-        var halfWidth = item.width / 2;
-        var center = item.desiredCenter;
-        if (previousRight !== null) {
-          center = Math.max(center, previousRight + FAMILY_UNIT_GAP_X / 2 + halfWidth);
-        }
-        item.center = center;
-        previousRight = center + halfWidth;
-      });
-
-      items.forEach(function(item) {
-        if (item.type === 'pair') {
-          var leftId = item.ids[0];
-          var rightId = item.ids[1];
-          var leftNode = nodeLookup[leftId];
-          var rightNode = nodeLookup[rightId];
-          var leftX = item.center - PARTNER_GAP_X / 2;
-          var rightX = item.center + PARTNER_GAP_X / 2;
-          if (leftNode) {
-            leftNode.x = leftX;
-            nodePositions[leftId].x = leftX;
-          }
-          if (rightNode) {
-            rightNode.x = rightX;
-            nodePositions[rightId].x = rightX;
-          }
-          return;
-        }
-        var singleId = item.ids[0];
-        var singleNode = nodeLookup[singleId];
-        if (singleNode) {
-          singleNode.x = item.center;
-          nodePositions[singleId].x = item.center;
-        }
-      });
-    });
-
-    return {allNodes: allNodes, nodePositions: nodePositions, rowsByDepth: rowsByDepth};
+    return {
+      allNodes: allNodes,
+      nodePositions: nodePositions,
+      components: components,
+      primaryComponent: primaryComponent
+    };
   }
 
   function addMetricPill(nodeGroup, person, baseY) {
@@ -1485,8 +1577,9 @@
   }
 
   function drawGenerationBands(layout) {
+    var targetNodes = layout && layout.primaryComponent ? layout.primaryComponent.nodes : layout.allNodes;
     var levels = {};
-    layout.allNodes.forEach(function(node) {
+    targetNodes.forEach(function(node) {
       levels[node.depth] = node.y;
     });
     var depths = Object.keys(levels).map(function(depth) {
@@ -1500,7 +1593,7 @@
 
     var minX = Infinity;
     var maxX = -Infinity;
-    layout.allNodes.forEach(function(node) {
+    targetNodes.forEach(function(node) {
       minX = Math.min(minX, node.x);
       maxX = Math.max(maxX, node.x);
     });
@@ -1523,6 +1616,80 @@
         .attr('y', top + 28)
         .text(formatTemplate(root.dataset.treeGenerationTemplate, {index: index + 1}));
     });
+  }
+
+  function drawComponentFrames(layout) {
+    if (!layout || !layout.components || layout.components.length < 2) {
+      return;
+    }
+    var frameGroup = g.append('g').attr('class', 'tree-component-frames');
+    var detachedIndex = 0;
+    layout.components.forEach(function(component) {
+      if (component.isPrimary || !component.bounds) {
+        return;
+      }
+      detachedIndex += 1;
+      var frameX = component.bounds.minX - COMPONENT_PADDING_X * 0.55;
+      var frameY = component.bounds.minY - COMPONENT_PADDING_Y * 0.7;
+      var frameWidth = component.bounds.width + COMPONENT_PADDING_X * 1.1;
+      var frameHeight = component.bounds.height + COMPONENT_PADDING_Y * 1.35;
+      frameGroup.append('rect')
+        .attr('class', 'tree-component-frame')
+        .attr('x', frameX)
+        .attr('y', frameY)
+        .attr('width', frameWidth)
+        .attr('height', frameHeight)
+        .attr('rx', 24)
+        .attr('ry', 24)
+        .attr('data-component-root', component.id);
+      frameGroup.append('text')
+        .attr('class', 'tree-component-label')
+        .attr('x', frameX + 20)
+        .attr('y', frameY + 28)
+        .text(formatTemplate(root.dataset.treeDetachedComponentTemplate, {index: detachedIndex}));
+    });
+  }
+
+  function appendTreeDefs() {
+    var defs = svg.append('defs');
+    defs.append('marker')
+      .attr('id', 'tree-parent-arrow')
+      .attr('viewBox', '0 0 10 10')
+      .attr('refX', 8)
+      .attr('refY', 5)
+      .attr('markerWidth', 7)
+      .attr('markerHeight', 7)
+      .attr('orient', 'auto-start-reverse')
+      .append('path')
+      .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+      .attr('class', 'tree-parent-arrow');
+  }
+
+  function applyContextHighlight(personId, structures) {
+    if (!personId || !structures) {
+      return;
+    }
+    var relatedIds = new Set([personId]);
+    (structures.parentToChildren[personId] || []).forEach(function(id) { relatedIds.add(id); });
+    (structures.childToParents[personId] || []).forEach(function(id) { relatedIds.add(id); });
+    (structures.partnerMap[personId] || []).forEach(function(id) { relatedIds.add(id); });
+
+    d3.selectAll('.tree-node').classed('tree-node--context', function() {
+      return relatedIds.has(d3.select(this).attr('data-person-id'));
+    });
+    d3.selectAll('.parent-child-line, .partnership-line, .family-unit-stem, .family-unit-rail, .family-unit-drop')
+      .classed('edge--context', function() {
+        var el = d3.select(this);
+        var from = el.attr('data-from');
+        var to = el.attr('data-to');
+        if (from === personId || to === personId) {
+          return true;
+        }
+        if (el.attr('data-family-unit')) {
+          return el.attr('data-family-unit').indexOf(personId) !== -1;
+        }
+        return false;
+      });
   }
 
   function applyZoomTransform(transform, duration) {
@@ -1681,11 +1848,27 @@
 
     var nextTextY = NODE_RADIUS + 16;
     if (preferences.show_names) {
-      nodeGroup.append('text')
-        .attr('class', 'name-label')
-        .attr('dy', nextTextY)
-        .text(nodeLabel);
-      nextTextY += 15;
+      var lineBreakIndex = nodeLabel.length > 14 ? nodeLabel.lastIndexOf(' ') : -1;
+      if (lineBreakIndex > 2 && lineBreakIndex < nodeLabel.length - 2) {
+        var nameText = nodeGroup.append('text')
+          .attr('class', 'name-label')
+          .attr('text-anchor', 'middle')
+          .attr('dy', nextTextY - 4);
+        nameText.append('tspan')
+          .attr('x', 0)
+          .text(nodeLabel.slice(0, lineBreakIndex));
+        nameText.append('tspan')
+          .attr('x', 0)
+          .attr('dy', '1.1em')
+          .text(nodeLabel.slice(lineBreakIndex + 1));
+        nextTextY += 27;
+      } else {
+        nodeGroup.append('text')
+          .attr('class', 'name-label')
+          .attr('dy', nextTextY)
+          .text(nodeLabel);
+        nextTextY += 15;
+      }
     }
 
     if (preferences.show_birth_dates && person.birth_date_raw) {
@@ -1747,6 +1930,7 @@
       .attr('width', w)
       .attr('height', h);
     svg.selectAll('*').remove();
+    appendTreeDefs();
 
     g = svg.append('g');
 
@@ -1769,7 +1953,8 @@
       structures.parentToChildren,
       structures.childToParents,
       structures.partnerMap,
-      structures.familyUnitsByPair
+      structures.familyUnitsByPair,
+      w
     );
     currentRootPersonId = rootId;
     if (currentFocusPersonId && !structures.personsById[currentFocusPersonId]) {
@@ -1783,6 +1968,7 @@
     });
 
     drawGenerationBands(layout);
+    drawComponentFrames(layout);
 
     var families = collectFamilyUnits(structures, layout, pcKindLookup);
     var lineGen = d3.line().curve(d3.curveBumpY);
@@ -1801,6 +1987,7 @@
         .attr('class', 'parent-child-line parent-child-line--' + kind)
         .attr('data-from', parentChild.parent_id)
         .attr('data-to', parentChild.child_id)
+        .attr('marker-end', 'url(#tree-parent-arrow)')
         .attr('d', lineGen([[parentPos.x, parentPos.y + NODE_RADIUS], [childPos.x, childPos.y - NODE_RADIUS]]));
     });
 
@@ -1820,6 +2007,13 @@
         .attr('y1', posA.y)
         .attr('x2', posB.x)
         .attr('y2', posB.y);
+      g.append('circle')
+        .attr('class', 'partnership-knot partnership-knot--' + pKind)
+        .attr('cx', (posA.x + posB.x) / 2)
+        .attr('cy', (posA.y + posB.y) / 2)
+        .attr('r', 5)
+        .attr('data-from', partnership.person_a_id)
+        .attr('data-to', partnership.person_b_id);
     });
 
     families.familyUnits.forEach(function(unit) {
@@ -1872,6 +2066,7 @@
           .attr('x2', childPos.x)
           .attr('y2', childPos.y - NODE_RADIUS)
           .attr('data-from', unit.key)
+          .attr('marker-end', 'url(#tree-parent-arrow)')
           .attr('data-to', childId);
       });
     });
@@ -1892,6 +2087,7 @@
     syncSidebarOrientation();
     syncRelationshipCalcControls();
     updateGraphModeBanner();
+    applyContextHighlight(currentSidebarPersonId, structures);
 
     if (!initialUrlFocusApplied) {
       initialUrlFocusApplied = true;

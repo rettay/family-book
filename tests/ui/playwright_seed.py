@@ -16,6 +16,9 @@ GRANDPA_ID = "grndpa-00-0000-0000-000000000004"
 MEMBER_ID = "member-00-0000-0000-000000000005"
 ALEX_ID = "alex-000-0000-0000-000000000006"
 JORDAN_ID = "jrdn-000-0000-0000-000000000007"
+ORPHAN_PARENT_ID = "orphnpar-0000-0000-000000000008"
+ORPHAN_CHILD_ID = "orphnchd-0000-0000-000000000009"
+ORPHAN_SINGLE_ID = "orphnsng-0000-0000-000000000010"
 
 
 async def seed() -> None:
@@ -26,7 +29,10 @@ async def seed() -> None:
         await session.execute(delete(Partnership))
         await session.execute(delete(ParentChild))
 
-        for person_id in [ROOT_ID, TYLER_ID, YULIYA_ID, GRANDPA_ID, MEMBER_ID, ALEX_ID, JORDAN_ID]:
+        for person_id in [
+            ROOT_ID, TYLER_ID, YULIYA_ID, GRANDPA_ID, MEMBER_ID, ALEX_ID, JORDAN_ID,
+            ORPHAN_PARENT_ID, ORPHAN_CHILD_ID, ORPHAN_SINGLE_ID
+        ]:
             person = await session.get(Person, person_id)
             if person:
                 await session.delete(person)
@@ -113,8 +119,41 @@ async def seed() -> None:
             source=PersonSource.manual.value,
             account_state=AccountState.active.value,
         )
+        orphan_parent = Person(
+            id=ORPHAN_PARENT_ID,
+            first_name="Olive",
+            last_name="Detached",
+            residence_country_code="US",
+            residence_place="Portland",
+            branch="detached",
+            source=PersonSource.manual.value,
+            account_state=AccountState.active.value,
+        )
+        orphan_child = Person(
+            id=ORPHAN_CHILD_ID,
+            first_name="Owen",
+            last_name="Detached",
+            residence_country_code="US",
+            residence_place="Portland",
+            branch="detached",
+            source=PersonSource.manual.value,
+            account_state=AccountState.active.value,
+        )
+        orphan_single = Person(
+            id=ORPHAN_SINGLE_ID,
+            first_name="Nora",
+            last_name="Untethered",
+            residence_country_code="US",
+            residence_place="Salem",
+            branch="untethered",
+            source=PersonSource.manual.value,
+            account_state=AccountState.active.value,
+        )
 
-        session.add_all([root, tyler, yuliya, grandpa, member, alex, jordan])
+        session.add_all([
+            root, tyler, yuliya, grandpa, member, alex, jordan,
+            orphan_parent, orphan_child, orphan_single
+        ])
         await session.flush()
 
         session.add_all(
@@ -125,6 +164,7 @@ async def seed() -> None:
                 ParentChild(parent_id=GRANDPA_ID, child_id=MEMBER_ID, kind="biological"),
                 ParentChild(parent_id=MEMBER_ID, child_id=JORDAN_ID, kind="biological"),
                 ParentChild(parent_id=ALEX_ID, child_id=JORDAN_ID, kind="biological"),
+                ParentChild(parent_id=ORPHAN_PARENT_ID, child_id=ORPHAN_CHILD_ID, kind="biological"),
                 Partnership(
                     person_a_id=min(TYLER_ID, YULIYA_ID),
                     person_b_id=max(TYLER_ID, YULIYA_ID),
