@@ -28,12 +28,13 @@
   var NODE_SPACING_X = 100;
   var NODE_SPACING_Y = 150;
   var PARTNER_GAP_X = 120;
-  var FAMILY_UNIT_GAP_X = 190;
+  var FAMILY_UNIT_GAP_X = 150;
   var COMPONENT_PADDING_X = 88;
   var COMPONENT_PADDING_Y = 72;
   var DETACHED_COMPONENT_GAP_X = 72;
   var DETACHED_COMPONENT_GAP_Y = 110;
   var lastFitTransform = null;
+  var latestStructures = null;
   var currentRootPersonId = '';
   var currentFocusPersonId = '';
   var initialUrlFocusPersonId = '';
@@ -164,6 +165,24 @@
     return filtered.reduce(function(total, value) {
       return total + value;
     }, 0) / filtered.length;
+  }
+
+  function weightedAverageValues(weightedValues) {
+    var filtered = (weightedValues || []).filter(function(entry) {
+      return entry && entry.value !== null && entry.value !== undefined && entry.weight > 0;
+    });
+    if (!filtered.length) {
+      return null;
+    }
+    var totals = filtered.reduce(function(accumulator, entry) {
+      accumulator.weight += entry.weight;
+      accumulator.value += entry.value * entry.weight;
+      return accumulator;
+    }, {value: 0, weight: 0});
+    if (!totals.weight) {
+      return null;
+    }
+    return totals.value / totals.weight;
   }
 
   function currentFilters() {
@@ -1052,6 +1071,7 @@
     window.replaceNodeChildrenFromHTML(sidebarContent, html);
     sidebarContent.setAttribute('aria-busy', 'false');
     initializeTreeSidebar(personId);
+    applyContextHighlight(currentSidebarPersonId, latestStructures);
     if (clearedGraphMode && treeData) {
       render();
     }
@@ -1512,6 +1532,10 @@
 
     function packComponentRows(component) {
       var rowsByDepth = {};
+      var familyUnitsByKey = {};
+      (familyUnits || []).forEach(function(unit) {
+        familyUnitsByKey[unit.key] = unit;
+      });
       component.nodes.forEach(function(node) {
         if (!rowsByDepth[node.depth]) {
           rowsByDepth[node.depth] = [];
@@ -1535,10 +1559,10 @@
       }
 
       function nodeDesiredCenter(node, unitCenters) {
-        var anchors = [node.x];
+        var anchors = [{value: node.x, weight: 1}];
         var ancestryAnchor = ancestryAnchorX(node.id, node.depth);
         if (ancestryAnchor !== null && ancestryAnchor !== undefined) {
-          anchors.push(ancestryAnchor);
+          anchors.push({value: ancestryAnchor, weight: 2.4});
         }
         var childAverage = average((parentToChildren[node.id] || []).map(function(childId) {
           return nodePositions[childId] ? nodePositions[childId].x : null;
@@ -1546,20 +1570,41 @@
           return value !== null && value !== undefined;
         }));
         if (childAverage !== null && childAverage !== undefined) {
-          anchors.push(childAverage);
+          anchors.push({value: childAverage, weight: 2.2});
         }
         var incomingUnitKey = incomingFamilyUnitByChild[node.id];
         if (incomingUnitKey && unitCenters[incomingUnitKey] !== undefined) {
-          anchors.push(unitCenters[incomingUnitKey]);
+          var incomingUnit = familyUnitsByKey[incomingUnitKey];
+          var incomingAnchorValue = unitCenters[incomingUnitKey];
+          if (incomingUnit) {
+            var incomingParentAverage = average(incomingUnit.parentIds.map(function(parentId) {
+              return nodePositions[parentId] ? nodePositions[parentId].x : null;
+            }).filter(function(value) {
+              return value !== null && value !== undefined;
+            }));
+            if (incomingParentAverage !== null && incomingParentAverage !== undefined) {
+              incomingAnchorValue = incomingParentAverage;
+            }
+          }
+          anchors.push({value: incomingAnchorValue, weight: 6.1});
         }
         (familyUnitsByPerson[node.id] || []).forEach(function(unitKey) {
           if (unitCenters[unitKey] !== undefined) {
-            anchors.push(unitCenters[unitKey]);
+            var familyUnit = familyUnitsByKey[unitKey];
+            var isChildAnchor = !!(familyUnit && familyUnit.childIds && familyUnit.childIds.indexOf(node.id) !== -1);
+            anchors.push({
+              value: isChildAnchor && familyUnit && familyUnit.parentIds && familyUnit.parentIds.length
+                ? average(familyUnit.parentIds.map(function(parentId) {
+                  return nodePositions[parentId] ? nodePositions[parentId].x : null;
+                }).filter(function(value) {
+                  return value !== null && value !== undefined;
+                })) || unitCenters[unitKey]
+                : unitCenters[unitKey],
+              weight: isChildAnchor ? 2.9 : 1.8
+            });
           }
         });
-        return average(anchors.filter(function(value) {
-          return value !== null && value !== undefined;
-        })) || node.x;
+        return weightedAverageValues(anchors) || node.x;
       }
 
       for (var pass = 0; pass < 4; pass += 1) {
@@ -1596,6 +1641,45 @@
                 pushUnique(rowPeerGraph, unitParentIds[otherIndex], unitParentIds[index]);
               }
             }
+          });
+          (familyUnits || []).forEach(function(unit) {
+            var visibleChildIds = (unit.childIds || []).filter(function(childId) {
+              return !!nodeById[childId];
+            }).sort(function(aId, bId) {
+              return nodeDesiredCenter(nodeById[aId], unitCenters) - nodeDesiredCenter(nodeById[bId], unitCenters);
+            });
+            if (visibleChildIds.length < 2) {
+              return;
+            }
+            if (visibleChildIds.length <= 2) {
+              pushUnique(rowPeerGraph, visibleChildIds[0], visibleChildIds[1]);
+              pushUnique(rowPeerGraph, visibleChildIds[1], visibleChildIds[0]);
+              return;
+            }
+            visibleChildIds.forEach(function(childId, childIndex) {
+              var hasVisiblePartner = (partnerMap[childId] || []).some(function(partnerId) {
+                return !!nodeById[partnerId];
+              });
+              if (hasVisiblePartner) {
+                return;
+              }
+              var candidateSiblingIds = [];
+              if (childIndex > 0) {
+                candidateSiblingIds.push(visibleChildIds[childIndex - 1]);
+              }
+              if (childIndex < visibleChildIds.length - 1) {
+                candidateSiblingIds.push(visibleChildIds[childIndex + 1]);
+              }
+              if (!candidateSiblingIds.length) {
+                return;
+              }
+              var siblingId = candidateSiblingIds.sort(function(aId, bId) {
+                return Math.abs(nodeDesiredCenter(nodeById[aId], unitCenters) - nodeDesiredCenter(nodeById[childId], unitCenters)) -
+                  Math.abs(nodeDesiredCenter(nodeById[bId], unitCenters) - nodeDesiredCenter(nodeById[childId], unitCenters));
+              })[0];
+              pushUnique(rowPeerGraph, childId, siblingId);
+              pushUnique(rowPeerGraph, siblingId, childId);
+            });
           });
 
           var claimed = {};
@@ -1999,27 +2083,90 @@
   }
 
   function applyContextHighlight(personId, structures) {
+    d3.selectAll('.tree-node')
+      .classed('tree-node--context', false)
+      .classed('tree-node--lineage', false);
+    d3.selectAll('.parent-child-line, .partnership-line, .partnership-knot, .family-unit-parent-link, .family-unit-stem, .family-unit-rail, .family-unit-drop')
+      .classed('edge--context', false)
+      .classed('edge--lineage', false);
     if (!personId || !structures) {
       return;
     }
-    var relatedIds = new Set([personId]);
-    (structures.parentToChildren[personId] || []).forEach(function(id) { relatedIds.add(id); });
-    (structures.childToParents[personId] || []).forEach(function(id) { relatedIds.add(id); });
-    (structures.partnerMap[personId] || []).forEach(function(id) { relatedIds.add(id); });
 
-    d3.selectAll('.tree-node').classed('tree-node--context', function() {
-      return relatedIds.has(d3.select(this).attr('data-person-id'));
+    function walkLineage(seedId, adjacency, target) {
+      var queue = [seedId];
+      while (queue.length) {
+        var currentId = queue.shift();
+        (adjacency[currentId] || []).forEach(function(nextId) {
+          if (!target.has(nextId)) {
+            target.add(nextId);
+            queue.push(nextId);
+          }
+        });
+      }
+    }
+
+    function attrIds(el, attrName) {
+      var raw = el.attr(attrName) || '';
+      return raw ? raw.split('|').filter(Boolean) : [];
+    }
+
+    var lineageIds = new Set([personId]);
+    walkLineage(personId, structures.childToParents || {}, lineageIds);
+    walkLineage(personId, structures.parentToChildren || {}, lineageIds);
+
+    var contextIds = new Set(lineageIds);
+    Array.from(lineageIds).forEach(function(lineageId) {
+      (structures.partnerMap[lineageId] || []).forEach(function(partnerId) {
+        contextIds.add(partnerId);
+      });
     });
-    d3.selectAll('.parent-child-line, .partnership-line, .family-unit-stem, .family-unit-rail, .family-unit-drop')
+
+    d3.selectAll('.tree-node')
+      .classed('tree-node--context', function() {
+        return contextIds.has(d3.select(this).attr('data-person-id'));
+      })
+      .classed('tree-node--lineage', function() {
+        return lineageIds.has(d3.select(this).attr('data-person-id'));
+      });
+
+    d3.selectAll('.parent-child-line, .partnership-line, .partnership-knot, .family-unit-parent-link, .family-unit-stem, .family-unit-rail, .family-unit-drop')
       .classed('edge--context', function() {
         var el = d3.select(this);
         var from = el.attr('data-from');
         var to = el.attr('data-to');
-        if (from === personId || to === personId) {
+        var parentIds = attrIds(el, 'data-parent-ids');
+        var childIds = attrIds(el, 'data-child-ids');
+        if ((from && contextIds.has(from)) || (to && contextIds.has(to))) {
           return true;
         }
-        if (el.attr('data-family-unit')) {
-          return el.attr('data-family-unit').indexOf(personId) !== -1;
+        if (parentIds.some(function(parentId) { return contextIds.has(parentId); })) {
+          return true;
+        }
+        return childIds.some(function(childId) {
+          return contextIds.has(childId);
+        });
+      })
+      .classed('edge--lineage', function() {
+        var el = d3.select(this);
+        var from = el.attr('data-from');
+        var to = el.attr('data-to');
+        var parentIds = attrIds(el, 'data-parent-ids');
+        var childIds = attrIds(el, 'data-child-ids');
+        if (from && to && lineageIds.has(from) && lineageIds.has(to)) {
+          return true;
+        }
+        var hasLineageParent = parentIds.some(function(parentId) {
+          return lineageIds.has(parentId);
+        });
+        var hasLineageChild = childIds.some(function(childId) {
+          return lineageIds.has(childId);
+        });
+        if (hasLineageParent && hasLineageChild) {
+          return true;
+        }
+        if (from && to && ((lineageIds.has(from) && contextIds.has(to)) || (lineageIds.has(to) && contextIds.has(from)))) {
+          return el.classed('partnership-line') || el.classed('partnership-knot');
         }
         return false;
       });
@@ -2281,6 +2428,7 @@
     }
 
     var structures = buildTreeStructures();
+    latestStructures = structures;
     var rootId = determineRootId(structures.personsById, structures.childToParents);
     var layout = layoutTree(
       rootId,
@@ -2380,6 +2528,23 @@
         return layout.nodePositions[childId].x;
       });
       var kind = unit.childKinds[unit.renderChildIds[0]] || 'biological';
+      var parentIdsAttr = visibleParents.map(function(parent) {
+        return parent.id;
+      }).join('|');
+      var childIdsAttr = unit.renderChildIds.join('|');
+
+      if (visibleParents.length > 1) {
+        visibleParents.forEach(function(parent) {
+          g.append('path')
+            .attr('class', 'family-unit-parent-link parent-child-line parent-child-line--' + kind)
+            .attr('data-from', parent.id)
+            .attr('data-to', unit.renderKey || unit.key)
+            .attr('data-parent-ids', parentIdsAttr)
+            .attr('data-child-ids', childIdsAttr)
+            .attr('d', 'M ' + parent.pos.x + ' ' + (parent.pos.y + NODE_RADIUS - 2) +
+              ' L ' + familyCenterX + ' ' + (familyTopY - 4));
+        });
+      }
 
       g.append('line')
         .attr('class', 'family-unit-stem parent-child-line parent-child-line--' + kind)
@@ -2387,7 +2552,9 @@
         .attr('y1', familyTopY - 4)
         .attr('x2', familyCenterX)
         .attr('y2', familyRailY)
-        .attr('data-family-unit', unit.renderKey || unit.key);
+        .attr('data-family-unit', unit.renderKey || unit.key)
+        .attr('data-parent-ids', parentIdsAttr)
+        .attr('data-child-ids', childIdsAttr);
       g.append('circle')
         .attr('class', 'family-unit-anchor')
         .attr('cx', familyCenterX)
@@ -2400,7 +2567,9 @@
           .attr('y1', familyRailY)
           .attr('x2', Math.max.apply(Math, childXs))
           .attr('y2', familyRailY)
-          .attr('data-family-unit', unit.renderKey || unit.key);
+          .attr('data-family-unit', unit.renderKey || unit.key)
+          .attr('data-parent-ids', parentIdsAttr)
+          .attr('data-child-ids', childIdsAttr);
       }
       unit.renderChildIds.forEach(function(childId) {
         var childPos = layout.nodePositions[childId];
@@ -2414,6 +2583,8 @@
           .attr('x2', childPos.x)
           .attr('y2', childPos.y - NODE_RADIUS)
           .attr('data-from', unit.renderKey || unit.key)
+          .attr('data-parent-ids', parentIdsAttr)
+          .attr('data-child-ids', childIdsAttr)
           .attr('marker-end', 'url(#tree-parent-arrow)')
           .attr('data-to', childId);
       });
