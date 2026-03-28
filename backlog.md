@@ -6,7 +6,7 @@ Status: Planning
 ## Current Sprint `S28 - Genealogy-Grade Tree Semantics and Complex Families`
 
 Sprint goal:
-- Make the tree trustworthy for real multigenerational families by adopting a genealogy-grade layout foundation, rendering multiple households and non-biological relationships correctly, and supporting edge cases such as pets, unknown parents, and sparse detached branches without sacrificing readability.
+- Make the tree trustworthy for real multigenerational families by adopting a genealogy-grade layout foundation, rendering multiple households and non-biological relationships correctly, and handling shipped edge cases such as unknown parents and sparse detached branches without sacrificing readability. Non-person nodes are deferred pending a separate entity-model decision.
 
 Committed packets:
 
@@ -15,13 +15,13 @@ Committed packets:
 | FB-039 | Genealogy Graph Architecture and Family-Unit Layout Foundation | P0 | todo | `task_packets/FB-039_genealogy_graph_architecture_and_family_unit_layout_foundation.md` |
 | FB-040 | Multi-Partnership Households and Remarriage Correctness | P1 | todo | `task_packets/FB-040_multi_partnership_households_and_remarriage_correctness.md` |
 | FB-041 | Genogram Semantics for Non-Biological and Partnership States | P1 | todo | `task_packets/FB-041_genogram_semantics_for_non_biological_and_partnership_states.md` |
-| FB-042 | Non-Person Nodes, Unknown Parents, and Sparse-Branch Readability | P2 | todo | `task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md` |
+| FB-042 | Unknown Parents and Sparse-Branch Readability | P2 | todo | `task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md` |
 
 Execution slices:
 - `S28-1` Family-unit layout foundation and layered genealogy graph
 - `S28-2` Multi-household/remarriage correctness
 - `S28-3` Genogram semantics for non-biological and partnership states
-- `S28-4` Special nodes, unknown parents, and sparse-branch readability
+- `S28-4` Unknown parents and sparse-branch readability
 
 ## Planned Follow-Up Sprints
 

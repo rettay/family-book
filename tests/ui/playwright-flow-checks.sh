@@ -268,7 +268,7 @@ assert_run "admin dashboard avoids horizontal overflow on mobile" \
 
 "${PWCLI}" goto "${BASE_URL}/"
 "${PWCLI}" run-code "async page => { await page.waitForURL(/\\/tree$/); await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(800); }"
-"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/home-mobile.png" --full-page true >/dev/null
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/tree-mobile.png" --full-page true >/dev/null
 
 assert_run "tree landing avoids horizontal overflow on mobile" \
   "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('tree page overflows horizontally on mobile'); }"

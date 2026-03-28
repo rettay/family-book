@@ -8,7 +8,7 @@ Status: Planned
 
 ### Sprint Goal
 
-Make the tree trustworthy for real family structures by moving from heuristic person-only layout toward genealogy-grade family-unit semantics, then layering in correct handling for remarriage, adoptions and other non-biological relationships, and special edge cases such as pets, unknown parents, and detached sparse branches.
+Make the tree trustworthy for real family structures by moving from heuristic person-only layout toward genealogy-grade family-unit semantics, then layering in correct handling for remarriage, adoptions and other non-biological relationships, and shipped edge cases such as unknown parents and detached sparse branches. Non-person nodes such as pets and institutions are deferred pending a separate entity-model decision.
 
 ### Why This Sprint Next
 
@@ -21,7 +21,7 @@ Recent live debugging showed the core blocker is no longer basic tree availabili
 | 39 | FB-039 | Genealogy Graph Architecture and Family-Unit Layout Foundation | P0 | todo |
 | 40 | FB-040 | Multi-Partnership Households and Remarriage Correctness | P1 | todo |
 | 41 | FB-041 | Genogram Semantics for Non-Biological and Partnership States | P1 | todo |
-| 42 | FB-042 | Non-Person Nodes, Unknown Parents, and Sparse-Branch Readability | P2 | todo |
+| 42 | FB-042 | Unknown Parents and Sparse-Branch Readability | P2 | todo |
 
 ### Planned Slices
 
@@ -30,7 +30,7 @@ Recent live debugging showed the core blocker is no longer basic tree availabili
 | S28-1 | Family-unit layout foundation and layered genealogy graph | planned |
 | S28-2 | Multi-household/remarriage correctness | planned |
 | S28-3 | Genogram semantics for non-biological and partnership states | planned |
-| S28-4 | Special nodes, unknown parents, and sparse-branch readability | planned |
+| S28-4 | Unknown parents and sparse-branch readability | planned |
 
 ### Sprint Exit Criteria
 
@@ -43,7 +43,7 @@ The sprint is successful when all are true:
 - relationship cues are understandable to non-expert family members through a legend or equally clear affordance
 - single-parent and unknown-parent structures render truthfully without inventing unsupported facts
 - detached branches and lightly connected people remain readable on desktop and mobile
-- if pets or other non-person nodes are supported in launch scope, they are visually distinct and explicitly explained
+- the shipped launch scope does not imply support for pets, institutions, or other non-person nodes that the model does not provide
 - i18n parity is maintained for all new tree-facing copy across `en`, `es`, and `ru`
 - test and browser baselines remain intact
 
@@ -61,7 +61,7 @@ The sprint is successful when all are true:
 - layout-engine refactor may become a stealth rewrite if packet boundaries slip
 - multi-partnership correctness can tempt duplicate-person shortcuts
 - genogram semantics can become too expert-coded or too subtle to matter
-- non-person support can sprawl into a broader entity-model project if not tightly bounded
+- non-person support can sprawl into a broader entity-model project if not tightly bounded, so it is explicitly deferred out of this sprint
 
 ### Deferred Beyond S28
 

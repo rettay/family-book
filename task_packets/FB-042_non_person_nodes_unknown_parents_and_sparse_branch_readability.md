@@ -1,13 +1,17 @@
-# Task Packet - FB-042 Non-Person Nodes, Unknown Parents, and Sparse-Branch Readability
+# Task Packet - FB-042 Unknown Parents and Sparse-Branch Readability
 
 ## Objective
 
-Handle the remaining high-confusion edge cases in the tree by supporting non-person household nodes where justified, clear unknown-parent or single-parent structures, and readable separation of sparse or detached branches such as pets, institutions, and orphaned people.
+Handle the remaining high-confusion edge cases in the tree by making single-parent and unknown-parent structures truthful and by keeping sparse or detached branches readable without overlapping into an unreadable cluster.
+
+Launch narrowing:
+- Non-person nodes such as pets or institutions are explicitly deferred from this sprint.
+- Reason: the current tree payload and entity model are person-only, and adding truthful non-person support requires a separate product/entity-model decision rather than an ad hoc renderer shortcut.
 
 ## Why / KPI
 
-- Even with stronger household layout and relationship semantics, the tree will still feel incomplete or brittle if users cannot truthfully represent pets, unknown parents, guardianship-like households, or lightly connected branches.
-- Current detached-orphan handling reduces overlap but still lacks a product-level model for special nodes and partial-family structures.
+- Even with stronger household layout and relationship semantics, the tree will still feel incomplete or brittle if users cannot truthfully read single-parent structures, unknown-parent gaps, or lightly connected branches.
+- Current detached-orphan handling reduces overlap but still needs product-level clarity around partial-family structures.
 
 Primary KPI:
 - increase truthful coverage of unusual but common family-record cases without degrading readability.
@@ -18,12 +22,12 @@ Secondary KPI:
 ## Scope
 
 - In scope:
-  - support for non-person nodes that are explicitly in launch scope for tree interpretation, such as pets or institutions/households, if represented in the model
   - clear single-parent and unknown-parent household rendering
   - improved layout and labeling for sparse or detached branches
   - readable packing of partially connected people so names do not collapse into one unreadable cluster
-  - tree legend/help updates explaining any new node types or placeholder semantics
+  - tree legend/help updates explaining placeholder semantics where shown
 - Out of scope:
+  - pets, institutions, or any other non-person node type
   - speculative support for every genogram symbol under the sun
   - legal or archival metadata around institutions
   - print/export or alternate chart modes
@@ -36,7 +40,7 @@ Secondary KPI:
 
 - Depends on FB-039.
 - Best sequenced after FB-041 so the main relationship semantics are already in place before special node types are added.
-- If pets or institutions would require a materially new entity model, builder should narrow launch scope to read-only placeholder semantics or escalate rather than forcing an ad hoc implementation.
+- Non-person nodes are deferred; any future support should start from a new task packet with an explicit entity-model contract.
 
 ## Changed Surfaces
 
@@ -70,12 +74,11 @@ Secondary KPI:
 - Must directly improve:
   - readability of detached and sparse branches
   - single-parent and unknown-parent family structures
-  - truthful display of supported non-person node types
 - Should improve:
   - legend/help discoverability
   - packing of lightly connected people on smaller screens
 - Must re-run:
-  - seeded browser cases for detached branches, single-parent families, and any supported non-person node types
+  - seeded browser cases for detached branches and single-parent families
   - visual review confirming dense sparse-branch cases remain readable
 
 ## Implementation Notes
@@ -102,14 +105,14 @@ Secondary KPI:
 ## Evaluation Environment
 
 - Task:
-  model sparse, partial, and non-person family branches truthfully without hurting readability
+  model sparse and partial family branches truthfully without hurting readability
 - Verifier:
   structural review, deterministic browser checks, locale parity, and visual/persona review
 - Reference/oracle:
   tree truthfulness requirements from the Family Book product and UX contract
   user-reported detached-branch readability failures
 - Expected evidence:
-  single-parent or unknown-parent branches remain understandable, detached people do not overlap unreadably, and any supported non-person nodes are clearly distinct from people
+  single-parent or unknown-parent branches remain understandable, detached people do not overlap unreadably, and the UI does not imply support for non-person nodes that the model does not provide
 - Known failure modes / reward hacks:
   - unsupported node types are faked as regular people
   - sparse-branch labels exist but nodes still overlap in practice
@@ -127,28 +130,28 @@ Secondary KPI:
 - Browser oracle:
   - seeded assertions proving:
     - single-parent families render without false second-parent implication
-    - unknown-parent or placeholder semantics are clearly distinct from known people
+    - unknown-parent or placeholder semantics are clearly distinct from known people when shown
     - detached branches remain separated and readable
-    - any supported pet or institution node type renders distinctly from a person node
+    - unsupported non-person cases are not implied by the UI
 - Visual/persona oracle:
   - `contributing_member` desktop walkthrough of a sparse branch with unknown-parent or single-parent structure
-  - `family_admin` desktop walkthrough of a supported non-person node type if in scope
+  - `family_admin` desktop walkthrough of a detached sparse branch correction
   - `mobile_first_relative` mobile walkthrough confirming detached branches remain readable
 - Required artifacts:
   - CodeMap JSON output
-  - Playwright screenshots/traces for sparse-branch and special-node states
+  - Playwright screenshots/traces for sparse-branch states
   - persona-backed replay and screenshots for desktop and mobile
 - Expected visual states:
   - detached branches are separated but still legible
-  - placeholder or non-person semantics are visually explicit
-  - unsupported cases are not disguised as normal family relationships
+  - placeholder semantics are visually explicit where shown
+  - unsupported cases are not disguised as supported tree features
 
 ## Acceptance Criteria
 
 - [ ] Single-parent households render clearly without implying a second known parent.
 - [ ] Unknown-parent or placeholder semantics, if shown, are visually distinct from known people and do not invent unsupported facts.
 - [ ] Detached or sparse branches remain readable on desktop and mobile without overlapping names.
-- [ ] Any supported non-person node type such as a pet or institution is visually distinct from a person and explained by the tree legend or help cues.
+- [ ] The shipped tree scope does not imply support for pets, institutions, or other non-person nodes that are not present in the model.
 - [ ] The packet improves truthful coverage of edge cases without making the main family tree harder to interpret.
 
 ## Risk and Verification Notes
@@ -158,9 +161,9 @@ Secondary KPI:
   - keeping sparse-branch readability on small screens
   - placeholder semantics that are explicit without being visually noisy
 - Likely shallow-pass failure modes:
-  - pets or institutions are added with no clear legend
   - detached-branch frames exist but labels still overlap
   - unknown-parent rendering subtly implies facts not present in data
+  - launch docs still promise non-person support that the shipped model does not provide
 - Required verification depth:
   - adversarial sparse-branch seed plus persona review
   - wrong-variant checks ensuring unsupported cases are not silently normalized into person nodes
@@ -170,18 +173,17 @@ Secondary KPI:
 ## Execution Budget
 
 - Builder may explore:
-  - light placeholder nodes
-  - distinct shapes or badges for supported non-person nodes
+  - light placeholder semantics for unknown/absent parents
   - better detached-branch packing and label wrapping strategies
 - Builder must escalate if:
-  - supporting pets or institutions requires a new product decision about entity scope
+  - requested support expands into pets, institutions, or other non-person entities
   - the implementation would require a large schema or permissions expansion
 - Material scope drift:
   - full household management product beyond tree interpretation
   - broad new data-entry workflows outside the tree
 - Proof obligations before review:
   - tree evidence shows at least one partial-family and one sparse-branch case
-  - non-person support, if included, is truthful and explicitly bounded
+  - launch documentation explicitly bounds non-person-node support out of scope
 
 ## Definition of Done
 
