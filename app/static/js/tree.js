@@ -19,6 +19,7 @@
   };
   var preferences = {
     show_names: true,
+    show_nicknames: false,
     show_birth_dates: false,
     show_country_flags: true,
     show_photos: true
@@ -77,6 +78,29 @@
     return person ? person.display_name : '';
   }
 
+  function treeNodeLabel(person) {
+    if (!person) {
+      return '';
+    }
+    if (preferences.show_nicknames && person.nickname) {
+      var nickname = String(person.nickname || '').trim();
+      if (!nickname) {
+        return person.display_name;
+      }
+      if (!person.last_name) {
+        return nickname;
+      }
+      if (person.name_display_order === 'eastern') {
+        return [person.last_name, nickname].filter(Boolean).join(' ');
+      }
+      if (person.name_display_order === 'patronymic' && person.patronymic) {
+        return [person.last_name, nickname, person.patronymic].filter(Boolean).join(' ');
+      }
+      return [nickname, person.last_name].filter(Boolean).join(' ');
+    }
+    return person.display_name;
+  }
+
   function setCurrentFocusPerson(personId, options) {
     var opts = options || {};
     currentFocusPersonId = personId || '';
@@ -128,6 +152,7 @@
 
   function syncPreferenceInputs() {
     document.getElementById('pref-show-names').checked = !!preferences.show_names;
+    document.getElementById('pref-show-nicknames').checked = !!preferences.show_nicknames;
     document.getElementById('pref-show-birth-dates').checked = !!preferences.show_birth_dates;
     document.getElementById('pref-show-country-flags').checked = !!preferences.show_country_flags;
     document.getElementById('pref-show-photos').checked = !!preferences.show_photos;
@@ -136,6 +161,7 @@
   function readPreferenceInputs() {
     preferences = {
       show_names: document.getElementById('pref-show-names').checked,
+      show_nicknames: document.getElementById('pref-show-nicknames').checked,
       show_birth_dates: document.getElementById('pref-show-birth-dates').checked,
       show_country_flags: document.getElementById('pref-show-country-flags').checked,
       show_photos: document.getElementById('pref-show-photos').checked
@@ -410,18 +436,6 @@
     }
     if (sidebarState.activeTab && sidebarContent.querySelector('[data-tree-sidebar-panel="' + sidebarState.activeTab + '"]')) {
       return sidebarState.activeTab;
-    }
-    var canManage = card.dataset.treeSidebarCanManage === 'true';
-    var mediaCount = Number(card.dataset.treeSidebarMediaCount || 0);
-    var relationCount = Number(card.dataset.treeSidebarParentCount || 0) +
-      Number(card.dataset.treeSidebarChildCount || 0) +
-      Number(card.dataset.treeSidebarPartnerCount || 0);
-    if (canManage && mediaCount === 0) {
-      return 'media';
-    }
-    if (canManage && relationCount === 0) {
-      sidebarState.relationshipGroup = 'parent';
-      return 'relationships';
     }
     return card.dataset.treeSidebarDefaultTab || 'overview';
   }
@@ -940,14 +954,21 @@
     render();
   }
 
-  async function loadTree() {
-    setStatus(document.body.dataset.loadingText || 'Loading...');
+  async function fetchTreeData() {
     var resp = await fetch('/api/tree' + queryString(currentFilters()));
     if (resp.status === 401) {
       window.location.href = '/login';
+      return null;
+    }
+    return await resp.json();
+  }
+
+  async function loadTree() {
+    setStatus(document.body.dataset.loadingText || 'Loading...');
+    treeData = await fetchTreeData();
+    if (!treeData) {
       return;
     }
-    treeData = await resp.json();
     render();
   }
 
@@ -972,11 +993,16 @@
   async function init() {
     try {
       initialUrlFocusPersonId = readFocusParamFromUrl();
-      var loaded = await loadPreferences();
-      if (!loaded) {
+      setStatus(document.body.dataset.loadingText || 'Loading...');
+      var initialState = await Promise.all([
+        loadPreferences(),
+        fetchTreeData()
+      ]);
+      if (!initialState[0] || !initialState[1]) {
         return;
       }
-      await loadTree();
+      treeData = initialState[1];
+      render();
     } catch (err) {
       document.getElementById('tree-page').textContent = root.dataset.loadError;
     }
@@ -1239,6 +1265,48 @@
       });
     }
 
+    function average(values) {
+      if (!values.length) {
+        return null;
+      }
+      return values.reduce(function(total, value) {
+        return total + value;
+      }, 0) / values.length;
+    }
+
+    function ancestryAnchorX(personId, depth) {
+      return average((childToParents[personId] || []).map(function(parentId) {
+        var parentNode = nodeLookup[parentId];
+        if (!parentNode || parentNode.depth >= depth || !nodePositions[parentId]) {
+          return null;
+        }
+        return nodePositions[parentId].x;
+      }).filter(function(value) {
+        return value !== null;
+      }));
+    }
+
+    function orderedPairIds(aId, bId, desiredCenter) {
+      var aNode = nodeLookup[aId];
+      var bNode = nodeLookup[bId];
+      var aAnchor = ancestryAnchorX(aId, aNode ? aNode.depth : 0);
+      var bAnchor = ancestryAnchorX(bId, bNode ? bNode.depth : 0);
+
+      if (aAnchor !== null && bAnchor !== null && aAnchor !== bAnchor) {
+        return aAnchor < bAnchor ? [aId, bId] : [bId, aId];
+      }
+      if (aAnchor !== null && bAnchor === null) {
+        return aAnchor <= desiredCenter ? [aId, bId] : [bId, aId];
+      }
+      if (bAnchor !== null && aAnchor === null) {
+        return bAnchor <= desiredCenter ? [bId, aId] : [aId, bId];
+      }
+      if (aNode && bNode && aNode.x !== bNode.x) {
+        return aNode.x < bNode.x ? [aId, bId] : [bId, aId];
+      }
+      return [aId, bId];
+    }
+
     var rowsByDepth = {};
     allNodes.forEach(function(node) {
       if (!rowsByDepth[node.depth]) {
@@ -1278,7 +1346,7 @@
         }, 0) / sharedChildren.length;
         pairItems.push({
           type: 'pair',
-          ids: [aId, bId],
+          ids: orderedPairIds(aId, bId, desiredCenter),
           desiredCenter: desiredCenter,
           width: PARTNER_GAP_X,
           sharedChildren: sharedChildren
@@ -1485,6 +1553,7 @@
     var isGraphCandidate = !!(sidebarState.graphMode && sidebarState.graphMode.sourcePersonId !== person.id);
     var isFocusPerson = !!(currentFocusPersonId && currentFocusPersonId === person.id);
     var isRootPerson = !!(currentRootPersonId && currentRootPersonId === person.id);
+    var nodeLabel = treeNodeLabel(person);
     var nodeGroup = g.append('g')
       .attr('class', 'tree-node person-node' +
         (person.branch ? ' person-node--branch-' + person.branch : '') +
@@ -1536,7 +1605,7 @@
           .attr('font-size', '14px')
           .attr('font-weight', '700')
           .attr('pointer-events', 'none')
-          .text(person.display_name.substring(0, 2));
+          .text(nodeLabel.substring(0, 2));
       }
       // Camera icon overlay for photo-less nodes
       if (preferences.show_photos) {
@@ -1615,7 +1684,7 @@
       nodeGroup.append('text')
         .attr('class', 'name-label')
         .attr('dy', nextTextY)
-        .text(person.display_name);
+        .text(nodeLabel);
       nextTextY += 15;
     }
 
@@ -1837,11 +1906,9 @@
   }
 
   async function openPersonSidebar(personId, triggerNode) {
-    if (currentSidebarPersonId && currentSidebarPersonId !== personId) {
-      sidebarState.activeTab = '';
-      sidebarState.relationshipGroup = '';
-      sidebarState.highlightMediaId = '';
-    }
+    sidebarState.activeTab = '';
+    sidebarState.relationshipGroup = '';
+    sidebarState.highlightMediaId = '';
     sidebarTrigger = triggerNode || document.activeElement;
     sidebar.classList.add('person-sidebar--open');
     window.openAccessibleOverlay(sidebar, {initialFocus: '.person-sidebar__close'});
@@ -2242,12 +2309,18 @@
             'confidence'
           ]
         });
-      // Collect JSON array fields (education, career, organizations, admixture, medical_conditions)
-      payload.education = collectJsonArrayEntries('education');
-      payload.career = collectJsonArrayEntries('career');
-      payload.organizations = collectJsonArrayEntries('organizations');
-      payload.admixture = collectJsonArrayEntries('admixture');
-      payload.medical_conditions = collectJsonArrayEntries('medical_conditions');
+      // Only send advanced collection fields when the compact tree form exposes them.
+      [
+        'education',
+        'career',
+        'organizations',
+        'admixture',
+        'medical_conditions'
+      ].forEach(function(fieldName) {
+        if (form.querySelector('[data-json-field="' + fieldName + '"]') || form.querySelector('#tree-' + fieldName + '-entries')) {
+          payload[fieldName] = collectJsonArrayEntries(fieldName);
+        }
+      });
       // Handle is_living checkbox (unchecked = not in FormData)
       var livingCheckbox = form.querySelector('[name="is_living"]');
       if (livingCheckbox) {

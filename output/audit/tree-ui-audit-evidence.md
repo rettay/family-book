@@ -67,18 +67,22 @@ Verifier hardening included in this packet:
 Artifact set:
 - Desktop browse/read screenshot: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-member-view.png`
 - Desktop focus/context screenshot: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-focus-sidebar.png`
+- Desktop quick-edit screenshot: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-details-admin.png`
 - Mobile browse screenshot: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/home-mobile.png`
 - Spanish tree screenshot: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-es.png`
+- Spanish quick-edit screenshot: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-details-es.png`
 
 Review notes:
 - `contributing_member` / `find_person_in_tree` / desktop / `en`
   `tree-member-view.png` shows generation bands, lateral partner placement, and the adversarial no-partnership co-parent case (`Jane Martin` + `Alex Stone` -> `Jordan Stone`) as a shared descendant structure rather than a fake spouse or ancestry line.
 - `family_admin` / `open_sidebar_and_edit_overview` + `add_relative_from_tree_context` / desktop / `en`
   `tree-focus-sidebar.png` shows the selected-person family context summary, explicit focus/root actions, and relationship-edit entry points in one sidebar without the old always-on cancel affordance leaking into browse mode.
+  `tree-details-admin.png` shows the condensed quick-edit details view with the simplified identity, dates, places, notes, and contact groupings.
 - `mobile_first_relative` / `find_person_in_tree` / mobile / `en`
   `home-mobile.png` shows the tree controls stacked without horizontal overflow and the canvas/zoom controls still reachable on a narrow viewport.
 - `contributing_member` / `find_person_in_tree` / desktop / `es`
-  `tree-es.png` shows the tree workspace labels localized on the changed surface itself (`Arbol Familiar`, `Foco actual`, `Guardar Vista`, `Calcular relación`, `Aplicar Filtros`) while preserving the same family-unit semantics.
+  `tree-es.png` shows the tree workspace labels localized on the changed surface itself (`Árbol Familiar`, `Foco actual`, `Guardar Vista`, `Calcular relación`, `Aplicar Filtros`) while preserving the same family-unit semantics.
+  `tree-details-es.png` shows the simplified quick-edit pane localized in Spanish (`Edición rápida`, `Identidad`, `Historia y notas`, `Correo Electrónico`) rather than leaking English section labels.
 
 Rubric outcome:
 - `hierarchy_and_readability`: pass

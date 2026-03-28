@@ -184,6 +184,9 @@ class PersonSummary(BaseModel):
     id: str
     display_name: str
     nickname: str | None
+    last_name: str | None = None
+    patronymic: str | None = None
+    name_display_order: str | None = None
     photo_url: str | None
     birth_date_raw: str | None = None
     residence_country_code: str | None
@@ -197,8 +200,6 @@ class PersonSummary(BaseModel):
 
 class PersonDetail(PersonSummary):
     first_name: str | None = None  # None for root person
-    last_name: str | None = None   # None for root person
-    patronymic: str | None = None
     birth_last_name: str | None = None
     gender: str | None = None
     birth_date_raw: str | None = None
@@ -260,6 +261,9 @@ def person_to_summary(person) -> PersonSummary:
         id=person.id,
         display_name=person.display_name,
         nickname=person.nickname if not person.is_root else None,
+        last_name=None if person.is_root else person.last_name,
+        patronymic=None if person.is_root else person.patronymic,
+        name_display_order=None if person.is_root else person.name_display_order,
         photo_url=person.photo_url,
         birth_date_raw=person.birth_date_raw,
         residence_country_code=person.residence_country_code,
@@ -285,6 +289,8 @@ def person_to_detail(person) -> PersonDetail:
             media_count=getattr(person, "media_count", 0) or 0,
             first_name=None,
             last_name=None,
+            patronymic=None,
+            name_display_order=None,
             slug=person.slug,
             is_root=True,
             source=person.source,
@@ -303,6 +309,7 @@ def person_to_detail(person) -> PersonDetail:
         first_name=person.first_name,
         last_name=person.last_name,
         patronymic=person.patronymic,
+        name_display_order=person.name_display_order,
         birth_last_name=person.birth_last_name,
         gender=person.gender,
         birth_date_raw=person.birth_date_raw,

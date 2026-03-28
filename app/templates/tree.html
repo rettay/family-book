@@ -42,12 +42,23 @@
     position: absolute; top: 50%; left: 0; z-index: 19;
     transform: translateY(-50%);
     background: rgba(255, 253, 248, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
-    border-left: none; border-radius: 0 6px 6px 0;
-    padding: 12px 6px; cursor: pointer; color: #6b6054;
+    border-left: none; border-radius: 0 14px 14px 0;
+    padding: 10px 12px 10px 10px; cursor: pointer; color: #6b6054;
     font-size: 0.85rem; box-shadow: 2px 0 8px rgba(0,0,0,0.08);
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
   .tree-panel-expand-tab:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
+  .tree-panel-expand-tab__icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .tree-panel-expand-tab__label {
+    font-weight: 600;
+    white-space: nowrap;
+  }
   .tree-panel__group {
     margin-bottom: 1rem;
     padding: 0.9rem;
@@ -310,6 +321,7 @@
     <section class="tree-panel__group" data-tree-panel-group="view">
       <h2 class="tree-panel__title">{{ t('tree.display_preferences') }}</h2>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-names"> {{ t('tree.show_names') }}</label>
+      <label class="tree-toggle"><input type="checkbox" id="pref-show-nicknames"> {{ t('tree.show_nicknames') }}</label>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-birth-dates"> {{ t('tree.show_birth_dates') }}</label>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-country-flags"> {{ t('tree.show_country_flags') }}</label>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-photos"> {{ t('tree.show_photos') }}</label>
@@ -408,8 +420,11 @@
       </div>
 
       <button class="tree-panel-expand-tab" id="tree-panel-expand-tab" type="button"
-              aria-label="Expand controls panel" title="Expand controls panel"
-              onclick="toggleTreePanel()" hidden>&#x276F;</button>
+              aria-label="{{ t('tree.show_controls') }}" title="{{ t('tree.show_controls') }}"
+              onclick="toggleTreePanel()" hidden>
+        <span class="tree-panel-expand-tab__icon">&#x276F;</span>
+        <span class="tree-panel-expand-tab__label">{{ t('tree.show_controls') }}</span>
+      </button>
       <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
         <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">

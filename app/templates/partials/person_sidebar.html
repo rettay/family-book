@@ -245,13 +245,18 @@
 
   <section class="tree-sidebar-panel" data-tree-sidebar-panel="details" hidden>
     <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
-      <h3 class="tree-sidebar-card__section-title">{{ t('tree.quick_edit') }}</h3>
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('tree.quick_edit') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.quick_edit_hint') }}</p>
+        </div>
+      </div>
       {% if can_manage %}
       <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
         <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="identity" open>
-          <summary>Identity</summary>
+          <summary>{{ t('tree.identity_section') }}</summary>
           <div class="tree-inline-form__row">
             <label>
               {{ t('person.first_name') }}
@@ -274,104 +279,72 @@
           </div>
           <div class="tree-inline-form__row">
             <label>
-              Patronymic
-              <input class="form-input" type="text" name="patronymic" value="{{ person.patronymic or '' }}">
-            </label>
-            <label>
-              Birth Last Name
+              {{ t('person.birth_last_name') }}
               <input class="form-input" type="text" name="birth_last_name" value="{{ person.birth_last_name or '' }}">
             </label>
-          </div>
-          <div class="tree-inline-form__row">
             <label>
-              Gender
+              {{ t('person.gender') }}
               <select class="form-input" name="gender">
                 <option value="">—</option>
-                <option value="male"{% if person.gender == 'male' %} selected{% endif %}>Male</option>
-                <option value="female"{% if person.gender == 'female' %} selected{% endif %}>Female</option>
-                <option value="other"{% if person.gender == 'other' %} selected{% endif %}>Other</option>
-              </select>
-            </label>
-            <label>
-              Name Order
-              <select class="form-input" name="name_display_order">
-                <option value="western"{% if person.name_display_order == 'western' %} selected{% endif %}>Western</option>
-                <option value="eastern"{% if person.name_display_order == 'eastern' %} selected{% endif %}>Eastern</option>
-                <option value="patronymic"{% if person.name_display_order == 'patronymic' %} selected{% endif %}>Patronymic</option>
-              </select>
-            </label>
-          </div>
-          <div class="tree-inline-form__row">
-            <label>
-              {{ t('person.source_detail') }}
-              <textarea class="form-input" name="source_detail" rows="2" placeholder="e.g. 1940 US Census via Ancestry.com">{{ person.source_detail or '' }}</textarea>
-            </label>
-          </div>
-          <div class="tree-inline-form__row">
-            <label>
-              {{ t('person.confidence') }}
-              <select class="form-input" name="confidence">
-                <option value="">—</option>
-                <option value="confirmed"{% if person.confidence == 'confirmed' %} selected{% endif %}>{{ t('person.confidence_confirmed') }}</option>
-                <option value="probable"{% if person.confidence == 'probable' %} selected{% endif %}>{{ t('person.confidence_probable') }}</option>
-                <option value="uncertain"{% if person.confidence == 'uncertain' %} selected{% endif %}>{{ t('person.confidence_uncertain') }}</option>
-                <option value="unknown"{% if person.confidence == 'unknown' %} selected{% endif %}>{{ t('person.confidence_unknown') }}</option>
+                <option value="male"{% if person.gender == 'male' %} selected{% endif %}>{{ t('person.male') }}</option>
+                <option value="female"{% if person.gender == 'female' %} selected{% endif %}>{{ t('person.female') }}</option>
+                <option value="other"{% if person.gender == 'other' %} selected{% endif %}>{{ t('person.other') }}</option>
               </select>
             </label>
           </div>
         </details>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="dates">
-          <summary>Dates</summary>
+          <summary>{{ t('tree.dates_section') }}</summary>
           <div class="tree-inline-form__row">
             <label>
               {{ t('person.birth_date') }}
-              <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}" placeholder="e.g. about 1920">
+              <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}" placeholder="{{ t('person.date_placeholder') }}">
             </label>
             <label>
-              Precision
+              {{ t('tree.precision') }}
               <select class="form-input" name="birth_date_precision">
                 <option value="">—</option>
-                <option value="exact"{% if person.birth_date_precision == 'exact' %} selected{% endif %}>Exact</option>
-                <option value="month"{% if person.birth_date_precision == 'month' %} selected{% endif %}>Month</option>
-                <option value="year"{% if person.birth_date_precision == 'year' %} selected{% endif %}>Year</option>
-                <option value="decade"{% if person.birth_date_precision == 'decade' %} selected{% endif %}>Decade</option>
-                <option value="approximate"{% if person.birth_date_precision == 'approximate' %} selected{% endif %}>Approximate</option>
+                <option value="exact"{% if person.birth_date_precision == 'exact' %} selected{% endif %}>{{ t('person.date_precision_exact') }}</option>
+                <option value="month"{% if person.birth_date_precision == 'month' %} selected{% endif %}>{{ t('person.date_precision_month') }}</option>
+                <option value="year"{% if person.birth_date_precision == 'year' %} selected{% endif %}>{{ t('person.date_precision_year') }}</option>
+                <option value="decade"{% if person.birth_date_precision == 'decade' %} selected{% endif %}>{{ t('tree.date_precision_decade') }}</option>
+                <option value="approximate"{% if person.birth_date_precision == 'approximate' %} selected{% endif %}>{{ t('person.date_precision_approximate') }}</option>
               </select>
             </label>
           </div>
           <div class="tree-inline-form__row">
             <label>
-              Death Date
-              <input class="form-input" type="text" name="death_date_raw" value="{{ person.death_date_raw or '' }}" placeholder="e.g. 15 Mar 1987">
+              {{ t('person.death_date') }}
+              <input class="form-input" type="text" name="death_date_raw" value="{{ person.death_date_raw or '' }}" placeholder="{{ t('person.date_placeholder') }}">
             </label>
             <label>
-              Precision
+              {{ t('tree.precision') }}
               <select class="form-input" name="death_date_precision">
                 <option value="">—</option>
-                <option value="exact"{% if person.death_date_precision == 'exact' %} selected{% endif %}>Exact</option>
-                <option value="month"{% if person.death_date_precision == 'month' %} selected{% endif %}>Month</option>
-                <option value="year"{% if person.death_date_precision == 'year' %} selected{% endif %}>Year</option>
-                <option value="decade"{% if person.death_date_precision == 'decade' %} selected{% endif %}>Decade</option>
-                <option value="approximate"{% if person.death_date_precision == 'approximate' %} selected{% endif %}>Approximate</option>
+                <option value="exact"{% if person.death_date_precision == 'exact' %} selected{% endif %}>{{ t('person.date_precision_exact') }}</option>
+                <option value="month"{% if person.death_date_precision == 'month' %} selected{% endif %}>{{ t('person.date_precision_month') }}</option>
+                <option value="year"{% if person.death_date_precision == 'year' %} selected{% endif %}>{{ t('person.date_precision_year') }}</option>
+                <option value="decade"{% if person.death_date_precision == 'decade' %} selected{% endif %}>{{ t('tree.date_precision_decade') }}</option>
+                <option value="approximate"{% if person.death_date_precision == 'approximate' %} selected{% endif %}>{{ t('person.date_precision_approximate') }}</option>
               </select>
             </label>
           </div>
           <label class="tree-toggle">
             <input type="checkbox" name="is_living" value="true"{% if person.is_living %} checked{% endif %}>
-            Living
+            {{ t('person.living') }}
           </label>
         </details>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="places">
-          <summary>Places</summary>
+          <summary>{{ t('tree.places_section') }}</summary>
           <div class="tree-inline-form__row">
             <label>
               {{ t('person.birth_place') }}
               <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}">
             </label>
             <label>
-              Birth Country
+              {{ t('person.birth_country') }}
               <input class="form-input" type="text" name="birth_country_code" maxlength="2" value="{{ person.birth_country_code or '' }}" placeholder="US">
             </label>
           </div>
@@ -387,240 +360,67 @@
           </div>
           <div class="tree-inline-form__row">
             <label>
-              Burial Place
+              {{ t('person.burial_place') }}
               <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}">
             </label>
             <label>
-              Burial Country
+              {{ t('person.burial_country') }}
               <input class="form-input" type="text" name="burial_country_code" maxlength="2" value="{{ person.burial_country_code or '' }}" placeholder="US">
             </label>
           </div>
           <div class="tree-inline-form__row">
             <label>
-              Cemetery Name
+              {{ t('person.burial_cemetery_name') }}
               <input class="form-input" type="text" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
             </label>
             <label>
-              Plot Number
+              {{ t('person.burial_plot_number') }}
               <input class="form-input" type="text" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
             </label>
           </div>
         </details>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="notes">
-          <summary>Notes</summary>
+          <summary>{{ t('tree.story_notes_section') }}</summary>
           <label>
             {{ t('person.bio') }}
             <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
           </label>
           <label>
-            Research Notes
-            <textarea class="form-textarea" name="research_notes" rows="4" placeholder="Working notes about genealogy research...">{{ person.research_notes or '' }}</textarea>
+            {{ t('person.research_notes_label') }}
+            <textarea class="form-textarea" name="research_notes" rows="4" placeholder="{{ t('tree.research_notes_placeholder') }}">{{ person.research_notes or '' }}</textarea>
+          </label>
+          <label>
+            {{ t('person.languages') }}
+            <input class="form-input" type="text" name="languages" value="{{ person.languages | join(', ') }}" placeholder="{{ t('tree.languages_placeholder') }}">
           </label>
         </details>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="contact">
-          <summary>Contact</summary>
+          <summary>{{ t('person.contact') }}</summary>
           <div class="tree-inline-form__row">
             <label>
-              WhatsApp
-              <input class="form-input" type="text" name="contact_whatsapp" value="{{ person.contact_whatsapp or '' }}">
-            </label>
-            <label>
-              Telegram
-              <input class="form-input" type="text" name="contact_telegram" value="{{ person.contact_telegram or '' }}">
-            </label>
-          </div>
-          <div class="tree-inline-form__row">
-            <label>
-              Signal
-              <input class="form-input" type="text" name="contact_signal" value="{{ person.contact_signal or '' }}">
-            </label>
-            <label>
-              Email
+              {{ t('person.contact_email') }}
               <input class="form-input" type="email" name="contact_email" value="{{ person.contact_email or '' }}">
             </label>
-          </div>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="languages">
-          <summary>Languages</summary>
-          <label>
-            Languages (comma-separated: en, es, ru)
-            <input class="form-input" type="text" name="languages" value="{{ person.languages | join(', ') }}">
-          </label>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="obituary">
-          <summary>{{ t('person.obituary') }}</summary>
-          <label>
-            {{ t('person.obituary') }}
-            <textarea class="form-textarea" name="obituary" rows="4">{{ person.obituary or '' }}</textarea>
-          </label>
-          <label>
-            {{ t('person.obituary_source') }}
-            <input class="form-input" type="text" name="obituary_source" value="{{ person.obituary_source or '' }}">
-          </label>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="education">
-          <summary>{{ t('person.education') }}</summary>
-          <div id="tree-education-entries">
-            {% for edu in person.education %}
-            <div class="tree-json-entry" data-json-field="education">
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.education_institution') }}<input class="form-input" type="text" data-key="institution" value="{{ edu.institution or '' }}"></label>
-                <label>{{ t('person.education_degree') }}<input class="form-input" type="text" data-key="degree" value="{{ edu.degree or '' }}"></label>
-              </div>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.education_field') }}<input class="form-input" type="text" data-key="field_of_study" value="{{ edu.field_of_study or '' }}"></label>
-                <label>{{ t('person.education_year_start') }}<input class="form-input" type="text" data-key="year_start" value="{{ edu.year_start or '' }}"></label>
-              </div>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.education_year_end') }}<input class="form-input" type="text" data-key="year_end" value="{{ edu.year_end or '' }}"></label>
-                <label>{{ t('person.education_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ edu.notes or '' }}"></label>
-              </div>
-              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
-            </div>
-            {% endfor %}
-          </div>
-          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('education')">+ Add Education</button>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="career">
-          <summary>{{ t('person.career') }}</summary>
-          <div id="tree-career-entries">
-            {% for job in person.career %}
-            <div class="tree-json-entry" data-json-field="career">
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.career_employer') }}<input class="form-input" type="text" data-key="employer" value="{{ job.employer or '' }}"></label>
-                <label>{{ t('person.career_title') }}<input class="form-input" type="text" data-key="title" value="{{ job.title or '' }}"></label>
-              </div>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.career_year_start') }}<input class="form-input" type="text" data-key="year_start" value="{{ job.year_start or '' }}"></label>
-                <label>{{ t('person.career_year_end') }}<input class="form-input" type="text" data-key="year_end" value="{{ job.year_end or '' }}"></label>
-              </div>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.career_location') }}<input class="form-input" type="text" data-key="location" value="{{ job.location or '' }}"></label>
-                <label>{{ t('person.career_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ job.notes or '' }}"></label>
-              </div>
-              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
-            </div>
-            {% endfor %}
-          </div>
-          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('career')">+ Add Career</button>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="organizations">
-          <summary>{{ t('person.organizations') }}</summary>
-          <div id="tree-organizations-entries">
-            {% for org in person.organizations %}
-            <div class="tree-json-entry" data-json-field="organizations">
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.org_name') }}<input class="form-input" type="text" data-key="name" value="{{ org.name or '' }}"></label>
-                <label>{{ t('person.org_role') }}<input class="form-input" type="text" data-key="role" value="{{ org.role or '' }}"></label>
-              </div>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.org_year_joined') }}<input class="form-input" type="text" data-key="year_joined" value="{{ org.year_joined or '' }}"></label>
-                <label>{{ t('person.org_year_left') }}<input class="form-input" type="text" data-key="year_left" value="{{ org.year_left or '' }}"></label>
-              </div>
-              <label>{{ t('person.org_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ org.notes or '' }}"></label>
-              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
-            </div>
-            {% endfor %}
-          </div>
-          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('organizations')">+ Add Organization</button>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="physical">
-          <summary>{{ t('person.physical_attributes') }}</summary>
-          <div class="tree-inline-form__row">
-            <label>{{ t('person.height') }}<input class="form-input" type="text" name="height" value="{{ person.height or '' }}" placeholder="5'10&quot; / 178cm"></label>
-            <label>{{ t('person.weight') }}<input class="form-input" type="text" name="weight" value="{{ person.weight or '' }}" placeholder="170 lbs / 77kg"></label>
+            <label>
+              {{ t('person.contact_whatsapp') }}
+              <input class="form-input" type="text" name="contact_whatsapp" value="{{ person.contact_whatsapp or '' }}">
+            </label>
           </div>
           <div class="tree-inline-form__row">
-            <label>{{ t('person.eye_color') }}<input class="form-input" type="text" name="eye_color" value="{{ person.eye_color or '' }}"></label>
-            <label>{{ t('person.hair_color') }}<input class="form-input" type="text" name="hair_color" value="{{ person.hair_color or '' }}"></label>
+            <label>
+              {{ t('person.contact_telegram') }}
+              <input class="form-input" type="text" name="contact_telegram" value="{{ person.contact_telegram or '' }}">
+            </label>
+            <label>
+              {{ t('person.contact_signal') }}
+              <input class="form-input" type="text" name="contact_signal" value="{{ person.contact_signal or '' }}">
+            </label>
           </div>
-          <label>
-            {{ t('person.blood_type') }}
-            <select class="form-input" name="blood_type">
-              <option value="">—</option>
-              <option value="A+"{% if person.blood_type == 'A+' %} selected{% endif %}>A+</option>
-              <option value="A-"{% if person.blood_type == 'A-' %} selected{% endif %}>A-</option>
-              <option value="B+"{% if person.blood_type == 'B+' %} selected{% endif %}>B+</option>
-              <option value="B-"{% if person.blood_type == 'B-' %} selected{% endif %}>B-</option>
-              <option value="AB+"{% if person.blood_type == 'AB+' %} selected{% endif %}>AB+</option>
-              <option value="AB-"{% if person.blood_type == 'AB-' %} selected{% endif %}>AB-</option>
-              <option value="O+"{% if person.blood_type == 'O+' %} selected{% endif %}>O+</option>
-              <option value="O-"{% if person.blood_type == 'O-' %} selected{% endif %}>O-</option>
-            </select>
-          </label>
         </details>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="genetic">
-          <summary>{{ t('person.genetic_profile') }}</summary>
-          <div class="tree-inline-form__row">
-            <label>{{ t('person.maternal_haplogroup') }}<input class="form-input" type="text" name="maternal_haplogroup" value="{{ person.maternal_haplogroup or '' }}"></label>
-            <label>{{ t('person.paternal_haplogroup') }}<input class="form-input" type="text" name="paternal_haplogroup" value="{{ person.paternal_haplogroup or '' }}"></label>
-          </div>
-          <label>{{ t('person.dna_test_provider') }}<input class="form-input" type="text" name="dna_test_provider" value="{{ person.dna_test_provider or '' }}" placeholder="23andMe, AncestryDNA..."></label>
-          <div id="tree-admixture-entries">
-            {% for adm in person.admixture %}
-            <div class="tree-json-entry" data-json-field="admixture">
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.admixture_ethnicity') }}<input class="form-input" type="text" data-key="ethnicity" value="{{ adm.ethnicity or '' }}"></label>
-                <label>{{ t('person.admixture_percentage') }}<input class="form-input" type="text" data-key="percentage" value="{{ adm.percentage or '' }}"></label>
-              </div>
-              <label>{{ t('person.admixture_source') }}<input class="form-input" type="text" data-key="source" value="{{ adm.source or '' }}"></label>
-              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
-            </div>
-            {% endfor %}
-          </div>
-          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('admixture')">+ {{ t('person.add_admixture') }}</button>
-        </details>
-
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="medical_conditions">
-          <summary>{{ t('person.medical_conditions') }}</summary>
-          <div id="tree-medical_conditions-entries">
-            {% for mc in person.medical_conditions %}
-            <div class="tree-json-entry" data-json-field="medical_conditions">
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.condition_name') }}<input class="form-input" type="text" data-key="condition" value="{{ mc.condition or '' }}"></label>
-                <label>{{ t('person.condition_onset_age') }}<input class="form-input" type="text" data-key="onset_age" value="{{ mc.onset_age or '' }}"></label>
-              </div>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.condition_status') }}
-                  <select class="form-input" data-key="status">
-                    <option value="">—</option>
-                    <option value="active"{% if mc.status == 'active' %} selected{% endif %}>Active</option>
-                    <option value="resolved"{% if mc.status == 'resolved' %} selected{% endif %}>Resolved</option>
-                    <option value="managed"{% if mc.status == 'managed' %} selected{% endif %}>Managed</option>
-                    <option value="unknown"{% if mc.status == 'unknown' %} selected{% endif %}>Unknown</option>
-                  </select>
-                </label>
-                <label>{{ t('person.condition_severity') }}<input class="form-input" type="text" data-key="severity" value="{{ mc.severity or '' }}"></label>
-              </div>
-              <label>{{ t('person.condition_treatment') }}<input class="form-input" type="text" data-key="treatment" value="{{ mc.treatment or '' }}"></label>
-              <div class="tree-inline-form__row">
-                <label>{{ t('person.condition_hereditary_line') }}
-                  <select class="form-input" data-key="hereditary_line">
-                    <option value="">—</option>
-                    <option value="maternal"{% if mc.hereditary_line == 'maternal' %} selected{% endif %}>Maternal</option>
-                    <option value="paternal"{% if mc.hereditary_line == 'paternal' %} selected{% endif %}>Paternal</option>
-                    <option value="both"{% if mc.hereditary_line == 'both' %} selected{% endif %}>Both</option>
-                    <option value="unknown"{% if mc.hereditary_line == 'unknown' %} selected{% endif %}>Unknown</option>
-                  </select>
-                </label>
-                <label>{{ t('person.condition_notes') }}<input class="form-input" type="text" data-key="notes" value="{{ mc.notes or '' }}"></label>
-              </div>
-              <button type="button" class="btn btn--ghost btn--sm" onclick="this.closest('.tree-json-entry').remove()">Remove</button>
-            </div>
-            {% endfor %}
-          </div>
-          <button type="button" class="btn btn--secondary btn--sm" onclick="addJsonArrayEntry('medical_conditions')">+ {{ t('person.add_condition') }}</button>
-        </details>
-
+        <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.advanced_fields_hint') }}</p>
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}

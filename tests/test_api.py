@@ -552,6 +552,9 @@ async def test_tree_authenticated(admin_client: AsyncClient):
     assert "parent_child" in data
     assert "partnerships" in data
     assert data["root_id"] == "root-0000-0000-0000-000000000001"
+    tyler = next(person for person in data["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
+    assert tyler["last_name"] == "Martin"
+    assert tyler["name_display_order"] == "western"
 
 
 @pytest.mark.asyncio
@@ -570,6 +573,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
 
     update = await member_client.put("/api/tree/preferences", json={
         "show_names": False,
+        "show_nicknames": True,
         "show_birth_dates": True,
         "show_country_flags": False,
         "show_photos": False,
@@ -577,6 +581,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
     assert update.status_code == 200
     assert update.json() == {
         "show_names": False,
+        "show_nicknames": True,
         "show_birth_dates": True,
         "show_country_flags": False,
         "show_photos": False,
@@ -586,11 +591,13 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
     assert member_reloaded.status_code == 200
     assert member_reloaded.json()["show_birth_dates"] is True
     assert member_reloaded.json()["show_names"] is False
+    assert member_reloaded.json()["show_nicknames"] is True
 
     admin_view = await admin_client.get("/api/tree/preferences")
     assert admin_view.status_code == 200
     assert admin_view.json() == {
         "show_names": True,
+        "show_nicknames": False,
         "show_birth_dates": False,
         "show_country_flags": True,
         "show_photos": True,

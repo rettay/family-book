@@ -8,6 +8,7 @@ from app.models.base import Base, TimestampMixin, generate_uuid
 
 DEFAULT_TREE_PREFERENCES = {
     "show_names": True,
+    "show_nicknames": False,
     "show_birth_dates": False,
     "show_country_flags": True,
     "show_photos": True,

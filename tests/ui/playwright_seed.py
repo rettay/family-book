@@ -44,6 +44,7 @@ async def seed() -> None:
             id=TYLER_ID,
             first_name="Tyler",
             last_name="Martin",
+            nickname="Ty",
             birth_date_raw="14 Mar 1985",
             birth_date="1985-03-14",
             birth_date_precision="exact",

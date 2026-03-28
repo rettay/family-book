@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 class TreePreferencesPayload(BaseModel):
     show_names: bool = DEFAULT_TREE_PREFERENCES["show_names"]
+    show_nicknames: bool = DEFAULT_TREE_PREFERENCES["show_nicknames"]
     show_birth_dates: bool = DEFAULT_TREE_PREFERENCES["show_birth_dates"]
     show_country_flags: bool = DEFAULT_TREE_PREFERENCES["show_country_flags"]
     show_photos: bool = DEFAULT_TREE_PREFERENCES["show_photos"]
