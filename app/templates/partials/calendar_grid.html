@@ -34,6 +34,10 @@
       <input type="checkbox" checked onchange="toggleCalFilter('anniversary', this.checked)">
       <span class="cal__filter-dot cal__filter-dot--anniversary"></span> {{ t('calendar.anniversaries') }}
     </label>
+    <label class="cal__filter">
+      <input type="checkbox" checked onchange="toggleCalFilter('external', this.checked)">
+      <span class="cal__filter-dot cal__filter-dot--external"></span> {{ t('calendar.external_events') }}
+    </label>
   </div>
 
   {# Desktop grid view #}
@@ -82,7 +86,12 @@
     {% endif %}
     <div class="cal__list-event cal__list-event--{{ ev.type }}" role="listitem" data-event-type="{{ ev.type }}">
       <span class="cal__dot cal__dot--{{ ev.type }}"></span>
-      <span class="cal__list-label">{{ ev.label }}</span>
+      <span class="cal__list-label">
+        {{ ev.label }}
+        {% if ev.source_name %}
+        <span class="cal__list-source">{{ ev.source_name }}</span>
+        {% endif %}
+      </span>
     </div>
     {% endfor %}
     {% else %}
@@ -125,6 +134,12 @@
         dot.className = 'cal__dot cal__dot--' + ev.type;
         var label = document.createElement('span');
         label.textContent = ev.label;
+        if (ev.source_name) {
+          var source = document.createElement('span');
+          source.className = 'cal__day-detail-source';
+          source.textContent = ' · ' + ev.source_name;
+          label.appendChild(source);
+        }
         div.appendChild(dot);
         div.appendChild(label);
         body.appendChild(div);

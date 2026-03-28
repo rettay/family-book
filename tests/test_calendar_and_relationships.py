@@ -2,6 +2,10 @@
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
+
+from app.models.person import Person
+from app.services.calendar_service import clear_external_calendar_cache
 
 
 # ── Calendar API ─────────────────────────────────────────────────────
@@ -131,6 +135,163 @@ async def test_calendar_partial_returns_html(admin_client: AsyncClient):
     resp = await admin_client.get("/partials/calendar-grid?month=2026-03")
     assert resp.status_code == 200
     assert "March" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_calendar_birthdays_use_raw_date_fallback(admin_client: AsyncClient):
+    """Legacy raw-only dates should still produce birthdays on the calendar."""
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "Slash",
+        "last_name": "Date",
+        "birth_date_raw": "07/29/1947",
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/calendar?month=2026-07")
+    assert resp.status_code == 200
+    data = resp.json()
+    birthday_events = [e for e in data["events"] if e["type"] == "birthday" and "Slash Date" in e["label"]]
+    assert len(birthday_events) == 1
+    assert birthday_events[0]["day"] == 29
+
+
+@pytest.mark.asyncio
+async def test_calendar_external_ical_feed_events_appear(admin_client: AsyncClient, monkeypatch):
+    clear_external_calendar_cache()
+
+    async def fake_fetch_calendar_ics(url: str) -> bytes:
+        assert url == "https://example.com/holidays.ics"
+        return b"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Family Book Test//EN
+BEGIN:VEVENT
+UID:test-christmas@example.com
+DTSTART;VALUE=DATE:20201225
+RRULE:FREQ=YEARLY
+SUMMARY:Christmas Day
+END:VEVENT
+END:VCALENDAR
+"""
+
+    monkeypatch.setattr("app.services.calendar_service._fetch_calendar_ics", fake_fetch_calendar_ics)
+
+    resp = await admin_client.post("/api/calendar/sources", json={
+        "name": "Global Holidays",
+        "url": "https://example.com/holidays.ics",
+        "source_type": "holiday",
+        "enabled": True,
+    })
+    assert resp.status_code == 201
+
+    resp = await admin_client.get("/api/calendar?month=2026-12")
+    assert resp.status_code == 200
+    data = resp.json()
+    external_events = [e for e in data["events"] if e["type"] == "external" and e["label"] == "Christmas Day"]
+    assert len(external_events) == 1
+    assert external_events[0]["day"] == 25
+    assert external_events[0]["source_name"] == "Global Holidays"
+
+
+@pytest.mark.asyncio
+async def test_calendar_page_renders_external_sources_panel_for_admin(admin_client: AsyncClient):
+    resp = await admin_client.get("/calendar")
+    assert resp.status_code == 200
+    assert "Imported calendars" in resp.text
+    assert "Add feed" in resp.text
+    assert "Subscribe to this calendar" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_calendar_feed_requires_valid_token(client: AsyncClient):
+    resp = await client.get("/calendar/feed.ics?token=bad-token")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_calendar_feed_rejects_invalid_type(admin_client: AsyncClient, seeded_db):
+    result = await seeded_db.execute(
+        select(Person).where(Person.id == "tyler-000-0000-0000-000000000002")
+    )
+    tyler = result.scalar_one()
+
+    resp = await admin_client.get(f"/calendar/feed.ics?token={tyler.calendar_feed_token}&types=birthdy")
+    assert resp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_calendar_feed_exports_birthdays(admin_client: AsyncClient, seeded_db):
+    result = await seeded_db.execute(
+        select(Person).where(Person.id == "tyler-000-0000-0000-000000000002")
+    )
+    tyler = result.scalar_one()
+    tyler.birth_date = "1990-03-15"
+    tyler.birth_date_precision = "exact"
+    await seeded_db.commit()
+
+    resp = await admin_client.get(f"/calendar/feed.ics?token={tyler.calendar_feed_token}&types=birthday")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/calendar")
+    text = resp.text
+    assert "BEGIN:VCALENDAR" in text
+    assert "SUMMARY:Tyler Martin's birthday" in text
+    assert "RRULE:FREQ=YEARLY" in text
+    assert "CATEGORIES:birthday" in text
+
+
+@pytest.mark.asyncio
+async def test_calendar_feed_anniversary_filter_excludes_birthdays(admin_client: AsyncClient, seeded_db):
+    resp1 = await admin_client.post("/api/persons", json={
+        "first_name": "FeedA",
+        "last_name": "Pair",
+    })
+    resp2 = await admin_client.post("/api/persons", json={
+        "first_name": "FeedB",
+        "last_name": "Pair",
+    })
+    id_a = resp1.json()["id"]
+    id_b = resp2.json()["id"]
+
+    resp = await admin_client.post("/api/relationships/partnership", json={
+        "person_a_id": id_a,
+        "person_b_id": id_b,
+        "kind": "married",
+        "status": "active",
+        "start_date": "2000-06-20",
+        "start_date_precision": "exact",
+    })
+    assert resp.status_code == 201
+
+    result = await seeded_db.execute(
+        select(Person).where(Person.id == "tyler-000-0000-0000-000000000002")
+    )
+    tyler = result.scalar_one()
+    tyler.birth_date = "1990-03-15"
+    tyler.birth_date_precision = "exact"
+    await seeded_db.commit()
+
+    resp = await admin_client.get(f"/calendar/feed.ics?token={tyler.calendar_feed_token}&types=anniversary")
+    assert resp.status_code == 200
+    text = resp.text
+    assert "SUMMARY:" in text
+    assert "FeedA Pair" in text
+    assert "FeedB Pair" in text
+    assert "anniversary" in text
+    assert "Tyler Martin's birthday" not in text
+
+
+@pytest.mark.asyncio
+async def test_calendar_feed_token_rotation_changes_subscription_url(admin_client: AsyncClient, seeded_db):
+    result = await seeded_db.execute(
+        select(Person).where(Person.id == "tyler-000-0000-0000-000000000002")
+    )
+    tyler = result.scalar_one()
+    old_token = tyler.calendar_feed_token
+
+    resp = await admin_client.post("/calendar/feed-token/rotate", data={"month": "2026-03"})
+    assert resp.status_code == 200 or resp.status_code == 303
+
+    await seeded_db.refresh(tyler)
+    assert tyler.calendar_feed_token != old_token
 
 
 # ── Relationship Calculator API ──────────────────────────────────────
@@ -330,3 +491,4 @@ async def test_calendar_page_uses_i18n_filter_labels(admin_client: AsyncClient):
     assert "Birthdays" in resp.text
     assert "Remembrances" in resp.text
     assert "Anniversaries" in resp.text
+    assert "Imported calendars" in resp.text

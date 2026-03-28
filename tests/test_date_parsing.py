@@ -1,6 +1,5 @@
 """Tests for app.services.date_parsing — shared date string parser."""
 
-import pytest
 from app.services.date_parsing import parse_date_raw_to_iso
 
 
@@ -38,6 +37,12 @@ class TestEnglishFormats:
 
     def test_january(self):
         assert parse_date_raw_to_iso("January 1, 2000") == ("2000-01-01", "exact")
+
+    def test_slash_month_day_year(self):
+        assert parse_date_raw_to_iso("07/29/1947") == ("1947-07-29", "exact")
+
+    def test_slash_day_month_year_when_unambiguous(self):
+        assert parse_date_raw_to_iso("29/07/1947") == ("1947-07-29", "exact")
 
 
 class TestApproximatePrefixes:

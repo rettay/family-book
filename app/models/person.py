@@ -150,6 +150,7 @@ class Person(Base, TimestampMixin):
     contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_email: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_email_hash: Mapped[str | None] = mapped_column(String(64), default=None)
+    calendar_feed_token: Mapped[str] = mapped_column(String(36), unique=True, default=generate_uuid)
 
     photo_url: Mapped[str | None] = mapped_column(String(2000), default=None)
     branch: Mapped[str | None] = mapped_column(String(100), default=None)

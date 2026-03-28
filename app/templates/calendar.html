@@ -5,7 +5,105 @@
 <div class="calendar-page" id="calendar-page">
   <div class="calendar-page__header">
     <h1 class="calendar-page__title">{{ t('calendar.title') }}</h1>
+    <p class="calendar-page__lede">{{ t('calendar.subtitle') }}</p>
   </div>
+
+  <section class="calendar-subscribe" aria-label="{{ t('calendar.subscription_title') }}">
+    <div class="calendar-subscribe__header">
+      <div>
+        <h2 class="calendar-subscribe__title">{{ t('calendar.subscription_title') }}</h2>
+        <p class="calendar-subscribe__copy">{{ t('calendar.subscription_copy') }}</p>
+      </div>
+      <form method="post" action="/calendar/feed-token/rotate">
+        <input type="hidden" name="month" value="{{ current_month }}">
+        <button class="btn btn--ghost btn--sm" type="submit">{{ t('calendar.rotate_feed_token') }}</button>
+      </form>
+    </div>
+    <div class="calendar-subscribe__list">
+      {% for feed in calendar_feed_links %}
+      <article class="calendar-subscribe__item">
+        <div class="calendar-subscribe__meta">
+          <strong>{{ t(feed.label_key) }}</strong>
+          <span class="calendar-subscribe__hint">{{ t('calendar.subscription_https') }}</span>
+        </div>
+        <a class="calendar-subscribe__link" href="{{ feed.https_url }}">{{ feed.https_url }}</a>
+        <div class="calendar-subscribe__meta">
+          <span class="calendar-subscribe__hint">{{ t('calendar.subscription_webcal') }}</span>
+        </div>
+        <a class="calendar-subscribe__link" href="{{ feed.webcal_url }}">{{ feed.webcal_url }}</a>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if current_user.is_admin %}
+  <section class="calendar-admin" aria-label="{{ t('calendar.external_sources_title') }}">
+    <div class="calendar-admin__header">
+      <div>
+        <h2 class="calendar-admin__title">{{ t('calendar.external_sources_title') }}</h2>
+        <p class="calendar-admin__copy">{{ t('calendar.external_sources_copy') }}</p>
+      </div>
+    </div>
+
+    <form class="calendar-admin__form" method="post" action="/calendar/sources">
+      <input type="hidden" name="month" value="{{ current_month }}">
+      <label>
+        <span>{{ t('calendar.source_name') }}</span>
+        <input class="form-input" type="text" name="name" required placeholder="{{ t('calendar.source_name_placeholder') }}">
+      </label>
+      <label>
+        <span>{{ t('calendar.source_url') }}</span>
+        <input class="form-input" type="url" name="url" required placeholder="https://example.com/calendar.ics">
+      </label>
+      <label>
+        <span>{{ t('calendar.source_type') }}</span>
+        <select class="form-input" name="source_type">
+          <option value="holiday">{{ t('calendar.source_type_holiday') }}</option>
+          <option value="religious">{{ t('calendar.source_type_religious') }}</option>
+          <option value="observance">{{ t('calendar.source_type_observance') }}</option>
+          <option value="family">{{ t('calendar.source_type_family') }}</option>
+          <option value="other">{{ t('calendar.source_type_other') }}</option>
+        </select>
+      </label>
+      <button class="btn btn--primary" type="submit">{{ t('calendar.add_source') }}</button>
+    </form>
+
+    {% if external_sources %}
+    <div class="calendar-admin__sources">
+      {% for source in external_sources %}
+      <article class="calendar-admin__source">
+        <div class="calendar-admin__source-main">
+          <div class="calendar-admin__source-row">
+            <strong>{{ source.name }}</strong>
+            <span class="calendar-admin__badge">{{ t('calendar.source_type_' + source.source_type) if t('calendar.source_type_' + source.source_type) != 'calendar.source_type_' + source.source_type else source.source_type }}</span>
+            {% if source.enabled %}
+            <span class="calendar-admin__state calendar-admin__state--enabled">{{ t('calendar.source_enabled') }}</span>
+            {% else %}
+            <span class="calendar-admin__state">{{ t('calendar.source_disabled') }}</span>
+            {% endif %}
+          </div>
+          <div class="calendar-admin__source-url">{{ source.url }}</div>
+        </div>
+        <div class="calendar-admin__actions">
+          <form method="post" action="/calendar/sources/{{ source.id }}/toggle">
+            <input type="hidden" name="month" value="{{ current_month }}">
+            <button class="btn btn--ghost btn--sm" type="submit">
+              {{ t('calendar.disable_source') if source.enabled else t('calendar.enable_source') }}
+            </button>
+          </form>
+          <form method="post" action="/calendar/sources/{{ source.id }}/delete">
+            <input type="hidden" name="month" value="{{ current_month }}">
+            <button class="btn btn--ghost btn--sm" type="submit">{{ t('calendar.remove_source') }}</button>
+          </form>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="calendar-admin__empty">{{ t('calendar.no_external_sources') }}</p>
+    {% endif %}
+  </section>
+  {% endif %}
 
   <div id="calendar-grid-container">
     {% include "partials/calendar_grid.html" %}

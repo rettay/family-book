@@ -35,6 +35,7 @@ _NATURAL_MDY = re.compile(
 _NATURAL_MY = re.compile(
     r"^([A-Za-z]+)\s+(\d{4})$"
 )
+_SLASH_YMD = re.compile(r"^(\d{1,4})/(\d{1,2})/(\d{1,4})$")
 
 
 def parse_date_raw_to_iso(raw: str | None) -> tuple[str | None, str | None]:
@@ -123,6 +124,24 @@ def parse_date_raw_to_iso(raw: str | None) -> tuple[str | None, str | None]:
     # Year-only: "1985"
     if len(parts) == 1 and parts[0].isdigit() and len(parts[0]) == 4:
         return parts[0], precision or "year"
+
+    # Slash dates: 07/29/1947, 29/07/1947, 1947/07/29
+    m = _SLASH_YMD.match(text)
+    if m:
+        left, middle, right = m.group(1), m.group(2), m.group(3)
+        if len(left) == 4:
+            return f"{left}-{middle.zfill(2)}-{right.zfill(2)}", precision or "exact"
+        if len(right) == 4:
+            first = int(left)
+            second = int(middle)
+            year = right
+            if first > 12 and second <= 12:
+                day, month = first, second
+            elif second > 12 and first <= 12:
+                month, day = first, second
+            else:
+                month, day = first, second
+            return f"{year}-{str(month).zfill(2)}-{str(day).zfill(2)}", precision or "exact"
 
     # Unparseable but had approximate prefix
     if precision:

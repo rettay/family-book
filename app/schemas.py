@@ -426,6 +426,35 @@ class PartnershipResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# --- External Calendar Sources ---
+
+class ExternalCalendarSourceCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=200)
+    url: str = Field(min_length=1, max_length=1000)
+    source_type: str = Field(default="holiday", max_length=30)
+    enabled: bool = True
+
+
+class ExternalCalendarSourceUpdate(BaseModel):
+    name: str | None = Field(None, min_length=1, max_length=200)
+    url: str | None = Field(None, min_length=1, max_length=1000)
+    source_type: str | None = Field(None, max_length=30)
+    enabled: bool | None = None
+
+
+class ExternalCalendarSourceResponse(BaseModel):
+    id: str
+    name: str
+    url: str
+    source_type: str
+    enabled: bool
+    created_by: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
 # --- Tree ---
 
 class TreeResponse(BaseModel):
