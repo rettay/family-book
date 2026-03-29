@@ -109,6 +109,9 @@ async def test_security_headers_add_hsts_and_no_store(monkeypatch):
     assert response.headers["Cache-Control"] == "no-store"
     assert response.headers["Pragma"] == "no-cache"
     assert "Content-Security-Policy" in response.headers
+    csp = response.headers["Content-Security-Policy"]
+    assert "https://maps.googleapis.com" in csp
+    assert "https://maps.gstatic.com" in csp
 
 
 def test_rate_limit_resolve_key_prefers_session_cookie():
