@@ -149,3 +149,14 @@ Implications:
 - the map should evolve to plot persisted coordinates for residence, burial, and other supported place types
 - kinship-aware map views should be built on actual relationship-distance calculations from the family graph, not arbitrary manual tagging
 - if coordinates are unknown, the UI should either fall back explicitly or omit misleading precision rather than silently implying exact location
+
+### 22. Relationship correction must be edit-first, not delete-first
+
+Family members will make genealogy mistakes while editing the tree. When they do, the product should support direct correction of an existing relationship instead of requiring users to infer that they must delete a wrong link and recreate a new one.
+
+Implications:
+
+- parent-child relationships need a truthful correction contract, including direction reversal when safe
+- tree relationship cards should expose explicit `edit`, `reverse direction`, and `remove` actions where they make sense
+- parent-child reversal must be validated server-side against ancestry cycles rather than implemented as a fragile client-side delete/recreate sequence
+- relationship correction should happen in the tree workspace, since the tree is the primary editing surface

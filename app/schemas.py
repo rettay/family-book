@@ -402,6 +402,18 @@ class ParentChildCreate(BaseModel):
     end_date: str | None = None
 
 
+class ParentChildUpdate(BaseModel):
+    parent_id: str | None = None
+    child_id: str | None = None
+    kind: str | None = None
+    confidence: str | None = None
+    source: str | None = None
+    source_detail: str | None = None
+    notes: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+
+
 class ParentChildResponse(BaseModel):
     id: str
     parent_id: str
@@ -409,6 +421,10 @@ class ParentChildResponse(BaseModel):
     kind: str
     confidence: str | None
     source: str
+    source_detail: str | None = None
+    notes: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
     created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
@@ -430,9 +446,13 @@ class PartnershipCreate(BaseModel):
 
 
 class PartnershipUpdate(BaseModel):
+    kind: str | None = None
     status: str | None = None
+    start_date: str | None = None
+    start_date_precision: str | None = None
     end_date: str | None = None
     end_date_precision: str | None = None
+    source: str | None = None
     notes: str | None = None
 
 

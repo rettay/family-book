@@ -503,6 +503,7 @@
                 <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
                 <a href="/wiki/{{ related.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
                 {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='editTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.edit_relationship') }}</button>
                 <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
                 <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
                 {% endif %}
@@ -548,6 +549,7 @@
                 <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
                 <a href="/wiki/{{ related.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
                 {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='editTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.edit_relationship') }}</button>
                 <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
                 <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
                 {% endif %}
@@ -595,6 +597,7 @@
                 <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
                 <a href="/wiki/{{ related.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
                 {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='editTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "status": related.relationship_status, "start_date": related.relationship_start_date, "start_date_precision": related.relationship_start_date_precision, "end_date": related.relationship_end_date, "end_date_precision": related.relationship_end_date_precision, "source": related.relationship_source, "notes": related.relationship_notes}|tojson }})'>{{ t('tree.edit_relationship') }}</button>
                 <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "status": related.relationship_status, "start_date": related.relationship_start_date, "start_date_precision": related.relationship_start_date_precision, "end_date": related.relationship_end_date, "end_date_precision": related.relationship_end_date_precision, "source": related.relationship_source, "notes": related.relationship_notes}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
                 <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
                 {% endif %}
@@ -855,6 +858,190 @@
             <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_partner') }}</button>
           </form>
         </details>
+
+        <section class="tree-sidebar-disclosure tree-sidebar-disclosure--section hidden" id="tree-relationship-editor-shell">
+          <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+            <div>
+              <h4 class="tree-sidebar-card__section-title" id="tree-relationship-editor-title">{{ t('tree.edit_relationship') }}</h4>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">
+                <strong>{{ t('tree.current_related_person') }}</strong>
+                <span id="tree-relationship-editor-related-name"></span>
+              </p>
+            </div>
+          </div>
+
+          <form class="tree-inline-form tree-inline-form--compact hidden" data-tree-relationship-edit-form="parent" onsubmit="saveTreeRelationshipEdit(event)">
+            <input type="hidden" name="relationship_id">
+            <input type="hidden" name="relationship_type" value="parent-child">
+            <input type="hidden" name="person_id" value="{{ person.id }}">
+            <input type="hidden" name="group_name" value="parent">
+            <input type="hidden" name="related_person_id">
+            <input type="hidden" name="related_name">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              {{ t('person.source') }}
+              <input class="form-input" type="text" name="source" placeholder="{{ t('person.source_placeholder') }}">
+            </label>
+            <label>
+              {{ t('person.source_detail') }}
+              <input class="form-input" type="text" name="source_detail">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.start_date') }}
+                <input class="form-input" type="date" name="start_date">
+              </label>
+              <label>
+                {{ t('person.end_date') }}
+                <input class="form-input" type="date" name="end_date">
+              </label>
+            </div>
+            <label>
+              {{ t('person.notes') }}
+              <textarea class="form-input" name="notes" rows="3"></textarea>
+            </label>
+            <div class="tree-sidebar-inline-actions">
+              <button type="submit" class="btn btn--primary btn--sm">{{ t('tree.save_relationship') }}</button>
+              <button type="button" class="btn btn--secondary btn--sm" onclick="reverseTreeRelationshipEdit(this.form)">{{ t('tree.reverse_direction') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationshipFromEditor(this.form)">{{ t('tree.remove_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeRelationshipEdit()">{{ t('common.cancel') }}</button>
+            </div>
+          </form>
+
+          <form class="tree-inline-form tree-inline-form--compact hidden" data-tree-relationship-edit-form="child" onsubmit="saveTreeRelationshipEdit(event)">
+            <input type="hidden" name="relationship_id">
+            <input type="hidden" name="relationship_type" value="parent-child">
+            <input type="hidden" name="person_id" value="{{ person.id }}">
+            <input type="hidden" name="group_name" value="child">
+            <input type="hidden" name="related_person_id">
+            <input type="hidden" name="related_name">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              {{ t('person.source') }}
+              <input class="form-input" type="text" name="source" placeholder="{{ t('person.source_placeholder') }}">
+            </label>
+            <label>
+              {{ t('person.source_detail') }}
+              <input class="form-input" type="text" name="source_detail">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.start_date') }}
+                <input class="form-input" type="date" name="start_date">
+              </label>
+              <label>
+                {{ t('person.end_date') }}
+                <input class="form-input" type="date" name="end_date">
+              </label>
+            </div>
+            <label>
+              {{ t('person.notes') }}
+              <textarea class="form-input" name="notes" rows="3"></textarea>
+            </label>
+            <div class="tree-sidebar-inline-actions">
+              <button type="submit" class="btn btn--primary btn--sm">{{ t('tree.save_relationship') }}</button>
+              <button type="button" class="btn btn--secondary btn--sm" onclick="reverseTreeRelationshipEdit(this.form)">{{ t('tree.reverse_direction') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationshipFromEditor(this.form)">{{ t('tree.remove_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeRelationshipEdit()">{{ t('common.cancel') }}</button>
+            </div>
+          </form>
+
+          <form class="tree-inline-form tree-inline-form--compact hidden" data-tree-relationship-edit-form="partner" onsubmit="saveTreeRelationshipEdit(event)">
+            <input type="hidden" name="relationship_id">
+            <input type="hidden" name="relationship_type" value="partnership">
+            <input type="hidden" name="person_id" value="{{ person.id }}">
+            <input type="hidden" name="group_name" value="partner">
+            <input type="hidden" name="related_person_id">
+            <input type="hidden" name="related_name">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.partnership_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="married">{{ t('tree.partnership_kind_married') }}</option>
+                  <option value="domestic_partner">{{ t('tree.partnership_kind_domestic_partner') }}</option>
+                  <option value="co_parent">{{ t('tree.partnership_kind_co_parent') }}</option>
+                  <option value="engaged">{{ t('tree.partnership_kind_engaged') }}</option>
+                  <option value="other">{{ t('tree.partnership_kind_other') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.partnership_status_label') }}
+                <select class="form-input" name="status">
+                  <option value="active">{{ t('tree.partnership_status_active') }}</option>
+                  <option value="dissolved">{{ t('tree.partnership_status_dissolved') }}</option>
+                  <option value="separated">{{ t('tree.partnership_status_separated') }}</option>
+                  <option value="widowed">{{ t('tree.partnership_status_widowed') }}</option>
+                  <option value="annulled">{{ t('tree.partnership_status_annulled') }}</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              {{ t('person.source') }}
+              <input class="form-input" type="text" name="source" placeholder="{{ t('person.source_placeholder') }}">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.start_date') }}
+                <input class="form-input" type="date" name="start_date">
+              </label>
+              <label>
+                {{ t('person.end_date') }}
+                <input class="form-input" type="date" name="end_date">
+              </label>
+            </div>
+            <label>
+              {{ t('person.notes') }}
+              <textarea class="form-input" name="notes" rows="3"></textarea>
+            </label>
+            <div class="tree-sidebar-inline-actions">
+              <button type="submit" class="btn btn--primary btn--sm">{{ t('tree.save_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationshipFromEditor(this.form)">{{ t('tree.remove_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeRelationshipEdit()">{{ t('common.cancel') }}</button>
+            </div>
+          </form>
+        </section>
       </div>
       {% endif %}
     </section>

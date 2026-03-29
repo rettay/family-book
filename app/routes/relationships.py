@@ -7,13 +7,14 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import can_manage_person
-from app.auth import require_admin, require_auth
+from app.auth import require_auth
 from app.database import get_db
 from app.models.person import Person, PersonLifecycleState
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import (
     ParentChildCreate,
     ParentChildResponse,
+    ParentChildUpdate,
     PartnershipCreate,
     PartnershipResponse,
     PartnershipUpdate,
@@ -71,10 +72,14 @@ async def _would_create_ancestry_cycle(
     db: AsyncSession,
     parent_id: str,
     child_id: str,
+    *,
+    exclude_rel_id: str | None = None,
 ) -> bool:
-    result = await db.execute(select(ParentChild.parent_id, ParentChild.child_id))
+    result = await db.execute(select(ParentChild.parent_id, ParentChild.child_id, ParentChild.id))
     descendants_by_parent: dict[str, set[str]] = {}
-    for existing_parent_id, existing_child_id in result.all():
+    for existing_parent_id, existing_child_id, existing_rel_id in result.all():
+        if exclude_rel_id and existing_rel_id == exclude_rel_id:
+            continue
         descendants_by_parent.setdefault(existing_parent_id, set()).add(existing_child_id)
 
     stack = [child_id]
@@ -194,6 +199,130 @@ async def delete_parent_child(
     await db.flush()
 
 
+@router.put("/parent-child/{rel_id}", response_model=ParentChildResponse)
+async def update_parent_child(
+    rel_id: str,
+    body: ParentChildUpdate,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(ParentChild).where(ParentChild.id == rel_id))
+    pc = result.scalar_one_or_none()
+    if not pc:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+
+    update_data = body.model_dump(exclude_unset=True)
+    target_parent_id = update_data.get("parent_id", pc.parent_id)
+    target_child_id = update_data.get("child_id", pc.child_id)
+
+    if target_parent_id == target_child_id:
+        raise HTTPException(status_code=400, detail="Parent and child cannot be the same person")
+
+    await _require_manageable_person(db, current_user, pc.parent_id)
+    await _require_manageable_person(db, current_user, pc.child_id)
+    for pid in {target_parent_id, target_child_id}:
+        await _require_manageable_person(db, current_user, pid)
+
+    if await _would_create_ancestry_cycle(
+        db,
+        target_parent_id,
+        target_child_id,
+        exclude_rel_id=pc.id,
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="This parent-child relationship would create an ancestry cycle",
+        )
+
+    old_data = {
+        "parent_id": pc.parent_id,
+        "child_id": pc.child_id,
+        "kind": pc.kind,
+        "confidence": pc.confidence,
+        "source": pc.source,
+        "source_detail": pc.source_detail,
+        "notes": pc.notes,
+        "start_date": pc.start_date,
+        "end_date": pc.end_date,
+    }
+    for field, value in update_data.items():
+        setattr(pc, field, value)
+
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="This parent-child relationship already exists")
+
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "parent_child",
+        pc.id,
+        old_value=old_data,
+        new_value=update_data,
+    )
+    logger.info("Parent-child relationship %s updated by %s", pc.id, current_user.id)
+
+    return ParentChildResponse.model_validate(pc)
+
+
+@router.post("/parent-child/{rel_id}/reverse", response_model=ParentChildResponse)
+async def reverse_parent_child(
+    rel_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(ParentChild).where(ParentChild.id == rel_id))
+    pc = result.scalar_one_or_none()
+    if not pc:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+
+    await _require_manageable_person(db, current_user, pc.parent_id)
+    await _require_manageable_person(db, current_user, pc.child_id)
+
+    reversed_parent_id = pc.child_id
+    reversed_child_id = pc.parent_id
+    if await _would_create_ancestry_cycle(
+        db,
+        reversed_parent_id,
+        reversed_child_id,
+        exclude_rel_id=pc.id,
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="Reversing this relationship would create an ancestry cycle",
+        )
+
+    old_data = {
+        "parent_id": pc.parent_id,
+        "child_id": pc.child_id,
+        "kind": pc.kind,
+    }
+    pc.parent_id = reversed_parent_id
+    pc.child_id = reversed_child_id
+
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="This parent-child relationship already exists")
+
+    await log_audit(
+        db,
+        current_user.id,
+        "reverse",
+        "parent_child",
+        pc.id,
+        old_value=old_data,
+        new_value={"parent_id": pc.parent_id, "child_id": pc.child_id, "kind": pc.kind},
+    )
+    logger.info("Parent-child relationship %s reversed by %s", pc.id, current_user.id)
+
+    return ParentChildResponse.model_validate(pc)
+
+
 # --- Partnership ---
 
 @router.post("/partnership", response_model=PartnershipResponse, status_code=status.HTTP_201_CREATED)
@@ -245,7 +374,7 @@ async def create_partnership(
 async def update_partnership(
     rel_id: str,
     body: PartnershipUpdate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Partnership).where(Partnership.id == rel_id))
@@ -253,16 +382,32 @@ async def update_partnership(
     if not partnership:
         raise HTTPException(status_code=404, detail="Partnership not found")
 
-    old_data = {"status": partnership.status}
+    await _require_manageable_person(db, current_user, partnership.person_a_id)
+    await _require_manageable_person(db, current_user, partnership.person_b_id)
+
+    old_data = {
+        "kind": partnership.kind,
+        "status": partnership.status,
+        "start_date": partnership.start_date,
+        "start_date_precision": partnership.start_date_precision,
+        "end_date": partnership.end_date,
+        "end_date_precision": partnership.end_date_precision,
+        "source": partnership.source,
+        "notes": partnership.notes,
+    }
     update_data = body.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(partnership, field, value)
 
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="This partnership already exists")
     await log_audit(db, current_user.id, "update", "partnership", partnership.id,
                     old_value=old_data,
                     new_value=update_data)
-    logger.info("Partnership %s updated by admin %s", partnership.id, current_user.id)
+    logger.info("Partnership %s updated by %s", partnership.id, current_user.id)
 
     return PartnershipResponse.model_validate(partnership)
 

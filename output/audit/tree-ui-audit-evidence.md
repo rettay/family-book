@@ -1,12 +1,10 @@
-# Tree UI Audit Evidence - S28 Genealogy Sprint
+# Tree UI Audit Evidence - S31 Relationship Correction Sprint
 
 Surface under review: `tree_workspace`
 
 Sprint scope under audit:
-- `FB-039` family-unit / genealogy layout foundation
-- `FB-040` multi-household and remarriage correctness
-- `FB-041` non-biological and partnership-state semantics
-- `FB-042` launch-narrowed to unknown-parent and sparse-branch readability
+- `FB-051` relationship correction primitives and API truth
+- `FB-052` tree relationship correction and editing flow
 
 Resolved from canonical sources:
 - Persona registry: `/Users/cheech/code/family-book/docs/ops/persona_registry.yaml`
@@ -26,48 +24,35 @@ Resolved viewports/locales:
 - `desktop`, `mobile`
 - `en`, `es`
 
-## Scope Boundary
-
-Launch-narrowing for `FB-042` is explicit:
-- Packet: `/Users/cheech/code/family-book/task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md`
-- Backlog: `/Users/cheech/code/family-book/backlog.md`
-- Sprint board: `/Users/cheech/code/family-book/docs/strategy/sprint-board-2026q1.md`
-
-The shipped tree remains person-only at the payload/model boundary:
-- `/Users/cheech/code/family-book/app/schemas.py`
-- `/Users/cheech/code/family-book/app/routes/tree.py`
-
-Audit interpretation:
-- unknown-parent / single-parent / sparse-branch readability is in scope and implemented
-- pets, institutions, and other non-person nodes are deferred and must not be implied by the shipped UI
-
 ## Structural Lane
 
 Artifacts:
 - CodeMap JSON: `/Users/cheech/code/family-book/output/audit/tree-ui-codemap.json`
 - Scope docs:
-  - `/Users/cheech/code/family-book/task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md`
+  - `/Users/cheech/code/family-book/task_packets/FB-051_relationship_correction_primitives_and_api_truth.md`
+  - `/Users/cheech/code/family-book/task_packets/FB-052_tree_relationship_correction_and_editing_flow.md`
   - `/Users/cheech/code/family-book/backlog.md`
   - `/Users/cheech/code/family-book/docs/strategy/sprint-board-2026q1.md`
 
+Changed implementation:
+- `/Users/cheech/code/family-book/app/routes/relationships.py`
+- `/Users/cheech/code/family-book/app/schemas.py`
+- `/Users/cheech/code/family-book/app/templates/tree.html`
+- `/Users/cheech/code/family-book/app/templates/partials/person_sidebar.html`
+- `/Users/cheech/code/family-book/app/static/js/tree.js`
+- `/Users/cheech/code/family-book/locales/en.json`
+- `/Users/cheech/code/family-book/locales/es.json`
+- `/Users/cheech/code/family-book/locales/ru.json`
+
 Result:
-- `Changed UI surfaces`: `PASS`
-- Changed implementation resolves to `tree_workspace`
-- Tree surface changes are structurally present in:
-  - `/Users/cheech/code/family-book/app/static/js/tree.js`
-  - `/Users/cheech/code/family-book/app/templates/tree.html`
-  - `/Users/cheech/code/family-book/app/templates/partials/person_sidebar.html`
-  - `/Users/cheech/code/family-book/app/static/css/main.css`
-- The relationship editor and renderer now have explicit support for:
-  - family-unit clustering
-  - multi-household partner placement
-  - adoptive / guardian parent-child kinds
-  - current vs former partnership styling
-- `FB-042` is now documented truthfully as a narrowed launch scope rather than silently promising non-person-node support that the payload cannot represent.
+- `changed_surface_classification`: `PASS`
+- `canonical correction primitives`: `PASS`
+- `i18n wiring for correction UI`: `PASS`
 
 Notes:
-- The tree payload in `/api/tree` still exposes only `persons`, `parent_child`, and `partnerships`, which is why non-person nodes are deferred rather than treated as partially implemented.
-- CodeMap still reports broader repo warnings outside this sprint’s acceptance scope; they do not contradict the `tree_workspace` classification.
+- The canonical API now supports parent-child update and atomic reverse, plus truthful partnership updates.
+- The tree workspace now exposes explicit `Edit relationship`, `Reverse direction`, and `Remove link` actions instead of relying on `Replace on tree` for correction.
+- The relationship editor is part of the existing sidebar card flow rather than a separate redesign.
 
 ## Rendered-Behavior Lane
 
@@ -77,76 +62,73 @@ Artifacts:
 - Screenshots: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots`
 
 Commands:
-- `uv run pytest tests/test_phase3.py -q`
-- `uv run pytest tests/test_pages.py tests/test_api.py -q`
+- `uv run pytest tests/test_api.py tests/test_pages.py -q`
 - `tests/ui/playwright-flow-checks.sh`
+- `uv run --directory /Users/cheech/code/codemap codemap check /Users/cheech/code/family-book --json > output/audit/tree-ui-codemap.json`
 
 Result:
-- `tests/test_phase3.py`: `25 passed`
-- `tests/test_pages.py tests/test_api.py`: `68 passed`
+- `tests/test_api.py tests/test_pages.py`: `75 passed`
 - Playwright flow: `passed`
 
-High-signal tree checks covered by the current flow:
-- partnered parents share a generation row and children render below the shared family unit
-- two known parents without a partnership row still produce shared family-unit geometry and do not invent a partnership edge
-- one person can participate in multiple households without duplication
-- adoptive and guardian ties render differently from biological ties
-- current and former partnership states render differently
-- detached branches receive explicit frames and labels instead of collapsing into unreadable clumps
-- graph-edit mode, relationship calculator, inline edits, create/replace/remove relationship flows, and relationship-metadata persistence all pass
-- the tree remains usable on mobile without horizontal overflow
-- Spanish localization of the changed tree surfaces passes
+High-signal checks covered by the current flow:
+- existing relationship cards expose `Edit relationship` on the tree sidebar
+- the desktop editor prefills current kind/confidence and the related-person summary
+- a child relationship can be created, edited, reversed, and then removed from the tree workspace
+- a partnership can be created, edited, and then removed from the tree workspace
+- the canonical `/api/tree` payload reflects correction edits and reversed parent-child direction
+- Spanish opens the actual relationship editor and verifies translated labels on the changed surface
+- mobile opens the relationship editor and proves the correction actions are visible and not horizontally clipped
 
 Verifier quality notes:
-- The Playwright checks now wait on persisted state and visible relationship workspaces rather than fixed sleeps and brittle DOM mutation shortcuts.
-- The wrapper at `/Users/cheech/code/family-book/tests/ui/playwright_cli.sh` remains fatal on structured Playwright `### Error` output, so the suite cannot print assertion failures and still return green.
+- the correction-flow browser check uses unique temporary relatives per run, so it cannot accidentally bind to leftover seeded names
+- the reverse-direction path is verified against canonical `/api/tree` state rather than only sidebar text
+- the localized tree verifier now opens the changed relationship editor, not just the quick-edit details panel
 
 ## Visual / Persona Lane
 
 Artifacts:
+- Desktop correction editor: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-relationship-editor-admin.png`
 - Desktop browse/read: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-member-view.png`
-- Desktop focus/context: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-focus-sidebar.png`
-- Desktop quick edit: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-details-admin.png`
+- Mobile correction editor: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-relationship-editor-mobile.png`
 - Mobile tree surface: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-mobile.png`
+- Spanish correction editor: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-relationship-editor-es.png`
 - Spanish tree surface: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-es.png`
-- Spanish quick edit: `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-details-es.png`
 
 Review notes:
-- `contributing_member` / `find_person_in_tree` / desktop / `en`
-  - `tree-member-view.png` shows family units, generation rows, and detached-branch framing on the changed tree surface itself.
-  - The updated layout reads as clustered households rather than long misleading spouse/in-law chains.
-- `family_admin` / `open_sidebar_and_edit_overview` + `add_relative_from_tree_context` / desktop / `en`
-  - `tree-focus-sidebar.png` shows the selected-person context summary and focus controls on the current tree sidebar.
-  - `tree-details-admin.png` shows the quick-edit form condensed into grouped sections rather than the former high-noise editor.
+- `contributing_member` / `add_relative_from_tree_context` / desktop / `en`
+  - `tree-relationship-editor-admin.png` shows correction controls inline with the existing relationship cards.
+  - The card/editor split now makes `edit`, `reverse`, and `remove` distinct actions instead of overloading `replace`.
+- `family_admin` / `open_sidebar_and_edit_overview` / desktop / `en`
+  - the desktop editor keeps the current related person, metadata fields, and destructive action in one visible block without requiring navigation away from the tree.
 - `mobile_first_relative` / `find_person_in_tree` / mobile / `en`
-  - `tree-mobile.png` confirms the actual tree surface fits on a narrow viewport without horizontal overflow and keeps the canvas/tools reachable.
-- `contributing_member` / `find_person_in_tree` / desktop / `es`
-  - `tree-es.png` and `tree-details-es.png` show the changed tree workspace and quick-edit panel localized on-surface, not just via unit tests.
-
-Scope note for visual review:
-- No non-person-node screenshot is required for this audit pass because that capability is explicitly deferred out of the shipped sprint scope.
+  - `tree-relationship-editor-mobile.png` shows the actual correction form on a narrow viewport, with the action row still reachable.
+  - `tree-mobile.png` still confirms the underlying tree surface fits without horizontal overflow.
+- `contributing_member` / `add_relative_from_tree_context` / desktop / `es`
+  - `tree-relationship-editor-es.png` proves the changed correction surface is localized, including the editor title, related-person summary, and correction actions.
 
 Rubric outcome:
 - `hierarchy_and_readability`: pass
 - `control_discoverability`: pass
 - `mobile_fit`: pass
-- `scope_truthfulness`: pass after the explicit `FB-042` de-scope
+- `translation_completeness`: pass
 
 Persona-critical findings:
-- none in the reviewed sprint scope
+- none in reviewed sprint scope
 
 ## Audit Closure
 
-1. Auditor concern: `FB-042` still implied non-person-node delivery
-   - Closed by explicitly narrowing the launch scope in:
-     - `/Users/cheech/code/family-book/task_packets/FB-042_non_person_nodes_unknown_parents_and_sparse_branch_readability.md`
-     - `/Users/cheech/code/family-book/backlog.md`
-     - `/Users/cheech/code/family-book/docs/strategy/sprint-board-2026q1.md`
-   - The code/model boundary in `/api/tree` remains person-only, so the sprint now documents that truth instead of over-claiming support.
+1. Auditor concern: the relationship editor leaked hardcoded English placeholder copy
+   - Closed by localizing the editor source placeholder in:
+     - `/Users/cheech/code/family-book/app/templates/partials/person_sidebar.html`
+     - `/Users/cheech/code/family-book/locales/en.json`
+     - `/Users/cheech/code/family-book/locales/es.json`
+     - `/Users/cheech/code/family-book/locales/ru.json`
+   - The Spanish browser lane now opens the editor and verifies the changed surface directly.
 
-2. Auditor concern: structural/rendered/visual artifacts were stale for the current sprint
-   - Closed by regenerating:
-     - `/Users/cheech/code/family-book/output/audit/tree-ui-codemap.json`
-     - `/Users/cheech/code/family-book/output/playwright/family-book-flow`
-     - this updated evidence note
-   - The visual lane now references a current mobile tree screenshot (`tree-mobile.png`) on the changed surface instead of a generic home-page artifact.
+2. Auditor concern: mobile discoverability for correction controls was unproven
+   - Closed by adding deterministic mobile editor assertions and the screenshot:
+     - `/Users/cheech/code/family-book/output/playwright/family-book-flow/screenshots/tree-relationship-editor-mobile.png`
+   - The browser lane now proves the correction action row remains reachable on a phone-sized viewport.
+
+3. Auditor concern: the tree audit note was stale and still described the earlier genealogy sprint
+   - Closed by regenerating this note and refreshing the structural/browser/visual references to `FB-051` and `FB-052`.

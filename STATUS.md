@@ -4,7 +4,7 @@
 
 Family Book is in **power-user genealogy depth**.
 
-22 sprints closed (S01-S22). The product is a full-featured collaborative family wiki with tree workspace, multimedia archive, family timeline, calendar, relationship calculator, GEDCOM import, external record search, genetic profiles, structured medical conditions, and a family health dashboard. All V1 product requirements are met. The next sprint targets genealogy research credibility: source citations, evidence classification, and date intelligence.
+22 sprints closed (S01-S22). The product is a full-featured collaborative family wiki with tree workspace, multimedia archive, family timeline, calendar, relationship calculator, GEDCOM import, external record search, genetic profiles, structured medical conditions, and a family health dashboard. All V1 product requirements are met. The current sprint tightens tree trust by making mistaken family relationships directly repairable from the primary workspace.
 
 ## North Star
 
@@ -133,14 +133,14 @@ Family Book is in **power-user genealogy depth**.
 
 ## Current Priority Order
 
-1. Execute `S30 - Map Truthfulness and Place Intelligence`
-2. Preserve test and browser baselines while tightening high-trust geography and location-entry flows
-3. Queue research UX overhaul after the map/location truthfulness loop is coherent
-4. Keep broader platform completeness and architectural cleanup behind member-facing trust improvements
+1. Execute `S31 - Tree Relationship Correction and Repair`
+2. Preserve tree-as-workspace trust by making relationship correction obvious, safe, and reversible
+3. Queue research UX overhaul after the relationship-correction loop is coherent
+4. Keep broader platform completeness behind member-facing data-truth improvements
 
 ## Sprint State
 
-- Recently closed: `S29 - Calendar as Primary Surface and Family Calendar Discovery`
-- Planning: `S30 - Map Truthfulness and Place Intelligence`
-- Candidate: `S31 - Research UX Overhaul and Test Infrastructure`
+- Recently closed: `S30 - Map Truthfulness and Place Intelligence`
+- In progress: `S31 - Tree Relationship Correction and Repair`
+- Candidate: `S32 - Research UX Overhaul and Test Infrastructure`
 - See `backlog.md`, `docs/strategy/kanban-2026q1.md`, `docs/strategy/sprint-board-2026q1.md`

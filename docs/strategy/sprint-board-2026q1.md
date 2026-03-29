@@ -2,9 +2,80 @@
 
 ## Current Sprint
 
+### `S31 - Tree Relationship Correction and Repair`
+
+Status: In Progress
+
+### Sprint Goal
+
+Make the tree trustworthy when members make genealogy mistakes by adding canonical relationship-correction primitives and exposing clear edit, reverse, and remove actions on the existing relationship cards.
+
+### Why This Sprint Next
+
+The tree is already the primary workspace, but relationship correction still has a critical blind spot: a user can create or remove links, yet a mistaken parent-child direction is not directly fixable from the UI. That leaves the most trust-sensitive part of the product behaving like a prototype. The next sprint should therefore make correction of family structure mistakes explicit and safe before broader research or completeness work.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 51 | FB-051 | Relationship Correction Primitives and API Truth | P0 | in_progress |
+| 52 | FB-052 | Tree Relationship Correction and Editing Flow | P1 | in_progress |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S31-1 | Canonical parent-child update and reverse primitives | in_progress |
+| S31-2 | Tree relationship-card edit, reverse, and remove flow | in_progress |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- existing parent-child relationships can be updated without requiring a user-visible delete-and-recreate workaround
+- parent-child relationships can be reversed atomically when safe and reject ancestry cycles when unsafe
+- existing partnership relationships remain editable through a truthful update path
+- the tree sidebar exposes clear edit, reverse, and remove actions for existing relationship cards
+- relationship correction remains usable on desktop and mobile
+- i18n parity is maintained for any new member-facing copy across `en`, `es`, and `ru`
+- the canonical tree, relationship calculator, calendar, and map views all reflect corrected relationship state because the source relationship rows are updated
+- test and browser baselines remain intact
+
+### Verification Expectations
+
+- Structural lane:
+  - CodeMap over `tree_workspace`
+- Rendered-behavior lane:
+  - deterministic Playwright checks for parent-child edit, reverse, and remove flows
+- Visual/persona lane:
+  - persona-backed desktop and mobile review for `contributing_member`, `family_admin`, and `mobile_first_relative`
+
+### Risks to Watch
+
+- reverse direction can be implemented incorrectly if cycle checking still includes the row being reversed
+- correction controls can become more confusing if they overlap badly with the existing replace-on-tree flow
+- the UI can appear to save while leaving stale sidebar grouping unless post-save refresh is correct
+
+### Deferred Beyond S31
+
+| ID | Title | Reason |
+|---|---|---|
+| FB-031 | Research Tools UX Overhaul | Lower leverage than repairing canonical relationship trust right now |
+| FB-032 | i18n Test Parity | Still important, but not the immediate blocker after tree correction |
+
+### Context
+
+- Packet files:
+  - `task_packets/FB-051_relationship_correction_primitives_and_api_truth.md`
+  - `task_packets/FB-052_tree_relationship_correction_and_editing_flow.md`
+
+---
+
+## Closed Sprint
+
 ### `S30 - Map Truthfulness and Place Intelligence`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 

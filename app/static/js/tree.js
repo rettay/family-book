@@ -2509,12 +2509,141 @@
       : '/api/relationships/parent-child/' + relId;
   }
 
+  function relationshipUpdateEndpoint(relId, relationshipType) {
+    return relationshipDeleteEndpoint(relId, relationshipType);
+  }
+
+  function relationshipReverseEndpoint(relId) {
+    return '/api/relationships/parent-child/' + relId + '/reverse';
+  }
+
   async function deleteRelationshipByType(relId, relationshipType) {
     return fetch(relationshipDeleteEndpoint(relId, relationshipType), {method: 'DELETE'});
   }
 
+  async function updateRelationshipByType(relId, relationshipType, payload) {
+    return fetch(relationshipUpdateEndpoint(relId, relationshipType), {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async function reverseRelationshipByType(relId) {
+    return fetch(relationshipReverseEndpoint(relId), {method: 'POST'});
+  }
+
+  function getTreeRelationshipEditorShell() {
+    return sidebarContent.querySelector('#tree-relationship-editor-shell');
+  }
+
+  function getTreeRelationshipEditorForm(groupName) {
+    return sidebarContent.querySelector('[data-tree-relationship-edit-form="' + groupName + '"]');
+  }
+
+  function hideTreeRelationshipEditor(options) {
+    var opts = options || {};
+    var shell = getTreeRelationshipEditorShell();
+    if (!shell) {
+      return;
+    }
+    shell.classList.add('hidden');
+    var forms = shell.querySelectorAll('[data-tree-relationship-edit-form]');
+    Array.prototype.forEach.call(forms, function(form) {
+      form.classList.add('hidden');
+      if (!opts.preserveValues) {
+        form.reset();
+      }
+    });
+    var relatedNameNode = shell.querySelector('#tree-relationship-editor-related-name');
+    if (relatedNameNode && !opts.preserveValues) {
+      relatedNameNode.textContent = '';
+    }
+  }
+
+  function populateTreeRelationshipEditor(form, values) {
+    Object.keys(values || {}).forEach(function(key) {
+      var field = form.querySelector('[name="' + key + '"]');
+      if (!field) {
+        return;
+      }
+      var value = values[key];
+      if (field.tagName === 'SELECT') {
+        field.value = value == null || value === '' ? field.options[0].value : String(value);
+        return;
+      }
+      if (field.type === 'checkbox') {
+        field.checked = !!value;
+        return;
+      }
+      field.value = value == null ? '' : String(value);
+    });
+  }
+
+  function editRelationshipFormTitle(groupName) {
+    if (groupName === 'parent') {
+      return root.dataset.treeEditRelationship + ': ' + root.dataset.treeParentSingular;
+    }
+    if (groupName === 'child') {
+      return root.dataset.treeEditRelationship + ': ' + root.dataset.treeChildSingular;
+    }
+    return root.dataset.treeEditRelationship + ': ' + root.dataset.treePartnerSingular;
+  }
+
+  function editTreeRelationship(relId, relationshipType, personId, groupName, relatedId, relatedName, relationshipMeta) {
+    if (sidebarState.graphMode) {
+      cancelTreeGraphMode(true);
+    }
+    if (_relCalcMode) {
+      cancelRelationshipCalc(true);
+    }
+    setError('tree-relationship-error', '');
+    sidebarState.activeTab = 'relationships';
+    sidebarState.relationshipGroup = groupName;
+    sidebarState.highlightRelatedPersonId = relatedId || '';
+    switchTreeSidebarTab('relationships', groupName);
+    openRelationshipDisclosure(groupName);
+
+    var shell = getTreeRelationshipEditorShell();
+    var form = getTreeRelationshipEditorForm(groupName);
+    if (!shell || !form) {
+      return false;
+    }
+    hideTreeRelationshipEditor({preserveValues: false});
+    shell.classList.remove('hidden');
+    form.classList.remove('hidden');
+    var titleNode = shell.querySelector('#tree-relationship-editor-title');
+    if (titleNode) {
+      titleNode.textContent = editRelationshipFormTitle(groupName);
+    }
+    var relatedNameNode = shell.querySelector('#tree-relationship-editor-related-name');
+    if (relatedNameNode) {
+      relatedNameNode.textContent = relatedName || '';
+    }
+    populateTreeRelationshipEditor(form, Object.assign({}, relationshipMeta || {}, {
+      relationship_id: relId,
+      relationship_type: relationshipType,
+      person_id: personId,
+      group_name: groupName,
+      related_person_id: relatedId || '',
+      related_name: relatedName || ''
+    }));
+    var firstInput = form.querySelector('select, input:not([type="hidden"]), textarea');
+    if (firstInput) {
+      firstInput.focus();
+    }
+    shell.scrollIntoView({block: 'nearest'});
+    return false;
+  }
+
+  function cancelTreeRelationshipEdit(silent) {
+    hideTreeRelationshipEditor();
+    return false;
+  }
+
   function startTreeGraphMode(personId, mode, options) {
     var opts = options || {};
+    hideTreeRelationshipEditor();
     if (_relCalcMode) {
       cancelRelationshipCalc(true);
     }
@@ -2555,6 +2684,7 @@
   }
 
   function openTreeRelationshipSearch(groupName) {
+    hideTreeRelationshipEditor();
     if (sidebarState.graphMode) {
       cancelTreeGraphMode(true);
     }
@@ -2572,6 +2702,7 @@
   }
 
   function openTreeRelationshipCreate(groupName) {
+    hideTreeRelationshipEditor();
     if (sidebarState.graphMode) {
       cancelTreeGraphMode(true);
     }
@@ -2995,6 +3126,88 @@
     return false;
   }
 
+  async function saveTreeRelationshipEdit(event) {
+    event.preventDefault();
+    setError('tree-relationship-error', '');
+    var form = event.target;
+    var button = form.querySelector('button[type="submit"]');
+    var originalLabel = button ? button.textContent : '';
+    if (button) {
+      button.disabled = true;
+      button.textContent = root.dataset.savingLabel;
+    }
+    try {
+      var relId = form.querySelector('[name="relationship_id"]').value;
+      var relationshipType = form.querySelector('[name="relationship_type"]').value;
+      var personId = form.querySelector('[name="person_id"]').value;
+      var groupName = form.querySelector('[name="group_name"]').value;
+      var relatedId = form.querySelector('[name="related_person_id"]').value;
+      var payload = relationshipMetaFromForm(form, groupName);
+      var resp = await updateRelationshipByType(relId, relationshipType, payload);
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.relationshipError);
+      }
+      hideTreeRelationshipEditor();
+      sidebarState.activeTab = 'relationships';
+      sidebarState.relationshipGroup = groupName;
+      sidebarState.highlightRelatedPersonId = relatedId || '';
+      await refreshTreeWorkspace(personId);
+      showToastMessage(root.dataset.treeRelationshipUpdated);
+    } catch (err) {
+      setError('tree-relationship-error', err.message || root.dataset.relationshipError);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    }
+    return false;
+  }
+
+  async function reverseTreeRelationshipEdit(form) {
+    setError('tree-relationship-error', '');
+    var relId = form.querySelector('[name="relationship_id"]').value;
+    var personId = form.querySelector('[name="person_id"]').value;
+    var groupName = form.querySelector('[name="group_name"]').value;
+    var relatedId = form.querySelector('[name="related_person_id"]').value;
+    var relatedName = form.querySelector('[name="related_name"]').value;
+    var nextGroup = groupName === 'parent' ? 'child' : 'parent';
+    var confirmed = window.confirm(formatTemplate(root.dataset.treeReverseConfirm, {
+      name: relatedName || '',
+      relationship: relationshipSingularLabel(groupName || 'child')
+    }));
+    if (!confirmed) {
+      return false;
+    }
+    try {
+      var resp = await reverseRelationshipByType(relId);
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.relationshipError);
+      }
+      hideTreeRelationshipEditor();
+      sidebarState.activeTab = 'relationships';
+      sidebarState.relationshipGroup = nextGroup;
+      sidebarState.highlightRelatedPersonId = relatedId || '';
+      await refreshTreeWorkspace(personId);
+      showToastMessage(root.dataset.treeRelationshipReversed);
+    } catch (err) {
+      setError('tree-relationship-error', err.message || root.dataset.relationshipError);
+    }
+    return false;
+  }
+
+  async function removeTreeRelationshipFromEditor(form) {
+    return removeTreeRelationship(
+      form.querySelector('[name="relationship_id"]').value,
+      form.querySelector('[name="relationship_type"]').value,
+      form.querySelector('[name="person_id"]').value,
+      form.querySelector('[name="group_name"]').value,
+      form.querySelector('[name="related_name"]').value
+    );
+  }
+
   async function removeTreeRelationship(relId, relationshipType, personId, groupName, relatedName) {
     setError('tree-relationship-error', '');
     var confirmed = window.confirm(formatTemplate(root.dataset.treeRemoveConfirm, {
@@ -3013,6 +3226,7 @@
       sidebarState.activeTab = 'relationships';
       sidebarState.relationshipGroup = groupName || '';
       sidebarState.highlightRelatedPersonId = '';
+      hideTreeRelationshipEditor();
       await refreshTreeWorkspace(personId);
       showToastMessage(root.dataset.treeRelationshipRemoved);
     } catch (err) {
@@ -4172,6 +4386,11 @@
   window.saveTreePerson = saveTreePerson;
   window.linkTreeRelationship = linkTreeRelationship;
   window.createTreeRelative = createTreeRelative;
+  window.editTreeRelationship = editTreeRelationship;
+  window.saveTreeRelationshipEdit = saveTreeRelationshipEdit;
+  window.reverseTreeRelationshipEdit = reverseTreeRelationshipEdit;
+  window.cancelTreeRelationshipEdit = cancelTreeRelationshipEdit;
+  window.removeTreeRelationshipFromEditor = removeTreeRelationshipFromEditor;
   window.removeTreeRelationship = removeTreeRelationship;
   window.replaceTreeRelationship = replaceTreeRelationship;
   window.openTreeSidebarPerson = openTreeSidebarPerson;

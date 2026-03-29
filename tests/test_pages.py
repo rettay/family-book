@@ -156,6 +156,8 @@ async def test_admin_tree_person_card_renders_relationship_cards_with_maintenanc
     assert "removeTreeRelationship(" in resp.text
     assert "startTreeGraphMode('" in resp.text
     assert "replaceTreeRelationship(" in resp.text
+    assert "editTreeRelationship(" in resp.text
+    assert 'data-tree-relationship-edit-form="parent"' in resp.text
     assert 'id="tree-graph-mode-banner"' in resp.text
 
 

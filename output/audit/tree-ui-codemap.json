@@ -1,6 +1,103 @@
 {
   "rules": [
     {
+      "name": "Changed UI surfaces",
+      "status": "PASS",
+      "message": "1 member-facing surface(s) changed; 3 persona(s), 3 scenario(s), 2 viewport(s), and 2 locale(s) required",
+      "details": [
+        "tree_workspace: files=app/routes/relationships.py, app/static/js/tree.js, app/templates/partials/person_sidebar.html, +1 more; personas=Contributing Family Member, Family Admin, Mobile-First Relative; scenarios=find_person_in_tree, open_sidebar_and_edit_overview, add_relative_from_tree_context; viewports=desktop, mobile; locales=en, es",
+        "unmatched: DECISIONS.md",
+        "unmatched: STATUS.md",
+        "unmatched: app/schemas.py",
+        "unmatched: backlog.md",
+        "unmatched: docs/strategy/sprint-board-2026q1.md",
+        "unmatched: locales/en.json",
+        "unmatched: locales/es.json",
+        "unmatched: locales/ru.json",
+        "unmatched: output/audit/tree-ui-audit-evidence.md",
+        "unmatched: output/audit/tree-ui-codemap.json",
+        "unmatched: tests/test_api.py",
+        "unmatched: tests/test_pages.py",
+        "unmatched: tests/ui/playwright-flow-checks.sh"
+      ],
+      "metadata": {
+        "surfaceIds": [
+          "tree_workspace"
+        ],
+        "personaIds": [
+          "contributing_member",
+          "family_admin",
+          "mobile_first_relative"
+        ],
+        "scenarioIds": [
+          "find_person_in_tree",
+          "open_sidebar_and_edit_overview",
+          "add_relative_from_tree_context"
+        ],
+        "viewports": [
+          "desktop",
+          "mobile"
+        ],
+        "locales": [
+          "en",
+          "es"
+        ],
+        "unmatchedFiles": [
+          "DECISIONS.md",
+          "STATUS.md",
+          "app/schemas.py",
+          "backlog.md",
+          "docs/strategy/sprint-board-2026q1.md",
+          "locales/en.json",
+          "locales/es.json",
+          "locales/ru.json",
+          "output/audit/tree-ui-audit-evidence.md",
+          "output/audit/tree-ui-codemap.json",
+          "tests/test_api.py",
+          "tests/test_pages.py",
+          "tests/ui/playwright-flow-checks.sh"
+        ],
+        "surfaces": [
+          {
+            "surfaceId": "tree_workspace",
+            "changedFiles": [
+              "app/routes/relationships.py",
+              "app/static/js/tree.js",
+              "app/templates/partials/person_sidebar.html",
+              "app/templates/tree.html"
+            ],
+            "routes": [
+              "/",
+              "/tree"
+            ],
+            "personaIds": [
+              "contributing_member",
+              "family_admin",
+              "mobile_first_relative"
+            ],
+            "scenarioIds": [
+              "find_person_in_tree",
+              "open_sidebar_and_edit_overview",
+              "add_relative_from_tree_context"
+            ],
+            "viewports": [
+              "desktop",
+              "mobile"
+            ],
+            "locales": [
+              "en",
+              "es"
+            ],
+            "visualRubric": [
+              "hierarchy_and_readability",
+              "control_discoverability",
+              "mobile_fit"
+            ]
+          }
+        ]
+      }
+    },
+    {
       "name": "Untested critical modules",
       "status": "PASS",
       "message": "All high-attention modules have test coverage",
@@ -184,21 +281,22 @@
     {
       "name": "Missing CSS selectors",
       "status": "WARN",
-      "message": "15 UI class reference(s) missing stylesheet coverage",
+      "message": "16 UI class reference(s) missing stylesheet coverage",
       "details": [
-        ".cal referenced at /Users/cheech/code/family-book/app/templates/partials/calendar_grid.html:1",
-        ".cal__day-detail-body referenced at /Users/cheech/code/family-book/app/templates/partials/calendar_grid.html:99",
-        ".calendar-page__header referenced at /Users/cheech/code/family-book/app/templates/calendar.html:6",
+        ".cal__main referenced at /Users/cheech/code/family-book/app/templates/partials/calendar_grid.html:60",
+        ".cal__panel--detail referenced at /Users/cheech/code/family-book/app/templates/partials/calendar_grid.html:101",
+        ".calendar-hero__main referenced at /Users/cheech/code/family-book/app/templates/calendar.html:7",
         ".research-page__search referenced at /Users/cheech/code/family-book/app/templates/research.html:48",
         ".research-page__sources referenced at /Users/cheech/code/family-book/app/templates/research.html:75",
         ".research-search-form referenced at /Users/cheech/code/family-book/app/templates/research.html:49",
         ".stack referenced at /Users/cheech/code/family-book/app/templates/partials/person_history.html:2",
-        ".tree-gedcom-preview referenced at /Users/cheech/code/family-book/app/static/js/tree.js:3919",
-        ".tree-gedcom-preview__actions referenced at /Users/cheech/code/family-book/app/static/js/tree.js:3975",
-        ".tree-gedcom-preview__dupes referenced at /Users/cheech/code/family-book/app/static/js/tree.js:3931",
-        ".tree-picker__input referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:605, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:687, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:769",
-        ".tree-relcalc-result__details referenced at /Users/cheech/code/family-book/app/templates/tree.html:424",
-        ".tree-saved-records referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:921",
+        ".tree-gedcom-preview referenced at /Users/cheech/code/family-book/app/static/js/tree.js:4134",
+        ".tree-gedcom-preview__actions referenced at /Users/cheech/code/family-book/app/static/js/tree.js:4190",
+        ".tree-gedcom-preview__dupes referenced at /Users/cheech/code/family-book/app/static/js/tree.js:4146",
+        ".tree-inline-form__location referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:342, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:357, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:372",
+        ".tree-picker__input referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:623, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:705, /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:787",
+        ".tree-relcalc-result__details referenced at /Users/cheech/code/family-book/app/templates/tree.html:435",
+        ".tree-saved-records referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:1123",
         ".tree-sidebar-context__badges referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:45",
         ".tree-sidebar-panel--active referenced at /Users/cheech/code/family-book/app/templates/partials/person_sidebar.html:121"
       ]
@@ -206,15 +304,18 @@
     {
       "name": "Hardcoded UI copy",
       "status": "WARN",
-      "message": "53 localized UI string(s) appear hardcoded in source",
+      "message": "60 localized UI string(s) appear hardcoded in source",
       "details": [
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:33 hardcodes 'Institution' (locale key: person.education_institution)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:34 hardcodes 'Degree' (locale key: person.education_degree)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:35 hardcodes 'Field of Study' (locale key: person.education_field)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:39 hardcodes 'Remove' (locale key: calendar.remove_source)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:53 hardcodes 'Employer' (locale key: person.career_employer)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:56 hardcodes 'Location' (locale key: person.career_location)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:58 hardcodes 'Remove' (locale key: calendar.remove_source)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:73 hardcodes 'Year Joined' (locale key: person.org_year_joined)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:74 hardcodes 'Year Left' (locale key: person.org_year_left)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:76 hardcodes 'Remove' (locale key: calendar.remove_source)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:88 hardcodes 'Confirmed' (locale key: tree.relationship_confidence_confirmed)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:89 hardcodes 'Probable' (locale key: tree.relationship_confidence_probable)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:90 hardcodes 'Uncertain' (locale key: tree.relationship_confidence_uncertain)",
@@ -226,41 +327,45 @@
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:149 hardcodes 'Location' (locale key: person.career_location)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:150 hardcodes 'Year Joined' (locale key: person.org_year_joined)",
         "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:150 hardcodes 'Year Left' (locale key: person.org_year_left)",
+        "/Users/cheech/code/family-book/app/templates/partials/wiki_edit_section.html:171 hardcodes 'Remove' (locale key: calendar.remove_source)",
         "/Users/cheech/code/family-book/app/templates/person_edit.html:87 hardcodes 'Precision' (locale key: tree.precision)",
         "/Users/cheech/code/family-book/app/templates/person_edit.html:101 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:158 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:160 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:199 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:204 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:224 hardcodes 'Weight' (locale key: person.weight)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:345 hardcodes 'WhatsApp' (locale key: person.contact_whatsapp)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:349 hardcodes 'Telegram' (locale key: person.contact_telegram)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:355 hardcodes 'Signal' (locale key: person.contact_signal)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:448 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:462 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:465 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:480 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:490 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:491 hardcodes 'Precision' (locale key: tree.precision)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:494 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:500 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:511 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:527 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:531 hardcodes 'Languages' (locale key: person.languages)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:567 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:567 hardcodes 'Weight' (locale key: person.weight)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:568 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:581 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:173 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:175 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:214 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:219 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:239 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:360 hardcodes 'WhatsApp' (locale key: person.contact_whatsapp)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:364 hardcodes 'Telegram' (locale key: person.contact_telegram)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:370 hardcodes 'Signal' (locale key: person.contact_signal)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:464 hardcodes 'Precision' (locale key: tree.precision)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:478 hardcodes 'Precision' (locale key: tree.precision)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:481 hardcodes 'Precision' (locale key: tree.precision)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:496 hardcodes 'Precision' (locale key: tree.precision)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:506 hardcodes 'Precision' (locale key: tree.precision)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:507 hardcodes 'Precision' (locale key: tree.precision)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:509 hardcodes 'Location' (locale key: person.career_location)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:512 hardcodes 'manual' (locale key: person.source_placeholder)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:519 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:525 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:531 hardcodes 'Remove' (locale key: calendar.remove_source)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:536 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:552 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:556 hardcodes 'Languages' (locale key: person.languages)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:592 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:592 hardcodes 'Weight' (locale key: person.weight)",
         "/Users/cheech/code/family-book/app/templates/person_edit.html:593 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:601 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:603 hardcodes 'Weight' (locale key: person.weight)",
         "/Users/cheech/code/family-book/app/templates/person_edit.html:606 hardcodes 'Weight' (locale key: person.weight)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:609 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:615 hardcodes 'Weight' (locale key: person.weight)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:620 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:632 hardcodes 'Weight' (locale key: person.weight)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:649 hardcodes 'Height' (locale key: person.height)",
-        "/Users/cheech/code/family-book/app/templates/person_edit.html:650 hardcodes 'Weight' (locale key: person.weight)"
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:618 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:626 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:628 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:631 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:634 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:640 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:645 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:657 hardcodes 'Weight' (locale key: person.weight)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:674 hardcodes 'Height' (locale key: person.height)",
+        "/Users/cheech/code/family-book/app/templates/person_edit.html:675 hardcodes 'Weight' (locale key: person.weight)"
       ]
     },
     {
@@ -310,7 +415,7 @@
   ],
   "passed": true,
   "counts": {
-    "PASS": 12,
+    "PASS": 13,
     "FAIL": 0,
     "WARN": 15
   }

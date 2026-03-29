@@ -484,6 +484,116 @@ async def test_member_can_remove_relationships_for_manageable_people(member_clie
 
 
 @pytest.mark.asyncio
+async def test_member_can_update_manageable_parent_child_relationship(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Editable",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    update_resp = await member_client.put(
+        f"/api/relationships/parent-child/{parent_link.json()['id']}",
+        json={"kind": "adoptive", "confidence": "probable", "notes": "Corrected from family records"},
+    )
+    assert update_resp.status_code == 200
+    assert update_resp.json()["kind"] == "adoptive"
+    assert update_resp.json()["confidence"] == "probable"
+    assert update_resp.json()["notes"] == "Corrected from family records"
+
+
+@pytest.mark.asyncio
+async def test_member_can_reverse_manageable_parent_child_relationship(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Reverse",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    reverse_resp = await member_client.post(
+        f"/api/relationships/parent-child/{parent_link.json()['id']}/reverse"
+    )
+    assert reverse_resp.status_code == 200
+    assert reverse_resp.json()["parent_id"] == "member-00-0000-0000-000000000005"
+    assert reverse_resp.json()["child_id"] == parent_id
+
+
+@pytest.mark.asyncio
+async def test_reverse_parent_child_rejects_cycle(admin_client: AsyncClient):
+    person_a = await admin_client.post("/api/persons", json={"first_name": "Cycle", "last_name": "A"})
+    person_b = await admin_client.post("/api/persons", json={"first_name": "Cycle", "last_name": "B"})
+    person_c = await admin_client.post("/api/persons", json={"first_name": "Cycle", "last_name": "C"})
+    a_id = person_a.json()["id"]
+    b_id = person_b.json()["id"]
+    c_id = person_c.json()["id"]
+
+    rel_ab = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": a_id,
+        "child_id": b_id,
+    })
+    rel_bc = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": b_id,
+        "child_id": c_id,
+    })
+    rel_ac = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": a_id,
+        "child_id": c_id,
+    })
+    assert rel_ab.status_code == 201
+    assert rel_bc.status_code == 201
+    assert rel_ac.status_code == 201
+
+    reverse_resp = await admin_client.post(
+        f"/api/relationships/parent-child/{rel_ac.json()['id']}/reverse"
+    )
+    assert reverse_resp.status_code == 409
+    assert "cycle" in reverse_resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_member_can_update_manageable_partnership(member_client: AsyncClient):
+    created_partner = await member_client.post("/api/persons", json={
+        "first_name": "Editable",
+        "last_name": "Partner",
+        "branch": "martin",
+    })
+    assert created_partner.status_code == 201
+    partner_id = created_partner.json()["id"]
+
+    partnership_link = await member_client.post("/api/relationships/partnership", json={
+        "person_a_id": "member-00-0000-0000-000000000005",
+        "person_b_id": partner_id,
+        "kind": "married",
+    })
+    assert partnership_link.status_code == 201
+
+    update_resp = await member_client.put(
+        f"/api/relationships/partnership/{partnership_link.json()['id']}",
+        json={"kind": "domestic_partner", "status": "separated", "notes": "Updated in tree"},
+    )
+    assert update_resp.status_code == 200
+    assert update_resp.json()["kind"] == "domestic_partner"
+    assert update_resp.json()["status"] == "separated"
+
+
+@pytest.mark.asyncio
 async def test_create_parent_child_self_ref_rejected(admin_client: AsyncClient):
     resp = await admin_client.post("/api/relationships/parent-child", json={
         "parent_id": "tyler-000-0000-0000-000000000002",
