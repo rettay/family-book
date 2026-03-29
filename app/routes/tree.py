@@ -5,7 +5,13 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access_control import get_accessible_person_ids, get_person_access, redact_person_summary
+from app.access_control import (
+    get_accessible_person_ids,
+    get_family_graph_distances,
+    get_person_access,
+    redact_person_summary,
+)
+from app.config import get_settings
 from app.auth import require_auth
 from app.database import get_db
 from app.models.media import Media
@@ -13,6 +19,7 @@ from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.preferences import DEFAULT_TREE_PREFERENCES, TreePreference
 from app.models.relationships import ParentChild, Partnership
 from app.services.geo import country_centroid
+from app.services.location_service import lookup_known_place
 from app.schemas import (
     ParentChildResponse,
     PartnershipResponse,
@@ -42,9 +49,12 @@ class MapMarker(BaseModel):
     kind: str
     label: str
     place: str | None
-    country_code: str
+    country_code: str | None
     latitude: float
     longitude: float
+    location_source: str
+    relationship_distance: int | None = None
+    relation_scope: str
 
 
 class MapResponse(BaseModel):
@@ -210,9 +220,11 @@ async def get_map_data(
     residence_country: str | None = Query(None),
     birth_country: str | None = Query(None),
     living: str | None = Query(None),
+    relationship_scope: str | None = Query(None),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    settings = get_settings()
     persons = await _filtered_tree_people(
         db,
         current_user,
@@ -221,11 +233,63 @@ async def get_map_data(
         birth_country=birth_country,
         living=living,
     )
+    distances = await get_family_graph_distances(
+        db,
+        current_user.id,
+        settings.FAMILY_GRAPH_MAX_DISTANCE,
+    )
     markers: list[MapMarker] = []
 
+    def relation_scope_for(distance: int | None) -> str:
+        if distance == 0:
+            return "self"
+        if distance == 1:
+            return "one_step"
+        if distance == 2:
+            return "two_steps"
+        if distance is None:
+            return "unlinked"
+        return "extended"
+
+    def include_scope(scope: str) -> bool:
+        if not relationship_scope or relationship_scope == "all":
+            return True
+        return scope == relationship_scope
+
+    def marker_position(
+        person: Person,
+        *,
+        prefix: str,
+        country_code: str | None,
+        place: str | None,
+    ) -> tuple[float, float, str] | None:
+        latitude = getattr(person, f"{prefix}_place_latitude", None)
+        longitude = getattr(person, f"{prefix}_place_longitude", None)
+        if latitude is not None and longitude is not None:
+            return (latitude, longitude, "coordinates")
+
+        known_coordinates = lookup_known_place(place, country_code)
+        if known_coordinates:
+            return (known_coordinates[0], known_coordinates[1], "place_lookup")
+
+        centroid = country_centroid(country_code)
+        if centroid:
+            return (centroid[0], centroid[1], "country_centroid")
+        return None
+
     for person in persons:
-        if person.residence_country_code:
-            residence_coordinates = country_centroid(person.residence_country_code)
+        distance = distances.get(person.id)
+        relation_scope = relation_scope_for(distance)
+        if not include_scope(relation_scope):
+            continue
+
+        if person.residence_country_code or person.residence_place_latitude is not None:
+            residence_coordinates = marker_position(
+                person,
+                prefix="residence",
+                country_code=person.residence_country_code,
+                place=person.residence_place,
+            )
             if residence_coordinates:
                 markers.append(
                     MapMarker(
@@ -240,11 +304,19 @@ async def get_map_data(
                         country_code=person.residence_country_code,
                         latitude=residence_coordinates[0],
                         longitude=residence_coordinates[1],
+                        location_source=residence_coordinates[2],
+                        relationship_distance=distance,
+                        relation_scope=relation_scope,
                     )
                 )
 
-        if person.burial_place and person.burial_country_code:
-            burial_coordinates = country_centroid(person.burial_country_code)
+        if person.burial_place and (person.burial_country_code or person.burial_place_latitude is not None):
+            burial_coordinates = marker_position(
+                person,
+                prefix="burial",
+                country_code=person.burial_country_code,
+                place=person.burial_place,
+            )
             if burial_coordinates:
                 markers.append(
                     MapMarker(
@@ -259,6 +331,9 @@ async def get_map_data(
                         country_code=person.burial_country_code,
                         latitude=burial_coordinates[0],
                         longitude=burial_coordinates[1],
+                        location_source=burial_coordinates[2],
+                        relationship_distance=distance,
+                        relation_scope=relation_scope,
                     )
                 )
 

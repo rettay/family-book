@@ -1,7 +1,7 @@
 import enum
 import json
 
-from sqlalchemy import Boolean, Index, LargeBinary, String, Text, text
+from sqlalchemy import Boolean, Float, Index, LargeBinary, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, validates
 from sqlalchemy.types import TypeDecorator
 
@@ -96,10 +96,16 @@ class Person(Base, TimestampMixin):
 
     birth_place: Mapped[str | None] = mapped_column(String(300), default=None)
     birth_country_code: Mapped[str | None] = mapped_column(String(2), default=None)
+    birth_place_latitude: Mapped[float | None] = mapped_column(Float, default=None)
+    birth_place_longitude: Mapped[float | None] = mapped_column(Float, default=None)
     residence_place: Mapped[str | None] = mapped_column(String(300), default=None)
     residence_country_code: Mapped[str | None] = mapped_column(String(2), default=None)
+    residence_place_latitude: Mapped[float | None] = mapped_column(Float, default=None)
+    residence_place_longitude: Mapped[float | None] = mapped_column(Float, default=None)
     burial_place: Mapped[str | None] = mapped_column(String(300), default=None)
     burial_country_code: Mapped[str | None] = mapped_column(String(2), default=None)
+    burial_place_latitude: Mapped[float | None] = mapped_column(Float, default=None)
+    burial_place_longitude: Mapped[float | None] = mapped_column(Float, default=None)
     burial_cemetery_name: Mapped[str | None] = mapped_column(String(300), default=None)
     burial_plot_number: Mapped[str | None] = mapped_column(String(100), default=None)
 

@@ -2,86 +2,85 @@
 
 ## Current Sprint
 
-### `S29 - Calendar as Primary Surface and Family Calendar Discovery`
+### `S30 - Map Truthfulness and Place Intelligence`
 
 Status: Planned
 
 ### Sprint Goal
 
-Make `/calendar` feel like the place families actually use: the month view should be the hero above the fold, feed management should move into a deliberate secondary layer, family and holiday subscriptions should be easy to discover and understand, and dense months should still communicate meaningful event context on desktop and mobile.
+Make `/map` feel truthful and operational instead of decorative by establishing the Google Maps runtime contract, tightening place entry with autocomplete and normalized country capture, persisting coordinates for real marker placement, and making family-distribution semantics legible enough to support future kinship layers.
 
 ### Why This Sprint Next
 
-Recent calendar work delivered functionality, inbound/outbound ICS support, and correct event plumbing, but the live UX is still configuration-first. The current page opens with a wall of raw subscription links and admin controls before the actual month grid, which makes the product feel like feed infrastructure rather than a family calendar. This is a direct hit to CFLSR because the surface that should reward date entry and drive recurring visits is visually buried and thin on meaning. The next sprint should therefore convert `/calendar` into a primary member-facing surface before expanding adjacent features.
+The repo already has a Google-backed map provider contract in config, but the live map still falls back to country centroids and the person/location forms are manual free-text fields with no place intelligence. That means the product can show a prettier basemap once a key is configured, but not a more truthful family map. This is a direct hit to CFLSR because locations are one of the main ways families orient themselves in the shared record, and the current capture flow makes that data hard to enter accurately. The next sprint should therefore connect location entry, normalized place data, and map rendering into one coherent loop.
 
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 43 | FB-043 | Calendar Primary Surface and Layout Hierarchy | P0 | todo |
-| 44 | FB-044 | Manage Calendars Drawer and Subscription UX | P1 | todo |
-| 45 | FB-045 | Calendar Event Density, Discovery, and Detail Intelligence | P1 | todo |
-| 46 | FB-046 | Guided Holiday Layers, Mobile Agenda, and Empty States | P1 | todo |
+| 47 | FB-047 | Google Maps Platform Contract and Railway Runtime Setup | P0 | todo |
+| 48 | FB-048 | Place Autocomplete and Country Normalization Across Person Surfaces | P1 | todo |
+| 49 | FB-049 | Coordinate Persistence and Truthful Map Marker Placement | P1 | todo |
+| 50 | FB-050 | Kinship-Aware Map Semantics and Family Distribution Readability | P2 | todo |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S29-1 | Calendar hero layout and page shell | planned |
-| S29-2 | Grouped feed management and subscribe actions | planned |
-| S29-3 | Event density, details, and discovery | planned |
-| S29-4 | Holiday onboarding, mobile agenda, and empty-state recovery | planned |
+| S30-1 | Google Maps runtime contract and deploy setup | planned |
+| S30-2 | Place autocomplete and normalized country capture | planned |
+| S30-3 | Persisted coordinates and truthful markers | planned |
+| S30-4 | Kinship-aware map semantics and family distribution readability | planned |
 
 ### Sprint Exit Criteria
 
 The sprint is successful when all are true:
 
-- the calendar month or agenda surface is visible above the fold on first load and clearly dominates `/calendar`
-- feed and source management are available through a secondary `Manage Calendars` style interaction rather than a raw wall of links
-- outbound subscriptions are grouped and action-oriented, with truthful support for the feed scopes the product exposes
-- family subscriptions and holiday layers are clearly separated concepts in the UI
-- birthdays and anniversaries carry meaningful context such as age-turning and years-married when data supports it
-- mixed family and imported events are visually distinguishable and dense months remain readable
-- desktop includes an adjacent discovery surface such as selected-day or upcoming context
-- mobile provides a usable agenda/list-first recovery path without management clutter taking over the screen
-- empty or sparse states invite setup through obvious next actions instead of dead labels
-- i18n parity is maintained for all new calendar-facing copy across `en`, `es`, and `ru`
+- Railway/runtime configuration uses the existing `GOOGLE_MAPS_API_KEY` contract and optionally supports `GOOGLE_MAPS_MAP_ID` without introducing parallel, misleading env var names
+- map behavior degrades truthfully when Google config is absent and switches cleanly to the Google provider when present
+- person create/edit and tree quick-edit place fields support place lookup/autocomplete where configured and remain usable without it
+- country codes are normalized and validated rather than relying on members to know ISO alpha-2 inputs
+- the map no longer plots only country centroids when normalized coordinates are available for a person’s residence or burial location
+- map markers communicate at least the core semantic distinction between residence, burial, and future kinship grouping in a readable way
+- the implementation preserves a clear path to future “where is my family” relation-distance views without inventing fake kinship data
+- desktop and mobile both remain usable for map viewing and location entry
+- i18n parity is maintained for any new member-facing map or place-entry copy across `en`, `es`, and `ru`
 - test and browser baselines remain intact
 
 ### Verification Expectations
 
 - Structural lane:
-  - CodeMap over `calendar_workspace` for each packet
+  - CodeMap over `map_view`, `person_edit`, and any expanded tree/location surfaces for each packet
 - Rendered-behavior lane:
-  - deterministic Playwright checks for first-viewport hierarchy, feed management interactions, dense-month behavior, holiday setup, and mobile agenda usability
+  - deterministic Playwright checks for Google/fallback provider behavior, autocomplete/location normalization behavior, real marker placement, and mobile map/location-entry usability
 - Visual/persona lane:
-  - persona-backed desktop and mobile review for `contributing_member`, `family_admin`, and `mobile_first_relative`
+  - persona-backed desktop and mobile review for `contributing_member`, `genealogy_researcher`, `family_admin`, and `mobile_first_relative`
 
 ### Risks to Watch
 
-- page-shell work can quietly sprawl into a broad design-system rewrite if packet boundaries slip
-- feed grouping can become untruthful if UI promises branch/person feeds the backend does not actually serve
-- holiday onboarding can regress back into raw-URL-first behavior if preset support is weak
-- dense-month improvements can add noise instead of clarity if event styling is not tested on real crowded data
-- mobile management patterns can hide or clip critical actions if not explicitly validated
+- Places/autocomplete can become UI-only sugar if the normalized result is not persisted into truthful person fields
+- Google provider setup can drift into a misleading multi-key contract if runtime docs and code are not aligned
+- geocoding and coordinate persistence can introduce false precision if the app stores guessed points without a clear source of truth
+- kinship-aware map work can overreach into a full social-graph visualization if packet boundaries are not enforced
+- mobile place-entry flows can become cluttered if autocomplete or fallback states are not explicitly validated
 
 ### Deferred Beyond S29
 
 | ID | Title | Reason |
 |---|---|---|
-| G-15 | Calendar notifications / reminders | Useful but lower leverage than fixing the primary calendar UX first |
-| G-16 | Week view / multi-view calendar modes | Valuable later; month and agenda clarity are the current blocker |
-| G-17 | Persistent subscription tracking / favorites | Nice-to-have only after truthful grouped subscription UX exists |
-| FB-031 | Research Tools UX Overhaul | Important but lower priority than making `/calendar` a credible recurring-use surface |
-| FB-032 | i18n Test Parity | Should still land, but can ship after calendar copy stabilizes |
+| G-15 | Calendar notifications / reminders | Useful but lower leverage than map/location truthfulness right now |
+| G-16 | Week view / multi-view calendar modes | No longer the next UX blocker after S29 |
+| G-17 | Persistent subscription tracking / favorites | Nice-to-have, lower leverage than map/place correctness |
+| FB-031 | Research Tools UX Overhaul | Important but lower priority than truthful map/location capture |
+| FB-032 | i18n Test Parity | Should still land, but can ship after the new map/place copy stabilizes |
 
 ### Context
 
 - Packet files:
-  - `task_packets/FB-043_calendar_primary_surface_and_layout_hierarchy.md`
-  - `task_packets/FB-044_manage_calendars_drawer_and_subscription_ux.md`
-  - `task_packets/FB-045_calendar_event_density_discovery_and_detail_intelligence.md`
-  - `task_packets/FB-046_guided_holiday_layers_mobile_agenda_and_empty_states.md`
+  - `task_packets/FB-047_google_maps_platform_contract_and_runtime_setup.md`
+  - `task_packets/FB-048_place_autocomplete_and_country_normalization_across_person_surfaces.md`
+  - `task_packets/FB-049_coordinate_persistence_and_truthful_map_marker_placement.md`
+  - `task_packets/FB-050_kinship_aware_map_semantics_and_family_distribution_readability.md`
 
 ---
 

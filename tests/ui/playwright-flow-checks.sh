@@ -343,6 +343,17 @@ assert_run "tree node supports keyboard open and escape close" \
 assert_run "tree filters can be applied in-browser" \
   "${PWCLI}" run-code "async page => { const status = await page.locator('#tree-status').textContent(); if (!status || !status.match(/\\d+/)) throw new Error('filtered tree status missing count'); }"
 
+"${PWCLI}" goto "${BASE_URL}/people/new"
+assert_run "new person form exposes place-capture affordances" \
+  "${PWCLI}" run-code "async page => { const groups = await page.locator('[data-place-field]').count(); const hints = await page.locator('[data-place-status]').count(); if (groups < 3 || hints < 3) throw new Error('place affordances missing from create form'); }"
+
+"${PWCLI}" goto "${BASE_URL}/people/tyler-000-0000-0000-000000000002/edit"
+assert_run "edit person form exposes coordinate-backed place fields" \
+  "${PWCLI}" run-code "async page => { await page.locator('#edit-residence-place').waitFor(); if (!await page.locator('input[name=\"residence_place_latitude\"]').count()) throw new Error('missing residence coordinate field'); if (!await page.locator('[data-place-status]').count()) throw new Error('missing place status hint'); }"
+
+assert_run "changing country after place verification clears stale coordinates" \
+  "${PWCLI}" run-code "async page => { const latitude = page.locator('input[name=\"residence_place_latitude\"]'); const longitude = page.locator('input[name=\"residence_place_longitude\"]'); await latitude.evaluate((el) => { el.value = '43.6532'; }); await longitude.evaluate((el) => { el.value = '-79.3832'; }); const country = page.locator('#edit-residence-country'); await country.fill('us'); await page.waitForFunction(() => { const lat = document.querySelector('input[name=\"residence_place_latitude\"]'); const lng = document.querySelector('input[name=\"residence_place_longitude\"]'); const countryInput = document.querySelector('#edit-residence-country'); return lat && lng && countryInput && lat.value === '' && lng.value === '' && countryInput.value === 'US'; }); }"
+
 "${PWCLI}" goto "${BASE_URL}/map"
 "${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(1500); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map.png" --full-page true >/dev/null
@@ -356,6 +367,9 @@ assert_run "map marker supports keyboard navigation" \
 "${PWCLI}" goto "${BASE_URL}/map"
 "${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(800); }"
 
+assert_run "map focus reveals selected marker semantics" \
+  "${PWCLI}" run-code "async page => { const marker = page.locator('#map-svg [role=\"link\"]').first(); await marker.focus(); await page.locator('#map-selected-marker').waitFor(); const text = await page.locator('#map-selected-details').textContent(); if (!text || !text.match(/Residence|Burial|residencia|sepultura|проживания|Захоронение/)) throw new Error('selected marker details missing semantics'); }"
+
 assert_run "configured google map path preserves keyboard navigation" \
   "${PWCLI}" run-code "async page => { await page.evaluate(() => { const mapEl = document.getElementById('google-map'); mapEl.innerHTML = ''; const overlayPane = document.createElement('div'); overlayPane.style.position = 'absolute'; overlayPane.style.inset = '0'; mapEl.appendChild(overlayPane); class FakeMap { constructor(el, opts) { this.el = el; this.opts = opts; } setCenter() {} setZoom() {} fitBounds() {} } class FakeLatLngBounds { constructor() { this.points = []; } extend(value) { this.points.push(value); } getCenter() { return { lat: 20, lng: 0 }; } } class FakeLatLng { constructor(lat, lng) { this.lat = lat; this.lng = lng; } } class FakeOverlayView { setMap(map) { this.map = map; if (map) { if (this.onAdd) this.onAdd(); if (this.draw) this.draw(); } } getPanes() { return { overlayMouseTarget: overlayPane }; } getProjection() { return { fromLatLngToDivPixel() { return { x: 140, y: 140 }; } }; } } window.google = { maps: { Map: FakeMap, OverlayView: FakeOverlayView, LatLngBounds: FakeLatLngBounds, LatLng: FakeLatLng } }; const root = document.getElementById('map-root'); root.dataset.mapProvider = 'google'; root.dataset.googleMapsApiKey = 'fake-google-key'; root.dataset.googleMapsMapId = ''; }); await page.evaluate(() => window.familyBookMap.reload()); await page.locator('.map-google-marker-button').first().waitFor(); const marker = page.locator('.map-google-marker-button').first(); await marker.focus(); await page.keyboard.press('Enter'); await page.waitForURL(/\\/people\\/[^/]+\\/edit/); if (!page.url().includes('/edit')) throw new Error('google map keyboard navigation failed'); }"
 
@@ -367,6 +381,26 @@ assert_run "configured google map path preserves keyboard navigation" \
 
 assert_run "map filters can be applied in-browser" \
   "${PWCLI}" run-code "async page => { if (await page.locator('#map-svg g').count() === 0) throw new Error('filtered map has no markers'); }"
+
+"${PWCLI}" cookie-set locale es --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+"${PWCLI}" goto "${BASE_URL}/map"
+"${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(800); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map-es.png" --full-page true >/dev/null
+
+assert_run "map surface uses locale strings in Spanish" \
+  "${PWCLI}" run-code "async page => { const text = await page.locator('#map-root').textContent(); if (!text || !text.includes('Mapa Familiar')) throw new Error('map title did not localize to Spanish'); if (!text.includes('Distancia familiar')) throw new Error('relationship scope filter did not localize to Spanish'); }"
+
+"${PWCLI}" cookie-set locale en --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+
+"${PWCLI}" resize 390 844
+"${PWCLI}" goto "${BASE_URL}/map"
+"${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(800); }"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map-mobile.png" --full-page true >/dev/null
+
+assert_run "map page avoids horizontal overflow on mobile" \
+  "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('map page overflows horizontally on mobile'); const selected = await page.locator('#map-selected-marker').boundingBox(); const filter = await page.locator('#map-filter-relationship-scope').boundingBox(); if (!selected || !filter) throw new Error('map mobile controls missing'); }"
+
+"${PWCLI}" resize 1440 960
 
 finalize_playwright_artifacts
 

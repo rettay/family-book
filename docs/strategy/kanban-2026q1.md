@@ -2,7 +2,12 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-047 | Google Maps Platform Contract and Railway Runtime Setup | P0 | `task_packets/FB-047_google_maps_platform_contract_and_runtime_setup.md` |
+| FB-048 | Place Autocomplete and Country Normalization Across Person Surfaces | P1 | `task_packets/FB-048_place_autocomplete_and_country_normalization_across_person_surfaces.md` |
+| FB-049 | Coordinate Persistence and Truthful Map Marker Placement | P1 | `task_packets/FB-049_coordinate_persistence_and_truthful_map_marker_placement.md` |
+| FB-050 | Kinship-Aware Map Semantics and Family Distribution Readability | P2 | `task_packets/FB-050_kinship_aware_map_semantics_and_family_distribution_readability.md` |
 
 ## In Progress
 
@@ -50,3 +55,7 @@ None.
 | FB-022 | Tree Discovery and Research Foundation | P1 | `task_packets/FB-022_tree_discovery_and_research_foundation.md` |
 | FB-021 | Tree Graph Editing and Relationship Modeling | P1 | `task_packets/FB-021_tree_graph_editing_and_relationship_modeling.md` |
 | FB-025 | Family Calendar and Relationship Intelligence | P1 | `task_packets/FB-025_family_calendar_and_relationship_intelligence.md` |
+| FB-043 | Calendar Primary Surface and Layout Hierarchy | P0 | `task_packets/FB-043_calendar_primary_surface_and_layout_hierarchy.md` |
+| FB-044 | Manage Calendars Drawer and Subscription UX | P1 | `task_packets/FB-044_manage_calendars_drawer_and_subscription_ux.md` |
+| FB-045 | Calendar Event Density, Discovery, and Detail Intelligence | P1 | `task_packets/FB-045_calendar_event_density_discovery_and_detail_intelligence.md` |
+| FB-046 | Guided Holiday Layers, Mobile Agenda, and Empty States | P1 | `task_packets/FB-046_guided_holiday_layers_mobile_agenda_and_empty_states.md` |

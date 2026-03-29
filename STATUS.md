@@ -133,14 +133,14 @@ Family Book is in **power-user genealogy depth**.
 
 ## Current Priority Order
 
-1. Execute Sprint 23 (source citations, evidence classification, date intelligence) — genealogy research credibility
-2. Preserve test and browser baselines while expanding power-user features
-3. Consider S24 for platform completeness (fan chart, duplicate detection, print/export)
-4. Keep architecture cleanup behind user-facing genealogy-workflow value unless it blocks product progress
+1. Execute `S30 - Map Truthfulness and Place Intelligence`
+2. Preserve test and browser baselines while tightening high-trust geography and location-entry flows
+3. Queue research UX overhaul after the map/location truthfulness loop is coherent
+4. Keep broader platform completeness and architectural cleanup behind member-facing trust improvements
 
 ## Sprint State
 
-- Closed sprints: S01 through S22
-- Planning: `S23 - Source Citations, Evidence, and Date Intelligence`
-- Candidate: `S24 - Platform Completeness`
+- Recently closed: `S29 - Calendar as Primary Surface and Family Calendar Discovery`
+- Planning: `S30 - Map Truthfulness and Place Intelligence`
+- Candidate: `S31 - Research UX Overhaul and Test Infrastructure`
 - See `backlog.md`, `docs/strategy/kanban-2026q1.md`, `docs/strategy/sprint-board-2026q1.md`

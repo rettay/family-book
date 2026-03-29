@@ -339,34 +339,49 @@
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="places">
           <summary>{{ t('tree.places_section') }}</summary>
           <div class="tree-inline-form__row">
-            <label>
-              {{ t('person.birth_place') }}
-              <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}">
-            </label>
-            <label>
-              {{ t('person.birth_country') }}
-              <input class="form-input" type="text" name="birth_country_code" maxlength="2" value="{{ person.birth_country_code or '' }}" placeholder="US">
-            </label>
+            <div class="tree-inline-form__location" data-place-field>
+              <label>
+                {{ t('person.birth_place') }}
+                <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input>
+              </label>
+              <label>
+                {{ t('person.birth_country') }}
+                <input class="form-input" type="text" name="birth_country_code" value="{{ person.birth_country_code or '' }}" placeholder="US or United States" data-country-input>
+              </label>
+              <input type="hidden" name="birth_place_latitude" value="{{ person.birth_place_latitude or '' }}" data-place-latitude>
+              <input type="hidden" name="birth_place_longitude" value="{{ person.birth_place_longitude or '' }}" data-place-longitude>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
+            </div>
           </div>
           <div class="tree-inline-form__row">
-            <label>
-              {{ t('person.residence') }}
-              <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}">
-            </label>
-            <label>
-              {{ t('tree.filter_residence_country') }}
-              <input class="form-input" type="text" name="residence_country_code" maxlength="2" value="{{ person.residence_country_code or '' }}">
-            </label>
+            <div class="tree-inline-form__location" data-place-field>
+              <label>
+                {{ t('person.residence') }}
+                <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input>
+              </label>
+              <label>
+                {{ t('tree.filter_residence_country') }}
+                <input class="form-input" type="text" name="residence_country_code" value="{{ person.residence_country_code or '' }}" placeholder="CA or Canada" data-country-input>
+              </label>
+              <input type="hidden" name="residence_place_latitude" value="{{ person.residence_place_latitude or '' }}" data-place-latitude>
+              <input type="hidden" name="residence_place_longitude" value="{{ person.residence_place_longitude or '' }}" data-place-longitude>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
+            </div>
           </div>
           <div class="tree-inline-form__row">
-            <label>
-              {{ t('person.burial_place') }}
-              <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}">
-            </label>
-            <label>
-              {{ t('person.burial_country') }}
-              <input class="form-input" type="text" name="burial_country_code" maxlength="2" value="{{ person.burial_country_code or '' }}" placeholder="US">
-            </label>
+            <div class="tree-inline-form__location" data-place-field>
+              <label>
+                {{ t('person.burial_place') }}
+                <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}" data-place-input>
+              </label>
+              <label>
+                {{ t('person.burial_country') }}
+                <input class="form-input" type="text" name="burial_country_code" value="{{ person.burial_country_code or '' }}" placeholder="MX or Mexico" data-country-input>
+              </label>
+              <input type="hidden" name="burial_place_latitude" value="{{ person.burial_place_latitude or '' }}" data-place-latitude>
+              <input type="hidden" name="burial_place_longitude" value="{{ person.burial_place_longitude or '' }}" data-place-longitude>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
+            </div>
           </div>
           <div class="tree-inline-form__row">
             <label>

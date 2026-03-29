@@ -875,6 +875,16 @@
     initializeTreePickers();
     initializeTreeMultiPickers();
     initializeTreeMediaComposer();
+    if (window.familyBookLocations && typeof window.familyBookLocations.init === 'function') {
+      window.familyBookLocations.init(sidebarContent, {
+        apiKey: root.dataset.googleMapsApiKey,
+        hasGoogle: root.dataset.googlePlacesEnabled === 'true',
+        manualHint: root.dataset.placeManualHint,
+        configuredHint: root.dataset.placeLookupHint,
+        verifiedHint: root.dataset.placeVerifiedHint,
+        failedHint: root.dataset.placeLookupFailedHint
+      });
+    }
     switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup);
     applyRelationshipHighlights();
     updateGraphModeBanner();
@@ -2819,10 +2829,16 @@
             'death_date_precision',
             'birth_place',
             'birth_country_code',
+            'birth_place_latitude',
+            'birth_place_longitude',
             'residence_place',
             'residence_country_code',
+            'residence_place_latitude',
+            'residence_place_longitude',
             'burial_place',
             'burial_country_code',
+            'burial_place_latitude',
+            'burial_place_longitude',
             'burial_cemetery_name',
             'burial_plot_number',
             'branch',

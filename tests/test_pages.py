@@ -67,6 +67,7 @@ async def test_map_page_renders_accessible_svg_and_reset_filter(member_client: A
     assert 'id="map-svg"' in resp.text
     assert 'role="img"' in resp.text
     assert 'id="reset-map-filters"' in resp.text
+    assert 'id="map-filter-relationship-scope"' in resp.text
     assert 'data-map-provider="svg"' in resp.text
 
 
@@ -108,9 +109,19 @@ async def test_person_edit_page_renders_labeled_fields_and_inline_error_containe
 
     assert resp.status_code == 200
     assert 'id="person-edit-error"' in resp.text
-    assert 'for="edit-first-name"' in resp.text
-    assert 'id="edit-first-name"' in resp.text
-    assert 'class="form-section-title"' in resp.text
+    assert 'data-place-field' in resp.text
+    assert 'name="residence_place_latitude"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_new_person_page_renders_place_lookup_fields(member_client: AsyncClient):
+    resp = await member_client.get("/people/new")
+
+    assert resp.status_code == 200
+    assert 'data-place-field' in resp.text
+    assert 'name="birth_place_latitude"' in resp.text
+    assert 'id="person-first-name"' in resp.text
+    assert 'id="person-residence-place"' in resp.text
 
 
 @pytest.mark.asyncio

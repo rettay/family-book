@@ -28,6 +28,7 @@ from app.schemas import (
 from app.services.audit_service import log_audit
 from app.services.date_parsing import parse_date_raw_to_iso
 from app.services.field_protection import decrypt_string
+from app.services.location_service import resolve_location
 from app.services.sanitization import RICH_TEXT_FIELDS, sanitize_html
 from app.services.revision_service import (
     PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS,
@@ -40,6 +41,51 @@ from app.services.revision_service import (
 
 router = APIRouter(prefix="/api/persons", tags=["persons"])
 logger = logging.getLogger(__name__)
+
+
+LOCATION_PREFIXES = ("birth", "residence", "burial")
+
+
+async def _normalize_location_fields(
+    payload: dict,
+    *,
+    person: Person | None = None,
+) -> dict:
+    normalized = dict(payload)
+    for prefix in LOCATION_PREFIXES:
+        place_key = f"{prefix}_place"
+        country_key = f"{prefix}_country_code"
+        latitude_key = f"{prefix}_place_latitude"
+        longitude_key = f"{prefix}_place_longitude"
+
+        if person is None:
+            current_place = normalized.get(place_key)
+            current_country = normalized.get(country_key)
+            current_latitude = normalized.get(latitude_key)
+            current_longitude = normalized.get(longitude_key)
+        else:
+            fields_present = any(
+                key in normalized
+                for key in (place_key, country_key, latitude_key, longitude_key)
+            )
+            if not fields_present:
+                continue
+            current_place = normalized.get(place_key, getattr(person, place_key))
+            current_country = normalized.get(country_key, getattr(person, country_key))
+            current_latitude = normalized.get(latitude_key, getattr(person, latitude_key))
+            current_longitude = normalized.get(longitude_key, getattr(person, longitude_key))
+
+        resolved = await resolve_location(
+            place=current_place,
+            country_code=current_country,
+            latitude=current_latitude,
+            longitude=current_longitude,
+        )
+        normalized[place_key] = resolved.place
+        normalized[country_key] = resolved.country_code
+        normalized[latitude_key] = resolved.latitude
+        normalized[longitude_key] = resolved.longitude
+    return normalized
 
 
 async def _person_history_entries(
@@ -218,56 +264,67 @@ async def create_person(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    payload = await _normalize_location_fields(body.model_dump())
     person = Person(
-        first_name=body.first_name,
-        last_name=body.last_name,
-        patronymic=body.patronymic,
-        birth_last_name=body.birth_last_name,
-        nickname=body.nickname,
-        name_display_order=body.name_display_order,
-        gender=body.gender,
-        birth_date_raw=body.birth_date_raw,
-        birth_date=body.birth_date,
-        birth_date_precision=body.birth_date_precision,
-        death_date_raw=body.death_date_raw,
-        death_date=body.death_date,
-        death_date_precision=body.death_date_precision,
-        is_living=body.is_living,
-        birth_place=body.birth_place,
-        birth_country_code=body.birth_country_code,
-        residence_place=body.residence_place,
-        residence_country_code=body.residence_country_code,
-        burial_place=body.burial_place,
-        burial_country_code=body.burial_country_code,
-        burial_cemetery_name=body.burial_cemetery_name,
-        burial_plot_number=body.burial_plot_number,
-        bio=sanitize_html(body.bio) if body.bio else body.bio,
-        research_notes=sanitize_html(body.research_notes) if body.research_notes else body.research_notes,
-        medical_history=body.medical_history,
-        contact_whatsapp=body.contact_whatsapp,
-        contact_telegram=body.contact_telegram,
-        contact_signal=body.contact_signal,
-        contact_email=body.contact_email,
-        obituary=sanitize_html(body.obituary) if body.obituary else body.obituary,
-        obituary_source=body.obituary_source,
-        height=body.height,
-        weight=body.weight,
-        eye_color=body.eye_color,
-        hair_color=body.hair_color,
-        blood_type=body.blood_type,
-        maternal_haplogroup=body.maternal_haplogroup,
-        paternal_haplogroup=body.paternal_haplogroup,
-        dna_test_provider=body.dna_test_provider,
-        source_detail=body.source_detail,
-        confidence=body.confidence,
-        social_instagram=body.social_instagram,
-        social_facebook=body.social_facebook,
-        social_twitter=body.social_twitter,
-        social_linkedin=body.social_linkedin,
-        social_tiktok=body.social_tiktok,
-        social_youtube=body.social_youtube,
-        branch=body.branch,
-        source=body.source,
+        first_name=payload["first_name"],
+        last_name=payload["last_name"],
+        patronymic=payload.get("patronymic"),
+        birth_last_name=payload.get("birth_last_name"),
+        nickname=payload.get("nickname"),
+        name_display_order=payload.get("name_display_order") or "western",
+        gender=payload.get("gender"),
+        birth_date_raw=payload.get("birth_date_raw"),
+        birth_date=payload.get("birth_date"),
+        birth_date_precision=payload.get("birth_date_precision"),
+        death_date_raw=payload.get("death_date_raw"),
+        death_date=payload.get("death_date"),
+        death_date_precision=payload.get("death_date_precision"),
+        is_living=payload.get("is_living", True),
+        birth_place=payload.get("birth_place"),
+        birth_country_code=payload.get("birth_country_code"),
+        birth_place_latitude=payload.get("birth_place_latitude"),
+        birth_place_longitude=payload.get("birth_place_longitude"),
+        residence_place=payload.get("residence_place"),
+        residence_country_code=payload.get("residence_country_code"),
+        residence_place_latitude=payload.get("residence_place_latitude"),
+        residence_place_longitude=payload.get("residence_place_longitude"),
+        burial_place=payload.get("burial_place"),
+        burial_country_code=payload.get("burial_country_code"),
+        burial_place_latitude=payload.get("burial_place_latitude"),
+        burial_place_longitude=payload.get("burial_place_longitude"),
+        burial_cemetery_name=payload.get("burial_cemetery_name"),
+        burial_plot_number=payload.get("burial_plot_number"),
+        bio=sanitize_html(payload.get("bio")) if payload.get("bio") else payload.get("bio"),
+        research_notes=sanitize_html(payload.get("research_notes"))
+        if payload.get("research_notes")
+        else payload.get("research_notes"),
+        medical_history=payload.get("medical_history"),
+        contact_whatsapp=payload.get("contact_whatsapp"),
+        contact_telegram=payload.get("contact_telegram"),
+        contact_signal=payload.get("contact_signal"),
+        contact_email=payload.get("contact_email"),
+        obituary=sanitize_html(payload.get("obituary"))
+        if payload.get("obituary")
+        else payload.get("obituary"),
+        obituary_source=payload.get("obituary_source"),
+        height=payload.get("height"),
+        weight=payload.get("weight"),
+        eye_color=payload.get("eye_color"),
+        hair_color=payload.get("hair_color"),
+        blood_type=payload.get("blood_type"),
+        maternal_haplogroup=payload.get("maternal_haplogroup"),
+        paternal_haplogroup=payload.get("paternal_haplogroup"),
+        dna_test_provider=payload.get("dna_test_provider"),
+        source_detail=payload.get("source_detail"),
+        confidence=payload.get("confidence"),
+        social_instagram=payload.get("social_instagram"),
+        social_facebook=payload.get("social_facebook"),
+        social_twitter=payload.get("social_twitter"),
+        social_linkedin=payload.get("social_linkedin"),
+        social_tiktok=payload.get("social_tiktok"),
+        social_youtube=payload.get("social_youtube"),
+        branch=payload.get("branch"),
+        source=payload.get("source") or "manual",
         created_by=current_user.id,
     )
     # Auto-parse raw dates to ISO if ISO not explicitly provided
@@ -327,7 +384,10 @@ async def update_person(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     old_snapshot = serialize_person_snapshot(person)
-    update_data = body.model_dump(exclude_unset=True)
+    update_data = await _normalize_location_fields(
+        body.model_dump(exclude_unset=True),
+        person=person,
+    )
 
     # Handle JSON array fields separately, stripping None values per entry
     def _strip_none_entries(entries: list | None) -> list[dict]:

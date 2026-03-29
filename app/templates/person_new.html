@@ -53,27 +53,35 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" data-place-field>
           <label for="person-birth-place">{{ t('person.birth_place') }}</label>
-          <input type="text" class="form-input" id="person-birth-place" name="birth_place">
+          <input type="text" class="form-input" id="person-birth-place" name="birth_place" data-place-input>
+          <label for="person-birth-country">{{ t('person.birth_country') }}</label>
+          <input type="text" class="form-input" id="person-birth-country" name="birth_country_code" placeholder="Italy or IT" data-country-input>
+          <input type="hidden" name="birth_place_latitude" data-place-latitude>
+          <input type="hidden" name="birth_place_longitude" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
         </div>
-        <div class="form-group">
+        <div class="form-group" data-place-field>
           <label for="person-residence-place">{{ t('person.residence') }}</label>
-          <input type="text" class="form-input" id="person-residence-place" name="residence_place">
+          <input type="text" class="form-input" id="person-residence-place" name="residence_place" data-place-input>
+          <label for="person-residence-country">{{ t('person.residence_country') }}</label>
+          <input type="text" class="form-input" id="person-residence-country" name="residence_country_code" placeholder="Canada or CA" data-country-input>
+          <input type="hidden" name="residence_place_latitude" data-place-latitude>
+          <input type="hidden" name="residence_place_longitude" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
         </div>
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label for="person-residence-country">Residence Country</label>
-          <input type="text" class="form-input" id="person-residence-country" name="residence_country_code" maxlength="2" placeholder="CA">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" data-place-field>
           <label for="person-burial-place">Burial Place</label>
-          <input type="text" class="form-input" id="person-burial-place" name="burial_place">
+          <input type="text" class="form-input" id="person-burial-place" name="burial_place" data-place-input>
+          <label for="person-burial-country">{{ t('person.burial_country') }}</label>
+          <input type="text" class="form-input" id="person-burial-country" name="burial_country_code" placeholder="United States or US" data-country-input>
+          <input type="hidden" name="burial_place_latitude" data-place-latitude>
+          <input type="hidden" name="burial_place_longitude" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
         </div>
         <div class="form-group">
           <label for="person-burial-cemetery">Cemetery Name</label>
@@ -86,10 +94,6 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label for="person-burial-country">Burial Country</label>
-          <input type="text" class="form-input" id="person-burial-country" name="burial_country_code" maxlength="2" placeholder="US">
-        </div>
         <div class="form-group">
           <label for="person-contact-email">Email</label>
           <input type="email" class="form-input" id="person-contact-email" name="contact_email">
@@ -110,7 +114,17 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/location_fields.js"></script>
 <script>
+window.familyBookLocations.init(document, {
+  apiKey: {{ google_maps_api_key|tojson }},
+  hasGoogle: {{ google_places_enabled|tojson }},
+  manualHint: {{ t('map.place_manual_hint')|tojson }},
+  configuredHint: {{ t('map.place_lookup_hint')|tojson }},
+  verifiedHint: {{ t('map.place_verified_hint')|tojson }},
+  failedHint: {{ t('map.place_lookup_failed_hint')|tojson }}
+});
+
 async function createPerson(e) {
   e.preventDefault();
   const btn = document.getElementById('create-btn');

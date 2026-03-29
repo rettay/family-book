@@ -668,10 +668,12 @@ async def test_map_endpoint_returns_residence_and_burial_markers(admin_client: A
     markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
     assert {marker["kind"] for marker in markers} == {"residence", "burial"}
     assert {marker["country_code"] for marker in markers} == {"US", "MX"}
+    assert {marker["location_source"] for marker in markers} == {"coordinates"}
+    assert all("relation_scope" in marker for marker in markers)
 
 
 @pytest.mark.asyncio
-async def test_map_endpoint_skips_burial_marker_without_burial_country(admin_client: AsyncClient):
+async def test_map_endpoint_uses_known_place_lookup_without_explicit_burial_country(admin_client: AsyncClient):
     create_resp = await admin_client.post("/api/persons", json={
         "first_name": "Buried",
         "last_name": "Unknown",
@@ -686,7 +688,9 @@ async def test_map_endpoint_skips_burial_marker_without_burial_country(admin_cli
     resp = await admin_client.get("/api/map")
     assert resp.status_code == 200
     markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
-    assert {marker["kind"] for marker in markers} == {"residence"}
+    assert {marker["kind"] for marker in markers} == {"residence", "burial"}
+    burial_marker = next(marker for marker in markers if marker["kind"] == "burial")
+    assert burial_marker["location_source"] == "coordinates"
 
 
 @pytest.mark.asyncio
@@ -705,6 +709,32 @@ async def test_map_endpoint_applies_filters(admin_client: AsyncClient):
     filtered_ids = {marker["person"]["id"] for marker in filtered.json()["markers"]}
     assert person_id in filtered_ids
     assert "tyler-000-0000-0000-000000000002" not in filtered_ids
+
+
+@pytest.mark.asyncio
+async def test_person_create_normalizes_country_names_and_persists_coordinates(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Mapped",
+        "last_name": "Person",
+        "residence_place": "Toronto",
+        "residence_country_code": "Canada",
+    })
+
+    assert create_resp.status_code == 201
+    payload = create_resp.json()
+    assert payload["residence_country_code"] == "CA"
+    assert payload["residence_place_latitude"] == pytest.approx(43.6532)
+    assert payload["residence_place_longitude"] == pytest.approx(-79.3832)
+
+
+@pytest.mark.asyncio
+async def test_map_endpoint_can_filter_by_relationship_scope(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/map?relationship_scope=one_step")
+
+    assert resp.status_code == 200
+    markers = resp.json()["markers"]
+    assert markers
+    assert all(marker["relation_scope"] == "one_step" for marker in markers)
 
 
 @pytest.mark.asyncio
@@ -789,7 +819,6 @@ async def test_completeness_excludes_root(admin_client: AsyncClient):
     # Root person is excluded — total_persons should not include it
     list_resp = await admin_client.get("/api/persons")
     all_persons = list_resp.json()
-    non_root = [p for p in all_persons if not p.get("is_root")]
     # total_persons should be <= non-root visible persons
     assert data["total_persons"] <= len(all_persons)
 

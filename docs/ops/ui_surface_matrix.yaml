@@ -110,6 +110,7 @@ surfaces:
       - genealogy_researcher
     required_scenarios:
       - update_core_identity_fields
+      - capture_normalized_place_with_autocomplete
       - switch_date_precision_mode
       - add_social_or_contact_info
       - save_without_losing_context
@@ -225,6 +226,7 @@ surfaces:
       - mobile_first_relative
     required_scenarios:
       - view_people_or_burials_on_map
+      - interpret_family_distribution_on_map
       - understand_empty_state_and_filters
     required_viewports:
       - desktop
@@ -337,8 +339,12 @@ scenario_library:
     summary: A second user can see the uploaded and tagged media.
   view_people_or_burials_on_map:
     summary: User can understand map markers and their meaning.
+  interpret_family_distribution_on_map:
+    summary: User can tell where relatives are, why each marker is shown, and what kinship class it represents.
   understand_empty_state_and_filters:
     summary: User understands why the map is empty and what to do next.
+  capture_normalized_place_with_autocomplete:
+    summary: User can enter a place naturally and have the app normalize country/location data without manual ISO lookup.
   search_external_records:
     summary: Researcher can start research from a clearly named surface.
   inspect_result_details:

@@ -25,11 +25,10 @@ from app.auth import get_current_user, require_admin, require_auth
 from app.database import get_db
 from app.i18n import translate
 from app.models.media import Media
-from app.models.person import Person, AccountState, PersonLifecycleState, Visibility
+from app.models.person import Person, AccountState, PersonLifecycleState
 from app.models.revisions import EntityRevision
 from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
-from app.schemas import PersonSummary
 from app.backup.service import get_backup_health
 from app.services.revision_service import list_revisions
 from app.services.theme_service import get_runtime_theme_from_app
@@ -58,6 +57,9 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
     """Build common template context shared by the page-rendering routes."""
     locale = _get_locale(request)
     app_theme = get_runtime_theme_from_app(request.app)
+    from app.config import get_settings
+
+    settings = get_settings()
     return {
         "request": request,
         "current_user": current_user,
@@ -67,6 +69,10 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
         "app_theme": app_theme,
         "brand_display_name": app_theme["brand_display_name"],
         "brand_tagline": app_theme["brand_tagline"],
+        "google_maps_enabled": settings.google_maps_enabled,
+        "google_places_enabled": settings.google_places_enabled,
+        "google_maps_api_key": settings.google_maps_api_key_value,
+        "google_maps_map_id": settings.google_maps_map_id_value,
         **kwargs,
     }
 
@@ -161,16 +167,10 @@ async def map_page(
     request: Request,
     current_user: Person = Depends(require_auth),
 ):
-    from app.config import get_settings
-
-    settings = get_settings()
     return templates.TemplateResponse("map.html", _ctx(
         request,
         current_user,
         active_page="map",
-        google_maps_enabled=settings.google_maps_enabled,
-        google_maps_api_key=settings.GOOGLE_MAPS_API_KEY.strip(),
-        google_maps_map_id=settings.GOOGLE_MAPS_MAP_ID.strip(),
     ))
 
 

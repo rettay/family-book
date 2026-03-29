@@ -125,3 +125,27 @@ Implications:
 - family-feed subscription and holiday-layer setup are distinct concepts in the UI
 - raw URLs are transport details, not the main UX
 - event detail should emphasize family meaning such as birthdays, anniversaries, and upcoming milestones rather than generic labels alone
+
+### 20. Google Maps platform uses one provider contract for map display and place lookup
+
+Family Book should use the Google Maps Platform through the existing runtime contract:
+
+- `GOOGLE_MAPS_API_KEY` is the canonical server environment variable for Google-backed map capabilities
+- `GOOGLE_MAPS_MAP_ID` is optional and enables styled maps when configured
+
+Implications:
+
+- the product should not introduce a second parallel `GOOGLE_PLACES_API_KEY` contract unless Google itself requires it operationally
+- map rendering, Places autocomplete, and place validation should share one truthful provider contract in product copy and deployment docs
+- missing Google config should degrade gracefully to the current fallback map behavior and manual place entry rather than pretending advanced lookup is available
+
+### 21. Map trust requires normalized places and persisted coordinates, not country centroids alone
+
+The current country-centroid map is a truthful fallback, but it is not the intended long-term map behavior. When Family Book claims to show where family members are, it should persist normalized location data and coordinates derived from user-confirmed place selection or geocoding.
+
+Implications:
+
+- location-entry UX should capture normalized place and country information, not just free-text plus a guessed ISO code
+- the map should evolve to plot persisted coordinates for residence, burial, and other supported place types
+- kinship-aware map views should be built on actual relationship-distance calculations from the family graph, not arbitrary manual tagging
+- if coordinates are unknown, the UI should either fall back explicitly or omit misleading precision rather than silently implying exact location

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from app.config import Settings
 
 
@@ -66,6 +64,7 @@ def test_settings_google_maps_and_resend_flags_require_full_config():
     )
 
     assert settings.google_maps_enabled is True
+    assert settings.google_places_enabled is True
     assert settings.resend_enabled is True
 
     incomplete = Settings(
@@ -76,4 +75,18 @@ def test_settings_google_maps_and_resend_flags_require_full_config():
     )
 
     assert incomplete.google_maps_enabled is False
+    assert incomplete.google_places_enabled is False
     assert incomplete.resend_enabled is False
+
+
+def test_settings_google_maps_placeholder_values_fail_closed():
+    settings = Settings(
+        SECRET_KEY="secret",
+        FERNET_KEY="fernet",
+        GOOGLE_MAPS_API_KEY="PENDING_SETUP",
+        GOOGLE_MAPS_MAP_ID="REPLACE_ME",
+    )
+
+    assert settings.google_maps_enabled is False
+    assert settings.google_maps_api_key_value == ""
+    assert settings.google_maps_map_id_value == ""

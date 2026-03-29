@@ -22,6 +22,7 @@ dependencies = [
     "nh3>=0.3.4",
     "icalendar>=6,<7",
     "recurring-ical-events>=3,<4",
+    "pycountry>=24,<25",
 ]
 
 [project.optional-dependencies]

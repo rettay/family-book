@@ -184,9 +184,15 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "death_date_precision": _profile_value(person.death_date_precision, access),
         "birth_place": _profile_value(person.birth_place, access),
         "birth_country_code": _profile_value(person.birth_country_code, access),
+        "birth_place_latitude": _profile_value(person.birth_place_latitude, access),
+        "birth_place_longitude": _profile_value(person.birth_place_longitude, access),
         "residence_place": _profile_value(person.residence_place, access),
+        "residence_place_latitude": _profile_value(person.residence_place_latitude, access),
+        "residence_place_longitude": _profile_value(person.residence_place_longitude, access),
         "burial_place": _profile_value(person.burial_place, access),
         "burial_country_code": _profile_value(person.burial_country_code, access),
+        "burial_place_latitude": _profile_value(person.burial_place_latitude, access),
+        "burial_place_longitude": _profile_value(person.burial_place_longitude, access),
         "burial_cemetery_name": _profile_value(person.burial_cemetery_name, access),
         "burial_plot_number": _profile_value(person.burial_plot_number, access),
         "languages": _profile_list(person.languages, access),
@@ -272,6 +278,14 @@ async def _graph_distances(
 
     distance_cache[cache_key] = distances
     return distances
+
+
+async def get_family_graph_distances(
+    db: AsyncSession,
+    origin_id: str,
+    max_distance: int,
+) -> dict[str, int]:
+    return await _graph_distances(db, origin_id, max_distance)
 
 
 async def _family_graph(db: AsyncSession) -> dict[str, set[str]]:

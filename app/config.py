@@ -77,6 +77,13 @@ class Settings(BaseSettings):
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
+    @staticmethod
+    def _normalized_secret(value: str) -> str:
+        cleaned = value.strip()
+        if cleaned.upper() in {"PENDING_SETUP", "REPLACE_ME", "TODO"}:
+            return ""
+        return cleaned
+
     @property
     def admin_email_list(self) -> list[str]:
         if not self.ADMIN_EMAILS:
@@ -142,7 +149,19 @@ class Settings(BaseSettings):
 
     @property
     def google_maps_enabled(self) -> bool:
-        return bool(self.GOOGLE_MAPS_API_KEY.strip())
+        return bool(self.google_maps_api_key_value)
+
+    @property
+    def google_places_enabled(self) -> bool:
+        return self.google_maps_enabled
+
+    @property
+    def google_maps_api_key_value(self) -> str:
+        return self._normalized_secret(self.GOOGLE_MAPS_API_KEY)
+
+    @property
+    def google_maps_map_id_value(self) -> str:
+        return self._normalized_secret(self.GOOGLE_MAPS_MAP_ID)
 
     @property
     def resend_enabled(self) -> bool:

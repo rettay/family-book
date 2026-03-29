@@ -109,26 +109,41 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" data-place-field>
           <label for="edit-birth-place">{{ t('person.birth_place') }}</label>
-          <input type="text" class="form-input" id="edit-birth-place" name="birth_place" value="{{ person.birth_place or '' }}">
+          <input type="text" class="form-input" id="edit-birth-place" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input>
+          <label for="edit-birth-country">{{ t('person.birth_country') }}</label>
+          <input type="text" class="form-input" id="edit-birth-country" name="birth_country_code" value="{{ person.birth_country_code or '' }}" placeholder="Italy or IT" data-country-input>
+          <input type="hidden" name="birth_place_latitude" value="{{ person.birth_place_latitude or '' }}" data-place-latitude>
+          <input type="hidden" name="birth_place_longitude" value="{{ person.birth_place_longitude or '' }}" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
         </div>
-        <div class="form-group">
+        <div class="form-group" data-place-field>
           <label for="edit-residence-place">{{ t('person.residence') }}</label>
-          <input type="text" class="form-input" id="edit-residence-place" name="residence_place" value="{{ person.residence_place or '' }}">
+          <input type="text" class="form-input" id="edit-residence-place" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input>
+          <label for="edit-residence-country">{{ t('person.residence_country') }}</label>
+          <input type="text" class="form-input" id="edit-residence-country" name="residence_country_code" value="{{ person.residence_country_code or '' }}" placeholder="Spain or ES" data-country-input>
+          <input type="hidden" name="residence_place_latitude" value="{{ person.residence_place_latitude or '' }}" data-place-latitude>
+          <input type="hidden" name="residence_place_longitude" value="{{ person.residence_place_longitude or '' }}" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
         </div>
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label for="edit-birth-country">{{ t('person.birth_country') }} (2-letter code)</label>
-          <input type="text" class="form-input" id="edit-birth-country" name="birth_country_code" maxlength="2"
-                 value="{{ person.birth_country_code or '' }}" placeholder="CA, RU, ES...">
+        <div class="form-group" data-place-field>
+          <label for="edit-burial-place">{{ t('person.burial_place') }}</label>
+          <input type="text" class="form-input" id="edit-burial-place" name="burial_place" value="{{ person.burial_place or '' }}" data-place-input>
+          <label for="edit-burial-country">{{ t('person.burial_country') }}</label>
+          <input type="text" class="form-input" id="edit-burial-country" name="burial_country_code" value="{{ person.burial_country_code or '' }}" placeholder="Mexico or MX" data-country-input>
+          <input type="hidden" name="burial_place_latitude" value="{{ person.burial_place_latitude or '' }}" data-place-latitude>
+          <input type="hidden" name="burial_place_longitude" value="{{ person.burial_place_longitude or '' }}" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
         </div>
         <div class="form-group">
-          <label for="edit-residence-country">{{ t('person.residence_country') }}</label>
-          <input type="text" class="form-input" id="edit-residence-country" name="residence_country_code" maxlength="2"
-                 value="{{ person.residence_country_code or '' }}" placeholder="CA, RU, ES...">
+          <label for="edit-burial-cemetery">{{ t('person.burial_cemetery_name') }}</label>
+          <input type="text" class="form-input" id="edit-burial-cemetery" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
+          <label for="edit-burial-plot">{{ t('person.burial_plot_number') }}</label>
+          <input type="text" class="form-input" id="edit-burial-plot" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
         </div>
       </div>
 
@@ -436,6 +451,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/location_fields.js"></script>
 <script>
 /* ── Unified smart date input ── */
 var DATE_PRECISION_LABELS = {
@@ -489,6 +505,15 @@ function openDatePicker(prefix) {
 
 updateDatePrecision('birth');
 updateDatePrecision('death');
+
+window.familyBookLocations.init(document, {
+  apiKey: {{ google_maps_api_key|tojson }},
+  hasGoogle: {{ google_places_enabled|tojson }},
+  manualHint: {{ t('map.place_manual_hint')|tojson }},
+  configuredHint: {{ t('map.place_lookup_hint')|tojson }},
+  verifiedHint: {{ t('map.place_verified_hint')|tojson }},
+  failedHint: {{ t('map.place_lookup_failed_hint')|tojson }}
+});
 
 /* ── Language tag autocomplete ── */
 var allLanguages = [];
@@ -652,6 +677,22 @@ async function savePerson(e) {
   var fd = new FormData(e.target);
   var data = {};
   var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions'];
+  var nullableFields = [
+    'birth_place',
+    'birth_country_code',
+    'birth_place_latitude',
+    'birth_place_longitude',
+    'residence_place',
+    'residence_country_code',
+    'residence_place_latitude',
+    'residence_place_longitude',
+    'burial_place',
+    'burial_country_code',
+    'burial_place_latitude',
+    'burial_place_longitude',
+    'burial_cemetery_name',
+    'burial_plot_number'
+  ];
   for (var pair of fd.entries()) {
     var k = pair[0], v = pair[1];
     if (k === 'languages') {
@@ -660,6 +701,8 @@ async function savePerson(e) {
       try { data[k] = JSON.parse(v); } catch(ex) { data[k] = []; }
     } else if (v !== '') {
       data[k] = v;
+    } else if (nullableFields.indexOf(k) !== -1) {
+      data[k] = null;
     }
   }
 

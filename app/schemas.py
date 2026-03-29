@@ -65,11 +65,17 @@ class PersonCreate(BaseModel):
     death_date_precision: str | None = None
     is_living: bool = True
     birth_place: str | None = Field(None, max_length=300)
-    birth_country_code: str | None = Field(None, max_length=2)
+    birth_country_code: str | None = Field(None, max_length=80)
+    birth_place_latitude: float | None = None
+    birth_place_longitude: float | None = None
     residence_place: str | None = Field(None, max_length=300)
-    residence_country_code: str | None = Field(None, max_length=2)
+    residence_country_code: str | None = Field(None, max_length=80)
+    residence_place_latitude: float | None = None
+    residence_place_longitude: float | None = None
     burial_place: str | None = Field(None, max_length=300)
-    burial_country_code: str | None = Field(None, max_length=2)
+    burial_country_code: str | None = Field(None, max_length=80)
+    burial_place_latitude: float | None = None
+    burial_place_longitude: float | None = None
     burial_cemetery_name: str | None = Field(None, max_length=300)
     burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] = []
@@ -130,11 +136,17 @@ class PersonUpdate(BaseModel):
     death_date_precision: str | None = None
     is_living: bool | None = None
     birth_place: str | None = Field(None, max_length=300)
-    birth_country_code: str | None = Field(None, max_length=2)
+    birth_country_code: str | None = Field(None, max_length=80)
+    birth_place_latitude: float | None = None
+    birth_place_longitude: float | None = None
     residence_place: str | None = Field(None, max_length=300)
-    residence_country_code: str | None = Field(None, max_length=2)
+    residence_country_code: str | None = Field(None, max_length=80)
+    residence_place_latitude: float | None = None
+    residence_place_longitude: float | None = None
     burial_place: str | None = Field(None, max_length=300)
-    burial_country_code: str | None = Field(None, max_length=2)
+    burial_country_code: str | None = Field(None, max_length=80)
+    burial_place_latitude: float | None = None
+    burial_place_longitude: float | None = None
     burial_cemetery_name: str | None = Field(None, max_length=300)
     burial_plot_number: str | None = Field(None, max_length=100)
     languages: list[str] | None = None
@@ -210,9 +222,15 @@ class PersonDetail(PersonSummary):
     death_date_precision: str | None = None
     birth_place: str | None = None
     birth_country_code: str | None = None
+    birth_place_latitude: float | None = None
+    birth_place_longitude: float | None = None
     residence_place: str | None = None
+    residence_place_latitude: float | None = None
+    residence_place_longitude: float | None = None
     burial_place: str | None = None
     burial_country_code: str | None = None
+    burial_place_latitude: float | None = None
+    burial_place_longitude: float | None = None
     burial_cemetery_name: str | None = None
     burial_plot_number: str | None = None
     languages: list[str] = []
@@ -320,9 +338,15 @@ def person_to_detail(person) -> PersonDetail:
         death_date_precision=person.death_date_precision,
         birth_place=person.birth_place,
         birth_country_code=person.birth_country_code,
+        birth_place_latitude=person.birth_place_latitude,
+        birth_place_longitude=person.birth_place_longitude,
         residence_place=person.residence_place,
+        residence_place_latitude=person.residence_place_latitude,
+        residence_place_longitude=person.residence_place_longitude,
         burial_place=person.burial_place,
         burial_country_code=person.burial_country_code,
+        burial_place_latitude=person.burial_place_latitude,
+        burial_place_longitude=person.burial_place_longitude,
         burial_cemetery_name=person.burial_cemetery_name,
         burial_plot_number=person.burial_plot_number,
         languages=person.languages,

@@ -1,9 +1,42 @@
 # Family Book Backlog
 
-Sprint: `S29 - Calendar as Primary Surface and Family Calendar Discovery`
+Sprint: `S30 - Map Truthfulness and Place Intelligence`
 Status: Planning
 
-## Current Sprint `S29 - Calendar as Primary Surface and Family Calendar Discovery`
+## Current Sprint `S30 - Map Truthfulness and Place Intelligence`
+
+Sprint goal:
+- Make `/map` and location entry truthful and useful by establishing the Google Maps runtime contract, adding place autocomplete and country normalization on person surfaces, persisting real coordinates for supported map markers, and laying the foundation for kinship-aware family distribution views.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-047 | Google Maps Platform Contract and Railway Runtime Setup | P0 | todo | `task_packets/FB-047_google_maps_platform_contract_and_runtime_setup.md` |
+| FB-048 | Place Autocomplete and Country Normalization Across Person Surfaces | P1 | todo | `task_packets/FB-048_place_autocomplete_and_country_normalization_across_person_surfaces.md` |
+| FB-049 | Coordinate Persistence and Truthful Map Marker Placement | P1 | todo | `task_packets/FB-049_coordinate_persistence_and_truthful_map_marker_placement.md` |
+| FB-050 | Kinship-Aware Map Semantics and Family Distribution Readability | P2 | todo | `task_packets/FB-050_kinship_aware_map_semantics_and_family_distribution_readability.md` |
+
+Execution slices:
+- `S30-1` Google Maps runtime contract and deploy setup
+- `S30-2` Place lookup and normalized country capture in create/edit/tree surfaces
+- `S30-3` Persisted coordinates and map marker truthfulness
+- `S30-4` Kinship-aware map readability and future relation-layer foundation
+
+## Planned Follow-Up Sprints
+
+| Sprint | Title | Packets | Status |
+|---|---|---|---|
+| S31 | Research UX Overhaul and Test Infrastructure | FB-031, FB-032 | candidate |
+| S32 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
+
+## Long Horizon
+
+| Sprint | Title | Packets | Status |
+|---|---|---|---|
+| Long horizon | AI family memorial | G-21 | candidate |
+
+## Closed Sprint `S29 - Calendar as Primary Surface and Family Calendar Discovery`
 
 Sprint goal:
 - Make `/calendar` feel like a consumer family calendar instead of a feed-plumbing page by elevating the month view to the hero surface, moving subscriptions into a clear management layer, improving event meaning and density handling, and making holiday layers discoverable on desktop and mobile.
@@ -12,29 +45,16 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-043 | Calendar Primary Surface and Layout Hierarchy | P0 | todo | `task_packets/FB-043_calendar_primary_surface_and_layout_hierarchy.md` |
-| FB-044 | Manage Calendars Drawer and Subscription UX | P1 | todo | `task_packets/FB-044_manage_calendars_drawer_and_subscription_ux.md` |
-| FB-045 | Calendar Event Density, Discovery, and Detail Intelligence | P1 | todo | `task_packets/FB-045_calendar_event_density_discovery_and_detail_intelligence.md` |
-| FB-046 | Guided Holiday Layers, Mobile Agenda, and Empty States | P1 | todo | `task_packets/FB-046_guided_holiday_layers_mobile_agenda_and_empty_states.md` |
+| FB-043 | Calendar Primary Surface and Layout Hierarchy | P0 | done | `task_packets/FB-043_calendar_primary_surface_and_layout_hierarchy.md` |
+| FB-044 | Manage Calendars Drawer and Subscription UX | P1 | done | `task_packets/FB-044_manage_calendars_drawer_and_subscription_ux.md` |
+| FB-045 | Calendar Event Density, Discovery, and Detail Intelligence | P1 | done | `task_packets/FB-045_calendar_event_density_discovery_and_detail_intelligence.md` |
+| FB-046 | Guided Holiday Layers, Mobile Agenda, and Empty States | P1 | done | `task_packets/FB-046_guided_holiday_layers_mobile_agenda_and_empty_states.md` |
 
 Execution slices:
 - `S29-1` Calendar hero layout and page shell
 - `S29-2` Manage Calendars grouping, search, and subscribe actions
 - `S29-3` Event density, detail intelligence, and upcoming discovery
 - `S29-4` Holiday-layer onboarding, mobile agenda, and empty-state recovery
-
-## Planned Follow-Up Sprints
-
-| Sprint | Title | Packets | Status |
-|---|---|---|---|
-| S30 | Research UX Overhaul and Test Infrastructure | FB-031, FB-032 | candidate |
-| S31 | Platform Completeness | G-11 (fan chart), G-12 (duplicate detection), G-14 (print/export) | candidate |
-
-## Long Horizon
-
-| Sprint | Title | Packets | Status |
-|---|---|---|---|
-| Long horizon | AI family memorial | G-21 | candidate |
 
 ## Closed Sprint `S24 - Tree Photo Headshots and Person Wiki Pages`
 
