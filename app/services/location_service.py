@@ -174,13 +174,13 @@ async def google_geocode_place(
 ) -> ResolvedLocation | None:
     settings = get_settings()
     normalized_place = normalize_place_text(place)
-    if not normalized_place or not settings.google_maps_enabled:
+    if not normalized_place or not settings.google_geocoding_enabled:
         return None
 
     normalized_country = normalize_country_code(country_code)
     params = {
         "address": normalized_place,
-        "key": settings.google_maps_api_key_value,
+        "key": settings.google_maps_server_api_key_value,
     }
     if normalized_country:
         params["components"] = f"country:{normalized_country}"

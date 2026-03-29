@@ -126,17 +126,19 @@ Implications:
 - raw URLs are transport details, not the main UX
 - event detail should emphasize family meaning such as birthdays, anniversaries, and upcoming milestones rather than generic labels alone
 
-### 20. Google Maps platform uses one provider contract for map display and place lookup
+### 20. Google Maps platform uses a unified provider with separate browser and server credentials
 
-Family Book should use the Google Maps Platform through the existing runtime contract:
+Family Book should use the Google Maps Platform through a single provider model, while separating browser and server credentials for security:
 
-- `GOOGLE_MAPS_API_KEY` is the canonical server environment variable for Google-backed map capabilities
+- `GOOGLE_MAPS_BROWSER_API_KEY` is the preferred browser-side key for map display and Places-style client lookup
+- `GOOGLE_MAPS_SERVER_API_KEY` is the preferred server-side key for geocoding and other backend Google calls
+- `GOOGLE_MAPS_API_KEY` remains a legacy fallback during migration so deploys do not break mid-cutover
 - `GOOGLE_MAPS_MAP_ID` is optional and enables styled maps when configured
 
 Implications:
 
-- the product should not introduce a second parallel `GOOGLE_PLACES_API_KEY` contract unless Google itself requires it operationally
-- map rendering, Places autocomplete, and place validation should share one truthful provider contract in product copy and deployment docs
+- the product should not introduce a separate `GOOGLE_PLACES_API_KEY` contract unless Google itself requires it operationally
+- map rendering and Places autocomplete use the browser key, while server geocoding uses the server key
 - missing Google config should degrade gracefully to the current fallback map behavior and manual place entry rather than pretending advanced lookup is available
 
 ### 21. Map trust requires normalized places and persisted coordinates, not country centroids alone

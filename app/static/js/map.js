@@ -432,7 +432,10 @@
 
     googleLoader = new Promise(function(resolve, reject) {
       var script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey);
+      script.src =
+        'https://maps.googleapis.com/maps/api/js?key=' +
+        encodeURIComponent(apiKey) +
+        '&auth_referrer_policy=origin';
       script.async = true;
       script.defer = true;
       script.onload = function() {

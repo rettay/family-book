@@ -71,7 +71,7 @@ def _ctx(request: Request, current_user: Person | None = None, **kwargs):
         "brand_tagline": app_theme["brand_tagline"],
         "google_maps_enabled": settings.google_maps_enabled,
         "google_places_enabled": settings.google_places_enabled,
-        "google_maps_api_key": settings.google_maps_api_key_value,
+        "google_maps_browser_api_key": settings.google_maps_browser_api_key_value,
         "google_maps_map_id": settings.google_maps_map_id_value,
         **kwargs,
     }

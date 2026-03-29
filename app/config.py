@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # Google Sign-In
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_HOSTED_DOMAIN: str = ""
+    GOOGLE_MAPS_BROWSER_API_KEY: str = ""
+    GOOGLE_MAPS_SERVER_API_KEY: str = ""
     GOOGLE_MAPS_API_KEY: str = ""
     GOOGLE_MAPS_MAP_ID: str = ""
 
@@ -149,15 +151,32 @@ class Settings(BaseSettings):
 
     @property
     def google_maps_enabled(self) -> bool:
-        return bool(self.google_maps_api_key_value)
+        return bool(self.google_maps_browser_api_key_value)
 
     @property
     def google_places_enabled(self) -> bool:
         return self.google_maps_enabled
 
     @property
+    def google_geocoding_enabled(self) -> bool:
+        return bool(self.google_maps_server_api_key_value)
+
+    @property
+    def google_maps_browser_api_key_value(self) -> str:
+        return self._normalized_secret(
+            self.GOOGLE_MAPS_BROWSER_API_KEY or self.GOOGLE_MAPS_API_KEY
+        )
+
+    @property
+    def google_maps_server_api_key_value(self) -> str:
+        return self._normalized_secret(
+            self.GOOGLE_MAPS_SERVER_API_KEY or self.GOOGLE_MAPS_API_KEY
+        )
+
+    @property
     def google_maps_api_key_value(self) -> str:
-        return self._normalized_secret(self.GOOGLE_MAPS_API_KEY)
+        """Legacy alias for older template/runtime call sites."""
+        return self.google_maps_browser_api_key_value
 
     @property
     def google_maps_map_id_value(self) -> str:

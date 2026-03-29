@@ -32,7 +32,7 @@
       script.src =
         'https://maps.googleapis.com/maps/api/js?key=' +
         encodeURIComponent(apiKey) +
-        '&libraries=places';
+        '&libraries=places&auth_referrer_policy=origin';
       script.async = true;
       script.defer = true;
       script.onload = function() {

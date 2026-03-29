@@ -107,7 +107,7 @@ The repo already has a Google-backed map provider contract in config, but the li
 
 The sprint is successful when all are true:
 
-- Railway/runtime configuration uses the existing `GOOGLE_MAPS_API_KEY` contract and optionally supports `GOOGLE_MAPS_MAP_ID` without introducing parallel, misleading env var names
+- Railway/runtime configuration supports split Google credentials via `GOOGLE_MAPS_BROWSER_API_KEY` and `GOOGLE_MAPS_SERVER_API_KEY`, with legacy `GOOGLE_MAPS_API_KEY` fallback during migration, plus optional `GOOGLE_MAPS_MAP_ID`
 - map behavior degrades truthfully when Google config is absent and switches cleanly to the Google provider when present
 - person create/edit and tree quick-edit place fields support place lookup/autocomplete where configured and remain usable without it
 - country codes are normalized and validated rather than relying on members to know ISO alpha-2 inputs

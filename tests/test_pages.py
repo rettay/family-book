@@ -76,14 +76,14 @@ async def test_map_page_exposes_google_maps_provider_when_configured(
     member_client: AsyncClient,
     monkeypatch,
 ):
-    monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "maps-key")
+    monkeypatch.setenv("GOOGLE_MAPS_BROWSER_API_KEY", "maps-browser-key")
     monkeypatch.setenv("GOOGLE_MAPS_MAP_ID", "map-id-1")
 
     resp = await member_client.get("/map")
 
     assert resp.status_code == 200
     assert 'data-map-provider="google"' in resp.text
-    assert 'data-google-maps-api-key="maps-key"' in resp.text
+    assert 'data-google-maps-api-key="maps-browser-key"' in resp.text
     assert 'data-google-maps-map-id="map-id-1"' in resp.text
     assert 'id="google-map"' in resp.text
 

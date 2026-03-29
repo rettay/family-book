@@ -117,7 +117,7 @@
 <script src="/static/js/location_fields.js"></script>
 <script>
 window.familyBookLocations.init(document, {
-  apiKey: {{ google_maps_api_key|tojson }},
+  apiKey: {{ google_maps_browser_api_key|tojson }},
   hasGoogle: {{ google_places_enabled|tojson }},
   manualHint: {{ t('map.place_manual_hint')|tojson }},
   configuredHint: {{ t('map.place_lookup_hint')|tojson }},
