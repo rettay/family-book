@@ -882,7 +882,8 @@
         manualHint: root.dataset.placeManualHint,
         configuredHint: root.dataset.placeLookupHint,
         verifiedHint: root.dataset.placeVerifiedHint,
-        failedHint: root.dataset.placeLookupFailedHint
+        failedHint: root.dataset.placeLookupFailedHint,
+        suggestionsLabel: root.dataset.placeSuggestionsLabel
       });
     }
     switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup);

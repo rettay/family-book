@@ -522,6 +522,7 @@
     "place_lookup_hint": "Start typing a place. If Google Places is available, you can pick a verified match.",
     "place_verified_hint": "Verified place selected. Country and coordinates will be saved.",
     "place_lookup_failed_hint": "Place suggestions were unavailable, so manual entry is still enabled.",
+    "place_suggestions_label": "Place suggestions",
     "relationship_scope": "Family distance",
     "relationship_scope_all": "All visible relatives",
     "relation_filter_hint": "Distance filters use actual family-graph steps from the signed-in person. They do not guess cousin labels yet.",

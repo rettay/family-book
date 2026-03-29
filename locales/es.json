@@ -522,6 +522,7 @@
     "place_lookup_hint": "Empieza a escribir un lugar. Si Google Places está disponible, podrás elegir una coincidencia verificada.",
     "place_verified_hint": "Se eligió un lugar verificado. Se guardarán el país y las coordenadas.",
     "place_lookup_failed_hint": "Las sugerencias de lugares no estuvieron disponibles, pero la entrada manual sigue activa.",
+    "place_suggestions_label": "Sugerencias de lugares",
     "relationship_scope": "Distancia familiar",
     "relationship_scope_all": "Todos los familiares visibles",
     "relation_filter_hint": "Los filtros de distancia usan pasos reales del grafo familiar desde la persona conectada. Aún no adivinan etiquetas de primos.",

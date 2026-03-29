@@ -256,6 +256,32 @@ body.has-overlay { overflow: hidden; }
   outline: none; border-color: var(--green-mid);
   box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.14);
 }
+.place-autocomplete-suggestions {
+  margin-top: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--warm-white);
+  box-shadow: var(--shadow-md);
+  overflow: auto;
+  max-height: 220px;
+}
+.place-autocomplete-suggestion {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text);
+}
+.place-autocomplete-suggestion + .place-autocomplete-suggestion {
+  border-top: 1px solid var(--border-light);
+}
+.place-autocomplete-suggestion:hover,
+.place-autocomplete-suggestion--active {
+  background: var(--green-pale);
+}
 .form-textarea { resize: vertical; min-height: 80px; }
 .form-hint { font-size: 0.88rem; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
 .form-error { font-size: 0.88rem; color: var(--danger); margin-top: 6px; line-height: 1.5; }
