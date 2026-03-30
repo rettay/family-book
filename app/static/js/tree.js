@@ -3031,6 +3031,7 @@
         sidebarState.activeTab = 'media';
         sidebarState.highlightMediaId = uploads.length ? uploads[uploads.length - 1].id : '';
         await refreshTreeWorkspace(personId);
+        await loadTreeSidebarMedia(personId);
       }
     });
     return false;
