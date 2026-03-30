@@ -81,6 +81,7 @@ class Person(Base, TimestampMixin):
     patronymic: Mapped[str | None] = mapped_column(String(200), default=None)
     birth_last_name: Mapped[str | None] = mapped_column(String(200), default=None)
     nickname: Mapped[str | None] = mapped_column(String(100), default=None)
+    _alternate_nicknames: Mapped[str | None] = mapped_column("alternate_nicknames", Text, default="[]")
     name_display_order: Mapped[str] = mapped_column(
         String(20), default=NameDisplayOrder.western.value
     )
@@ -108,6 +109,7 @@ class Person(Base, TimestampMixin):
     burial_place_longitude: Mapped[float | None] = mapped_column(Float, default=None)
     burial_cemetery_name: Mapped[str | None] = mapped_column(String(300), default=None)
     burial_plot_number: Mapped[str | None] = mapped_column(String(100), default=None)
+    remains_disposition: Mapped[str | None] = mapped_column(String(20), default=None)
 
     _languages: Mapped[str | None] = mapped_column("languages", Text, default="[]")
     bio: Mapped[str | None] = mapped_column(String(2000), default=None)
@@ -154,7 +156,9 @@ class Person(Base, TimestampMixin):
     contact_whatsapp: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_telegram: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_signal: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    contact_phone: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_email: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
+    _contact_addresses: Mapped[str | None] = mapped_column("contact_addresses", EncryptedText(), default="[]")
     contact_email_hash: Mapped[str | None] = mapped_column(String(64), default=None)
     calendar_feed_token: Mapped[str] = mapped_column(String(36), unique=True, default=generate_uuid)
 
@@ -197,6 +201,26 @@ class Person(Base, TimestampMixin):
     @languages.setter
     def languages(self, value: list[str]) -> None:
         self._languages = json.dumps(value)
+
+    @property
+    def alternate_nicknames(self) -> list[str]:
+        if self._alternate_nicknames:
+            return json.loads(self._alternate_nicknames)
+        return []
+
+    @alternate_nicknames.setter
+    def alternate_nicknames(self, value: list[str]) -> None:
+        self._alternate_nicknames = json.dumps(value)
+
+    @property
+    def contact_addresses(self) -> list[dict]:
+        if self._contact_addresses:
+            return json.loads(self._contact_addresses)
+        return []
+
+    @contact_addresses.setter
+    def contact_addresses(self, value: list[dict]) -> None:
+        self._contact_addresses = json.dumps(value)
 
     @property
     def education(self) -> list[dict]:

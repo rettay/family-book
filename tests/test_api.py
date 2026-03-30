@@ -158,10 +158,21 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
         "first_name": "Memorial",
         "last_name": "Person",
         "medical_history": "Known family heart condition",
+        "alternate_nicknames": ["Meme", "Mimi"],
         "burial_place": "Toronto",
         "burial_country_code": "CA",
         "burial_cemetery_name": "Evergreen Memorial",
         "burial_plot_number": "Lot 7",
+        "is_living": False,
+        "remains_disposition": "buried",
+        "contact_phone": "+14165551212",
+        "contact_addresses": [
+            {
+                "type": "mailing",
+                "place": "Toronto",
+                "country_code": "Canada",
+            }
+        ],
     })
     assert resp.status_code == 201
     data = resp.json()
@@ -170,6 +181,53 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
     assert data["burial_country_code"] == "CA"
     assert data["burial_cemetery_name"] == "Evergreen Memorial"
     assert data["burial_plot_number"] == "Lot 7"
+    assert data["alternate_nicknames"] == ["Meme", "Mimi"]
+    assert data["remains_disposition"] == "buried"
+    assert data["contact_phone"] == "+14165551212"
+    assert data["contact_addresses"][0]["type"] == "mailing"
+    assert data["contact_addresses"][0]["country_code"] == "CA"
+    assert data["contact_addresses"][0]["latitude"] == 43.6532
+    assert data["contact_addresses"][0]["longitude"] == -79.3832
+
+
+@pytest.mark.asyncio
+async def test_update_person_living_or_cremated_clears_hidden_memorial_fields(
+    admin_client: AsyncClient,
+):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Memorial",
+        "last_name": "Cleanup",
+        "is_living": False,
+        "remains_disposition": "buried",
+        "burial_place": "Toronto",
+        "burial_country_code": "CA",
+        "burial_cemetery_name": "Evergreen Memorial",
+        "burial_plot_number": "Lot 7",
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    cremated_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "remains_disposition": "cremated",
+    })
+    assert cremated_resp.status_code == 200
+    cremated = cremated_resp.json()
+    assert cremated["remains_disposition"] == "cremated"
+    assert cremated["burial_place"] == "Toronto"
+    assert cremated["burial_cemetery_name"] is None
+    assert cremated["burial_plot_number"] is None
+
+    living_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "is_living": True,
+    })
+    assert living_resp.status_code == 200
+    living = living_resp.json()
+    assert living["is_living"] is True
+    assert living["remains_disposition"] is None
+    assert living["burial_place"] is None
+    assert living["burial_country_code"] is None
+    assert living["burial_cemetery_name"] is None
+    assert living["burial_plot_number"] is None
 
 
 @pytest.mark.asyncio
@@ -183,6 +241,10 @@ async def test_sensitive_fields_are_not_plaintext_in_database(
         "medical_history": "Sensitive family note",
         "contact_email": "encrypted@example.com",
         "contact_whatsapp": "+34600000000",
+        "contact_phone": "+14165551212",
+        "contact_addresses": [
+            {"type": "mailing", "place": "10 Downing Street, London, UK", "country_code": "GB"}
+        ],
     })
     assert resp.status_code == 201
     person_id = resp.json()["id"]
@@ -191,7 +253,7 @@ async def test_sensitive_fields_are_not_plaintext_in_database(
         await seeded_db.execute(
             text(
                 """
-                SELECT medical_history, contact_email, contact_whatsapp, contact_email_hash
+                SELECT medical_history, contact_email, contact_whatsapp, contact_phone, contact_addresses, contact_email_hash
                 FROM persons
                 WHERE id = :person_id
                 """
@@ -203,6 +265,8 @@ async def test_sensitive_fields_are_not_plaintext_in_database(
     assert row.medical_history != "Sensitive family note"
     assert row.contact_email != "encrypted@example.com"
     assert row.contact_whatsapp != "+34600000000"
+    assert row.contact_phone != "+14165551212"
+    assert row.contact_addresses is not None
     assert row.contact_email_hash is not None
 
 

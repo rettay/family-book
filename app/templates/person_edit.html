@@ -8,6 +8,23 @@
   .measurement-input__fields input { width: 70px; }
   .measurement-input__fields .measurement-input__sep { font-size: 0.85rem; color: #6b6054; }
   .measurement-input select { width: auto; min-width: 70px; }
+  .person-edit-section { padding: 1.25rem 0; border-top: 1px solid #e7ddd1; }
+  .person-edit-section:first-of-type { border-top: 0; padding-top: 0.25rem; }
+  .person-edit-section__header { margin-bottom: 0.9rem; }
+  .person-edit-section__title { margin: 0; font-size: 1.05rem; }
+  .person-edit-section__hint { margin: 0.2rem 0 0; color: #6b6054; font-size: 0.92rem; }
+  .person-edit-inline-heading { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; }
+  .person-edit-switch { display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1rem; font-weight: 600; }
+  .person-edit-address-list { display: flex; flex-direction: column; gap: 0.9rem; }
+  .person-edit-address-card { padding: 0.9rem; border: 1px solid #ddd0bf; border-radius: 14px; background: #fbf8f4; }
+  .person-edit-address-card__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+  .person-edit-address-card__field { margin-top: 0.35rem; }
+  .person-edit-section--memorial { background: #fcfaf8; border-radius: 18px; padding-inline: 1rem; }
+  .person-edit-section--metadata { border-top-style: dashed; }
+  @media (max-width: 720px) {
+    .person-edit-inline-heading { align-items: flex-start; flex-direction: column; }
+    .person-edit-address-card__head { flex-direction: column; }
+  }
 </style>
 {% endblock %}
 
@@ -38,159 +55,285 @@
                onchange="uploadProfilePhoto(this)">
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-first-name">{{ t('person.first_name') }}</label>
-          <input type="text" class="form-input" id="edit-first-name" name="first_name" value="{{ person.first_name or '' }}" required>
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.identity_workspace') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.identity_workspace_hint') }}</p>
         </div>
-        <div class="form-group">
-          <label for="edit-last-name">{{ t('person.last_name') }}</label>
-          <input type="text" class="form-input" id="edit-last-name" name="last_name" value="{{ person.last_name or '' }}" required>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-patronymic">{{ t('person.patronymic') }}</label>
-          <input type="text" class="form-input" id="edit-patronymic" name="patronymic" value="{{ person.patronymic or '' }}">
-        </div>
-        <div class="form-group">
-          <label for="edit-birth-last-name">{{ t('person.birth_last_name') }}</label>
-          <input type="text" class="form-input" id="edit-birth-last-name" name="birth_last_name" value="{{ person.birth_last_name or '' }}">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-nickname">{{ t('person.nickname') }}</label>
-          <input type="text" class="form-input" id="edit-nickname" name="nickname" value="{{ person.nickname or '' }}">
-        </div>
-        <div class="form-group">
-          <label for="edit-gender">{{ t('person.gender') }}</label>
-          <select class="form-select" id="edit-gender" name="gender">
-            <option value="">—</option>
-            <option value="male" {% if person.gender == 'male' %}selected{% endif %}>{{ t('person.male') }}</option>
-            <option value="female" {% if person.gender == 'female' %}selected{% endif %}>{{ t('person.female') }}</option>
-            <option value="other" {% if person.gender == 'other' %}selected{% endif %}>{{ t('person.other') }}</option>
-          </select>
-        </div>
-      </div>
-
-      {# ── Unified smart date inputs ── #}
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{ t('person.birth_date') }}</label>
-          <div class="date-input-unified">
-            <input type="text" class="form-input date-input-unified__text" id="edit-birth-date-text"
-                   value="{{ person.birth_date_raw or person.birth_date or '' }}"
-                   placeholder="{{ t('person.date_placeholder') }}"
-                   oninput="updateDatePrecision('birth')">
-            <button type="button" class="date-input-unified__picker-btn" onclick="openDatePicker('birth')" title="{{ t('person.date_mode_calendar') }}">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </button>
-            <input type="date" class="date-input-unified__hidden" id="edit-birth-date-picker">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-first-name">{{ t('person.first_name') }}</label>
+            <input type="text" class="form-input" id="edit-first-name" name="first_name" value="{{ person.first_name or '' }}" required>
           </div>
-          <span class="date-input-unified__precision" id="birth-date-precision"></span>
+          <div class="form-group">
+            <label for="edit-last-name">{{ t('person.last_name') }}</label>
+            <input type="text" class="form-input" id="edit-last-name" name="last_name" value="{{ person.last_name or '' }}" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-patronymic">{{ t('person.patronymic') }}</label>
+            <input type="text" class="form-input" id="edit-patronymic" name="patronymic" value="{{ person.patronymic or '' }}">
+          </div>
+          <div class="form-group">
+            <label for="edit-birth-last-name">{{ t('person.birth_last_name') }}</label>
+            <input type="text" class="form-input" id="edit-birth-last-name" name="birth_last_name" value="{{ person.birth_last_name or '' }}">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-nickname">{{ t('person.preferred_nickname') }}</label>
+            <input type="text" class="form-input" id="edit-nickname" name="nickname" value="{{ person.nickname or '' }}">
+            <p class="text-sm text-muted">{{ t('person.preferred_nickname_hint') }}</p>
+          </div>
+          <div class="form-group">
+            <label for="edit-gender">{{ t('person.gender') }}</label>
+            <select class="form-select" id="edit-gender" name="gender">
+              <option value="">—</option>
+              <option value="male" {% if person.gender == 'male' %}selected{% endif %}>{{ t('person.male') }}</option>
+              <option value="female" {% if person.gender == 'female' %}selected{% endif %}>{{ t('person.female') }}</option>
+              <option value="other" {% if person.gender == 'other' %}selected{% endif %}>{{ t('person.other') }}</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
-          <label>{{ t('person.death_date') }}</label>
-          <div class="date-input-unified">
-            <input type="text" class="form-input date-input-unified__text" id="edit-death-date-text"
-                   value="{{ person.death_date_raw or person.death_date or '' }}"
-                   placeholder="{{ t('person.date_placeholder') }}"
-                   oninput="updateDatePrecision('death')">
-            <button type="button" class="date-input-unified__picker-btn" onclick="openDatePicker('death')" title="{{ t('person.date_mode_calendar') }}">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </button>
-            <input type="date" class="date-input-unified__hidden" id="edit-death-date-picker">
+          <label>{{ t('person.other_nicknames') }}</label>
+          <div class="tag-input" id="nickname-tag-input">
+            <div class="tag-input__chips" id="nickname-chips" onclick="document.getElementById('nickname-search').focus()">
+              <input type="text" class="tag-input__text" id="nickname-search"
+                     placeholder="{{ t('person.nickname_add_placeholder') }}"
+                     autocomplete="off"
+                     onkeydown="nicknameKeydown(event)"
+                     onblur="setTimeout(commitNicknameFromInput, 120)">
+            </div>
+            <input type="hidden" id="nickname-hidden" name="alternate_nicknames" value="{{ person.alternate_nicknames | join(',') }}">
           </div>
-          <span class="date-input-unified__precision" id="death-date-precision"></span>
+          <p class="text-sm text-muted">{{ t('person.other_nicknames_hint') }}</p>
         </div>
-      </div>
+      </section>
 
-      <div class="form-row">
-        <div class="form-group" data-place-field>
-          <label for="edit-birth-place">{{ t('person.birth_place') }}</label>
-          <input type="text" class="form-input" id="edit-birth-place" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input>
-          <label for="edit-birth-country">{{ t('person.birth_country') }}</label>
-          <input type="text" class="form-input" id="edit-birth-country" name="birth_country_code" value="{{ person.birth_country_code or '' }}" placeholder="Italy or IT" data-country-input>
-          <input type="hidden" name="birth_place_latitude" value="{{ person.birth_place_latitude or '' }}" data-place-latitude>
-          <input type="hidden" name="birth_place_longitude" value="{{ person.birth_place_longitude or '' }}" data-place-longitude>
-          <p class="text-sm text-muted" data-place-status></p>
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.life_workspace') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.life_workspace_hint') }}</p>
         </div>
-        <div class="form-group" data-place-field>
-          <label for="edit-residence-place">{{ t('person.residence') }}</label>
-          <input type="text" class="form-input" id="edit-residence-place" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input>
-          <label for="edit-residence-country">{{ t('person.residence_country') }}</label>
-          <input type="text" class="form-input" id="edit-residence-country" name="residence_country_code" value="{{ person.residence_country_code or '' }}" placeholder="Spain or ES" data-country-input>
-          <input type="hidden" name="residence_place_latitude" value="{{ person.residence_place_latitude or '' }}" data-place-latitude>
-          <input type="hidden" name="residence_place_longitude" value="{{ person.residence_place_longitude or '' }}" data-place-longitude>
-          <p class="text-sm text-muted" data-place-status></p>
+        <label class="person-edit-switch">
+          <input type="checkbox" id="edit-is-living" name="is_living" value="true"{% if person.is_living %} checked{% endif %}>
+          <span>{{ t('person.living') }}</span>
+        </label>
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ t('person.birth_date') }}</label>
+            <div class="date-input-unified">
+              <input type="text" class="form-input date-input-unified__text" id="edit-birth-date-text"
+                     value="{{ person.birth_date_raw or person.birth_date or '' }}"
+                     placeholder="{{ t('person.date_placeholder') }}"
+                     oninput="updateDatePrecision('birth')">
+              <button type="button" class="date-input-unified__picker-btn" onclick="openDatePicker('birth')" title="{{ t('person.date_mode_calendar') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </button>
+              <input type="date" class="date-input-unified__hidden" id="edit-birth-date-picker">
+            </div>
+            <span class="date-input-unified__precision" id="birth-date-precision"></span>
+          </div>
+          <div class="form-group person-edit-memorial-trigger">
+            <label>{{ t('person.death_date') }}</label>
+            <div class="date-input-unified">
+              <input type="text" class="form-input date-input-unified__text" id="edit-death-date-text"
+                     value="{{ person.death_date_raw or person.death_date or '' }}"
+                     placeholder="{{ t('person.date_placeholder') }}"
+                     oninput="updateDatePrecision('death')">
+              <button type="button" class="date-input-unified__picker-btn" onclick="openDatePicker('death')" title="{{ t('person.date_mode_calendar') }}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </button>
+              <input type="date" class="date-input-unified__hidden" id="edit-death-date-picker">
+            </div>
+            <span class="date-input-unified__precision" id="death-date-precision"></span>
+            <p class="text-sm text-muted">{{ t('person.death_date_hint') }}</p>
+          </div>
         </div>
-      </div>
+        <div class="form-row">
+          <div class="form-group" data-place-field>
+            <label for="edit-birth-place">{{ t('person.birth_place') }}</label>
+            <input type="text" class="form-input" id="edit-birth-place" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input>
+            <input type="hidden" id="edit-birth-country" name="birth_country_code" value="{{ person.birth_country_code or '' }}" data-country-input>
+            <input type="hidden" name="birth_place_latitude" value="{{ person.birth_place_latitude or '' }}" data-place-latitude>
+            <input type="hidden" name="birth_place_longitude" value="{{ person.birth_place_longitude or '' }}" data-place-longitude>
+            <p class="text-sm text-muted" data-place-status></p>
+          </div>
+          <div class="form-group" data-place-field>
+            <label for="edit-residence-place">{{ t('person.residence') }}</label>
+            <input type="text" class="form-input" id="edit-residence-place" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input>
+            <input type="hidden" id="edit-residence-country" name="residence_country_code" value="{{ person.residence_country_code or '' }}" data-country-input>
+            <input type="hidden" name="residence_place_latitude" value="{{ person.residence_place_latitude or '' }}" data-place-latitude>
+            <input type="hidden" name="residence_place_longitude" value="{{ person.residence_place_longitude or '' }}" data-place-longitude>
+            <p class="text-sm text-muted" data-place-status></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>{{ t('person.languages') }}</label>
+          <div class="tag-input" id="lang-tag-input">
+            <div class="tag-input__chips" id="lang-chips" onclick="document.getElementById('lang-search').focus()">
+              <input type="text" class="tag-input__text" id="lang-search"
+                     placeholder="{{ t('person.languages_search_placeholder') }}"
+                     autocomplete="off"
+                     oninput="filterLanguages()"
+                     onkeydown="langKeydown(event)"
+                     onfocus="filterLanguages()"
+                     onblur="setTimeout(closeLangDropdown, 200)">
+            </div>
+            <div class="tag-input__dropdown" id="lang-dropdown"></div>
+            <input type="hidden" id="lang-hidden" name="languages" value="{{ person.languages | join(',') }}">
+          </div>
+        </div>
+      </section>
 
-      <div class="form-row">
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.contact_workspace') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.contact_workspace_hint') }}</p>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-contact-phone">{{ t('person.contact_phone') }}</label>
+            <input type="text" class="form-input" id="edit-contact-phone" name="contact_phone" value="{{ person.contact_phone or '' }}" placeholder="+1 555 555 5555">
+          </div>
+          <div class="form-group">
+            <label for="edit-contact-email">{{ t('person.contact_email') }}</label>
+            <input type="email" class="form-input" id="edit-contact-email" name="contact_email" value="{{ person.contact_email or '' }}">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-contact-whatsapp">{{ t('person.contact_whatsapp') }}</label>
+            <input type="text" class="form-input" id="edit-contact-whatsapp" name="contact_whatsapp" value="{{ person.contact_whatsapp or '' }}" placeholder="+1234567890">
+          </div>
+          <div class="form-group">
+            <label for="edit-contact-telegram">{{ t('person.contact_telegram') }}</label>
+            <input type="text" class="form-input" id="edit-contact-telegram" name="contact_telegram" value="{{ person.contact_telegram or '' }}" placeholder="@username">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-contact-signal">{{ t('person.contact_signal') }}</label>
+            <input type="text" class="form-input" id="edit-contact-signal" name="contact_signal" value="{{ person.contact_signal or '' }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label>{{ t('person.contact_addresses') }}</label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addContactAddress()">{{ t('person.add_address') }}</button>
+          </div>
+          <p class="text-sm text-muted">{{ t('person.contact_addresses_hint') }}</p>
+          <div id="contact-address-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="contact-addresses-hidden" name="contact_addresses" value='{{ person.contact_addresses | tojson }}'>
+        </div>
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label>{{ t('person.social_profiles') }}</label>
+            <span class="text-sm text-muted">{{ t('person.social_handles_hint') }}</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-social-instagram">Instagram</label>
+              <input type="text" class="form-input" id="edit-social-instagram" name="social_instagram"
+                     value="{{ person.social_instagram or '' }}" placeholder="@username">
+            </div>
+            <div class="form-group">
+              <label for="edit-social-facebook">Facebook</label>
+              <input type="text" class="form-input" id="edit-social-facebook" name="social_facebook"
+                     value="{{ person.social_facebook or '' }}" placeholder="username or profile URL">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-social-twitter">X / Twitter</label>
+              <input type="text" class="form-input" id="edit-social-twitter" name="social_twitter"
+                     value="{{ person.social_twitter or '' }}" placeholder="@username">
+            </div>
+            <div class="form-group">
+              <label for="edit-social-linkedin">LinkedIn</label>
+              <input type="text" class="form-input" id="edit-social-linkedin" name="social_linkedin"
+                     value="{{ person.social_linkedin or '' }}" placeholder="username or profile URL">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-social-tiktok">TikTok</label>
+              <input type="text" class="form-input" id="edit-social-tiktok" name="social_tiktok"
+                     value="{{ person.social_tiktok or '' }}" placeholder="@username">
+            </div>
+            <div class="form-group">
+              <label for="edit-social-youtube">YouTube</label>
+              <input type="text" class="form-input" id="edit-social-youtube" name="social_youtube"
+                     value="{{ person.social_youtube or '' }}" placeholder="@channel">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="person-edit-section person-edit-section--memorial" id="memorial-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.memorial_workspace') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.memorial_workspace_hint') }}</p>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-remains-disposition">{{ t('person.remains_disposition') }}</label>
+            <select class="form-select" id="edit-remains-disposition" name="remains_disposition">
+              <option value="">—</option>
+              <option value="buried" {% if person.remains_disposition == 'buried' %}selected{% endif %}>{{ t('person.remains_disposition_buried') }}</option>
+              <option value="cremated" {% if person.remains_disposition == 'cremated' %}selected{% endif %}>{{ t('person.remains_disposition_cremated') }}</option>
+              <option value="unknown" {% if person.remains_disposition == 'unknown' %}selected{% endif %}>{{ t('person.remains_disposition_unknown') }}</option>
+            </select>
+          </div>
+        </div>
         <div class="form-group" data-place-field>
-          <label for="edit-burial-place">{{ t('person.burial_place') }}</label>
+          <label for="edit-burial-place">{{ t('person.final_resting_place') }}</label>
           <input type="text" class="form-input" id="edit-burial-place" name="burial_place" value="{{ person.burial_place or '' }}" data-place-input>
-          <label for="edit-burial-country">{{ t('person.burial_country') }}</label>
-          <input type="text" class="form-input" id="edit-burial-country" name="burial_country_code" value="{{ person.burial_country_code or '' }}" placeholder="Mexico or MX" data-country-input>
+          <input type="hidden" id="edit-burial-country" name="burial_country_code" value="{{ person.burial_country_code or '' }}" data-country-input>
           <input type="hidden" name="burial_place_latitude" value="{{ person.burial_place_latitude or '' }}" data-place-latitude>
           <input type="hidden" name="burial_place_longitude" value="{{ person.burial_place_longitude or '' }}" data-place-longitude>
           <p class="text-sm text-muted" data-place-status></p>
         </div>
-        <div class="form-group">
-          <label for="edit-burial-cemetery">{{ t('person.burial_cemetery_name') }}</label>
-          <input type="text" class="form-input" id="edit-burial-cemetery" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
-          <label for="edit-burial-plot">{{ t('person.burial_plot_number') }}</label>
-          <input type="text" class="form-input" id="edit-burial-plot" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="edit-bio">{{ t('person.bio') }}</label>
-        <textarea class="form-textarea" id="edit-bio" name="bio" rows="3">{{ person.bio or '' }}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="edit-research-notes">{{ t('person.research_notes_label') }}</label>
-        <textarea class="form-textarea" id="edit-research-notes" name="research_notes" rows="4" placeholder="Working notes about genealogy research for this person...">{{ person.research_notes or '' }}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="edit-medical-history">{{ t('person.medical_history') }}</label>
-        <textarea class="form-textarea" id="edit-medical-history" name="medical_history" rows="4">{{ person.medical_history or '' }}</textarea>
-      </div>
-
-      {# ── Language tag autocomplete ── #}
-      <div class="form-group">
-        <label>{{ t('person.languages') }}</label>
-        <div class="tag-input" id="lang-tag-input">
-          <div class="tag-input__chips" id="lang-chips" onclick="document.getElementById('lang-search').focus()">
-            <input type="text" class="tag-input__text" id="lang-search"
-                   placeholder="Type to search languages..."
-                   autocomplete="off"
-                   oninput="filterLanguages()"
-                   onkeydown="langKeydown(event)"
-                   onfocus="filterLanguages()"
-                   onblur="setTimeout(closeLangDropdown, 200)">
+        <div class="form-row" id="burial-site-details">
+          <div class="form-group">
+            <label for="edit-burial-cemetery">{{ t('person.burial_cemetery_name') }}</label>
+            <input type="text" class="form-input" id="edit-burial-cemetery" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
           </div>
-          <div class="tag-input__dropdown" id="lang-dropdown"></div>
-          <input type="hidden" id="lang-hidden" name="languages" value="{{ person.languages | join(',') }}">
+          <div class="form-group">
+            <label for="edit-burial-plot">{{ t('person.burial_plot_number') }}</label>
+            <input type="text" class="form-input" id="edit-burial-plot" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
+          </div>
         </div>
-      </div>
+        <div class="form-group">
+          <label for="edit-obituary">{{ t('person.obituary') }}</label>
+          <textarea class="form-textarea" id="edit-obituary" name="obituary" rows="4">{{ person.obituary or '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-obituary-source">{{ t('person.obituary_source') }}</label>
+          <input type="text" class="form-input" id="edit-obituary-source" name="obituary_source" value="{{ person.obituary_source or '' }}">
+        </div>
+      </section>
 
-      <h3 class="form-section-title">{{ t('person.obituary') }}</h3>
-
-      <div class="form-group">
-        <label for="edit-obituary">{{ t('person.obituary') }}</label>
-        <textarea class="form-textarea" id="edit-obituary" name="obituary" rows="4">{{ person.obituary or '' }}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="edit-obituary-source">{{ t('person.obituary_source') }}</label>
-        <input type="text" class="form-input" id="edit-obituary-source" name="obituary_source" value="{{ person.obituary_source or '' }}">
-      </div>
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.story_workspace') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.story_workspace_hint') }}</p>
+        </div>
+        <div class="form-group">
+          <label for="edit-bio">{{ t('person.bio') }}</label>
+          <textarea class="form-textarea" id="edit-bio" name="bio" rows="3">{{ person.bio or '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-research-notes">{{ t('person.research_notes_label') }}</label>
+          <textarea class="form-textarea" id="edit-research-notes" name="research_notes" rows="4" placeholder="{{ t('person.research_notes_placeholder') }}">{{ person.research_notes or '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-medical-history">{{ t('person.medical_history') }}</label>
+          <textarea class="form-textarea" id="edit-medical-history" name="medical_history" rows="4">{{ person.medical_history or '' }}</textarea>
+        </div>
+      </section>
 
       <h3 class="form-section-title">{{ t('person.education') }}</h3>
       <div class="form-group">
@@ -315,98 +458,18 @@
         </select>
       </div>
 
-      <h3 class="form-section-title">{{ t('person.social_profiles') }}</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-social-instagram">Instagram</label>
-          <input type="url" class="form-input" id="edit-social-instagram" name="social_instagram"
-                 value="{{ person.social_instagram or '' }}" placeholder="https://instagram.com/username">
+      <section class="person-edit-section person-edit-section--metadata">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.metadata_workspace') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.metadata_workspace_hint') }}</p>
         </div>
-        <div class="form-group">
-          <label for="edit-social-facebook">Facebook</label>
-          <input type="url" class="form-input" id="edit-social-facebook" name="social_facebook"
-                 value="{{ person.social_facebook or '' }}" placeholder="https://facebook.com/username">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-branch">{{ t('person.branch_tag') }}</label>
+            <input type="text" class="form-input" id="edit-branch" name="branch" value="{{ person.branch or '' }}">
+            <p class="text-sm text-muted">{{ t('person.branch_hint') }}</p>
+          </div>
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-social-twitter">X / Twitter</label>
-          <input type="url" class="form-input" id="edit-social-twitter" name="social_twitter"
-                 value="{{ person.social_twitter or '' }}" placeholder="https://x.com/username">
-        </div>
-        <div class="form-group">
-          <label for="edit-social-linkedin">LinkedIn</label>
-          <input type="url" class="form-input" id="edit-social-linkedin" name="social_linkedin"
-                 value="{{ person.social_linkedin or '' }}" placeholder="https://linkedin.com/in/username">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-social-tiktok">TikTok</label>
-          <input type="url" class="form-input" id="edit-social-tiktok" name="social_tiktok"
-                 value="{{ person.social_tiktok or '' }}" placeholder="https://tiktok.com/@username">
-        </div>
-        <div class="form-group">
-          <label for="edit-social-youtube">YouTube</label>
-          <input type="url" class="form-input" id="edit-social-youtube" name="social_youtube"
-                 value="{{ person.social_youtube or '' }}" placeholder="https://youtube.com/@channel">
-        </div>
-      </div>
-
-      <h3 class="form-section-title">{{ t('person.contact') }}</h3>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-contact-whatsapp">WhatsApp</label>
-          <input type="text" class="form-input" id="edit-contact-whatsapp" name="contact_whatsapp" value="{{ person.contact_whatsapp or '' }}" placeholder="+1234567890">
-        </div>
-        <div class="form-group">
-          <label for="edit-contact-telegram">Telegram</label>
-          <input type="text" class="form-input" id="edit-contact-telegram" name="contact_telegram" value="{{ person.contact_telegram or '' }}" placeholder="username">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-contact-signal">Signal</label>
-          <input type="text" class="form-input" id="edit-contact-signal" name="contact_signal" value="{{ person.contact_signal or '' }}">
-        </div>
-        <div class="form-group">
-          <label for="edit-contact-email">Email</label>
-          <input type="email" class="form-input" id="edit-contact-email" name="contact_email" value="{{ person.contact_email or '' }}">
-        </div>
-      </div>
-
-      <h3 class="form-section-title">{{ t('person.burial_details') }}</h3>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-burial-place">{{ t('person.burial_place') }}</label>
-          <input type="text" class="form-input" id="edit-burial-place" name="burial_place" value="{{ person.burial_place or '' }}">
-        </div>
-        <div class="form-group">
-          <label for="edit-burial-cemetery">{{ t('person.burial_cemetery_name') }}</label>
-          <input type="text" class="form-input" id="edit-burial-cemetery" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-burial-plot">{{ t('person.burial_plot_number') }}</label>
-          <input type="text" class="form-input" id="edit-burial-plot" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
-        </div>
-        <div class="form-group">
-          <label for="edit-burial-country">{{ t('person.burial_country') }}</label>
-          <input type="text" class="form-input" id="edit-burial-country" name="burial_country_code" maxlength="2"
-                 value="{{ person.burial_country_code or '' }}" placeholder="US, MX, ES...">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-branch">{{ t('person.branch') }}</label>
-          <input type="text" class="form-input" id="edit-branch" name="branch" value="{{ person.branch or '' }}">
-        </div>
-      </div>
 
       {% if current_user.is_admin %}
       <div class="form-row">
@@ -420,6 +483,7 @@
         </div>
       </div>
       {% endif %}
+      </section>
     </div>
 
     <div class="card__footer card__footer--actions">
@@ -506,7 +570,7 @@ function openDatePicker(prefix) {
 updateDatePrecision('birth');
 updateDatePrecision('death');
 
-window.familyBookLocations.init(document, {
+var PERSON_LOCATION_CONFIG = {
   apiKey: {{ google_maps_browser_api_key|tojson }},
   hasGoogle: {{ google_places_enabled|tojson }},
   manualHint: {{ t('map.place_manual_hint')|tojson }},
@@ -514,27 +578,92 @@ window.familyBookLocations.init(document, {
   verifiedHint: {{ t('map.place_verified_hint')|tojson }},
   failedHint: {{ t('map.place_lookup_failed_hint')|tojson }},
   suggestionsLabel: {{ t('map.place_suggestions_label')|tojson }}
-});
+};
+window.familyBookLocations.init(document, PERSON_LOCATION_CONFIG);
 
-/* ── Language tag autocomplete ── */
 var allLanguages = [];
 var selectedLangs = {{ person.languages | tojson }};
+var alternateNicknames = {{ person.alternate_nicknames | tojson }};
+var contactAddresses = {{ person.contact_addresses | tojson }};
 
 (function() {
   fetch('/static/data/languages.json')
     .then(function(r) { return r.json(); })
     .then(function(data) { allLanguages = data; renderLangChips(); });
+  renderNicknameChips();
+  renderContactAddresses();
+  syncMemorialState();
 })();
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderNicknameChips() {
+  var container = document.getElementById('nickname-chips');
+  var search = document.getElementById('nickname-search');
+  container.querySelectorAll('.tag-input__chip').forEach(function(node) { node.remove(); });
+  alternateNicknames.forEach(function(name) {
+    var chip = document.createElement('span');
+    chip.className = 'tag-input__chip';
+    chip.textContent = name;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tag-input__chip-remove';
+    btn.innerHTML = '&times;';
+    btn.onclick = function() { removeNickname(name); };
+    chip.appendChild(btn);
+    container.insertBefore(chip, search);
+  });
+  document.getElementById('nickname-hidden').value = alternateNicknames.join(',');
+}
+
+function addNickname(value) {
+  var clean = (value || '').trim();
+  if (!clean || alternateNicknames.indexOf(clean) !== -1) {
+    return;
+  }
+  alternateNicknames.push(clean);
+  renderNicknameChips();
+}
+
+function removeNickname(value) {
+  alternateNicknames = alternateNicknames.filter(function(entry) { return entry !== value; });
+  renderNicknameChips();
+}
+
+function commitNicknameFromInput() {
+  var input = document.getElementById('nickname-search');
+  var value = input.value.trim();
+  if (value) {
+    addNickname(value);
+    input.value = '';
+  }
+}
+
+function nicknameKeydown(event) {
+  if (event.key === 'Enter' || event.key === ',') {
+    event.preventDefault();
+    commitNicknameFromInput();
+    return;
+  }
+  if (event.key === 'Backspace' && !event.target.value && alternateNicknames.length > 0) {
+    alternateNicknames.pop();
+    renderNicknameChips();
+  }
+}
 
 function renderLangChips() {
   var container = document.getElementById('lang-chips');
   var search = document.getElementById('lang-search');
-  // Remove existing chips
-  var existing = container.querySelectorAll('.tag-input__chip');
-  existing.forEach(function(c) { c.remove(); });
-  // Add chips before search input
+  container.querySelectorAll('.tag-input__chip').forEach(function(node) { node.remove(); });
   selectedLangs.forEach(function(code) {
-    var lang = allLanguages.find(function(l) { return l.code === code; });
+    var lang = allLanguages.find(function(entry) { return entry.code === code; });
     var chip = document.createElement('span');
     chip.className = 'tag-input__chip';
     chip.textContent = lang ? lang.name + ' (' + code + ')' : code;
@@ -542,7 +671,6 @@ function renderLangChips() {
     btn.type = 'button';
     btn.className = 'tag-input__chip-remove';
     btn.innerHTML = '&times;';
-    btn.setAttribute('data-code', code);
     btn.onclick = function() { removeLang(code); };
     chip.appendChild(btn);
     container.insertBefore(chip, search);
@@ -553,14 +681,22 @@ function renderLangChips() {
 function filterLanguages() {
   var query = document.getElementById('lang-search').value.toLowerCase();
   var dropdown = document.getElementById('lang-dropdown');
-  if (!query) { dropdown.className = 'tag-input__dropdown'; dropdown.innerHTML = ''; return; }
-  var matches = allLanguages.filter(function(l) {
-    return (l.name.toLowerCase().indexOf(query) !== -1 || l.code.toLowerCase().indexOf(query) !== -1)
-           && selectedLangs.indexOf(l.code) === -1;
+  if (!query) {
+    dropdown.className = 'tag-input__dropdown';
+    dropdown.innerHTML = '';
+    return;
+  }
+  var matches = allLanguages.filter(function(entry) {
+    return (entry.name.toLowerCase().indexOf(query) !== -1 || entry.code.toLowerCase().indexOf(query) !== -1)
+      && selectedLangs.indexOf(entry.code) === -1;
   }).slice(0, 8);
-  if (matches.length === 0) { dropdown.className = 'tag-input__dropdown'; dropdown.innerHTML = ''; return; }
-  dropdown.innerHTML = matches.map(function(l) {
-    return '<div class="tag-input__option" onmousedown="addLang(\'' + l.code + '\')">' + l.name + ' (' + l.code + ')</div>';
+  if (!matches.length) {
+    dropdown.className = 'tag-input__dropdown';
+    dropdown.innerHTML = '';
+    return;
+  }
+  dropdown.innerHTML = matches.map(function(entry) {
+    return '<div class="tag-input__option" onmousedown="addLang(\'' + escapeHtml(entry.code) + '\')">' + escapeHtml(entry.name) + ' (' + escapeHtml(entry.code) + ')</div>';
   }).join('');
   dropdown.className = 'tag-input__dropdown tag-input__dropdown--open';
 }
@@ -575,7 +711,7 @@ function addLang(code) {
 }
 
 function removeLang(code) {
-  selectedLangs = selectedLangs.filter(function(c) { return c !== code; });
+  selectedLangs = selectedLangs.filter(function(entry) { return entry !== code; });
   renderLangChips();
 }
 
@@ -583,12 +719,138 @@ function closeLangDropdown() {
   document.getElementById('lang-dropdown').className = 'tag-input__dropdown';
 }
 
-function langKeydown(e) {
-  if (e.key === 'Backspace' && !e.target.value && selectedLangs.length > 0) {
+function langKeydown(event) {
+  if (event.key === 'Backspace' && !event.target.value && selectedLangs.length > 0) {
     selectedLangs.pop();
     renderLangChips();
   }
 }
+
+function syncContactAddressesHidden() {
+  document.getElementById('contact-addresses-hidden').value = JSON.stringify(contactAddresses);
+}
+
+function addContactAddress() {
+  contactAddresses.push({
+    type: 'mailing',
+    label: '',
+    place: '',
+    country_code: '',
+    latitude: '',
+    longitude: ''
+  });
+  renderContactAddresses();
+}
+
+function removeContactAddress(index) {
+  contactAddresses.splice(index, 1);
+  renderContactAddresses();
+}
+
+function updateContactAddress(index, key, value) {
+  if (!contactAddresses[index]) {
+    return;
+  }
+  contactAddresses[index][key] = value;
+  syncContactAddressesHidden();
+}
+
+function renderContactAddresses() {
+  var container = document.getElementById('contact-address-list');
+  container.innerHTML = '';
+  contactAddresses.forEach(function(address, index) {
+    var card = document.createElement('div');
+    card.className = 'person-edit-address-card';
+    card.innerHTML =
+      '<div class="person-edit-address-card__head">' +
+      '<div class="form-row">' +
+      '<div class="form-group">' +
+      '<label>' + {{ t('person.address_type')|tojson }} + '</label>' +
+      '<select class="form-select" data-address-index="' + index + '" data-address-key="type">' +
+      '<option value="mailing"' + (address.type === 'mailing' ? ' selected' : '') + '>' + {{ t('person.address_type_mailing')|tojson }} + '</option>' +
+      '<option value="residential"' + (address.type === 'residential' ? ' selected' : '') + '>' + {{ t('person.address_type_residential')|tojson }} + '</option>' +
+      '<option value="work"' + (address.type === 'work' ? ' selected' : '') + '>' + {{ t('person.address_type_work')|tojson }} + '</option>' +
+      '<option value="other"' + (address.type === 'other' ? ' selected' : '') + '>' + {{ t('person.address_type_other')|tojson }} + '</option>' +
+      '</select>' +
+      '</div>' +
+      '<div class="form-group">' +
+      '<label>' + {{ t('person.address_label')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.label || '') + '" data-address-index="' + index + '" data-address-key="label" placeholder="' + {{ t('person.address_label_placeholder')|tojson }} + '">' +
+      '</div>' +
+      '</div>' +
+      '<button type="button" class="btn btn--ghost btn--sm" onclick="removeContactAddress(' + index + ')">' + {{ t('person.remove_address')|tojson }} + '</button>' +
+      '</div>' +
+      '<div class="form-group person-edit-address-card__field" data-place-field>' +
+      '<label>' + {{ t('person.contact_address')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.place || '') + '" data-place-input data-address-index="' + index + '" data-address-key="place">' +
+      '<input type="hidden" value="' + escapeHtml(address.country_code || '') + '" data-country-input data-address-index="' + index + '" data-address-key="country_code">' +
+      '<input type="hidden" value="' + escapeHtml(address.latitude || '') + '" data-place-latitude data-address-index="' + index + '" data-address-key="latitude">' +
+      '<input type="hidden" value="' + escapeHtml(address.longitude || '') + '" data-place-longitude data-address-index="' + index + '" data-address-key="longitude">' +
+      '<p class="text-sm text-muted" data-place-status></p>' +
+      '</div>';
+    container.appendChild(card);
+  });
+  bindContactAddressInputs();
+  window.familyBookLocations.init(container, PERSON_LOCATION_CONFIG);
+  syncContactAddressesHidden();
+}
+
+function bindContactAddressInputs() {
+  document.querySelectorAll('#contact-address-list [data-address-index]').forEach(function(input) {
+    input.oninput = function() {
+      var index = parseInt(this.dataset.addressIndex, 10);
+      updateContactAddress(index, this.dataset.addressKey, this.value);
+    };
+    input.onchange = input.oninput;
+  });
+}
+
+function syncAddressesFromDom() {
+  document.querySelectorAll('#contact-address-list .person-edit-address-card').forEach(function(card, index) {
+    var placeInput = card.querySelector('[data-address-key="place"]');
+    var countryInput = card.querySelector('[data-address-key="country_code"]');
+    var latInput = card.querySelector('[data-address-key="latitude"]');
+    var lngInput = card.querySelector('[data-address-key="longitude"]');
+    var typeInput = card.querySelector('[data-address-key="type"]');
+    var labelInput = card.querySelector('[data-address-key="label"]');
+    contactAddresses[index] = {
+      type: typeInput ? typeInput.value : 'mailing',
+      label: labelInput ? labelInput.value.trim() : '',
+      place: placeInput ? placeInput.value.trim() : '',
+      country_code: countryInput ? countryInput.value.trim() : '',
+      latitude: latInput ? latInput.value.trim() : '',
+      longitude: lngInput ? lngInput.value.trim() : ''
+    };
+  });
+  contactAddresses = contactAddresses.filter(function(entry) {
+    return entry.place || entry.label;
+  });
+  syncContactAddressesHidden();
+}
+
+function syncMemorialState() {
+  var living = document.getElementById('edit-is-living').checked;
+  var deathDate = document.getElementById('edit-death-date-text').value.trim();
+  var memorialSection = document.getElementById('memorial-section');
+  var disposition = document.getElementById('edit-remains-disposition').value;
+  var burialFields = document.getElementById('burial-site-details');
+  var showMemorial = !living || !!deathDate;
+  memorialSection.hidden = !showMemorial;
+  burialFields.hidden = disposition === 'cremated' || !showMemorial;
+  burialFields.querySelectorAll('input, select, textarea').forEach(function(field) {
+    field.disabled = burialFields.hidden;
+  });
+  memorialSection.querySelectorAll('input, select, textarea').forEach(function(field) {
+    if (field.closest('#burial-site-details')) {
+      return;
+    }
+    field.disabled = memorialSection.hidden;
+  });
+}
+
+document.getElementById('edit-is-living').addEventListener('change', syncMemorialState);
+document.getElementById('edit-death-date-text').addEventListener('input', syncMemorialState);
+document.getElementById('edit-remains-disposition').addEventListener('change', syncMemorialState);
 
 /* ── Height/Weight guided input ── */
 function parseHeight(str) {
@@ -661,6 +923,26 @@ function collectWeight() {
   return val ? val + ' ' + unit : '';
 }
 
+function normalizeSocialValue(fieldName, value) {
+  var clean = (value || '').trim();
+  if (!clean) {
+    return null;
+  }
+  if (/^https?:\/\//i.test(clean)) {
+    return clean;
+  }
+  var handle = clean.replace(/^@/, '').replace(/^\/+/, '');
+  var prefixes = {
+    social_instagram: 'https://instagram.com/',
+    social_facebook: 'https://facebook.com/',
+    social_twitter: 'https://x.com/',
+    social_linkedin: 'https://linkedin.com/in/',
+    social_tiktok: 'https://tiktok.com/@',
+    social_youtube: 'https://youtube.com/@'
+  };
+  return prefixes[fieldName] ? prefixes[fieldName] + handle : clean;
+}
+
 /* ── Save ── */
 async function savePerson(e) {
   e.preventDefault();
@@ -674,11 +956,15 @@ async function savePerson(e) {
   // Update hidden fields before collecting form data
   document.getElementById('height-hidden').value = collectHeight();
   document.getElementById('weight-hidden').value = collectWeight();
+  commitNicknameFromInput();
+  syncAddressesFromDom();
 
   var fd = new FormData(e.target);
   var data = {};
-  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions'];
+  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions', 'contact_addresses'];
   var nullableFields = [
+    'nickname',
+    'contact_phone',
     'birth_place',
     'birth_country_code',
     'birth_place_latitude',
@@ -692,11 +978,15 @@ async function savePerson(e) {
     'burial_place_latitude',
     'burial_place_longitude',
     'burial_cemetery_name',
-    'burial_plot_number'
+    'burial_plot_number',
+    'remains_disposition',
+    'branch'
   ];
   for (var pair of fd.entries()) {
     var k = pair[0], v = pair[1];
     if (k === 'languages') {
+      data[k] = v ? v.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+    } else if (k === 'alternate_nicknames') {
       data[k] = v ? v.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
     } else if (jsonFields.indexOf(k) !== -1) {
       try { data[k] = JSON.parse(v); } catch(ex) { data[k] = []; }
@@ -706,6 +996,11 @@ async function savePerson(e) {
       data[k] = null;
     }
   }
+
+  data.is_living = document.getElementById('edit-is-living').checked;
+  ['social_instagram', 'social_facebook', 'social_twitter', 'social_linkedin', 'social_tiktok', 'social_youtube'].forEach(function(fieldName) {
+    data[fieldName] = normalizeSocialValue(fieldName, data[fieldName] || '');
+  });
 
   // Collect unified date inputs — always send as raw, server parses to ISO
   var birthText = document.getElementById('edit-birth-date-text').value.trim();
@@ -717,6 +1012,19 @@ async function savePerson(e) {
   data.death_date_raw = deathText || null;
   delete data.death_date;
   delete data.death_date_precision;
+
+  if (data.is_living) {
+    data.remains_disposition = null;
+    data.burial_place = null;
+    data.burial_country_code = null;
+    data.burial_place_latitude = null;
+    data.burial_place_longitude = null;
+    data.burial_cemetery_name = null;
+    data.burial_plot_number = null;
+  } else if (data.remains_disposition === 'cremated') {
+    data.burial_cemetery_name = null;
+    data.burial_plot_number = null;
+  }
 
   try {
     var resp = await fetch('/api/persons/{{ person.id }}', {

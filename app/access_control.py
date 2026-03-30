@@ -175,6 +175,7 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
     return {
         "patronymic": _profile_name_value(person.patronymic, person, access),
         "birth_last_name": _profile_name_value(person.birth_last_name, person, access),
+        "alternate_nicknames": _profile_list(person.alternate_nicknames, access),
         "gender": _profile_name_value(person.gender, person, access),
         "birth_date_raw": _profile_value(person.birth_date_raw, access),
         "birth_date": _profile_value(person.birth_date, access),
@@ -195,6 +196,7 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "burial_place_longitude": _profile_value(person.burial_place_longitude, access),
         "burial_cemetery_name": _profile_value(person.burial_cemetery_name, access),
         "burial_plot_number": _profile_value(person.burial_plot_number, access),
+        "remains_disposition": _profile_value(person.remains_disposition, access),
         "languages": _profile_list(person.languages, access),
         "bio": _profile_value(person.bio, access),
         "research_notes": _profile_value(person.research_notes, access),
@@ -224,7 +226,9 @@ def _detail_contact_payload(person: Person, access: PersonAccess) -> dict[str, o
         "contact_whatsapp": _contact_value(person.contact_whatsapp, access),
         "contact_telegram": _contact_value(person.contact_telegram, access),
         "contact_signal": _contact_value(person.contact_signal, access),
+        "contact_phone": _contact_value(person.contact_phone, access),
         "contact_email": _contact_value(person.contact_email, access),
+        "contact_addresses": _contact_list(person.contact_addresses, access),
     }
 
 
@@ -248,6 +252,10 @@ def _profile_name_value(value: str | None, person: Person, access: PersonAccess)
 
 def _contact_value(value: str | None, access: PersonAccess) -> str | None:
     return value if access.can_view_contacts else None
+
+
+def _contact_list(value: list[dict], access: PersonAccess) -> list[dict]:
+    return value if access.can_view_contacts else []
 
 
 async def _graph_distances(

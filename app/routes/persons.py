@@ -85,7 +85,64 @@ async def _normalize_location_fields(
         normalized[country_key] = resolved.country_code
         normalized[latitude_key] = resolved.latitude
         normalized[longitude_key] = resolved.longitude
+    if "contact_addresses" in normalized:
+        normalized["contact_addresses"] = await _normalize_contact_addresses(
+            normalized.get("contact_addresses") or []
+        )
+    normalized = _normalize_memorial_fields(normalized, person=person)
     return normalized
+
+
+def _normalize_memorial_fields(payload: dict, *, person: Person | None = None) -> dict:
+    normalized = dict(payload)
+    is_living = normalized.get("is_living", person.is_living if person is not None else True)
+    remains_disposition = normalized.get(
+        "remains_disposition",
+        person.remains_disposition if person is not None else None,
+    )
+
+    if is_living:
+        normalized["remains_disposition"] = None
+        normalized["burial_place"] = None
+        normalized["burial_country_code"] = None
+        normalized["burial_place_latitude"] = None
+        normalized["burial_place_longitude"] = None
+        normalized["burial_cemetery_name"] = None
+        normalized["burial_plot_number"] = None
+        return normalized
+
+    if remains_disposition == "cremated":
+        normalized["burial_cemetery_name"] = None
+        normalized["burial_plot_number"] = None
+
+    return normalized
+
+
+async def _normalize_contact_addresses(entries: list[dict]) -> list[dict]:
+    normalized_entries: list[dict] = []
+    for entry in entries:
+        place = entry.get("place")
+        country_code = entry.get("country_code")
+        latitude = entry.get("latitude")
+        longitude = entry.get("longitude")
+        resolved = await resolve_location(
+            place=place,
+            country_code=country_code,
+            latitude=latitude,
+            longitude=longitude,
+        )
+        normalized_entry = {
+            "type": entry.get("type"),
+            "label": entry.get("label"),
+            "place": resolved.place,
+            "country_code": resolved.country_code,
+            "latitude": resolved.latitude,
+            "longitude": resolved.longitude,
+        }
+        normalized_entries.append(
+            {key: value for key, value in normalized_entry.items() if value not in (None, "")}
+        )
+    return normalized_entries
 
 
 async def _person_history_entries(
@@ -294,6 +351,7 @@ async def create_person(
         burial_place_longitude=payload.get("burial_place_longitude"),
         burial_cemetery_name=payload.get("burial_cemetery_name"),
         burial_plot_number=payload.get("burial_plot_number"),
+        remains_disposition=payload.get("remains_disposition"),
         bio=sanitize_html(payload.get("bio")) if payload.get("bio") else payload.get("bio"),
         research_notes=sanitize_html(payload.get("research_notes"))
         if payload.get("research_notes")
@@ -302,6 +360,7 @@ async def create_person(
         contact_whatsapp=payload.get("contact_whatsapp"),
         contact_telegram=payload.get("contact_telegram"),
         contact_signal=payload.get("contact_signal"),
+        contact_phone=payload.get("contact_phone"),
         contact_email=payload.get("contact_email"),
         obituary=sanitize_html(payload.get("obituary"))
         if payload.get("obituary")
@@ -340,6 +399,8 @@ async def create_person(
             person.death_date_precision = prec
 
     person.languages = body.languages
+    person.alternate_nicknames = [nickname for nickname in body.alternate_nicknames if nickname]
+    person.contact_addresses = payload.get("contact_addresses") or []
     person.education = [e.model_dump(exclude_none=True) for e in body.education]
     person.career = [e.model_dump(exclude_none=True) for e in body.career]
     person.organizations = [e.model_dump(exclude_none=True) for e in body.organizations]
@@ -397,6 +458,12 @@ async def update_person(
 
     if "languages" in update_data:
         person.languages = update_data.pop("languages") or []
+    if "alternate_nicknames" in update_data:
+        person.alternate_nicknames = [
+            nickname for nickname in (update_data.pop("alternate_nicknames") or []) if nickname
+        ]
+    if "contact_addresses" in update_data:
+        person.contact_addresses = _strip_none_entries(update_data.pop("contact_addresses"))
     if "education" in update_data:
         person.education = _strip_none_entries(update_data.pop("education"))
     if "career" in update_data:

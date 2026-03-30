@@ -55,6 +55,24 @@ async def test_person_languages_property(db: AsyncSession):
 
 
 @pytest.mark.asyncio
+async def test_person_alternate_nicknames_and_contact_addresses_round_trip(db: AsyncSession):
+    person = Person(first_name="Alias", last_name="Person")
+    person.alternate_nicknames = ["AJ", "Sonny"]
+    person.contact_addresses = [
+        {"type": "mailing", "place": "123 Main St, Lisbon, Portugal", "country_code": "PT"}
+    ]
+    db.add(person)
+    await db.flush()
+
+    result = await db.execute(select(Person).where(Person.id == person.id))
+    fetched = result.scalar_one()
+    assert fetched.alternate_nicknames == ["AJ", "Sonny"]
+    assert fetched.contact_addresses == [
+        {"type": "mailing", "place": "123 Main St, Lisbon, Portugal", "country_code": "PT"}
+    ]
+
+
+@pytest.mark.asyncio
 async def test_person_rich_fields_round_trip(db: AsyncSession):
     person = Person(
         first_name="Rich",
@@ -85,6 +103,7 @@ async def test_sensitive_person_fields_persist_encrypted(db: AsyncSession):
         medical_history="High blood pressure notes",
         contact_email="protected@example.com",
         contact_signal="+15551234567",
+        contact_phone="+15557654321",
     )
     db.add(person)
     await db.flush()
@@ -93,7 +112,7 @@ async def test_sensitive_person_fields_persist_encrypted(db: AsyncSession):
         await db.execute(
             text(
                 """
-                SELECT medical_history, contact_email, contact_signal, contact_email_hash
+                SELECT medical_history, contact_email, contact_signal, contact_phone, contact_email_hash
                 FROM persons
                 WHERE id = :person_id
                 """
@@ -105,6 +124,7 @@ async def test_sensitive_person_fields_persist_encrypted(db: AsyncSession):
     assert row.medical_history != "High blood pressure notes"
     assert row.contact_email != "protected@example.com"
     assert row.contact_signal != "+15551234567"
+    assert row.contact_phone != "+15557654321"
     assert row.contact_email_hash is not None
 
     fetched = (
@@ -113,6 +133,7 @@ async def test_sensitive_person_fields_persist_encrypted(db: AsyncSession):
     assert fetched.medical_history == "High blood pressure notes"
     assert fetched.contact_email == "protected@example.com"
     assert fetched.contact_signal == "+15551234567"
+    assert fetched.contact_phone == "+15557654321"
 
 
 @pytest.mark.asyncio

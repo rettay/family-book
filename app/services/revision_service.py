@@ -21,6 +21,7 @@ PERSON_MUTABLE_FIELDS = [
     "patronymic",
     "birth_last_name",
     "nickname",
+    "alternate_nicknames",
     "name_display_order",
     "gender",
     "birth_date_raw",
@@ -38,6 +39,7 @@ PERSON_MUTABLE_FIELDS = [
     "burial_country_code",
     "burial_cemetery_name",
     "burial_plot_number",
+    "remains_disposition",
     "bio",
     "research_notes",
     "medical_history",
@@ -46,6 +48,7 @@ PERSON_MUTABLE_FIELDS = [
     "contact_whatsapp",
     "contact_telegram",
     "contact_signal",
+    "contact_phone",
     "contact_email",
     "height",
     "weight",
@@ -76,6 +79,7 @@ PERSON_SNAPSHOT_PROTECTED_FIELDS = [
     "contact_whatsapp",
     "contact_telegram",
     "contact_signal",
+    "contact_phone",
     "contact_email",
     "maternal_haplogroup",
     "paternal_haplogroup",
@@ -85,6 +89,7 @@ PERSON_SNAPSHOT_PROTECTED_FIELDS = [
 PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS = [
     "admixture",
     "medical_conditions",
+    "contact_addresses",
 ]
 
 
@@ -106,11 +111,13 @@ def _parse_datetime(value: str | None) -> datetime | None:
 def serialize_person_snapshot(person: Person) -> dict:
     snapshot = {field: getattr(person, field) for field in PERSON_MUTABLE_FIELDS}
     snapshot["languages"] = person.languages
+    snapshot["alternate_nicknames"] = person.alternate_nicknames
     snapshot["education"] = person.education
     snapshot["career"] = person.career
     snapshot["organizations"] = person.organizations
     snapshot["admixture"] = person.admixture
     snapshot["medical_conditions"] = person.medical_conditions
+    snapshot["contact_addresses"] = person.contact_addresses
     snapshot = encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
     for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
         if field in snapshot and snapshot[field] is not None:
@@ -132,6 +139,8 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
             setattr(person, field, value)
     if "languages" in snapshot:
         person.languages = snapshot["languages"] or []
+    if "alternate_nicknames" in snapshot:
+        person.alternate_nicknames = snapshot["alternate_nicknames"] or []
     if "education" in snapshot:
         person.education = snapshot["education"] or []
     if "career" in snapshot:
@@ -142,6 +151,8 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
         person.admixture = snapshot["admixture"] or []
     if "medical_conditions" in snapshot:
         person.medical_conditions = snapshot["medical_conditions"] or []
+    if "contact_addresses" in snapshot:
+        person.contact_addresses = snapshot["contact_addresses"] or []
 
 
 async def record_revision(

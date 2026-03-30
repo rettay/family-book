@@ -47,6 +47,15 @@ class MedicalConditionEntry(BaseModel):
     notes: str | None = Field(None, max_length=1000)
 
 
+class AddressEntry(BaseModel):
+    type: str = Field(min_length=1, max_length=40)
+    label: str | None = Field(None, max_length=100)
+    place: str = Field(min_length=1, max_length=300)
+    country_code: str | None = Field(None, max_length=80)
+    latitude: float | None = None
+    longitude: float | None = None
+
+
 # --- Person ---
 
 class PersonCreate(BaseModel):
@@ -55,6 +64,7 @@ class PersonCreate(BaseModel):
     patronymic: str | None = Field(None, max_length=200)
     birth_last_name: str | None = Field(None, max_length=200)
     nickname: str | None = Field(None, max_length=100)
+    alternate_nicknames: list[str] = []
     name_display_order: str = "western"
     gender: str | None = None
     birth_date_raw: str | None = Field(None, max_length=50)
@@ -78,6 +88,7 @@ class PersonCreate(BaseModel):
     burial_place_longitude: float | None = None
     burial_cemetery_name: str | None = Field(None, max_length=300)
     burial_plot_number: str | None = Field(None, max_length=100)
+    remains_disposition: str | None = Field(None, max_length=20)
     languages: list[str] = []
     bio: str | None = Field(None, max_length=2000)
     research_notes: str | None = Field(None, max_length=5000)
@@ -102,7 +113,9 @@ class PersonCreate(BaseModel):
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
+    contact_phone: str | None = None
     contact_email: str | None = None
+    contact_addresses: list[AddressEntry] = []
     social_instagram: str | None = Field(None, max_length=300)
     social_facebook: str | None = Field(None, max_length=300)
     social_twitter: str | None = Field(None, max_length=300)
@@ -119,6 +132,13 @@ class PersonCreate(BaseModel):
             raise ValueError("confidence must be one of: confirmed, probable, uncertain, unknown")
         return v
 
+    @field_validator("remains_disposition")
+    @classmethod
+    def validate_remains_disposition(cls, v):
+        if v is not None and v not in ("buried", "cremated", "unknown"):
+            raise ValueError("remains_disposition must be one of: buried, cremated, unknown")
+        return v
+
 
 class PersonUpdate(BaseModel):
     first_name: str | None = Field(None, max_length=200)
@@ -126,6 +146,7 @@ class PersonUpdate(BaseModel):
     patronymic: str | None = Field(None, max_length=200)
     birth_last_name: str | None = Field(None, max_length=200)
     nickname: str | None = Field(None, max_length=100)
+    alternate_nicknames: list[str] | None = None
     name_display_order: str | None = None
     gender: str | None = None
     birth_date_raw: str | None = Field(None, max_length=50)
@@ -149,6 +170,7 @@ class PersonUpdate(BaseModel):
     burial_place_longitude: float | None = None
     burial_cemetery_name: str | None = Field(None, max_length=300)
     burial_plot_number: str | None = Field(None, max_length=100)
+    remains_disposition: str | None = Field(None, max_length=20)
     languages: list[str] | None = None
     bio: str | None = Field(None, max_length=2000)
     research_notes: str | None = Field(None, max_length=5000)
@@ -174,7 +196,9 @@ class PersonUpdate(BaseModel):
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
+    contact_phone: str | None = None
     contact_email: str | None = None
+    contact_addresses: list[AddressEntry] | None = None
     social_instagram: str | None = Field(None, max_length=300)
     social_facebook: str | None = Field(None, max_length=300)
     social_twitter: str | None = Field(None, max_length=300)
@@ -189,6 +213,13 @@ class PersonUpdate(BaseModel):
     def validate_confidence(cls, v):
         if v is not None and v not in ("confirmed", "probable", "uncertain", "unknown"):
             raise ValueError("confidence must be one of: confirmed, probable, uncertain, unknown")
+        return v
+
+    @field_validator("remains_disposition")
+    @classmethod
+    def validate_remains_disposition(cls, v):
+        if v is not None and v not in ("buried", "cremated", "unknown"):
+            raise ValueError("remains_disposition must be one of: buried, cremated, unknown")
         return v
 
 
@@ -214,6 +245,7 @@ class PersonDetail(PersonSummary):
     first_name: str | None = None  # None for root person
     birth_last_name: str | None = None
     gender: str | None = None
+    alternate_nicknames: list[str] = []
     birth_date_raw: str | None = None
     birth_date: str | None = None
     birth_date_precision: str | None = None
@@ -233,6 +265,7 @@ class PersonDetail(PersonSummary):
     burial_place_longitude: float | None = None
     burial_cemetery_name: str | None = None
     burial_plot_number: str | None = None
+    remains_disposition: str | None = None
     languages: list[str] = []
     bio: str | None = None
     research_notes: str | None = None
@@ -260,7 +293,9 @@ class PersonDetail(PersonSummary):
     contact_whatsapp: str | None = None
     contact_telegram: str | None = None
     contact_signal: str | None = None
+    contact_phone: str | None = None
     contact_email: str | None = None
+    contact_addresses: list[dict] = []
     social_instagram: str | None = None
     social_facebook: str | None = None
     social_twitter: str | None = None
@@ -329,6 +364,7 @@ def person_to_detail(person) -> PersonDetail:
         patronymic=person.patronymic,
         name_display_order=person.name_display_order,
         birth_last_name=person.birth_last_name,
+        alternate_nicknames=person.alternate_nicknames,
         gender=person.gender,
         birth_date_raw=person.birth_date_raw,
         birth_date=person.birth_date,
@@ -349,6 +385,7 @@ def person_to_detail(person) -> PersonDetail:
         burial_place_longitude=person.burial_place_longitude,
         burial_cemetery_name=person.burial_cemetery_name,
         burial_plot_number=person.burial_plot_number,
+        remains_disposition=person.remains_disposition,
         languages=person.languages,
         bio=person.bio,
         research_notes=person.research_notes,
@@ -374,7 +411,9 @@ def person_to_detail(person) -> PersonDetail:
         contact_whatsapp=person.contact_whatsapp,
         contact_telegram=person.contact_telegram,
         contact_signal=person.contact_signal,
+        contact_phone=person.contact_phone,
         contact_email=person.contact_email,
+        contact_addresses=person.contact_addresses,
         social_instagram=person.social_instagram,
         social_facebook=person.social_facebook,
         social_twitter=person.social_twitter,
