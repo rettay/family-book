@@ -257,7 +257,7 @@ assert_run "tree relationship editor uses locale strings in Spanish" \
   "${PWCLI}" run-code "async page => { const panel = page.locator('[data-tree-sidebar-panel=\"relationships\"]'); const text = await panel.textContent(); const required = ['Editar relación', 'Persona relacionada actual', 'Guardar relación']; for (const label of required) { if (!text || !text.includes(label)) throw new Error('missing Spanish relationship editor label: ' + label); } const editor = panel.locator('[data-tree-relationship-edit-form]:not(.hidden)').first(); await editor.waitFor(); const placeholder = await editor.locator('input[name=\"source\"]').getAttribute('placeholder'); if (placeholder !== 'manual') throw new Error('Spanish relationship editor placeholder was not localized-safe: ' + placeholder); const relatedName = await page.locator('#tree-relationship-editor-related-name').textContent(); if (!relatedName || !relatedName.trim()) throw new Error('Spanish relationship editor did not show current related person'); const forbidden = [/\\bEdit relationship\\b/, /\\bSave relationship\\b/]; for (const pattern of forbidden) { if (text && pattern.test(text)) throw new Error('relationship editor leaked English label: ' + pattern); } await editor.getByRole('button', { name: /Cancelar|Cancel/ }).click(); await page.waitForFunction(() => document.getElementById('tree-relationship-editor-shell')?.classList.contains('hidden')); }"
 
 "${PWCLI}" goto "${BASE_URL}/people/${TYLER_ID}/edit"
-"${PWCLI}" run-code "async page => { await page.locator('#social-list').waitFor(); }"
+"${PWCLI}" run-code "async page => { await page.locator('#person-edit-form').waitFor(); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-edit-es.png" --full-page true >/dev/null
 
 assert_run "person edit surface uses locale strings for social and date controls" \
@@ -335,7 +335,7 @@ assert_run "person create form stacks and avoids horizontal overflow on mobile" 
   "${PWCLI}" run-code "async page => { const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (overflow > 4) throw new Error('person create form overflows horizontally on mobile'); const place = await page.locator('#person-burial-place').boundingBox(); const cemetery = await page.locator('#person-burial-cemetery').boundingBox(); if (!place || !cemetery) throw new Error('missing burial fields'); if (Math.abs(place.y - cemetery.y) < 20) throw new Error('burial fields did not stack on mobile'); }"
 
 "${PWCLI}" goto "${BASE_URL}/people/tyler-000-0000-0000-000000000002/edit"
-"${PWCLI}" run-code "async page => { await page.locator('#phone-list').waitFor(); await page.locator('#edit-is-living').uncheck(); await page.waitForFunction(() => document.getElementById('memorial-section')?.hidden === false); }"
+"${PWCLI}" run-code "async page => { await page.locator('#person-edit-form').waitFor(); await page.locator('#edit-is-living').uncheck(); await page.waitForFunction(() => document.getElementById('memorial-section')?.hidden === false); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-edit-mobile.png" --full-page true >/dev/null
 
 assert_run "person edit mobile keeps address and memorial controls reachable" \
@@ -388,7 +388,7 @@ assert_run "person edit supports nickname chips, typed addresses, and respectful
 # ── Multi-value contact and structured address editing tests ──
 
 "${PWCLI}" goto "${BASE_URL}/people/tyler-000-0000-0000-000000000002/edit"
-"${PWCLI}" run-code "async page => { await page.locator('#phone-list').waitFor(); }"
+"${PWCLI}" run-code "async page => { await page.locator('#person-edit-form').waitFor(); }"
 
 assert_run "person edit phone card add/remove and primary toggle" \
   "${PWCLI}" run-code "async page => { await page.getByRole('button', { name: 'Add Phone' }).click(); await page.getByRole('button', { name: 'Add Phone' }).click(); const cards = page.locator('#phone-list .person-edit-address-card'); if (await cards.count() !== 2) throw new Error('expected 2 phone cards, got ' + await cards.count()); await cards.first().locator('input[data-card-key=\"number\"]').fill('+1 555 123 4567'); await cards.first().locator('select[data-card-key=\"type\"]').selectOption('mobile'); await cards.nth(1).locator('input[data-card-key=\"number\"]').fill('+1 555 987 6543'); await cards.nth(1).locator('select[data-card-key=\"type\"]').selectOption('work'); await cards.nth(1).locator('input[name=\"phone_primary\"]').click(); const phonesRaw = await page.locator('#phones-hidden').inputValue(); const phones = JSON.parse(phonesRaw); if (phones.length !== 2) throw new Error('expected 2 phones in hidden, got ' + phones.length); if (phones[0].is_primary !== false) throw new Error('first phone should not be primary after clicking second'); if (phones[1].is_primary !== true) throw new Error('second phone should be primary'); await page.locator('#phone-list .person-edit-address-card').first().getByRole('button', { name: /×/ }).click(); const afterRemove = JSON.parse(await page.locator('#phones-hidden').inputValue()); if (afterRemove.length !== 1) throw new Error('expected 1 phone after remove, got ' + afterRemove.length); if (afterRemove[0].number !== '+1 555 987 6543') throw new Error('wrong phone survived removal'); }"
