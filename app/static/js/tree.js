@@ -951,14 +951,17 @@
       }
       return fetch(candidates[index], {credentials: 'same-origin'}).then(function(resp) {
         if (!resp.ok) {
+          console.debug('[tree-photo] ' + candidates[index] + ' → ' + resp.status);
           return tryCandidate(index + 1);
         }
         return resp.blob().then(function(blob) {
           var objectUrl = URL.createObjectURL(blob);
           treePhotoHrefCache[photoUrl] = objectUrl;
+          console.debug('[tree-photo] loaded ' + photoUrl + ' via ' + candidates[index] + ' → blob ' + blob.size + 'B');
           return objectUrl;
         });
-      }).catch(function() {
+      }).catch(function(err) {
+        console.warn('[tree-photo] fetch error for ' + candidates[index] + ':', err.message || err);
         return tryCandidate(index + 1);
       });
     })(0);
@@ -2239,6 +2242,9 @@
       .style('cursor', 'pointer');
 
     var showPhoto = preferences.show_photos && person.photo_url;
+    if (person.photo_url) {
+      console.debug('[tree-photo] ' + person.display_name + ': photo_url=' + person.photo_url + ' show_photos=' + preferences.show_photos + ' showPhoto=' + showPhoto);
+    }
     if (showPhoto) {
       var clipId = 'clip-' + person.id.replace(/[^a-zA-Z0-9]/g, '');
       var defs = nodeGroup.append('defs');
@@ -2255,8 +2261,10 @@
       var initialsEl = appendNodeInitials(nodeGroup, nodeLabel, true);
       loadTreePhotoHref(person.photo_url).then(function(photoHref) {
         if (!nodeGroup || !nodeGroup.node() || !nodeGroup.node().isConnected) {
+          console.warn('[tree-photo] node disconnected for ' + person.display_name + ', discarding blob');
           return;
         }
+        console.debug('[tree-photo] inserting image for ' + person.display_name + ': ' + photoHref.substring(0, 40));
         nodeGroup.insert('image', '.photo-clip')
           .attr('href', photoHref)
           .attr('xlink:href', photoHref)
@@ -2270,7 +2278,8 @@
           initialsEl.remove();
         }
         nodeGroup.select('.photo-clip').attr('fill', 'none');
-      }).catch(function() {
+      }).catch(function(err) {
+        console.warn('[tree-photo] render failed for ' + person.display_name + ':', err.message || err);
         if (initialsEl) {
           initialsEl.style('display', null);
         }
