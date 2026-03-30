@@ -2,11 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-061 | Tree Headshot Rendering and Gallery Access | P0 | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
-| FB-062 | Upload Metadata Panel and Progress Bars | P1 | `task_packets/FB-062_upload_metadata_and_progress.md` |
-| FB-063 | Global Family Gallery and Variant Backfill | P1 | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
+None.
 
 ## In Progress
 
@@ -17,6 +13,12 @@ None.
 None.
 
 ## Done
+
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-061 | Tree Headshot Rendering and Gallery Access | P0 | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
+| FB-062 | Upload Metadata Panel and Progress Bars | P1 | `task_packets/FB-062_upload_metadata_and_progress.md` |
+| FB-063 | Global Family Gallery and Variant Backfill | P1 | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|

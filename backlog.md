@@ -1,9 +1,9 @@
 # Family Book Backlog
 
 Sprint: `S34 - Media Polish and Platform Completeness`
-Status: In Progress
+Status: Done
 
-## Current Sprint `S34 - Media Polish and Platform Completeness`
+## Closed Sprint `S34 - Media Polish and Platform Completeness`
 
 Sprint goal:
 - Fix tree headshot rendering so uploaded photos actually display on tree nodes, make the headshot action and gallery discoverable from the tree sidebar, add pre-upload metadata and progress bars, and build the global family gallery page with variant backfill.
@@ -12,9 +12,9 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-061 | Tree Headshot Rendering and Gallery Access | P0 | todo | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
-| FB-062 | Upload Metadata Panel and Progress Bars | P1 | todo | `task_packets/FB-062_upload_metadata_and_progress.md` |
-| FB-063 | Global Family Gallery and Variant Backfill | P1 | todo | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
+| FB-061 | Tree Headshot Rendering and Gallery Access | P0 | done | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
+| FB-062 | Upload Metadata Panel and Progress Bars | P1 | done | `task_packets/FB-062_upload_metadata_and_progress.md` |
+| FB-063 | Global Family Gallery and Variant Backfill | P1 | done | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
 
 Execution slices:
 - `S34-1` Fix tree headshot rendering, add headshot action to sidebar, link gallery from sidebar

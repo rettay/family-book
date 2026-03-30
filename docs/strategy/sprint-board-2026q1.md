@@ -2,53 +2,46 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S34 - Media Polish and Platform Completeness`
 
-Status: In Progress
+Status: Closed
 
 ### Sprint Goal
 
 Fix tree headshot rendering so uploaded photos display reliably on tree nodes, make the headshot action and gallery discoverable from the tree sidebar, add pre-upload metadata entry with progress bars, and build the global family gallery with variant backfill for existing media.
 
-### Why This Sprint Next
-
-Users have uploaded photos but the tree still shows empty circles — this is a trust-breaking bug that undermines the value of media contribution. The headshot action and gallery are technically implemented but not reachable from the tree sidebar where most interaction happens. Fixing these user-facing gaps is higher priority than new features.
-
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 61 | FB-061 | Tree Headshot Rendering and Gallery Access | P0 | todo |
-| 62 | FB-062 | Upload Metadata Panel and Progress Bars | P1 | todo |
-| 63 | FB-063 | Global Family Gallery and Variant Backfill | P1 | todo |
+| 61 | FB-061 | Tree Headshot Rendering and Gallery Access | P0 | done |
+| 62 | FB-062 | Upload Metadata Panel and Progress Bars | P1 | done |
+| 63 | FB-063 | Global Family Gallery and Variant Backfill | P1 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S34-1 | Fix tree headshot rendering, sidebar headshot action, gallery link | todo |
-| S34-2 | Pre-upload metadata panel, progress bars | todo |
-| S34-3 | Global /gallery page, variant backfill | todo |
+| S34-1 | Fix tree headshot rendering, sidebar headshot action, gallery link | done |
+| S34-2 | Pre-upload metadata panel, progress bars | done |
+| S34-3 | Global /gallery page, variant backfill | done |
 
-### Sprint Exit Criteria
+### Audit Notes
 
-- persons with photo_url show their headshot on tree node circles, not empty circles
-- if an image fails to load, the tree node shows initials as fallback
-- the tree sidebar media tab has a "Set as headshot" button on each image
-- clicking "Set as headshot" updates the tree node immediately
-- the tree sidebar links to the person's full media gallery
-- uploaders can add title, description, date, and person tags before confirming an upload
-- large file uploads show per-file progress bars
-- a global /gallery page exists with type, person, date, and uploader filters
-- variant backfill command generates missing variants for pre-existing media
-- i18n parity maintained across en, es, ru, it, zh
+First audit found 2 P0, 2 P1, 1 P2 defects. All resolved in-sprint:
+- P0: missing person_id in wiki template context (broken upload/headshot on wiki gallery)
+- P0: gallery Load More appended duplicate section headers (flattened to chronological grid)
+- P1: blob URL memory leak in tree photo cache (added clearTreePhotoCache on loadTree)
+- P1: extra fetch in headshot auto-set (pass known photo_url from treeData)
+- P2: N+1 gallery queries (pre-computed accessible IDs, SQL-level filters)
 
-### Context
-
-- Packet files:
-  - `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md`
-  - `task_packets/FB-062_upload_metadata_and_progress.md`
-  - `task_packets/FB-063_global_gallery_and_variant_backfill.md`
+483 pass / 0 new regressions. i18n parity across 5 locales.
 
 ---
 
