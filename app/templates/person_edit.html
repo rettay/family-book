@@ -1320,11 +1320,18 @@ async function uploadProfilePhoto(input) {
   var fd = new FormData();
   fd.append('file', input.files[0]);
   fd.append('person_id', '{{ person.id }}');
+  fd.append('purpose', 'memory');
   var resp = await fetch('/api/media', {method: 'POST', body: fd});
-  if (resp.ok) {
-    showToast('{{ t("person.photo_uploaded") }}');
-    window.location.reload();
-  }
+  if (!resp.ok) return;
+  var media = await resp.json();
+  // Set this image as the person's profile photo (headshot for tree)
+  await fetch('/api/persons/{{ person.id }}', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ photo_url: media.id })
+  });
+  showToast('{{ t("person.photo_uploaded") }}');
+  window.location.reload();
 }
 </script>
 {% endblock %}
