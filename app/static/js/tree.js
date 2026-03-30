@@ -39,6 +39,8 @@
   var currentFocusPersonId = '';
   var initialUrlFocusPersonId = '';
   var initialUrlFocusApplied = false;
+  var treePhotoHrefCache = {};
+  var treePhotoPromiseCache = {};
 
   var root = document.getElementById('tree-root');
   var statusNode = document.getElementById('tree-status');
@@ -622,21 +624,22 @@
       window.location.href = '/api/media/' + media.id + '/file';
     }));
     // "Set as headshot" button for images
-    if ((mType === 'image' || mType === 'gif') && sidebarState.personId) {
+    var sidebarPersonId = getSidebarPersonId();
+    if ((mType === 'image' || mType === 'gif') && sidebarPersonId) {
       var headBtn = document.createElement('button');
       headBtn.type = 'button';
       headBtn.className = 'tree-sidebar-mini-action';
-      headBtn.textContent = '\u2605 Headshot';
-      headBtn.title = 'Set as headshot';
+      headBtn.textContent = '\u2605 ' + (root.dataset.setHeadshotLabel || 'Set as headshot');
+      headBtn.title = root.dataset.setHeadshotLabel || 'Set as headshot';
       headBtn.addEventListener('click', function() {
-        fetch('/api/persons/' + sidebarState.personId, {
+        fetch('/api/persons/' + sidebarPersonId, {
           method: 'PUT',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ photo_url: media.id })
         }).then(function(resp) {
           if (resp.ok) {
-            showToastMessage(root.dataset.treeMediaUploaded || 'Headshot updated');
-            refreshTreeWorkspace(sidebarState.personId);
+            showToastMessage(root.dataset.headshotUpdatedLabel || 'Headshot updated');
+            refreshTreeWorkspace(sidebarPersonId);
           }
         });
       });
@@ -923,6 +926,67 @@
     return '/api/media/' + photoUrl + '/file';
   }
 
+  function loadTreePhotoHref(photoUrl) {
+    if (!photoUrl) {
+      return Promise.reject(new Error('missing photo'));
+    }
+    if (photoUrl.indexOf('http') === 0 || photoUrl.indexOf('/') === 0) {
+      return Promise.resolve(photoUrl);
+    }
+    if (treePhotoHrefCache[photoUrl]) {
+      return Promise.resolve(treePhotoHrefCache[photoUrl]);
+    }
+    if (treePhotoPromiseCache[photoUrl]) {
+      return treePhotoPromiseCache[photoUrl];
+    }
+
+    var candidates = [
+      '/api/media/' + photoUrl + '/variant/thumb',
+      '/api/media/' + photoUrl + '/thumbnail',
+      resolvePhotoHref(photoUrl)
+    ];
+    var pending = (function tryCandidate(index) {
+      if (index >= candidates.length) {
+        return Promise.reject(new Error('photo unavailable'));
+      }
+      return fetch(candidates[index], {credentials: 'same-origin'}).then(function(resp) {
+        if (!resp.ok) {
+          return tryCandidate(index + 1);
+        }
+        return resp.blob().then(function(blob) {
+          var objectUrl = URL.createObjectURL(blob);
+          treePhotoHrefCache[photoUrl] = objectUrl;
+          return objectUrl;
+        });
+      }).catch(function() {
+        return tryCandidate(index + 1);
+      });
+    })(0);
+    treePhotoPromiseCache[photoUrl] = pending.then(function(result) {
+      delete treePhotoPromiseCache[photoUrl];
+      return result;
+    }, function(err) {
+      delete treePhotoPromiseCache[photoUrl];
+      throw err;
+    });
+    return treePhotoPromiseCache[photoUrl];
+  }
+
+  function appendNodeInitials(nodeGroup, nodeLabel, forceShow) {
+    if (!forceShow && !preferences.show_names) {
+      return null;
+    }
+    return nodeGroup.append('text')
+      .attr('class', 'tree-node-initials')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.35em')
+      .attr('fill', '#2d5016')
+      .attr('font-size', '14px')
+      .attr('font-weight', '700')
+      .attr('pointer-events', 'none')
+      .text((nodeLabel || '').substring(0, 2));
+  }
+
   function relationshipPayload(personId, relatedId, mode, relationshipMeta) {
     var meta = relationshipMeta || {};
     if (mode === 'parent') {
@@ -1082,7 +1146,19 @@
     return await resp.json();
   }
 
+  function clearTreePhotoCache() {
+    Object.keys(treePhotoHrefCache).forEach(function(key) {
+      var url = treePhotoHrefCache[key];
+      if (url && url.indexOf('blob:') === 0) {
+        URL.revokeObjectURL(url);
+      }
+    });
+    treePhotoHrefCache = {};
+    treePhotoPromiseCache = {};
+  }
+
   async function loadTree() {
+    clearTreePhotoCache();
     setStatus(document.body.dataset.loadingText || 'Loading...');
     treeData = await fetchTreeData();
     if (!treeData) {
@@ -2170,55 +2246,40 @@
         .attr('id', clipId)
         .append('circle')
         .attr('r', NODE_RADIUS);
-      var photoHref = resolvePhotoHref(person.photo_url);
-      // Try variant/thumb first for better performance, fall back to original
-      var variantHref = '/api/media/' + person.photo_url + '/variant/thumb';
-      var imgEl = nodeGroup.append('image')
-        .attr('href', variantHref)
-        .attr('x', -NODE_RADIUS)
-        .attr('y', -NODE_RADIUS)
-        .attr('width', NODE_RADIUS * 2)
-        .attr('height', NODE_RADIUS * 2)
-        .attr('clip-path', 'url(#' + clipId + ')')
-        .attr('preserveAspectRatio', 'xMidYMid slice');
-      // Fallback chain: variant/thumb → /file → initials
-      imgEl.on('error', function() {
-        var el = d3.select(this);
-        if (el.attr('href') === variantHref) {
-          el.attr('href', photoHref);
-        } else {
-          // Image completely failed — show initials instead
-          el.remove();
-          nodeGroup.select('.photo-clip').attr('fill', null).attr('stroke', null).attr('stroke-width', null);
-          if (preferences.show_names) {
-            nodeGroup.append('text')
-              .attr('text-anchor', 'middle').attr('dy', '0.35em')
-              .attr('fill', '#2d5016').attr('font-size', '14px').attr('font-weight', '700')
-              .attr('pointer-events', 'none')
-              .text(nodeLabel.substring(0, 2));
-          }
-        }
-      });
       nodeGroup.append('circle')
         .attr('class', 'photo-clip')
         .attr('r', NODE_RADIUS)
-        .attr('fill', 'none')
+        .attr('fill', '#fffaf1')
         .attr('stroke', 'white')
         .attr('stroke-width', 2);
+      var initialsEl = appendNodeInitials(nodeGroup, nodeLabel, true);
+      loadTreePhotoHref(person.photo_url).then(function(photoHref) {
+        if (!nodeGroup || !nodeGroup.node() || !nodeGroup.node().isConnected) {
+          return;
+        }
+        nodeGroup.insert('image', '.photo-clip')
+          .attr('href', photoHref)
+          .attr('xlink:href', photoHref)
+          .attr('x', -NODE_RADIUS)
+          .attr('y', -NODE_RADIUS)
+          .attr('width', NODE_RADIUS * 2)
+          .attr('height', NODE_RADIUS * 2)
+          .attr('clip-path', 'url(#' + clipId + ')')
+          .attr('preserveAspectRatio', 'xMidYMid slice');
+        if (initialsEl) {
+          initialsEl.remove();
+        }
+        nodeGroup.select('.photo-clip').attr('fill', 'none');
+      }).catch(function() {
+        if (initialsEl) {
+          initialsEl.style('display', null);
+        }
+      });
     } else {
       nodeGroup.append('circle')
         .attr('class', 'photo-clip')
         .attr('r', NODE_RADIUS);
-      if (preferences.show_names) {
-        nodeGroup.append('text')
-          .attr('text-anchor', 'middle')
-          .attr('dy', '0.35em')
-          .attr('fill', '#2d5016')
-          .attr('font-size', '14px')
-          .attr('font-weight', '700')
-          .attr('pointer-events', 'none')
-          .text(nodeLabel.substring(0, 2));
-      }
+      appendNodeInitials(nodeGroup, nodeLabel, false);
       // Camera icon overlay for photo-less nodes
       if (preferences.show_photos) {
         var iconGroup = nodeGroup.append('g')
@@ -2943,45 +3004,35 @@
     setError('tree-media-error', '');
     var form = event.target;
     var fileInput = form.querySelector('input[type="file"]');
-    var button = form.querySelector('button[type="submit"]');
     if (!fileInput || !fileInput.files || !fileInput.files[0]) {
       setError('tree-media-error', root.dataset.mediaError);
       return false;
     }
-
-    var originalLabel = button.textContent;
-    button.disabled = true;
-    button.textContent = root.dataset.uploadLabel;
-    var uploads = [];
-
-    try {
-      var captionInput = form.querySelector('input[name="caption"]');
-      var purposeSelect = form.querySelector('select[name="purpose"]');
-      uploads = await uploadTreeFiles(fileInput.files, personId, {
-        caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : '',
-        purpose: purposeSelect && purposeSelect.value ? purposeSelect.value : 'memory'
-      });
-      // Auto-set profile photo if person has none and upload is an image
-      var treePerson = (treeData && treeData.persons || []).find(function(p) { return p.id === personId; });
-      if (treePerson && !treePerson.photo_url && uploads.length > 0 && uploads[0].mime_type && uploads[0].mime_type.indexOf('image') === 0) {
-        await fetch('/api/persons/' + personId, {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ photo_url: uploads[0].id })
-        }).catch(function() { /* best-effort */ });
-      }
-      form.reset();
-      sidebarState.activeTab = 'media';
-      sidebarState.highlightMediaId = uploads.length ? uploads[uploads.length - 1].id : '';
-      await refreshTreeWorkspace(personId);
-      showToastMessage(root.dataset.treeMediaUploaded);
-    } catch (err) {
-      await cleanupUploadedTreeMedia(uploads);
-      setError('tree-media-error', err.message || root.dataset.mediaError);
-    } finally {
-      button.disabled = false;
-      button.textContent = originalLabel;
+    if (typeof window.startMediaUploadWorkflow !== 'function') {
+      setError('tree-media-error', root.dataset.mediaError);
+      return false;
     }
+    var purposeSelect = form.querySelector('select[name="purpose"]');
+    var captionInput = form.querySelector('input[name="caption"]');
+    var treePerson = (treeData && treeData.persons || []).find(function(p) { return p.id === personId; });
+    window.startMediaUploadWorkflow({
+      files: Array.from(fileInput.files),
+      personId: personId,
+      purpose: purposeSelect && purposeSelect.value ? purposeSelect.value : 'memory',
+      caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : '',
+      autoSetHeadshot: 'if-empty',
+      currentPhotoUrl: treePerson ? treePerson.photo_url : null,
+      title: root.dataset.uploadLabel || 'Upload media',
+      onComplete: async function(uploads) {
+        if (captionInput) {
+          captionInput.value = '';
+        }
+        form.reset();
+        sidebarState.activeTab = 'media';
+        sidebarState.highlightMediaId = uploads.length ? uploads[uploads.length - 1].id : '';
+        await refreshTreeWorkspace(personId);
+      }
+    });
     return false;
   }
 

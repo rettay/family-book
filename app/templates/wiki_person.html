@@ -98,6 +98,15 @@
       <div id="section-{{ section.id }}-form"></div>
     </div>
     {% endfor %}
+
+    {% if media_list %}
+    <div class="wiki-section" id="person-media-gallery">
+      <h2 class="wiki-section__title">{{ t('gallery.person_gallery') }}</h2>
+      <div class="wiki-section__content" id="person-media">
+        {% include "partials/media_gallery.html" %}
+      </div>
+    </div>
+    {% endif %}
   </article>
 </div>
 {% endblock %}

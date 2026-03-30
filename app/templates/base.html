@@ -35,6 +35,7 @@
       <a href="/map" class="nav__link {% if active_page == 'map' %}nav__link--active{% endif %}">{{ t('nav.map') }}</a>
       <a href="/calendar" class="nav__link {% if active_page == 'calendar' %}nav__link--active{% endif %}">{{ t('nav.calendar') }}</a>
       <a href="/timeline" class="nav__link {% if active_page == 'timeline' %}nav__link--active{% endif %}">{{ t('nav.timeline') }}</a>
+      <a href="/gallery" class="nav__link {% if active_page == 'gallery' %}nav__link--active{% endif %}">{{ t('nav.gallery') }}</a>
       <a href="/wiki" class="nav__link {% if active_page == 'wiki' %}nav__link--active{% endif %}">{{ t('nav.wiki') }}</a>
       <a href="/research" class="nav__link {% if active_page == 'research' %}nav__link--active{% endif %}">{{ t('nav.research') }}</a>
       {% if current_user.is_admin %}
@@ -54,6 +55,34 @@
   <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <script>
+    window.familyBookLabels = {{ {
+      "common.cancel": t('common.cancel'),
+      "common.error": t('common.error'),
+      "upload.title": t('upload.title'),
+      "upload.profile_title": t('upload.profile_title'),
+      "upload.subtitle": t('upload.subtitle'),
+      "upload.close": t('upload.close'),
+      "upload.cancel_upload": t('upload.cancel_upload'),
+      "upload.uploading": t('upload.uploading'),
+      "upload.submit": t('upload.submit'),
+      "upload.shared_metadata": t('upload.shared_metadata'),
+      "upload.shared_title": t('upload.shared_title'),
+      "upload.shared_description": t('upload.shared_description'),
+      "upload.file_title": t('upload.file_title'),
+      "upload.file_description": t('upload.file_description'),
+      "upload.taken_at": t('upload.taken_at'),
+      "upload.tag_people": t('upload.tag_people'),
+      "upload.tag_search_placeholder": t('upload.tag_search_placeholder'),
+      "upload.waiting": t('upload.waiting'),
+      "upload.progress_starting": t('upload.progress_starting'),
+      "upload.progress_percent": t('upload.progress_percent'),
+      "upload.progress_done": t('upload.progress_done'),
+      "upload.select_file": t('upload.select_file'),
+      "upload.unsupported_file": t('upload.unsupported_file'),
+      "upload.upload_complete": t('upload.upload_complete')
+    } | tojson }};
+  </script>
   <script src="/static/js/main.js"></script>
   {% block scripts %}{% endblock %}
 

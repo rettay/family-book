@@ -1,0 +1,90 @@
+{% if not media_list %}
+<div class="empty-state" style="padding:24px;">
+  <p class="text-sm text-muted">{{ t('gallery.empty') }}</p>
+</div>
+{% else %}
+{% for m in media_list %}
+{% if m.media_type in ('image', 'gif') %}
+<article class="media-gallery__item media-gallery__item--rich">
+  <button type="button" class="media-gallery__thumb-btn"
+          onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.title or m.caption or m.description or "Photo")|tojson }})'>
+    <img src="/api/media/{{ m.id }}/variant/thumb" alt="{{ m.title or m.caption or m.description or 'Photo' }}" loading="lazy"
+         onerror="this.src='/api/media/{{ m.id }}/thumbnail'">
+  </button>
+  <div class="media-gallery__card-meta">
+    <strong>{{ m.title or m.caption or m.original_filename or t('media.photos') }}</strong>
+    {% if m.description %}<p>{{ m.description }}</p>{% endif %}
+    <div class="media-gallery__meta-row">
+      {% if m.person_display_name and m.person_slug %}
+      <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
+      {% endif %}
+      {% if m.taken_date or m.created_at %}<span>{{ m.taken_date or m.created_at[:10] }}</span>{% endif %}
+    </div>
+  </div>
+</article>
+{% elif m.media_type == 'video' %}
+<article class="media-gallery__item media-gallery__item--video media-gallery__item--rich">
+  <button type="button" class="media-gallery__thumb-btn"
+          onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.title or m.caption or "Video")|tojson }}, "video")'>
+    <img src="/api/media/{{ m.id }}/variant/poster" alt="{{ m.title or m.caption or 'Video' }}" loading="lazy"
+         onerror="this.src='/api/media/{{ m.id }}/thumbnail'">
+    <span class="media-gallery__play-icon" aria-hidden="true">&#9654;</span>
+  </button>
+  <div class="media-gallery__card-meta">
+    <strong>{{ m.title or m.caption or m.original_filename or t('media.videos') }}</strong>
+    {% if m.description %}<p>{{ m.description }}</p>{% endif %}
+    <div class="media-gallery__meta-row">
+      {% if m.person_display_name and m.person_slug %}
+      <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
+      {% endif %}
+      {% if m.duration_seconds %}<span>{{ (m.duration_seconds // 60) | int }}:{{ '%02d' | format((m.duration_seconds % 60) | int) }}</span>{% endif %}
+    </div>
+  </div>
+</article>
+{% elif m.media_type == 'audio' %}
+<article class="media-gallery__item media-gallery__item--audio media-gallery__item--rich">
+  <div class="media-gallery__audio-row">
+    <span class="media-gallery__audio-icon" aria-hidden="true">&#9835;</span>
+    <span class="media-gallery__audio-title">{{ m.title or m.caption or m.original_filename or t('media.recordings') }}</span>
+  </div>
+  {% if m.description %}<p class="media-gallery__description">{{ m.description }}</p>{% endif %}
+  <div class="media-gallery__meta-row">
+    {% if m.person_display_name and m.person_slug %}
+    <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
+    {% endif %}
+  </div>
+  <audio controls preload="metadata" style="width:100%;">
+    <source src="/api/media/{{ m.id }}/file" type="{{ m.mime_type or 'audio/mpeg' }}">
+  </audio>
+</article>
+{% elif m.media_type == 'document' %}
+<article class="media-gallery__item media-gallery__item--document media-gallery__item--rich">
+  <a href="/api/media/{{ m.id }}/file" target="_blank" rel="noopener" class="media-gallery__doc-link">
+    <span class="media-gallery__doc-icon" aria-hidden="true">&#128196;</span>
+    <span>{{ m.title or m.caption or m.original_filename or t('media.documents') }}</span>
+  </a>
+  {% if m.description %}<p class="media-gallery__description">{{ m.description }}</p>{% endif %}
+  <div class="media-gallery__meta-row">
+    {% if m.person_display_name and m.person_slug %}
+    <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
+    {% endif %}
+  </div>
+</article>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if render_load_more_oob %}
+<div id="gallery-load-more" hx-swap-oob="true">
+  {% if gallery_page.has_more %}
+  <button
+    type="button"
+    class="btn btn--ghost btn--block"
+    hx-get="/partials/global-gallery?media_type={{ gallery_filters.media_type | urlencode }}&person_id={{ gallery_filters.person_id | urlencode }}&uploader_id={{ gallery_filters.uploader_id | urlencode }}&date_from={{ gallery_filters.date_from | urlencode }}&date_to={{ gallery_filters.date_to | urlencode }}&page={{ gallery_page.next_page }}"
+    hx-target="#gallery-results"
+    hx-swap="beforeend">
+    {{ t('gallery.load_more') }}
+  </button>
+  {% endif %}
+</div>
+{% endif %}

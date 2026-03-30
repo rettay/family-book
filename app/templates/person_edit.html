@@ -1317,21 +1317,21 @@ async function savePerson(e) {
 
 async function uploadProfilePhoto(input) {
   if (!input.files[0]) return;
-  var fd = new FormData();
-  fd.append('file', input.files[0]);
-  fd.append('person_id', '{{ person.id }}');
-  fd.append('purpose', 'memory');
-  var resp = await fetch('/api/media', {method: 'POST', body: fd});
-  if (!resp.ok) return;
-  var media = await resp.json();
-  // Set this image as the person's profile photo (headshot for tree)
-  await fetch('/api/persons/{{ person.id }}', {
-    method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ photo_url: media.id })
+  if (typeof window.startMediaUploadWorkflow !== 'function') {
+    return;
+  }
+  window.startMediaUploadWorkflow({
+    files: Array.from(input.files),
+    personId: '{{ person.id }}',
+    purpose: 'memory',
+    autoSetHeadshot: 'always',
+    title: '{{ t("upload.profile_title") }}',
+    successMessage: '{{ t("person.photo_uploaded") }}',
+    onComplete: async function() {
+      input.value = '';
+      window.location.reload();
+    }
   });
-  showToast('{{ t("person.photo_uploaded") }}');
-  window.location.reload();
 }
 </script>
 {% endblock %}

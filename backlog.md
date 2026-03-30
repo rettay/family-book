@@ -1,28 +1,25 @@
 # Family Book Backlog
 
 Sprint: `S34 - Media Polish and Platform Completeness`
-Status: Candidate
+Status: In Progress
 
-## Planned Sprint `S34 - Media Polish and Platform Completeness`
+## Current Sprint `S34 - Media Polish and Platform Completeness`
 
 Sprint goal:
-- Complete deferred media items from S33 (global gallery page, pre-upload metadata panel, variant backfill, upload progress bars) and address broader platform completeness (research UX, fan chart, duplicate detection).
+- Fix tree headshot rendering so uploaded photos actually display on tree nodes, make the headshot action and gallery discoverable from the tree sidebar, add pre-upload metadata and progress bars, and build the global family gallery page with variant backfill.
 
-Candidate packets:
+Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-061 | Global Family Gallery Page | P2 | candidate | — |
-| FB-062 | Pre-Upload Metadata Panel and Progress Bars | P2 | candidate | — |
-| FB-063 | Variant Backfill for Existing Media | P3 | candidate | — |
-| FB-031 | Research Tools UX Overhaul | P1 | candidate | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+| FB-061 | Tree Headshot Rendering and Gallery Access | P0 | todo | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
+| FB-062 | Upload Metadata Panel and Progress Bars | P1 | todo | `task_packets/FB-062_upload_metadata_and_progress.md` |
+| FB-063 | Global Family Gallery and Variant Backfill | P1 | todo | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
 
-Deferred items rolled forward from S33:
-- Global `/gallery` top-level page with type/person/date filters and pagination
-- Pre-upload metadata panel (title, description, taken_at, person tags before confirm)
-- Upload progress bars with intermediate XHR updates
-- Variant backfill script for existing media (legacy thumbnails → new variants)
-- Auto-purge lifecycle policy for hidden media >90 days
+Execution slices:
+- `S34-1` Fix tree headshot rendering, add headshot action to sidebar, link gallery from sidebar
+- `S34-2` Pre-upload metadata panel with title/description/date/tags, per-file progress bars
+- `S34-3` Global /gallery page with filters and pagination, variant backfill script
 
 ## Closed Sprint `S33 - Media Management Enhancement`
 

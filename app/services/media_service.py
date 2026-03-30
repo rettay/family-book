@@ -263,6 +263,9 @@ async def save_media_file(
     person_id: str,
     uploaded_by: str,
     caption: str | None = None,
+    title: str | None = None,
+    description: str | None = None,
+    taken_date: str | None = None,
     tagged_person_ids: list[str] | None = None,
     data_dir: str | None = None,
 ) -> tuple[Media, bool]:
@@ -286,6 +289,12 @@ async def save_media_file(
             existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
         if caption and not existing.caption:
             existing.caption = caption
+        if title and not existing.title:
+            existing.title = title
+        if description and not existing.description:
+            existing.description = description
+        if taken_date and not existing.taken_date:
+            existing.taken_date = taken_date
         await db.flush()
         return existing, True
 
@@ -329,6 +338,9 @@ async def save_media_file(
         file_size_bytes=len(clean_data),
         file_hash=file_hash,
         caption=caption,
+        title=title,
+        description=description,
+        taken_date=taken_date,
         source=MediaSource.manual.value,
         uploaded_by=uploaded_by,
     )
@@ -349,6 +361,9 @@ async def save_media_temp_file(
     person_id: str,
     uploaded_by: str,
     caption: str | None = None,
+    title: str | None = None,
+    description: str | None = None,
+    taken_date: str | None = None,
     tagged_person_ids: list[str] | None = None,
     data_dir: str | None = None,
 ) -> tuple[Media, bool]:
@@ -362,6 +377,9 @@ async def save_media_temp_file(
             existing=existing,
             temp_path=temp_path,
             caption=caption,
+            title=title,
+            description=description,
+            taken_date=taken_date,
             tagged_person_ids=tagged_person_ids,
         )
 
@@ -387,6 +405,9 @@ async def save_media_temp_file(
         stored_size=stored_size,
         file_hash=file_hash,
         caption=caption,
+        title=title,
+        description=description,
+        taken_date=taken_date,
         uploaded_by=uploaded_by,
         tagged_person_ids=tagged_person_ids,
         duration_seconds=duration,
@@ -412,12 +433,21 @@ async def _merge_duplicate_and_cleanup(
     existing: Media,
     temp_path: str,
     caption: str | None,
+    title: str | None,
+    description: str | None,
+    taken_date: str | None,
     tagged_person_ids: list[str] | None,
 ) -> tuple[Media, bool]:
     if tagged_person_ids:
         existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
     if caption and not existing.caption:
         existing.caption = caption
+    if title and not existing.title:
+        existing.title = title
+    if description and not existing.description:
+        existing.description = description
+    if taken_date and not existing.taken_date:
+        existing.taken_date = taken_date
     await db.flush()
     os.unlink(temp_path)
     return existing, True
@@ -479,6 +509,9 @@ def _build_media_record(
     stored_size: int,
     file_hash: str,
     caption: str | None,
+    title: str | None,
+    description: str | None,
+    taken_date: str | None,
     uploaded_by: str,
     tagged_person_ids: list[str] | None,
     duration_seconds: float | None = None,
@@ -496,6 +529,9 @@ def _build_media_record(
         file_size_bytes=stored_size,
         file_hash=file_hash,
         caption=caption,
+        title=title,
+        description=description,
+        taken_date=taken_date,
         source=MediaSource.manual.value,
         uploaded_by=uploaded_by,
     )

@@ -30,6 +30,15 @@ function replaceNodeChildrenFromHTML(target, html) {
   target.replaceChildren.apply(target, nodes);
 }
 
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function openAccessibleOverlay(overlay, options) {
   if (!overlay) return;
   var opts = options || {};
@@ -271,64 +280,470 @@ var ALLOWED_UPLOAD_TYPES = [
   'application/pdf'
 ];
 
-async function uploadMedia() {
-  var fileInput = document.getElementById('media-upload-file');
-  if (!fileInput || !fileInput.files || !fileInput.files.length) return showToast('Select a file');
-
-  var match = window.location.pathname.match(/\/people\/([^/]+)/);
-  var personId = match ? match[1] : null;
-  var files = Array.from(fileInput.files);
-
-  // Client-side type validation
-  for (var i = 0; i < files.length; i++) {
-    if (files[i].type && ALLOWED_UPLOAD_TYPES.indexOf(files[i].type) === -1) {
-      showToast('Unsupported file type: ' + files[i].name);
-      return;
-    }
-  }
-
-  var uploaded = 0;
-  for (var j = 0; j < files.length; j++) {
-    var file = files[j];
-    try {
-      await _uploadSingleFile(file, personId);
-      uploaded++;
-    } catch (err) {
-      showToast('Failed: ' + file.name);
-    }
-  }
-
-  if (uploaded > 0) {
-    showToast('Uploaded ' + uploaded + ' file' + (uploaded > 1 ? 's' : ''));
-    fileInput.value = '';
-    if (personId) {
-      var gallery = document.getElementById('person-media');
-      if (gallery) {
-        gallery.setAttribute('aria-busy', 'true');
-        try {
-          var partialResp = await fetch('/partials/media-gallery?person_id=' + encodeURIComponent(personId));
-          if (partialResp.ok) {
-            replaceNodeChildrenFromHTML(gallery, await partialResp.text());
-          }
-        } finally {
-          gallery.setAttribute('aria-busy', 'false');
-        }
-      }
-    }
-  }
+function familyBookLabel(key, fallback) {
+  var labels = window.familyBookLabels || {};
+  return labels[key] || fallback;
 }
 
-function _uploadSingleFile(file, personId) {
+function _resolveMediaUploadContext(source) {
+  var origin = source && source.closest ? source.closest('form') : document.getElementById('media-upload-form');
+  var fileInput = origin ? origin.querySelector('#media-upload-file, input[type="file"]') : document.getElementById('media-upload-file');
+  var personField = origin ? origin.querySelector('input[name="person_id"]') : null;
+  var personId = origin && origin.dataset ? origin.dataset.personId : '';
+  if (!personId && personField) {
+    personId = personField.value;
+  }
+  if (!personId) {
+    var personMatch = window.location.pathname.match(/\/people\/([^/]+)/);
+    personId = personMatch ? personMatch[1] : '';
+  }
+  return {
+    form: origin,
+    fileInput: fileInput,
+    personId: personId
+  };
+}
+
+function _getMediaUploadState() {
+  if (!window.__familyBookMediaUploadState) {
+    window.__familyBookMediaUploadState = {
+      options: null,
+      shared: {title: '', description: '', takenAt: '', taggedPeople: []},
+      items: [],
+      uploading: false,
+      activeXhr: null,
+      suggestionTimer: null,
+      suggestions: [],
+      searchQuery: ''
+    };
+  }
+  return window.__familyBookMediaUploadState;
+}
+
+function _ensureMediaUploadModal() {
+  var modal = document.getElementById('media-upload-modal');
+  if (modal) {
+    return modal;
+  }
+  modal = document.createElement('div');
+  modal.id = 'media-upload-modal';
+  modal.className = 'media-upload-modal hidden';
+  modal.hidden = true;
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = '<div class="media-upload-modal__panel" role="dialog" aria-modal="true" aria-labelledby="media-upload-modal-title">' +
+    '<div class="media-upload-modal__header">' +
+      '<div>' +
+        '<h2 id="media-upload-modal-title" class="media-upload-modal__title"></h2>' +
+        '<p class="media-upload-modal__subtitle"></p>' +
+      '</div>' +
+      '<button type="button" class="media-upload-modal__close" data-media-upload-close aria-label="' + familyBookLabel('upload.close', 'Close') + '">&times;</button>' +
+    '</div>' +
+    '<div class="media-upload-modal__body"></div>' +
+    '<div class="media-upload-modal__footer">' +
+      '<button type="button" class="btn btn--ghost" data-media-upload-cancel></button>' +
+      '<button type="button" class="btn btn--primary" data-media-upload-submit></button>' +
+    '</div>' +
+  '</div>';
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function _mediaPreviewMarkup(item) {
+  if (item.previewUrl && item.file.type.indexOf('image/') === 0) {
+    return '<img src="' + item.previewUrl + '" alt="' + item.file.name.replace(/"/g, '&quot;') + '">';
+  }
+  if (item.file.type.indexOf('video/') === 0) {
+    return '<span class="media-upload-item__icon" aria-hidden="true">&#127909;</span>';
+  }
+  if (item.file.type.indexOf('audio/') === 0) {
+    return '<span class="media-upload-item__icon" aria-hidden="true">&#9835;</span>';
+  }
+  return '<span class="media-upload-item__icon" aria-hidden="true">&#128196;</span>';
+}
+
+function _renderMediaUploadModal() {
+  var state = _getMediaUploadState();
+  var modal = _ensureMediaUploadModal();
+  var titleNode = modal.querySelector('.media-upload-modal__title');
+  var subtitleNode = modal.querySelector('.media-upload-modal__subtitle');
+  var body = modal.querySelector('.media-upload-modal__body');
+  var cancelBtn = modal.querySelector('[data-media-upload-cancel]');
+  var submitBtn = modal.querySelector('[data-media-upload-submit]');
+
+  titleNode.textContent = state.options && state.options.title ? state.options.title : familyBookLabel('upload.title', 'Review upload');
+  subtitleNode.textContent = familyBookLabel('upload.subtitle', 'Add shared details now, then upload with progress for each file.');
+  cancelBtn.textContent = state.uploading ? familyBookLabel('upload.cancel_upload', 'Cancel upload') : familyBookLabel('common.cancel', 'Cancel');
+  submitBtn.textContent = state.uploading ? familyBookLabel('upload.uploading', 'Uploading...') : familyBookLabel('upload.submit', 'Start upload');
+  submitBtn.disabled = state.uploading;
+
+  var chipMarkup = state.shared.taggedPeople.map(function(person, index) {
+    return '<button type="button" class="media-upload-chip" data-chip-index="' + index + '">' +
+      '<span>' + escapeHtml(person.display_name || '') + '</span>' +
+      '<span aria-hidden="true">&times;</span>' +
+    '</button>';
+  }).join('');
+
+  var suggestionMarkup = state.suggestions.map(function(person) {
+    return '<button type="button" class="media-upload-suggestion" data-person-id="' + person.id + '">' +
+      escapeHtml(person.display_name || '') +
+    '</button>';
+  }).join('');
+
+  body.innerHTML =
+    '<section class="media-upload-shared">' +
+      '<h3>' + familyBookLabel('upload.shared_metadata', 'Shared metadata') + '</h3>' +
+      '<div class="media-upload-grid">' +
+        '<label><span>' + familyBookLabel('upload.shared_title', 'Shared title') + '</span><input class="form-input" type="text" data-shared-field="title" value="' + escapeHtml(state.shared.title) + '" maxlength="300"></label>' +
+        '<label><span>' + familyBookLabel('upload.taken_at', 'Date taken') + '</span><input class="form-input" type="date" data-shared-field="takenAt" value="' + escapeHtml(state.shared.takenAt) + '"></label>' +
+      '</div>' +
+      '<label><span>' + familyBookLabel('upload.shared_description', 'Shared description') + '</span><textarea class="form-input" rows="3" data-shared-field="description">' + escapeHtml(state.shared.description) + '</textarea></label>' +
+      '<label><span>' + familyBookLabel('upload.tag_people', 'Tag family members') + '</span><input class="form-input" type="search" data-tag-search placeholder="' + familyBookLabel('upload.tag_search_placeholder', 'Search family members') + '" value="' + escapeHtml(state.searchQuery) + '"></label>' +
+      '<div class="media-upload-chip-list">' + chipMarkup + '</div>' +
+      '<div class="media-upload-suggestions">' + suggestionMarkup + '</div>' +
+    '</section>' +
+    '<section class="media-upload-items">' +
+      state.items.map(function(item, index) {
+        return '<article class="media-upload-item" data-upload-item-index="' + index + '">' +
+          '<div class="media-upload-item__preview">' + _mediaPreviewMarkup(item) + '</div>' +
+          '<div class="media-upload-item__content">' +
+            '<div class="media-upload-item__header">' +
+              '<strong>' + escapeHtml(item.file.name) + '</strong>' +
+              '<span>' + Math.max(1, Math.round(item.file.size / 1024)) + ' KB</span>' +
+            '</div>' +
+            '<div class="media-upload-grid">' +
+              '<label><span>' + familyBookLabel('upload.file_title', 'Title') + '</span><input class="form-input" type="text" data-item-field="title" data-item-index="' + index + '" value="' + escapeHtml(item.title) + '" maxlength="300"></label>' +
+              '<label><span>' + familyBookLabel('upload.taken_at', 'Date taken') + '</span><input class="form-input" type="date" data-item-field="takenAt" data-item-index="' + index + '" value="' + escapeHtml(item.takenAt) + '"></label>' +
+            '</div>' +
+            '<label><span>' + familyBookLabel('upload.file_description', 'Description') + '</span><textarea class="form-input" rows="3" data-item-field="description" data-item-index="' + index + '">' + escapeHtml(item.description) + '</textarea></label>' +
+            '<div class="media-upload-progress" data-progress-wrap="' + index + '"' + (item.progressVisible ? '' : ' hidden') + '>' +
+              '<div class="media-upload-progress__bar"><div class="media-upload-progress__fill" style="width:' + item.progress + '%"></div></div>' +
+              '<div class="media-upload-progress__label">' + escapeHtml(item.progressLabel || familyBookLabel('upload.waiting', 'Waiting to upload')) + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</article>';
+      }).join('') +
+    '</section>';
+
+  Array.prototype.forEach.call(body.querySelectorAll('[data-shared-field]'), function(input) {
+    input.addEventListener('input', function() {
+      state.shared[input.getAttribute('data-shared-field')] = input.value;
+    });
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('[data-item-field]'), function(input) {
+    input.addEventListener('input', function() {
+      var itemIndex = Number(input.getAttribute('data-item-index'));
+      var field = input.getAttribute('data-item-field');
+      if (!state.items[itemIndex]) {
+        return;
+      }
+      state.items[itemIndex][field] = input.value;
+    });
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('[data-chip-index]'), function(button) {
+    button.addEventListener('click', function() {
+      state.shared.taggedPeople.splice(Number(button.getAttribute('data-chip-index')), 1);
+      _renderMediaUploadModal();
+    });
+  });
+  Array.prototype.forEach.call(body.querySelectorAll('.media-upload-suggestion'), function(button) {
+    button.addEventListener('click', function() {
+      var personId = button.getAttribute('data-person-id');
+      var person = state.suggestions.find(function(entry) { return entry.id === personId; });
+      if (!person) {
+        return;
+      }
+      if (!state.shared.taggedPeople.some(function(entry) { return entry.id === person.id; })) {
+        state.shared.taggedPeople.push(person);
+      }
+      state.suggestions = [];
+      state.searchQuery = '';
+      _renderMediaUploadModal();
+    });
+  });
+  var searchInput = body.querySelector('[data-tag-search]');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      state.searchQuery = searchInput.value;
+      window.clearTimeout(state.suggestionTimer);
+      state.suggestionTimer = window.setTimeout(function() {
+        _loadMediaUploadSuggestions();
+      }, 250);
+    });
+  }
+
+  modal.querySelector('[data-media-upload-close]').onclick = function() { _cancelMediaUploadWorkflow(); };
+  cancelBtn.onclick = function() { _cancelMediaUploadWorkflow(); };
+  submitBtn.onclick = function() { _submitMediaUploadWorkflow(); };
+}
+
+async function _loadMediaUploadSuggestions() {
+  var state = _getMediaUploadState();
+  if (!state.searchQuery || state.searchQuery.trim().length < 2) {
+    state.suggestions = [];
+    _renderMediaUploadModal();
+    return;
+  }
+  try {
+    var resp = await fetch('/api/persons?search=' + encodeURIComponent(state.searchQuery.trim()));
+    if (!resp.ok) {
+      throw new Error('suggestions failed');
+    }
+    var people = await resp.json();
+    state.suggestions = people.filter(function(person) {
+      return !state.shared.taggedPeople.some(function(tagged) { return tagged.id === person.id; });
+    }).slice(0, 6);
+  } catch (err) {
+    state.suggestions = [];
+  }
+  _renderMediaUploadModal();
+}
+
+function _resetMediaUploadState() {
+  var state = _getMediaUploadState();
+  if (state.activeXhr) {
+    state.activeXhr.abort();
+  }
+  state.items.forEach(function(item) {
+    if (item.previewUrl && item.previewUrl.indexOf('blob:') === 0) {
+      URL.revokeObjectURL(item.previewUrl);
+    }
+  });
+  window.__familyBookMediaUploadState = {
+    options: null,
+    shared: {title: '', description: '', takenAt: '', taggedPeople: []},
+    items: [],
+    uploading: false,
+    activeXhr: null,
+    suggestionTimer: null,
+    suggestions: [],
+    searchQuery: ''
+  };
+}
+
+function _cancelMediaUploadWorkflow() {
+  var modal = _ensureMediaUploadModal();
+  _resetMediaUploadState();
+  closeAccessibleOverlay(modal);
+}
+
+function startMediaUploadWorkflow(options) {
+  var opts = options || {};
+  var files = (opts.files || []).slice();
+  if (!files.length) {
+    showToast(familyBookLabel('upload.select_file', 'Select a file'));
+    return false;
+  }
+  for (var index = 0; index < files.length; index += 1) {
+    if (files[index].type && ALLOWED_UPLOAD_TYPES.indexOf(files[index].type) === -1) {
+      showToast(familyBookLabel('upload.unsupported_file', 'Unsupported file type') + ': ' + files[index].name);
+      return false;
+    }
+  }
+
+  var state = _getMediaUploadState();
+  state.options = opts;
+  state.items = files.map(function(file) {
+    return {
+      file: file,
+      previewUrl: file.type.indexOf('image/') === 0 ? URL.createObjectURL(file) : '',
+      title: '',
+      description: '',
+      takenAt: '',
+      progress: 0,
+      progressLabel: familyBookLabel('upload.waiting', 'Waiting to upload'),
+      progressVisible: false
+    };
+  });
+  state.uploading = false;
+  state.activeXhr = null;
+  state.shared = {title: '', description: '', takenAt: '', taggedPeople: []};
+  state.suggestions = [];
+  state.searchQuery = '';
+  _renderMediaUploadModal();
+  openAccessibleOverlay(_ensureMediaUploadModal(), {initialFocus: '[data-shared-field="title"]'});
+  return false;
+}
+
+window.startMediaUploadWorkflow = startMediaUploadWorkflow;
+
+function _uploadSingleFile(file, personId, payload, progressCallback, xhrRefCallback) {
   return new Promise(function(resolve, reject) {
     var fd = new FormData();
     fd.append('file', file);
     if (personId) fd.append('person_id', personId);
+    if (payload.caption) fd.append('caption', payload.caption);
+    if (payload.title) fd.append('title', payload.title);
+    if (payload.description) fd.append('description', payload.description);
+    if (payload.takenAt) fd.append('taken_at', payload.takenAt);
+    if (payload.purpose) fd.append('purpose', payload.purpose);
+    if (payload.taggedPersonIds && payload.taggedPersonIds.length) {
+      fd.append('tagged_person_ids', JSON.stringify(payload.taggedPersonIds));
+    }
 
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/media');
-    xhr.onload = function() { xhr.status < 400 ? resolve(xhr.response) : reject(new Error(xhr.statusText)); };
+    xhr.responseType = 'json';
+    xhr.upload.onprogress = function(event) {
+      if (!progressCallback || !event.lengthComputable) {
+        return;
+      }
+      progressCallback(Math.min(99, Math.round((event.loaded / event.total) * 100)));
+    };
+    xhr.onload = function() {
+      if (xhr.status < 400) {
+        resolve(xhr.response);
+        return;
+      }
+      var detail = xhr.response && xhr.response.detail ? xhr.response.detail : xhr.statusText;
+      reject(new Error(detail || 'Upload failed'));
+    };
     xhr.onerror = function() { reject(new Error('Network error')); };
+    xhr.onabort = function() { reject(new Error('Upload cancelled')); };
+    if (xhrRefCallback) {
+      xhrRefCallback(xhr);
+    }
     xhr.send(fd);
+  });
+}
+
+async function _maybeSetHeadshot(personId, uploadedItems, strategy, currentPhotoUrl) {
+  if (!personId || !uploadedItems || !uploadedItems.length || !strategy) {
+    return;
+  }
+  var imageUpload = uploadedItems.find(function(item) {
+    return item && item.mime_type && item.mime_type.indexOf('image') === 0;
+  });
+  if (!imageUpload) {
+    return;
+  }
+  if (strategy === 'if-empty') {
+    if (typeof currentPhotoUrl !== 'undefined' && currentPhotoUrl !== null) {
+      if (currentPhotoUrl) {
+        return;
+      }
+    } else {
+      var personResp = await fetch('/api/persons/' + personId);
+      if (!personResp.ok) {
+        return;
+      }
+      var person = await personResp.json();
+      if (person.photo_url) {
+        return;
+      }
+    }
+  }
+  await fetch('/api/persons/' + personId, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ photo_url: imageUpload.id })
+  });
+}
+
+async function _submitMediaUploadWorkflow() {
+  var state = _getMediaUploadState();
+  if (!state.options || state.uploading) {
+    return;
+  }
+  state.uploading = true;
+  _renderMediaUploadModal();
+  var uploadedItems = [];
+  try {
+    for (var index = 0; index < state.items.length; index += 1) {
+      var item = state.items[index];
+      item.progressVisible = true;
+      item.progress = 0;
+      item.progressLabel = familyBookLabel('upload.progress_starting', 'Starting upload...');
+      _renderMediaUploadProgress(index, 0, item.progressLabel);
+      var response = await _uploadSingleFile(
+        item.file,
+        state.options.personId,
+        {
+          caption: item.caption || state.options.caption || '',
+          title: item.title || state.shared.title,
+          description: item.description || state.shared.description,
+          takenAt: item.takenAt || state.shared.takenAt,
+          purpose: state.options.purpose || 'memory',
+          taggedPersonIds: state.shared.taggedPeople.map(function(person) { return person.id; })
+        },
+        function(progress) {
+          item.progress = progress;
+          item.progressLabel = familyBookLabel('upload.progress_percent', 'Uploading') + ' ' + progress + '%';
+          _renderMediaUploadProgress(index, progress, item.progressLabel);
+        },
+        function(xhr) {
+          state.activeXhr = xhr;
+        }
+      );
+      item.progress = 100;
+      item.progressLabel = familyBookLabel('upload.progress_done', 'Upload complete');
+      _renderMediaUploadProgress(index, 100, item.progressLabel);
+      uploadedItems.push(response);
+      state.activeXhr = null;
+    }
+
+    await _maybeSetHeadshot(state.options.personId, uploadedItems, state.options.autoSetHeadshot, state.options.currentPhotoUrl);
+    if (typeof state.options.onComplete === 'function') {
+      await state.options.onComplete(uploadedItems);
+    }
+    showToast(state.options.successMessage || familyBookLabel('upload.upload_complete', 'Upload complete'));
+    _cancelMediaUploadWorkflow();
+  } catch (err) {
+    state.uploading = false;
+    state.activeXhr = null;
+    _renderMediaUploadModal();
+    showToast(err.message || familyBookLabel('common.error', 'Something went wrong'));
+  }
+}
+
+function _renderMediaUploadProgress(index, progress, label) {
+  var modal = document.getElementById('media-upload-modal');
+  if (!modal) {
+    return;
+  }
+  var wrap = modal.querySelector('[data-progress-wrap="' + index + '"]');
+  if (!wrap) {
+    return;
+  }
+  wrap.hidden = false;
+  var fill = wrap.querySelector('.media-upload-progress__fill');
+  var text = wrap.querySelector('.media-upload-progress__label');
+  if (fill) {
+    fill.style.width = Math.max(0, Math.min(100, progress)) + '%';
+  }
+  if (text) {
+    text.textContent = label || '';
+  }
+}
+
+async function uploadMedia(source) {
+  var ctx = _resolveMediaUploadContext(source);
+  if (!ctx.fileInput || !ctx.fileInput.files || !ctx.fileInput.files.length) {
+    showToast(familyBookLabel('upload.select_file', 'Select a file'));
+    return false;
+  }
+
+  return startMediaUploadWorkflow({
+    files: Array.from(ctx.fileInput.files),
+    personId: ctx.personId,
+    purpose: 'memory',
+    title: familyBookLabel('upload.title', 'Review upload'),
+    onComplete: async function() {
+      ctx.fileInput.value = '';
+      if (ctx.personId) {
+        var gallery = document.getElementById('person-media');
+        if (gallery) {
+          gallery.setAttribute('aria-busy', 'true');
+          try {
+            var partialResp = await fetch('/partials/media-gallery?person_id=' + encodeURIComponent(ctx.personId));
+            if (partialResp.ok) {
+              replaceNodeChildrenFromHTML(gallery, await partialResp.text());
+            }
+          } finally {
+            gallery.setAttribute('aria-busy', 'false');
+          }
+        }
+      }
+    }
   });
 }
 

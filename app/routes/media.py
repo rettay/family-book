@@ -20,6 +20,12 @@ from app.services.media_service import (
     get_variant_path,
     save_media_temp_file,
 )
+from app.services.media_queries import (
+    build_tagged_people_payload,
+    list_gallery_media,
+    list_media_for_person as query_media_for_person,
+    serialize_media_item,
+)
 
 router = APIRouter(prefix="/api/media", tags=["media"])
 logger = logging.getLogger(__name__)
@@ -37,27 +43,14 @@ def _parse_tagged_person_ids(raw_value: str | None) -> list[str]:
     return [item.strip() for item in raw_value.split(",") if item.strip()]
 
 
-async def _build_tagged_people(db: AsyncSession, tagged_person_ids: list[str]) -> list[dict[str, str | None]]:
-    tagged_people: list[dict[str, str | None]] = []
-    for tagged_person_id in tagged_person_ids:
-        person = await db.get(Person, tagged_person_id)
-        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
-            continue
-        tagged_people.append(
-            {
-                "id": person.id,
-                "display_name": person.display_name,
-                "photo_url": person.photo_url,
-            }
-        )
-    return tagged_people
-
-
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_media(
     file: UploadFile = File(...),
     person_id: str = Form(...),
     caption: str | None = Form(None),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    taken_at: str | None = Form(None),
     tagged_person_ids: str | None = Form(None),
     purpose: str = Form("memory"),
     current_user: Person = Depends(require_auth),
@@ -105,6 +98,9 @@ async def upload_media(
             person_id=person_id,
             uploaded_by=current_user.id,
             caption=caption,
+            title=title,
+            description=description,
+            taken_date=taken_at,
             tagged_person_ids=parsed_tagged_person_ids,
         )
     except ValueError as e:
@@ -114,7 +110,7 @@ async def upload_media(
         media.purpose = purpose
         await db.flush()
 
-    tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
+    tagged_people = await build_tagged_people_payload(db, media.tagged_person_ids)
     logger.info("Media %s uploaded for person %s by %s", media.id, person_id, current_user.id)
     return {
         "id": media.id,
@@ -125,11 +121,48 @@ async def upload_media(
         "height": media.height,
         "file_size_bytes": media.file_size_bytes,
         "caption": media.caption,
+        "title": media.title,
+        "description": media.description,
+        "taken_date": media.taken_date,
         "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
         "is_duplicate": is_duplicate,
         "created_at": str(media.created_at),
+    }
+
+
+@router.get("/gallery")
+async def list_gallery_media_api(
+    media_type: str | None = Query(None),
+    person_id: str | None = Query(None),
+    uploader_id: str | None = Query(None),
+    date_from: str | None = Query(None),
+    date_to: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(24, ge=1, le=96),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    page_result = await list_gallery_media(
+        db,
+        current_user,
+        media_type=media_type,
+        person_id=person_id,
+        uploader_id=uploader_id,
+        date_from=date_from,
+        date_to=date_to,
+        page=page,
+        page_size=page_size,
+    )
+    items = [await serialize_media_item(db, media) for media in page_result.items]
+    return {
+        "items": items,
+        "page": page_result.page,
+        "page_size": page_result.page_size,
+        "total": page_result.total,
+        "has_more": page_result.has_more,
+        "next_page": page_result.next_page,
     }
 
 
@@ -171,7 +204,7 @@ async def get_media_metadata(
         raise HTTPException(status_code=403, detail="Not visible")
     logger.debug("Media metadata %s requested by %s", media.id, current_user.id)
 
-    tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
+    tagged_people = await build_tagged_people_payload(db, media.tagged_person_ids)
     body = {
         "id": media.id,
         "person_id": media.person_id,
@@ -182,6 +215,9 @@ async def get_media_metadata(
         "height": media.height,
         "file_size_bytes": media.file_size_bytes,
         "caption": media.caption,
+        "title": media.title,
+        "description": media.description,
+        "taken_date": media.taken_date,
         "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
@@ -289,40 +325,13 @@ async def list_media_for_person(
     db: AsyncSession = Depends(get_db),
 ):
     """List all media for a given person."""
-    person_result = await db.execute(select(Person).where(Person.id == person_id))
-    person = person_result.scalar_one_or_none()
-    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+    person, visible_media = await query_media_for_person(db, current_user, person_id)
+    if not person:
         raise HTTPException(status_code=404, detail="Person not found")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
         raise HTTPException(status_code=403, detail="Not visible")
-
-    result = await db.execute(
-        select(Media).order_by(Media.created_at.desc())
-    )
-    visible_media = []
-    for media in result.scalars().all():
-        if media.person_id != person_id and person_id not in media.tagged_person_ids:
-            continue
-        if not await can_view_media(db, current_user, media):
-            continue
-        visible_media.append(media)
-    response = []
-    for media in visible_media:
-        response.append(
-            {
-                "id": media.id,
-                "person_id": media.person_id,
-                "media_type": media.media_type,
-                "mime_type": media.mime_type,
-                "caption": media.caption,
-                "purpose": media.purpose,
-                "tagged_person_ids": media.tagged_person_ids,
-                "tagged_people": await _build_tagged_people(db, media.tagged_person_ids),
-                "created_at": str(media.created_at),
-            }
-        )
-    return response
+    return [await serialize_media_item(db, media) for media in visible_media]
 
 
 @router.patch("/{media_id}")
@@ -331,9 +340,12 @@ async def update_media(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
     caption: str | None = Form(None),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    taken_at: str | None = Form(None),
     purpose: str | None = Form(None),
 ):
-    """Update media metadata (caption, purpose)."""
+    """Update media metadata (caption/title/description/date, purpose)."""
     result = await db.execute(select(Media).where(Media.id == media_id))
     media = result.scalar_one_or_none()
     if not media:
@@ -350,11 +362,20 @@ async def update_media(
 
     if caption is not None:
         media.caption = caption
+    if title is not None:
+        media.title = title
+    if description is not None:
+        media.description = description
+    if taken_at is not None:
+        media.taken_date = taken_at
 
     await db.flush()
     return {
         "id": media.id,
         "caption": media.caption,
+        "title": media.title,
+        "description": media.description,
+        "taken_date": media.taken_date,
         "purpose": media.purpose,
     }
 

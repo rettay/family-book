@@ -1,12 +1,15 @@
 import asyncio
+from pathlib import Path
 
 from sqlalchemy import delete
 
 from app.database import async_session_factory, engine
 from app.models.base import Base
+from app.models.media import Media
 from app.models.person import AccountState, Person, PersonSource
 from app.models.relationships import ParentChild, Partnership
 from app.services.auth_service import create_session
+from app.services.media_service import save_media_file
 
 
 ROOT_ID = "root-0000-0000-0000-000000000001"
@@ -45,6 +48,7 @@ async def seed() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
     async with async_session_factory() as session:
+        await session.execute(delete(Media))
         await session.execute(delete(Partnership))
         await session.execute(delete(ParentChild))
 
@@ -453,6 +457,20 @@ async def seed() -> None:
                 ),
             ]
         )
+
+        demo_photo_path = Path(__file__).resolve().parents[2] / "app" / "static" / "demo-photos" / "portrait-alex.jpg"
+        with open(demo_photo_path, "rb") as fh:
+            ross_media, _ = await save_media_file(
+                session,
+                fh.read(),
+                filename="ross-headshot.jpg",
+                mime_type="image/jpeg",
+                person_id=ROSS_ID,
+                uploaded_by=TYLER_ID,
+                title="Ross portrait",
+                caption="Ross portrait",
+            )
+        ross.photo_url = ross_media.id
 
         admin_session = await create_session(
             session,

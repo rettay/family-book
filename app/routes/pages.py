@@ -31,6 +31,13 @@ from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
 from app.backup.service import get_backup_health
 from app.services.revision_service import list_revisions
+from app.services.media_queries import (
+    can_upload_media_for_person,
+    list_gallery_media,
+    list_gallery_people,
+    list_media_for_person,
+    serialize_media_item,
+)
 from app.services.theme_service import get_runtime_theme_from_app
 
 router = APIRouter(tags=["pages"])
@@ -172,6 +179,51 @@ async def map_page(
         current_user,
         active_page="map",
     ))
+
+
+@router.get("/gallery", response_class=HTMLResponse)
+async def gallery_page(
+    request: Request,
+    media_type: str | None = Query(None),
+    person_id: str | None = Query(None),
+    uploader_id: str | None = Query(None),
+    date_from: str | None = Query(None),
+    date_to: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    gallery_people = await list_gallery_people(db, current_user)
+    gallery_page_result = await list_gallery_media(
+        db,
+        current_user,
+        media_type=media_type,
+        person_id=person_id,
+        uploader_id=uploader_id,
+        date_from=date_from,
+        date_to=date_to,
+        page=page,
+    )
+    media_items = [await serialize_media_item(db, media) for media in gallery_page_result.items]
+    return templates.TemplateResponse(
+        "gallery.html",
+        _ctx(
+            request,
+            current_user,
+            active_page="gallery",
+            media_list=media_items,
+            gallery_page=gallery_page_result,
+            render_load_more_oob=False,
+            gallery_people=gallery_people,
+            gallery_filters={
+                "media_type": media_type or "",
+                "person_id": person_id or "",
+                "uploader_id": uploader_id or "",
+                "date_from": date_from or "",
+                "date_to": date_to or "",
+            },
+        ),
+    )
 
 
 # ─── People ───────────────────────────────────────────────────────
@@ -451,31 +503,61 @@ async def partial_media_gallery(
     db: AsyncSession = Depends(get_db),
 ):
     """HTMX partial: media gallery for person page."""
-    person_result = await db.execute(select(Person).where(Person.id == person_id))
-    person = person_result.scalar_one_or_none()
-    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+    person, media_list = await list_media_for_person(db, current_user, person_id)
+    if not person:
         return HTMLResponse("")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
         return HTMLResponse("")
-
-    result = await db.execute(
-        select(Media).order_by(Media.created_at.desc())
-    )
-    media_list = []
-    for media in result.scalars().all():
-        if media.person_id != person_id and person_id not in media.tagged_person_ids:
-            continue
-        if not await can_view_media(db, current_user, media):
-            continue
-        media_list.append(media)
-    can_upload = can_manage_person(current_user, person)
+    can_upload = can_upload_media_for_person(current_user, person)
 
     return templates.TemplateResponse("partials/media_gallery.html", _ctx(
         request, current_user, media_list=media_list,
         can_upload=can_upload, person_id=person_id,
         person_photo_url=person.photo_url,
     ))
+
+
+@router.get("/partials/global-gallery", response_class=HTMLResponse)
+async def partial_global_gallery(
+    request: Request,
+    media_type: str | None = Query(None),
+    person_id: str | None = Query(None),
+    uploader_id: str | None = Query(None),
+    date_from: str | None = Query(None),
+    date_to: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    gallery_page_result = await list_gallery_media(
+        db,
+        current_user,
+        media_type=media_type,
+        person_id=person_id,
+        uploader_id=uploader_id,
+        date_from=date_from,
+        date_to=date_to,
+        page=page,
+    )
+    media_items = [await serialize_media_item(db, media) for media in gallery_page_result.items]
+    return templates.TemplateResponse(
+        "partials/global_gallery_items.html",
+        _ctx(
+            request,
+            current_user,
+            media_list=media_items,
+            gallery_page=gallery_page_result,
+            render_load_more_oob=True,
+            gallery_filters={
+                "media_type": media_type or "",
+                "person_id": person_id or "",
+                "uploader_id": uploader_id or "",
+                "date_from": date_from or "",
+                "date_to": date_to or "",
+            },
+        ),
+    )
 
 
 @router.get("/partials/audit-log", response_class=HTMLResponse)

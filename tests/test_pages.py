@@ -89,6 +89,18 @@ async def test_map_page_exposes_google_maps_provider_when_configured(
 
 
 @pytest.mark.asyncio
+async def test_gallery_page_renders_filters_and_nav_link(member_client: AsyncClient):
+    resp = await member_client.get("/gallery")
+
+    assert resp.status_code == 200
+    assert 'action="/gallery"' in resp.text
+    assert 'name="media_type"' in resp.text
+    assert 'name="person_id"' in resp.text
+    assert 'name="uploader_id"' in resp.text
+    assert 'class="nav__link nav__link--active"' in resp.text
+
+
+@pytest.mark.asyncio
 async def test_admin_page_reports_resend_delivery_mode(
     admin_client: AsyncClient,
     monkeypatch,
@@ -163,6 +175,41 @@ async def test_admin_tree_person_card_renders_relationship_cards_with_maintenanc
     assert "editTreeRelationship(" in resp.text
     assert 'data-tree-relationship-edit-form="parent"' in resp.text
     assert 'id="tree-graph-mode-banner"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_wiki_person_page_renders_media_gallery_section_when_media_exists(
+    admin_client: AsyncClient,
+    tmp_path,
+    monkeypatch,
+):
+    from app.config import Settings
+    from tests.test_media import _make_test_image
+
+    settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+    monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+    create_resp = await admin_client.post(
+        "/api/persons",
+        json={"first_name": "Gallery", "last_name": "Person"},
+    )
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+    person_slug = create_resp.json()["slug"]
+
+    image_data = _make_test_image()
+    upload_resp = await admin_client.post(
+        "/api/media",
+        data={"person_id": person_id},
+        files={"file": ("wiki-photo.jpg", image_data, "image/jpeg")},
+    )
+    assert upload_resp.status_code == 201
+
+    resp = await admin_client.get(f"/wiki/{person_slug}")
+
+    assert resp.status_code == 200
+    assert 'id="person-media-gallery"' in resp.text
+    assert 'id="person-media"' in resp.text
+    assert 'Photos' in resp.text
 
 
 @pytest.mark.asyncio

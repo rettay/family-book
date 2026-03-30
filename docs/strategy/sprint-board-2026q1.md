@@ -1,22 +1,54 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Next Sprint Candidate
+## Current Sprint
 
 ### `S34 - Media Polish and Platform Completeness`
 
-Status: Candidate
+Status: In Progress
 
-Items rolled forward from S33:
-- Global `/gallery` page with type/person/date filters and HTMX pagination
-- Pre-upload metadata panel (title, description, taken_at, person tags)
-- Upload progress bars (XHR wiring exists, UI pending)
-- Variant backfill for existing media
-- Auto-purge lifecycle for hidden media >90 days
+### Sprint Goal
 
-Additional candidates:
-- FB-031 Research Tools UX Overhaul
-- G-11 Fan Chart
-- G-12 Duplicate Detection
+Fix tree headshot rendering so uploaded photos display reliably on tree nodes, make the headshot action and gallery discoverable from the tree sidebar, add pre-upload metadata entry with progress bars, and build the global family gallery with variant backfill for existing media.
+
+### Why This Sprint Next
+
+Users have uploaded photos but the tree still shows empty circles — this is a trust-breaking bug that undermines the value of media contribution. The headshot action and gallery are technically implemented but not reachable from the tree sidebar where most interaction happens. Fixing these user-facing gaps is higher priority than new features.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 61 | FB-061 | Tree Headshot Rendering and Gallery Access | P0 | todo |
+| 62 | FB-062 | Upload Metadata Panel and Progress Bars | P1 | todo |
+| 63 | FB-063 | Global Family Gallery and Variant Backfill | P1 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S34-1 | Fix tree headshot rendering, sidebar headshot action, gallery link | todo |
+| S34-2 | Pre-upload metadata panel, progress bars | todo |
+| S34-3 | Global /gallery page, variant backfill | todo |
+
+### Sprint Exit Criteria
+
+- persons with photo_url show their headshot on tree node circles, not empty circles
+- if an image fails to load, the tree node shows initials as fallback
+- the tree sidebar media tab has a "Set as headshot" button on each image
+- clicking "Set as headshot" updates the tree node immediately
+- the tree sidebar links to the person's full media gallery
+- uploaders can add title, description, date, and person tags before confirming an upload
+- large file uploads show per-file progress bars
+- a global /gallery page exists with type, person, date, and uploader filters
+- variant backfill command generates missing variants for pre-existing media
+- i18n parity maintained across en, es, ru, it, zh
+
+### Context
+
+- Packet files:
+  - `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md`
+  - `task_packets/FB-062_upload_metadata_and_progress.md`
+  - `task_packets/FB-063_global_gallery_and_variant_backfill.md`
 
 ---
 

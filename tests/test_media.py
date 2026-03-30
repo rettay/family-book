@@ -1,5 +1,6 @@
 """Tests for Media API — upload, serve, dedup, auth gate, thumbnails."""
 import io
+import os
 
 from PIL import Image
 
@@ -125,6 +126,34 @@ class TestMediaUpload:
         body = resp.json()
         assert body["tagged_person_ids"] == ["member-00-0000-0000-000000000005"]
         assert body["tagged_people"][0]["id"] == "member-00-0000-0000-000000000005"
+
+    async def test_upload_persists_title_description_and_taken_date(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        resp = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": ADMIN_ID,
+                "title": "Family picnic",
+                "description": "Lunch by the lake",
+                "taken_at": "2024-07-04",
+            },
+            files={"file": ("metadata.jpg", image_data, "image/jpeg")},
+        )
+        assert resp.status_code == 201
+        media_id = resp.json()["id"]
+
+        metadata_resp = await admin_client.get(f"/api/media/{media_id}")
+        assert metadata_resp.status_code == 200
+        body = metadata_resp.json()
+        assert body["title"] == "Family picnic"
+        assert body["description"] == "Lunch by the lake"
+        assert body["taken_date"] == "2024-07-04"
 
 
 class TestMediaDedup:
@@ -406,6 +435,45 @@ class TestMediaMetadata:
         assert resp.status_code == 200
         assert all(item["id"] != upload_resp.json()["id"] for item in resp.json())
 
+    async def test_gallery_api_filters_by_type_person_and_uploader(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        pdf_data = b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF"
+
+        tagged_upload = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": ADMIN_ID,
+                "tagged_person_ids": '["member-00-0000-0000-000000000005"]',
+            },
+            files={"file": ("gallery-photo.jpg", image_data, "image/jpeg")},
+        )
+        assert tagged_upload.status_code == 201
+
+        doc_upload = await admin_client.post(
+            "/api/media",
+            data={"person_id": "member-00-0000-0000-000000000005"},
+            files={"file": ("notes.pdf", pdf_data, "application/pdf")},
+        )
+        assert doc_upload.status_code == 201
+
+        photo_resp = await admin_client.get("/api/media/gallery?media_type=photo")
+        assert photo_resp.status_code == 200
+        assert len(photo_resp.json()["items"]) == 1
+
+        person_resp = await admin_client.get("/api/media/gallery?person_id=member-00-0000-0000-000000000005")
+        assert person_resp.status_code == 200
+        assert len(person_resp.json()["items"]) == 2
+
+        uploader_resp = await admin_client.get(f"/api/media/gallery?uploader_id={ADMIN_ID}")
+        assert uploader_resp.status_code == 200
+        assert len(uploader_resp.json()["items"]) >= 2
+
 
 class TestMediaVisibilityEnforcement:
     """Test that visibility field controls access correctly."""
@@ -573,8 +641,11 @@ class TestMediaVariantGeneration:
         medium_resp = await admin_client.get(f"/api/media/{media_id}/variant/medium")
         assert medium_resp.status_code == 200
 
-    async def test_small_image_skips_medium_variant(self, admin_client, tmp_path, monkeypatch):
+    async def test_small_image_skips_medium_variant(self, admin_client, tmp_path, monkeypatch, session_factory):
+        from app.backfill_variants import _backfill_one_media
+        from app.models.media import Media
         from app.config import Settings
+        from sqlalchemy import select
         settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
         monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
         monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
@@ -599,3 +670,49 @@ class TestMediaVariantGeneration:
         # Medium should NOT exist (image already ≤800px)
         medium_path = os.path.join(variant_dir, "medium.jpg")
         assert not os.path.isfile(medium_path), "Medium variant should be skipped for small images"
+
+        async with session_factory() as session:
+            stored_media = (
+                await session.execute(select(Media).where(Media.id == media_id))
+            ).scalar_one()
+
+        media = Media(
+            id=media_id,
+            person_id=ADMIN_ID,
+            file_path=stored_media.file_path,
+            media_type="image",
+            mime_type="image/jpeg",
+        )
+        changed = await _backfill_one_media(media, media_dir=os.path.join(str(tmp_path), "media"), dry_run=False)
+        assert changed is False, "Backfill should be idempotent when only a thumb variant is needed"
+
+    async def test_backfill_variants_recreates_missing_variants(self, admin_client, tmp_path, monkeypatch):
+        from app.backfill_variants import _backfill_one_media
+        from app.models.media import Media
+
+        media_dir = os.path.join(str(tmp_path), "media")
+        os.makedirs(media_dir, exist_ok=True)
+        relative_path = "backfill.jpg"
+        file_path = os.path.join(media_dir, relative_path)
+        with open(file_path, "wb") as fh:
+            fh.write(_make_test_image(width=1200, height=900))
+
+        media = Media(
+            id="backfill-media-1",
+            person_id=ADMIN_ID,
+            file_path=relative_path,
+            media_type="image",
+            mime_type="image/jpeg",
+        )
+        variant_dir = os.path.join(media_dir, "variants", media.id)
+        thumb_path = os.path.join(variant_dir, "thumb.jpg")
+        medium_path = os.path.join(variant_dir, "medium.jpg")
+
+        dry_run_changed = await _backfill_one_media(media, media_dir=media_dir, dry_run=True)
+        assert dry_run_changed is True
+        assert not os.path.exists(thumb_path)
+
+        changed = await _backfill_one_media(media, media_dir=media_dir, dry_run=False)
+        assert changed is True
+        assert os.path.isfile(thumb_path)
+        assert os.path.isfile(medium_path)

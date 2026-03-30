@@ -20,6 +20,7 @@ from app.access_control import get_person_access, can_manage_person
 from app.services.wiki_service import assemble_wiki_sections
 from app.services.revision_service import serialize_person_snapshot, record_revision
 from app.services.sanitization import RICH_TEXT_FIELDS as _RICH_TEXT_FIELDS, sanitize_html
+from app.services.media_queries import can_upload_media_for_person, list_media_for_person
 from app.services.theme_service import get_runtime_theme_from_app
 from pydantic import ValidationError
 from app.schemas import EducationEntry, CareerEntry, OrganizationEntry
@@ -116,6 +117,7 @@ async def wiki_person(
 
     sections = await assemble_wiki_sections(db, person, current_user)
     can_edit = access.can_manage
+    _, media_list = await list_media_for_person(db, current_user, person.id)
 
     return templates.TemplateResponse("wiki_person.html", _ctx(
         request,
@@ -124,6 +126,10 @@ async def wiki_person(
         person=person,
         sections=sections,
         can_edit=can_edit,
+        media_list=media_list,
+        person_id=person.id,
+        can_upload=can_upload_media_for_person(current_user, person),
+        person_photo_url=person.photo_url,
     ))
 
 
