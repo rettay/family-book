@@ -259,7 +259,15 @@
     "purpose": "Назначение",
     "purpose_memory": "Воспоминание",
     "purpose_document": "Документ",
-    "purpose_evidence": "Свидетельство"
+    "purpose_evidence": "Свидетельство",
+    "photos": "Фотографии",
+    "videos": "Видео",
+    "recordings": "Записи",
+    "documents": "Документы",
+    "no_media": "Нет медиафайлов",
+    "upload": "Загрузить",
+    "set_headshot": "Установить как фото профиля",
+    "headshot_updated": "Фото профиля обновлено"
   },
   "relationships": {
     "parents": "Родители",

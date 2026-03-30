@@ -259,7 +259,15 @@
     "purpose": "Purpose",
     "purpose_memory": "Memory",
     "purpose_document": "Document",
-    "purpose_evidence": "Evidence"
+    "purpose_evidence": "Evidence",
+    "photos": "Photos",
+    "videos": "Videos",
+    "recordings": "Recordings",
+    "documents": "Documents",
+    "no_media": "No media yet",
+    "upload": "Upload",
+    "set_headshot": "Set as headshot",
+    "headshot_updated": "Headshot updated"
   },
   "relationships": {
     "parents": "Parents",

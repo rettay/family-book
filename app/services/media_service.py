@@ -1,6 +1,9 @@
 import hashlib
+import json
+import logging
 import os
 import shutil
+import subprocess
 import uuid
 from io import BytesIO
 
@@ -11,6 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.models.media import Media, MediaSource, MediaType
 
+logger = logging.getLogger(__name__)
+
 ALLOWED_MIME_TYPES = {
     "image/jpeg", "image/png", "image/webp", "image/gif",
     "video/mp4", "video/quicktime", "video/webm",
@@ -20,15 +25,19 @@ ALLOWED_MIME_TYPES = {
 }
 
 IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+VIDEO_MIME_TYPES = {"video/mp4", "video/quicktime", "video/webm"}
+AUDIO_MIME_TYPES = {"audio/opus", "audio/mp3", "audio/m4a", "audio/ogg", "audio/mpeg"}
 
 MAX_SIZE_BY_CATEGORY = {
     "image": 10 * 1024 * 1024,      # 10 MB
-    "video": 100 * 1024 * 1024,     # 100 MB
+    "video": 250 * 1024 * 1024,     # 250 MB
     "audio": 25 * 1024 * 1024,      # 25 MB
     "document": 50 * 1024 * 1024,   # 50 MB
 }
 
 THUMBNAIL_SIZE = (400, 400)
+THUMB_SIZE = (200, 200)
+MEDIUM_MAX = 800
 
 
 def _category_for_mime(mime_type: str) -> str:
@@ -102,6 +111,143 @@ def get_image_dimensions(data: bytes, mime_type: str) -> tuple[int | None, int |
         return img.width, img.height
     except Exception:
         return None, None
+
+
+def generate_thumb_variant(data: bytes, mime_type: str) -> bytes | None:
+    """Generate a 200x200 square center-crop thumbnail."""
+    if mime_type not in IMAGE_MIME_TYPES:
+        return None
+    try:
+        img = Image.open(BytesIO(data))
+        # Center crop to square
+        w, h = img.size
+        side = min(w, h)
+        left = (w - side) // 2
+        top = (h - side) // 2
+        img = img.crop((left, top, left + side, top + side))
+        img = img.resize(THUMB_SIZE, Image.LANCZOS)
+        clean = Image.new(img.mode, img.size)
+        clean.paste(img)
+        buf = BytesIO()
+        clean.save(buf, format="JPEG", quality=80)
+        return buf.getvalue()
+    except Exception:
+        return None
+
+
+def generate_medium_variant(data: bytes, mime_type: str) -> bytes | None:
+    """Generate a medium variant (max 800px on longest side)."""
+    if mime_type not in IMAGE_MIME_TYPES:
+        return None
+    try:
+        img = Image.open(BytesIO(data))
+        if max(img.size) <= MEDIUM_MAX:
+            return None  # already small enough, no variant needed
+        img.thumbnail((MEDIUM_MAX, MEDIUM_MAX), Image.LANCZOS)
+        clean = Image.new(img.mode, img.size)
+        clean.paste(img)
+        buf = BytesIO()
+        clean.save(buf, format="JPEG", quality=85)
+        return buf.getvalue()
+    except Exception:
+        return None
+
+
+def _save_variant(media_dir: str, media_id: str, variant_name: str, data: bytes) -> None:
+    """Save a variant file to media/variants/{media_id}/{variant_name}.jpg."""
+    variant_dir = os.path.join(media_dir, "variants", media_id)
+    os.makedirs(variant_dir, exist_ok=True)
+    path = os.path.join(variant_dir, f"{variant_name}.jpg")
+    with open(path, "wb") as f:
+        f.write(data)
+
+
+def generate_image_variants(data: bytes, mime_type: str, media_dir: str, media_id: str) -> None:
+    """Generate thumb and medium variants for an image."""
+    thumb = generate_thumb_variant(data, mime_type)
+    if thumb:
+        _save_variant(media_dir, media_id, "thumb", thumb)
+    medium = generate_medium_variant(data, mime_type)
+    if medium:
+        _save_variant(media_dir, media_id, "medium", medium)
+
+
+def extract_audio_duration(file_path: str) -> float | None:
+    """Extract audio duration in seconds using mutagen."""
+    try:
+        import mutagen
+        audio = mutagen.File(file_path)
+        if audio and audio.info and hasattr(audio.info, "length"):
+            return round(audio.info.length, 2)
+    except Exception:
+        logger.debug("Could not extract audio duration from %s", file_path, exc_info=True)
+    return None
+
+
+def extract_video_metadata(file_path: str) -> tuple[float | None, int | None, int | None]:
+    """Extract video duration, width, height using ffprobe. Returns (duration, width, height)."""
+    try:
+        result = subprocess.run(
+            [
+                "ffprobe", "-v", "quiet", "-print_format", "json",
+                "-show_format", "-show_streams", file_path,
+            ],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode != 0:
+            return None, None, None
+        info = json.loads(result.stdout)
+        duration = None
+        width = None
+        height = None
+        if "format" in info and "duration" in info["format"]:
+            duration = round(float(info["format"]["duration"]), 2)
+        for stream in info.get("streams", []):
+            if stream.get("codec_type") == "video":
+                width = stream.get("width")
+                height = stream.get("height")
+                if not duration and "duration" in stream:
+                    duration = round(float(stream["duration"]), 2)
+                break
+        return duration, width, height
+    except Exception:
+        logger.debug("Could not extract video metadata from %s", file_path, exc_info=True)
+    return None, None, None
+
+
+def generate_video_poster(file_path: str, media_dir: str, media_id: str) -> bool:
+    """Extract first frame of video as poster image using ffmpeg. Returns True on success."""
+    try:
+        poster_path = os.path.join(media_dir, "variants", media_id, "poster.jpg")
+        os.makedirs(os.path.dirname(poster_path), exist_ok=True)
+        result = subprocess.run(
+            [
+                "ffmpeg", "-i", file_path, "-vframes", "1",
+                "-vf", "scale='min(800,iw)':-2",
+                "-q:v", "3", "-y", poster_path,
+            ],
+            capture_output=True, timeout=30,
+        )
+        return result.returncode == 0 and os.path.isfile(poster_path)
+    except Exception:
+        logger.debug("Could not generate video poster for %s", file_path, exc_info=True)
+    return False
+
+
+def get_variant_path(media_id: str, variant: str, data_dir: str | None = None) -> str | None:
+    """Return the filesystem path for a variant, or None if it doesn't exist."""
+    if data_dir is None:
+        data_dir = get_settings().resolved_data_dir
+    # Check new variants directory first
+    path = os.path.join(data_dir, "media", "variants", media_id, f"{variant}.jpg")
+    if os.path.isfile(path):
+        return path
+    # Backward compat: old thumbnails directory for "thumb" variant
+    if variant == "thumb":
+        legacy = os.path.join(data_dir, "media", "thumbnails", f"{media_id}.jpg")
+        if os.path.isfile(legacy):
+            return legacy
+    return None
 
 
 async def check_duplicate(db: AsyncSession, file_hash: str) -> Media | None:
@@ -223,7 +369,7 @@ async def save_media_temp_file(
         data_dir = get_settings().resolved_data_dir
 
     media_id, relative_path, media_dir, file_path = _allocate_media_paths(data_dir, filename)
-    width, height, stored_size = _persist_streamed_media(
+    width, height, stored_size, duration = _persist_streamed_media(
         temp_path=temp_path,
         mime_type=mime_type,
         file_path=file_path,
@@ -243,6 +389,7 @@ async def save_media_temp_file(
         caption=caption,
         uploaded_by=uploaded_by,
         tagged_person_ids=tagged_person_ids,
+        duration_seconds=duration,
     )
     db.add(media)
     await db.flush()
@@ -293,7 +440,7 @@ def _persist_streamed_media(
     file_path: str,
     media_dir: str,
     media_id: str,
-) -> tuple[int | None, int | None, int]:
+) -> tuple[int | None, int | None, int, float | None]:
     try:
         if mime_type.startswith("image/"):
             return _persist_temp_image(
@@ -304,7 +451,16 @@ def _persist_streamed_media(
                 media_id=media_id,
             )
         shutil.move(temp_path, file_path)
-        return None, None, os.path.getsize(file_path)
+        stored_size = os.path.getsize(file_path)
+        width, height, duration = None, None, None
+
+        if mime_type in VIDEO_MIME_TYPES:
+            duration, width, height = extract_video_metadata(file_path)
+            generate_video_poster(file_path, media_dir, media_id)
+        elif mime_type in AUDIO_MIME_TYPES:
+            duration = extract_audio_duration(file_path)
+
+        return width, height, stored_size, duration
     except Exception:
         if os.path.exists(temp_path):
             os.unlink(temp_path)
@@ -325,6 +481,7 @@ def _build_media_record(
     caption: str | None,
     uploaded_by: str,
     tagged_person_ids: list[str] | None,
+    duration_seconds: float | None = None,
 ) -> Media:
     media = Media(
         id=media_id,
@@ -335,6 +492,7 @@ def _build_media_record(
         mime_type=mime_type,
         width=width,
         height=height,
+        duration_seconds=duration_seconds,
         file_size_bytes=stored_size,
         file_hash=file_hash,
         caption=caption,
@@ -352,13 +510,14 @@ def _persist_temp_image(
     file_path: str,
     media_dir: str,
     media_id: str,
-) -> tuple[int | None, int | None, int]:
+) -> tuple[int | None, int | None, int, None]:
     with open(temp_path, "rb") as temp_file:
         original_data = temp_file.read()
     clean_data = strip_exif(original_data, mime_type)
     with open(file_path, "wb") as output_file:
         output_file.write(clean_data)
 
+    # Legacy thumbnail (backward compat)
     thumb_data = generate_thumbnail(clean_data, mime_type)
     if thumb_data:
         thumb_dir = os.path.join(media_dir, "thumbnails")
@@ -367,9 +526,12 @@ def _persist_temp_image(
         with open(thumb_path, "wb") as thumb_file:
             thumb_file.write(thumb_data)
 
+    # New variants (thumb 200x200 crop + medium 800px)
+    generate_image_variants(clean_data, mime_type, media_dir, media_id)
+
     width, height = get_image_dimensions(clean_data, mime_type)
     os.unlink(temp_path)
-    return width, height, len(clean_data)
+    return width, height, len(clean_data), None
 
 
 def delete_media_files(media: Media, data_dir: str | None = None) -> None:
@@ -381,6 +543,12 @@ def delete_media_files(media: Media, data_dir: str | None = None) -> None:
         if os.path.isfile(file_path):
             os.unlink(file_path)
 
+    # Legacy thumbnail
     thumb_path = os.path.join(data_dir, "media", "thumbnails", f"{media.id}.jpg")
     if os.path.isfile(thumb_path):
         os.unlink(thumb_path)
+
+    # Variant directory
+    variant_dir = os.path.join(data_dir, "media", "variants", media.id)
+    if os.path.isdir(variant_dir):
+        shutil.rmtree(variant_dir, ignore_errors=True)

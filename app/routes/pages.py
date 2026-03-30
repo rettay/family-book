@@ -474,6 +474,7 @@ async def partial_media_gallery(
     return templates.TemplateResponse("partials/media_gallery.html", _ctx(
         request, current_user, media_list=media_list,
         can_upload=can_upload, person_id=person_id,
+        person_photo_url=person.photo_url,
     ))
 
 

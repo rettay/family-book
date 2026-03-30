@@ -259,7 +259,15 @@
     "purpose": "Propósito",
     "purpose_memory": "Recuerdo",
     "purpose_document": "Documento",
-    "purpose_evidence": "Evidencia"
+    "purpose_evidence": "Evidencia",
+    "photos": "Fotos",
+    "videos": "Videos",
+    "recordings": "Grabaciones",
+    "documents": "Documentos",
+    "no_media": "Sin archivos multimedia",
+    "upload": "Subir",
+    "set_headshot": "Usar como foto de perfil",
+    "headshot_updated": "Foto de perfil actualizada"
   },
   "relationships": {
     "parents": "Padres",

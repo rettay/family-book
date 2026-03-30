@@ -162,3 +162,21 @@ Implications:
 - tree relationship cards should expose explicit `edit`, `reverse direction`, and `remove` actions where they make sense
 - parent-child reversal must be validated server-side against ancestry cycles rather than implemented as a fragile client-side delete/recreate sequence
 - relationship correction should happen in the tree workspace, since the tree is the primary editing surface
+
+### 23. Media management uses per-item visibility and soft-delete
+
+Family media (photos, videos, audio, documents) is the most emotionally valuable content in the archive. The media system uses:
+
+- Per-media `visibility` field (family/private/hidden) enforced at all serving endpoints
+- Non-admin deletion is always soft (sets visibility=hidden, files preserved on disk)
+- Admin deletion is permanent (files removed, DB record deleted)
+- Image uploads generate thumb (200x200 crop) and medium (800px max) variants for gallery performance
+- Video/audio metadata (duration, dimensions) extracted at upload time via ffmpeg/mutagen
+- Primary headshot managed via `Person.photo_url` pointing to a media ID, settable from gallery
+
+Implications:
+
+- all media serving endpoints must check visibility before returning files
+- soft-deleted media is recoverable by admins via moderation queue
+- gallery thumbnails use variant endpoints, not original files, for performance
+- local filesystem storage is sufficient for a single-family app; cloud migration deferred until scale requires it

@@ -115,11 +115,35 @@ async def can_view_media(
     current_user: Person,
     media: Media,
 ) -> bool:
+    # Admin can see everything including hidden
+    if current_user.is_admin:
+        return True
+    # Hidden media only visible to admins
+    if getattr(media, "visibility", "family") == "hidden":
+        return False
+    # Private media only visible to uploader
+    if getattr(media, "visibility", "family") == "private":
+        return media.uploaded_by == current_user.id
+    # Family visibility — check person-level access
     result = await db.execute(select(Person).where(Person.id == media.person_id))
     person = result.scalar_one_or_none()
     if not person:
         return False
     return (await get_person_access(db, current_user, person)).can_view
+
+
+def can_edit_media(current_user: Person, media: Media) -> bool:
+    """Uploader or admin can edit media metadata."""
+    if current_user.is_admin:
+        return True
+    return media.uploaded_by == current_user.id
+
+
+def can_soft_delete_media(current_user: Person, media: Media) -> bool:
+    """Uploader or admin can soft-delete."""
+    if current_user.is_admin:
+        return True
+    return media.uploaded_by == current_user.id
 
 
 def redact_person_detail(person: Person, access: PersonAccess) -> PersonDetail:

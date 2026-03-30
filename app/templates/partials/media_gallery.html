@@ -1,56 +1,135 @@
-{% if media_list %}
-<div class="media-gallery">
-  {% for m in media_list %}
-  {% if m.purpose is defined and m.purpose and m.purpose != 'memory' %}
-  <span class="media-gallery__purpose-badge">{{ m.purpose | capitalize }}</span>
-  {% endif %}
-  {% if m.media_type == 'video' %}
-  <div class="media-gallery__item media-gallery__item--video">
-    <button type="button" class="media-gallery__video-thumb" onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or "Family media")|tojson }}, "video")'>
-      <img src="/api/media/{{ m.id }}/thumbnail" alt="{{ m.caption or 'Family media' }}" loading="lazy"
-           onerror="this.src='/api/media/{{ m.id }}/file'">
-      <span class="media-gallery__play-icon" aria-hidden="true">&#9654;</span>
-    </button>
-  </div>
-  {% elif m.media_type == 'audio' %}
-  <div class="media-gallery__item media-gallery__item--audio">
-    <div class="media-gallery__audio-label">&#9835; {{ m.caption or m.original_filename or 'Audio' }}</div>
-    <audio controls preload="metadata" style="width:100%;">
-      <source src="/api/media/{{ m.id }}/file" type="{{ m.mime_type or 'audio/mpeg' }}">
-    </audio>
-  </div>
-  {% elif m.media_type == 'document' %}
-  <div class="media-gallery__item media-gallery__item--document">
-    <a href="/api/media/{{ m.id }}/file" target="_blank" rel="noopener" class="media-gallery__doc-link">
-      <span class="media-gallery__doc-icon" aria-hidden="true">&#128196;</span>
-      <span>{{ m.caption or m.original_filename or 'Document' }}</span>
-    </a>
-  </div>
-  {% else %}
-  <button type="button" class="media-gallery__item" onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or "Family media")|tojson }})'>
-    <img src="/api/media/{{ m.id }}/thumbnail" alt="{{ m.caption or 'Family media' }}" loading="lazy"
-         onerror="this.src='/api/media/{{ m.id }}/file'">
-  </button>
-  {% endif %}
-  {% endfor %}
-</div>
+{% set photos = media_list | selectattr('media_type', 'in', ['image', 'gif']) | list %}
+{% set videos = media_list | selectattr('media_type', 'equalto', 'video') | list %}
+{% set recordings = media_list | selectattr('media_type', 'equalto', 'audio') | list %}
+{% set documents = media_list | selectattr('media_type', 'equalto', 'document') | list %}
 
 {% if can_upload %}
-<div style="padding:0 16px 8px;">
-  <form id="media-upload-form" style="display:flex; gap:8px; align-items:center;">
-    <input type="file" id="media-upload-file" accept="image/*,video/*,audio/*,.pdf" style="font-size:0.85rem;">
-    <button type="button" class="btn btn--primary btn--sm" onclick="uploadMedia()">Upload</button>
+<div style="padding:0 16px 12px;">
+  <form id="media-upload-form" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+    <input type="file" id="media-upload-file" accept="image/*,video/*,audio/*,.pdf" multiple style="font-size:0.85rem;">
+    <button type="button" class="btn btn--primary btn--sm" onclick="uploadMedia()">{{ t('media.upload') if t else 'Upload' }}</button>
   </form>
 </div>
 {% endif %}
-{% else %}
+
+{% if not media_list %}
 <div class="empty-state" style="padding:24px;">
-  <p class="text-sm text-muted">No media yet</p>
-  {% if can_upload %}
-  <form style="margin-top:12px; display:flex; gap:8px; align-items:center; justify-content:center;">
-    <input type="file" id="media-upload-file" accept="image/*,video/*,audio/*,.pdf" style="font-size:0.85rem;">
-    <button type="button" class="btn btn--primary btn--sm" onclick="uploadMedia()">Upload</button>
-  </form>
-  {% endif %}
+  <p class="text-sm text-muted">{{ t('media.no_media') if t else 'No media yet' }}</p>
 </div>
+{% else %}
+
+{# ── Photos ── #}
+{% if photos %}
+<details class="media-gallery-section" open>
+  <summary class="media-gallery-section__header">
+    {{ t('media.photos') if t else 'Photos' }}
+    <span class="media-gallery-section__count">{{ photos | length }}</span>
+  </summary>
+  <div class="media-gallery media-gallery--grid">
+    {% for m in photos %}
+    <div class="media-gallery__item">
+      <button type="button" class="media-gallery__thumb-btn"
+              onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or m.description or "Photo")|tojson }})'>
+        <img src="/api/media/{{ m.id }}/variant/thumb" alt="{{ m.caption or m.description or 'Photo' }}" loading="lazy"
+             onerror="this.src='/api/media/{{ m.id }}/thumbnail'">
+      </button>
+      {% if person_id is defined and can_upload %}
+      <button type="button" class="media-gallery__headshot-btn{% if person_photo_url == m.id %} media-gallery__headshot-btn--active{% endif %}"
+              onclick="setHeadshot('{{ person_id }}', '{{ m.id }}')"
+              title="{{ t('media.set_headshot') if t else 'Set as headshot' }}"
+              aria-label="{{ t('media.set_headshot') if t else 'Set as headshot' }}">
+        &#9733;
+      </button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</details>
 {% endif %}
+
+{# ── Videos ── #}
+{% if videos %}
+<details class="media-gallery-section" open>
+  <summary class="media-gallery-section__header">
+    {{ t('media.videos') if t else 'Videos' }}
+    <span class="media-gallery-section__count">{{ videos | length }}</span>
+  </summary>
+  <div class="media-gallery media-gallery--grid">
+    {% for m in videos %}
+    <div class="media-gallery__item media-gallery__item--video">
+      <button type="button" class="media-gallery__thumb-btn"
+              onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or m.description or "Video")|tojson }}, "video")'>
+        <img src="/api/media/{{ m.id }}/variant/poster" alt="{{ m.caption or 'Video' }}" loading="lazy"
+             onerror="this.src='/api/media/{{ m.id }}/thumbnail'">
+        <span class="media-gallery__play-icon" aria-hidden="true">&#9654;</span>
+      </button>
+      {% if m.duration_seconds %}<span class="media-gallery__duration">{{ (m.duration_seconds // 60) | int }}:{{ '%02d' | format((m.duration_seconds % 60) | int) }}</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</details>
+{% endif %}
+
+{# ── Recordings ── #}
+{% if recordings %}
+<details class="media-gallery-section" open>
+  <summary class="media-gallery-section__header">
+    {{ t('media.recordings') if t else 'Recordings' }}
+    <span class="media-gallery-section__count">{{ recordings | length }}</span>
+  </summary>
+  <div class="media-gallery media-gallery--list">
+    {% for m in recordings %}
+    <div class="media-gallery__item media-gallery__item--audio">
+      <div class="media-gallery__audio-row">
+        <span class="media-gallery__audio-icon" aria-hidden="true">&#9835;</span>
+        <span class="media-gallery__audio-title">{{ m.title or m.caption or m.original_filename or 'Audio' }}</span>
+        {% if m.duration_seconds %}<span class="media-gallery__duration">{{ (m.duration_seconds // 60) | int }}:{{ '%02d' | format((m.duration_seconds % 60) | int) }}</span>{% endif %}
+      </div>
+      <audio controls preload="metadata" style="width:100%;">
+        <source src="/api/media/{{ m.id }}/file" type="{{ m.mime_type or 'audio/mpeg' }}">
+      </audio>
+    </div>
+    {% endfor %}
+  </div>
+</details>
+{% endif %}
+
+{# ── Documents ── #}
+{% if documents %}
+<details class="media-gallery-section" open>
+  <summary class="media-gallery-section__header">
+    {{ t('media.documents') if t else 'Documents' }}
+    <span class="media-gallery-section__count">{{ documents | length }}</span>
+  </summary>
+  <div class="media-gallery media-gallery--list">
+    {% for m in documents %}
+    <div class="media-gallery__item media-gallery__item--document">
+      <a href="/api/media/{{ m.id }}/file" target="_blank" rel="noopener" class="media-gallery__doc-link">
+        <span class="media-gallery__doc-icon" aria-hidden="true">&#128196;</span>
+        <span>{{ m.title or m.caption or m.original_filename or 'Document' }}</span>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</details>
+{% endif %}
+
+{% endif %}
+
+<script>
+function setHeadshot(personId, mediaId) {
+  fetch('/api/persons/' + personId, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ photo_url: mediaId })
+  }).then(function(resp) {
+    if (resp.ok) {
+      document.querySelectorAll('.media-gallery__headshot-btn--active').forEach(function(btn) {
+        btn.classList.remove('media-gallery__headshot-btn--active');
+      });
+      event.target.closest('.media-gallery__headshot-btn')?.classList.add('media-gallery__headshot-btn--active');
+      if (typeof showToast === 'function') showToast('Headshot updated');
+    }
+  });
+}
+</script>

@@ -1,9 +1,50 @@
 # Family Book Backlog
 
-Sprint: `S32 - Person Details Enhancement`
-Status: In Progress
+Sprint: `S34 - Media Polish and Platform Completeness`
+Status: Candidate
 
-## Current Sprint `S32 - Person Details Enhancement`
+## Planned Sprint `S34 - Media Polish and Platform Completeness`
+
+Sprint goal:
+- Complete deferred media items from S33 (global gallery page, pre-upload metadata panel, variant backfill, upload progress bars) and address broader platform completeness (research UX, fan chart, duplicate detection).
+
+Candidate packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-061 | Global Family Gallery Page | P2 | candidate | — |
+| FB-062 | Pre-Upload Metadata Panel and Progress Bars | P2 | candidate | — |
+| FB-063 | Variant Backfill for Existing Media | P3 | candidate | — |
+| FB-031 | Research Tools UX Overhaul | P1 | candidate | `task_packets/FB-031_research_tools_ux_overhaul.md` |
+
+Deferred items rolled forward from S33:
+- Global `/gallery` top-level page with type/person/date filters and pagination
+- Pre-upload metadata panel (title, description, taken_at, person tags before confirm)
+- Upload progress bars with intermediate XHR updates
+- Variant backfill script for existing media (legacy thumbnails → new variants)
+- Auto-purge lifecycle policy for hidden media >90 days
+
+## Closed Sprint `S33 - Media Management Enhancement`
+
+Sprint goal:
+- Make family media a trustworthy, organized archive by adding image variants, video/audio metadata extraction, per-person gallery sections with headshot management, enhanced upload experience, and soft-delete with visibility controls.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-057 | Media Data Model and Variant Pipeline | P0 | done | `task_packets/FB-057_media_data_model_and_variant_pipeline.md` |
+| FB-058 | Media Gallery and Headshot Management | P1 | done | `task_packets/FB-058_media_gallery_and_headshot_management.md` |
+| FB-059 | Media Upload Experience Enhancement | P1 | done | `task_packets/FB-059_media_upload_experience_enhancement.md` |
+| FB-060 | Media Soft Delete and Access Control | P1 | done | `task_packets/FB-060_media_soft_delete_and_access_control.md` |
+
+Execution slices:
+- `S33-1` Data model: new columns, variant generation, audio/video metadata extraction
+- `S33-2` Gallery: per-person type sections, headshot management, lightbox improvements
+- `S33-3` Upload: multi-file, progress indication, metadata entry, person tagging
+- `S33-4` Access control: visibility field, soft delete, admin moderation queue
+
+## Closed Sprint `S32 - Person Details Enhancement`
 
 Sprint goal:
 - Upgrade person edit form to multi-value contact fields, structured addresses with Places auto-population, inline rich-text bio editing, and ISO 639-1 controlled language vocabulary.
@@ -12,10 +53,10 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-053 | Person Contact and Identity Data Model Enhancement | P0 | todo | `task_packets/FB-053_person_contact_and_identity_data_model_enhancement.md` |
-| FB-054 | Multi-Value Contact and Social Edit UX | P1 | todo | `task_packets/FB-054_multi_value_contact_and_social_edit_ux.md` |
-| FB-055 | Structured Addresses and Places Auto-Population | P1 | todo | `task_packets/FB-055_structured_addresses_and_places_auto_population.md` |
-| FB-056 | Person Edit Form Polish and Bio Integration | P1 | todo | `task_packets/FB-056_person_edit_form_polish_and_bio_integration.md` |
+| FB-053 | Person Contact and Identity Data Model Enhancement | P0 | done | `task_packets/FB-053_person_contact_and_identity_data_model_enhancement.md` |
+| FB-054 | Multi-Value Contact and Social Edit UX | P1 | done | `task_packets/FB-054_multi_value_contact_and_social_edit_ux.md` |
+| FB-055 | Structured Addresses and Places Auto-Population | P1 | done | `task_packets/FB-055_structured_addresses_and_places_auto_population.md` |
+| FB-056 | Person Edit Form Polish and Bio Integration | P1 | done | `task_packets/FB-056_person_edit_form_polish_and_bio_integration.md` |
 
 Execution slices:
 - `S32-1` Data model: new columns, Pydantic sub-models, migration, API handling

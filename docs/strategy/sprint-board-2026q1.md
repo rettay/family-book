@@ -1,10 +1,121 @@
 # Family Book Sprint Board - 2026 Q1
 
-## Current Sprint
+## Next Sprint Candidate
+
+### `S34 - Media Polish and Platform Completeness`
+
+Status: Candidate
+
+Items rolled forward from S33:
+- Global `/gallery` page with type/person/date filters and HTMX pagination
+- Pre-upload metadata panel (title, description, taken_at, person tags)
+- Upload progress bars (XHR wiring exists, UI pending)
+- Variant backfill for existing media
+- Auto-purge lifecycle for hidden media >90 days
+
+Additional candidates:
+- FB-031 Research Tools UX Overhaul
+- G-11 Fan Chart
+- G-12 Duplicate Detection
+
+---
+
+## Closed Sprint
+
+### `S33 - Media Management Enhancement`
+
+Status: Closed
+
+### Sprint Goal
+
+Make family media a trustworthy, organized archive by adding image variants and video/audio metadata extraction, building type-organized per-person galleries with headshot management, enhancing the upload experience with multi-file support and progress indication, and implementing soft-delete with visibility controls and admin moderation.
+
+### Why This Sprint Next
+
+Media is the most emotionally valuable content in a family archive — photos, videos, and voice recordings are irreplaceable. The current media system stores files but provides no organized browsing, no recovery from accidental deletion, no progress feedback on large uploads, and no way to set a profile headshot from the gallery. These gaps directly reduce trust and contribution frequency.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 57 | FB-057 | Media Data Model and Variant Pipeline | P0 | todo |
+| 58 | FB-058 | Media Gallery and Headshot Management | P1 | todo |
+| 59 | FB-059 | Media Upload Experience Enhancement | P1 | todo |
+| 60 | FB-060 | Media Soft Delete and Access Control | P1 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S33-1 | Data model: new columns, variant generation, audio/video metadata extraction | todo |
+| S33-2 | Gallery: per-person type sections, headshot management, lightbox improvements | todo |
+| S33-3 | Upload: multi-file, progress indication, metadata entry, person tagging | todo |
+| S33-4 | Access control: visibility field, soft delete, admin moderation queue | todo |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- image uploads generate thumb, medium, and original variants served through authenticated endpoints
+- video uploads have a poster frame thumbnail and extracted duration
+- audio uploads have extracted duration
+- per-person media galleries show type-organized sections with count badges
+- any photo can be set as a person's headshot from the gallery
+- a global /gallery page allows browsing all family media with filters
+- multi-file uploads work with per-file progress indication
+- uploaders can add title, description, and person tags before confirming upload
+- non-admin deletion is soft (visibility = hidden), admin can restore or permanently purge
+- per-media visibility (family/private/hidden) is enforced on all serving endpoints
+- admin moderation queue surfaces recently hidden items
+- all access control table rows are tested with positive and negative assertions
+- i18n parity maintained across en, es, ru, it, zh
+- test and browser baselines remain intact
+
+### Verification Expectations
+
+- Structural lane:
+  - variant generation tested with deterministic assertions
+  - access control table fully covered with per-row tests
+- Rendered-behavior lane:
+  - page-load tests for gallery sections, /gallery page
+  - headshot round-trip via API
+- Visual/persona lane:
+  - `contributing_member` can upload photos and set headshot
+  - `mobile_first_relative` can browse gallery on mobile
+  - `family_admin` can moderate hidden media
+
+### Risks to Watch
+
+- ffmpeg adds Docker image size — must be worth it for poster frames and duration
+- variant backfill for existing media may be needed (on-demand or migration)
+- soft delete changes the mental model of what "delete" means for non-admins
+- multi-file upload with progress requires XMLHttpRequest instead of fetch
+
+### Deferred Beyond S33
+
+| ID | Title | Reason |
+|---|---|---|
+| — | Cloud storage migration (S3/R2) | Premature for a single-family app on Railway |
+| — | PDF page-1 thumbnail | Low priority, PDFs render as icon tiles |
+| — | Face detection / bounding box tags | Future feature, scaffolded but not built |
+| — | Drag-and-drop upload zone | Nice-to-have, standard file picker works |
+| — | Auto-purge lifecycle policy | Needs cron job infrastructure, defer to ops |
+
+### Context
+
+- Packet files:
+  - `task_packets/FB-057_media_data_model_and_variant_pipeline.md`
+  - `task_packets/FB-058_media_gallery_and_headshot_management.md`
+  - `task_packets/FB-059_media_upload_experience_enhancement.md`
+  - `task_packets/FB-060_media_soft_delete_and_access_control.md`
+
+---
+
+## Closed Sprint
 
 ### `S32 - Person Details Enhancement`
 
-Status: In Progress
+Status: Closed
 
 ### Sprint Goal
 

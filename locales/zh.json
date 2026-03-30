@@ -259,7 +259,15 @@
     "purpose": "用途",
     "purpose_memory": "回忆",
     "purpose_document": "文档",
-    "purpose_evidence": "证据"
+    "purpose_evidence": "证据",
+    "photos": "照片",
+    "videos": "视频",
+    "recordings": "录音",
+    "documents": "文档",
+    "no_media": "暂无媒体文件",
+    "upload": "上传",
+    "set_headshot": "设为头像",
+    "headshot_updated": "头像已更新"
   },
   "relationships": {
     "parents": "父母",

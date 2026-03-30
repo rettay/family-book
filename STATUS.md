@@ -133,14 +133,13 @@ Family Book is in **power-user genealogy depth**.
 
 ## Current Priority Order
 
-1. Execute `S31 - Tree Relationship Correction and Repair`
-2. Preserve tree-as-workspace trust by making relationship correction obvious, safe, and reversible
-3. Queue research UX overhaul after the relationship-correction loop is coherent
-4. Keep broader platform completeness behind member-facing data-truth improvements
+1. Complete deferred media and platform items from S33
+2. Queue research UX overhaul and platform completeness after media is settled
+3. Keep broader platform completeness behind member-facing contribution improvements
 
 ## Sprint State
 
-- Recently closed: `S30 - Map Truthfulness and Place Intelligence`
-- In progress: `S31 - Tree Relationship Correction and Repair`
-- Candidate: `S32 - Research UX Overhaul and Test Infrastructure`
+- Recently closed: `S33 - Media Management Enhancement`
+- Recently closed: `S32 - Person Details Enhancement`
+- Candidate: `S34 - Media Polish and Platform Completeness`
 - See `backlog.md`, `docs/strategy/kanban-2026q1.md`, `docs/strategy/sprint-board-2026q1.md`

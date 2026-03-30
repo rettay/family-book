@@ -259,7 +259,15 @@
     "purpose": "Scopo",
     "purpose_memory": "Ricordo",
     "purpose_document": "Documento",
-    "purpose_evidence": "Prova documentale"
+    "purpose_evidence": "Prova documentale",
+    "photos": "Foto",
+    "videos": "Video",
+    "recordings": "Registrazioni",
+    "documents": "Documenti",
+    "no_media": "Nessun file multimediale",
+    "upload": "Carica",
+    "set_headshot": "Imposta come foto profilo",
+    "headshot_updated": "Foto profilo aggiornata"
   },
   "relationships": {
     "parents": "Genitori",

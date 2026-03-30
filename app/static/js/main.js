@@ -264,23 +264,49 @@ function _closeLightbox(lb) {
 }
 
 // Media upload (person profile page)
+var ALLOWED_UPLOAD_TYPES = [
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'video/mp4', 'video/quicktime', 'video/webm',
+  'audio/opus', 'audio/mp3', 'audio/m4a', 'audio/ogg', 'audio/mpeg',
+  'application/pdf'
+];
+
 async function uploadMedia() {
   var fileInput = document.getElementById('media-upload-file');
-  if (!fileInput || !fileInput.files[0]) return showToast('Select a file');
-  var fd = new FormData();
-  fd.append('file', fileInput.files[0]);
-  // Get person_id from URL
+  if (!fileInput || !fileInput.files || !fileInput.files.length) return showToast('Select a file');
+
   var match = window.location.pathname.match(/\/people\/([^/]+)/);
-  if (match) fd.append('person_id', match[1]);
-  var resp = await fetch('/api/media', {method: 'POST', body: fd});
-  if (resp.ok) {
-    showToast('Uploaded');
-    if (match) {
+  var personId = match ? match[1] : null;
+  var files = Array.from(fileInput.files);
+
+  // Client-side type validation
+  for (var i = 0; i < files.length; i++) {
+    if (files[i].type && ALLOWED_UPLOAD_TYPES.indexOf(files[i].type) === -1) {
+      showToast('Unsupported file type: ' + files[i].name);
+      return;
+    }
+  }
+
+  var uploaded = 0;
+  for (var j = 0; j < files.length; j++) {
+    var file = files[j];
+    try {
+      await _uploadSingleFile(file, personId);
+      uploaded++;
+    } catch (err) {
+      showToast('Failed: ' + file.name);
+    }
+  }
+
+  if (uploaded > 0) {
+    showToast('Uploaded ' + uploaded + ' file' + (uploaded > 1 ? 's' : ''));
+    fileInput.value = '';
+    if (personId) {
       var gallery = document.getElementById('person-media');
       if (gallery) {
         gallery.setAttribute('aria-busy', 'true');
         try {
-          var partialResp = await fetch('/partials/media-gallery?person_id=' + encodeURIComponent(match[1]));
+          var partialResp = await fetch('/partials/media-gallery?person_id=' + encodeURIComponent(personId));
           if (partialResp.ok) {
             replaceNodeChildrenFromHTML(gallery, await partialResp.text());
           }
@@ -289,9 +315,21 @@ async function uploadMedia() {
         }
       }
     }
-  } else {
-    showToast('Upload failed');
   }
+}
+
+function _uploadSingleFile(file, personId) {
+  return new Promise(function(resolve, reject) {
+    var fd = new FormData();
+    fd.append('file', file);
+    if (personId) fd.append('person_id', personId);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/media');
+    xhr.onload = function() { xhr.status < 400 ? resolve(xhr.response) : reject(new Error(xhr.statusText)); };
+    xhr.onerror = function() { reject(new Error('Network error')); };
+    xhr.send(fd);
+  });
 }
 
 // Person sidebar (tree page)

@@ -16,6 +16,10 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-057 | Media Data Model and Variant Pipeline | P0 | `task_packets/FB-057_media_data_model_and_variant_pipeline.md` |
+| FB-058 | Media Gallery and Headshot Management | P1 | `task_packets/FB-058_media_gallery_and_headshot_management.md` |
+| FB-059 | Media Upload Experience Enhancement | P1 | `task_packets/FB-059_media_upload_experience_enhancement.md` |
+| FB-060 | Media Soft Delete and Access Control | P1 | `task_packets/FB-060_media_soft_delete_and_access_control.md` |
 | FB-053 | Person Contact and Identity Data Model Enhancement | P0 | `task_packets/FB-053_person_contact_and_identity_data_model_enhancement.md` |
 | FB-054 | Multi-Value Contact and Social Edit UX | P1 | `task_packets/FB-054_multi_value_contact_and_social_edit_ux.md` |
 | FB-055 | Structured Addresses and Places Auto-Population | P1 | `task_packets/FB-055_structured_addresses_and_places_auto_population.md` |

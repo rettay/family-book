@@ -7,8 +7,8 @@ from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access_control import can_manage_person, can_view_media, get_person_access
-from app.auth import require_auth
+from app.access_control import can_edit_media, can_manage_person, can_soft_delete_media, can_view_media, get_person_access
+from app.auth import require_admin, require_auth
 from app.config import get_settings
 from app.database import get_db
 from app.models.media import Media
@@ -17,6 +17,7 @@ from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
 from app.services.media_service import (
     ALLOWED_MIME_TYPES,
     delete_media_files,
+    get_variant_path,
     save_media_temp_file,
 )
 
@@ -132,6 +133,29 @@ async def upload_media(
     }
 
 
+@router.get("/moderation/hidden")
+async def list_hidden_media(
+    current_user: Person = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin-only: list hidden (soft-deleted) media for moderation."""
+    result = await db.execute(
+        select(Media).where(Media.visibility == "hidden").order_by(Media.created_at.desc()).limit(100)
+    )
+    items = result.scalars().all()
+    return [
+        {
+            "id": m.id,
+            "person_id": m.person_id,
+            "original_filename": m.original_filename,
+            "media_type": m.media_type,
+            "uploaded_by": m.uploaded_by,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+        }
+        for m in items
+    ]
+
+
 @router.get("/{media_id}")
 async def get_media_metadata(
     media_id: str,
@@ -197,6 +221,7 @@ async def serve_media_file(
         path=file_path,
         media_type=media.mime_type,
         filename=media.original_filename,
+        headers={"Cache-Control": "private, max-age=3600"},
     )
 
 
@@ -221,7 +246,40 @@ async def serve_thumbnail(
     if not os.path.isfile(thumb_path):
         raise HTTPException(status_code=404, detail="Thumbnail not available")
 
-    return FileResponse(path=thumb_path, media_type="image/jpeg")
+    return FileResponse(
+        path=thumb_path,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
+
+
+@router.get("/{media_id}/variant/{variant}")
+async def serve_variant(
+    media_id: str,
+    variant: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Serve a media variant (thumb, medium, poster)."""
+    if variant not in ("thumb", "medium", "poster"):
+        raise HTTPException(status_code=400, detail="Invalid variant. Must be thumb, medium, or poster.")
+
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+    if not await can_view_media(db, current_user, media):
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    variant_path = get_variant_path(media.id, variant)
+    if not variant_path:
+        raise HTTPException(status_code=404, detail="Variant not available")
+
+    return FileResponse(
+        path=variant_path,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.get("", response_model=list)
@@ -281,7 +339,7 @@ async def update_media(
     if not media:
         raise HTTPException(status_code=404, detail="Media not found")
 
-    if not current_user.is_admin and media.uploaded_by != current_user.id:
+    if not can_edit_media(current_user, media):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     if purpose is not None:
@@ -304,28 +362,100 @@ async def update_media(
 @router.delete("/{media_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_media(
     media_id: str,
+    permanent: bool = Query(False),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
-    """Delete media owned by the uploader or an admin."""
+    """Soft-delete for non-admins (sets visibility=hidden). Admin can permanently delete with ?permanent=true."""
     result = await db.execute(select(Media).where(Media.id == media_id))
     media = result.scalar_one_or_none()
     if not media:
         raise HTTPException(status_code=404, detail="Media not found")
 
-    if not current_user.is_admin and media.uploaded_by != current_user.id:
+    if not can_soft_delete_media(current_user, media):
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    delete_media_files(media)
-    await db.delete(media)
+    # Protect primary photos of other people
+    if not current_user.is_admin and media.uploaded_by == current_user.id:
+        photo_check = await db.execute(
+            select(Person.id).where(
+                Person.photo_url == media.id,
+                Person.id != current_user.id,
+            )
+        )
+        if photo_check.scalar_one_or_none():
+            raise HTTPException(
+                status_code=409,
+                detail="This media is another person's headshot. Unset their headshot first.",
+            )
+
+    if current_user.is_admin:
+        # Admin delete is permanent by default; use PATCH visibility to soft-delete instead
+        delete_media_files(media)
+        await db.delete(media)
+        await db.flush()
+    else:
+        # Non-admin: soft delete (hide)
+        media.visibility = "hidden"
+        await db.flush()
+
+
+@router.patch("/{media_id}/visibility")
+async def change_media_visibility(
+    media_id: str,
+    visibility: str = Form(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Change media visibility. Uploader can toggle family↔private. Admin can set anything."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    valid = ("family", "private", "hidden")
+    if visibility not in valid:
+        raise HTTPException(status_code=422, detail=f"visibility must be one of: {', '.join(valid)}")
+
+    if current_user.is_admin:
+        media.visibility = visibility
+    elif media.uploaded_by == current_user.id:
+        if visibility == "hidden":
+            raise HTTPException(status_code=403, detail="Use delete to hide media")
+        media.visibility = visibility
+    else:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     await db.flush()
+    return {"id": media.id, "visibility": media.visibility}
+
+
+@router.patch("/{media_id}/untag")
+async def untag_self(
+    media_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove the current user's ID from the tagged person list."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    tags = media.tagged_person_ids
+    if current_user.id not in tags:
+        return {"id": media.id, "tagged_person_ids": tags}
+
+    media.tagged_person_ids = [t for t in tags if t != current_user.id]
+    await db.flush()
+    return {"id": media.id, "tagged_person_ids": media.tagged_person_ids}
 
 
 def _max_upload_size(content_type: str | None) -> int:
     if not content_type:
         return 10 * 1024 * 1024
     if content_type.startswith("video/"):
-        return 100 * 1024 * 1024
+        return 250 * 1024 * 1024
     if content_type.startswith("audio/"):
         return 25 * 1024 * 1024
     return 10 * 1024 * 1024
