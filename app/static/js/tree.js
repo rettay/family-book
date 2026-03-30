@@ -3031,22 +3031,6 @@
         sidebarState.activeTab = 'media';
         sidebarState.highlightMediaId = uploads.length ? uploads[uploads.length - 1].id : '';
         await refreshTreeWorkspace(personId);
-        // Wait for the async media load fired by initializeTreeSidebar
-        var mediaContainer = document.getElementById('tree-sidebar-media');
-        if (mediaContainer) {
-          await new Promise(function(resolve) {
-            var checks = 0;
-            (function poll() {
-              if (mediaContainer.getAttribute('aria-busy') !== 'true' && mediaContainer.querySelector('.tree-sidebar-media-item')) {
-                resolve();
-              } else if (checks++ < 50) {
-                setTimeout(poll, 200);
-              } else {
-                resolve();
-              }
-            })();
-          });
-        }
       }
     });
     return false;
