@@ -580,10 +580,10 @@
         var videoThumb = document.createElement('div');
         videoThumb.className = 'tree-sidebar-media-item__video-thumb';
         var thumbImg = document.createElement('img');
-        thumbImg.src = '/api/media/' + media.id + '/thumbnail';
+        thumbImg.src = '/api/media/' + media.id + '/variant/poster';
         thumbImg.alt = media.caption || 'Video';
         thumbImg.loading = 'lazy';
-        thumbImg.onerror = function() { thumbImg.style.display = 'none'; };
+        thumbImg.onerror = function() { thumbImg.src = '/api/media/' + media.id + '/thumbnail'; thumbImg.onerror = function() { thumbImg.style.display = 'none'; }; };
         var playIcon = document.createElement('span');
         playIcon.className = 'tree-sidebar-media-item__play-icon';
         playIcon.textContent = '\u25B6';
@@ -592,11 +592,12 @@
         trigger.appendChild(videoThumb);
       } else {
         var img = document.createElement('img');
-        img.src = '/api/media/' + media.id + '/thumbnail';
+        img.src = '/api/media/' + media.id + '/variant/thumb';
         img.alt = media.caption || 'Family media';
         img.loading = 'lazy';
         img.onerror = function() {
-          img.src = mediaUrl;
+          img.src = '/api/media/' + media.id + '/thumbnail';
+          img.onerror = function() { img.src = mediaUrl; };
         };
         trigger.appendChild(img);
       }
@@ -620,6 +621,27 @@
     actions.appendChild(createMiniAction(root.dataset.openMediaLabel, function() {
       window.location.href = '/api/media/' + media.id + '/file';
     }));
+    // "Set as headshot" button for images
+    if ((mType === 'image' || mType === 'gif') && sidebarState.personId) {
+      var headBtn = document.createElement('button');
+      headBtn.type = 'button';
+      headBtn.className = 'tree-sidebar-mini-action';
+      headBtn.textContent = '\u2605 Headshot';
+      headBtn.title = 'Set as headshot';
+      headBtn.addEventListener('click', function() {
+        fetch('/api/persons/' + sidebarState.personId, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ photo_url: media.id })
+        }).then(function(resp) {
+          if (resp.ok) {
+            showToastMessage(root.dataset.treeMediaUploaded || 'Headshot updated');
+            refreshTreeWorkspace(sidebarState.personId);
+          }
+        });
+      });
+      actions.appendChild(headBtn);
+    }
     item.appendChild(actions);
     return item;
   }
@@ -2148,14 +2170,35 @@
         .attr('id', clipId)
         .append('circle')
         .attr('r', NODE_RADIUS);
-      nodeGroup.append('image')
-        .attr('href', resolvePhotoHref(person.photo_url))
+      var photoHref = resolvePhotoHref(person.photo_url);
+      // Try variant/thumb first for better performance, fall back to original
+      var variantHref = '/api/media/' + person.photo_url + '/variant/thumb';
+      var imgEl = nodeGroup.append('image')
+        .attr('href', variantHref)
         .attr('x', -NODE_RADIUS)
         .attr('y', -NODE_RADIUS)
         .attr('width', NODE_RADIUS * 2)
         .attr('height', NODE_RADIUS * 2)
         .attr('clip-path', 'url(#' + clipId + ')')
         .attr('preserveAspectRatio', 'xMidYMid slice');
+      // Fallback chain: variant/thumb → /file → initials
+      imgEl.on('error', function() {
+        var el = d3.select(this);
+        if (el.attr('href') === variantHref) {
+          el.attr('href', photoHref);
+        } else {
+          // Image completely failed — show initials instead
+          el.remove();
+          nodeGroup.select('.photo-clip').attr('fill', null).attr('stroke', null).attr('stroke-width', null);
+          if (preferences.show_names) {
+            nodeGroup.append('text')
+              .attr('text-anchor', 'middle').attr('dy', '0.35em')
+              .attr('fill', '#2d5016').attr('font-size', '14px').attr('font-weight', '700')
+              .attr('pointer-events', 'none')
+              .text(nodeLabel.substring(0, 2));
+          }
+        }
+      });
       nodeGroup.append('circle')
         .attr('class', 'photo-clip')
         .attr('r', NODE_RADIUS)
