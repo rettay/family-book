@@ -46,6 +46,19 @@ logger = logging.getLogger(__name__)
 LOCATION_PREFIXES = ("birth", "residence", "burial")
 
 
+def _enforce_single_primary(entries: list[dict]) -> list[dict]:
+    """Ensure at most one entry has is_primary=True. Last one wins; if none, first gets it."""
+    if not entries:
+        return entries
+    primary_indices = [i for i, e in enumerate(entries) if e.get("is_primary")]
+    if len(primary_indices) > 1:
+        for i in primary_indices[:-1]:
+            entries[i]["is_primary"] = False
+    elif not primary_indices and entries:
+        entries[0]["is_primary"] = True
+    return entries
+
+
 async def _normalize_location_fields(
     payload: dict,
     *,
@@ -121,7 +134,8 @@ def _normalize_memorial_fields(payload: dict, *, person: Person | None = None) -
 async def _normalize_contact_addresses(entries: list[dict]) -> list[dict]:
     normalized_entries: list[dict] = []
     for entry in entries:
-        place = entry.get("place")
+        # Use line1 or legacy place field for location resolution
+        place = entry.get("place") or entry.get("line1")
         country_code = entry.get("country_code")
         latitude = entry.get("latitude")
         longitude = entry.get("longitude")
@@ -131,14 +145,15 @@ async def _normalize_contact_addresses(entries: list[dict]) -> list[dict]:
             latitude=latitude,
             longitude=longitude,
         )
-        normalized_entry = {
-            "type": entry.get("type"),
-            "label": entry.get("label"),
-            "place": resolved.place,
-            "country_code": resolved.country_code,
-            "latitude": resolved.latitude,
-            "longitude": resolved.longitude,
-        }
+        # Preserve all structured fields, update resolved location fields
+        normalized_entry = dict(entry)
+        normalized_entry["place"] = resolved.place
+        normalized_entry["country_code"] = resolved.country_code
+        normalized_entry["latitude"] = resolved.latitude
+        normalized_entry["longitude"] = resolved.longitude
+        # Auto-compute is_partial when coordinates are missing
+        if not resolved.latitude and not resolved.longitude:
+            normalized_entry["is_partial"] = True
         normalized_entries.append(
             {key: value for key, value in normalized_entry.items() if value not in (None, "")}
         )
@@ -400,7 +415,12 @@ async def create_person(
 
     person.languages = body.languages
     person.alternate_nicknames = [nickname for nickname in body.alternate_nicknames if nickname]
-    person.contact_addresses = payload.get("contact_addresses") or []
+    person.contact_addresses = _enforce_single_primary(payload.get("contact_addresses") or [])
+    person.contact_phones = _enforce_single_primary(payload.get("contact_phones") or [])
+    person.contact_emails = _enforce_single_primary(payload.get("contact_emails") or [])
+    person.social_accounts = payload.get("social_accounts") or []
+    person.name_history = payload.get("name_history") or []
+    person.obituary_url = payload.get("obituary_url")
     person.education = [e.model_dump(exclude_none=True) for e in body.education]
     person.career = [e.model_dump(exclude_none=True) for e in body.career]
     person.organizations = [e.model_dump(exclude_none=True) for e in body.organizations]
@@ -463,7 +483,7 @@ async def update_person(
             nickname for nickname in (update_data.pop("alternate_nicknames") or []) if nickname
         ]
     if "contact_addresses" in update_data:
-        person.contact_addresses = _strip_none_entries(update_data.pop("contact_addresses"))
+        person.contact_addresses = _enforce_single_primary(_strip_none_entries(update_data.pop("contact_addresses")))
     if "education" in update_data:
         person.education = _strip_none_entries(update_data.pop("education"))
     if "career" in update_data:
@@ -474,6 +494,14 @@ async def update_person(
         person.admixture = _strip_none_entries(update_data.pop("admixture"))
     if "medical_conditions" in update_data:
         person.medical_conditions = _strip_none_entries(update_data.pop("medical_conditions"))
+    if "contact_phones" in update_data:
+        person.contact_phones = _enforce_single_primary(_strip_none_entries(update_data.pop("contact_phones")))
+    if "contact_emails" in update_data:
+        person.contact_emails = _enforce_single_primary(_strip_none_entries(update_data.pop("contact_emails")))
+    if "social_accounts" in update_data:
+        person.social_accounts = _strip_none_entries(update_data.pop("social_accounts"))
+    if "name_history" in update_data:
+        person.name_history = _strip_none_entries(update_data.pop("name_history"))
 
     for field, value in update_data.items():
         if field in RICH_TEXT_FIELDS and value:
@@ -499,6 +527,17 @@ async def update_person(
         else:
             person.death_date = None
             person.death_date_precision = None
+
+    # DOD-after-DOB validation
+    if person.birth_date and person.death_date:
+        try:
+            if person.death_date < person.birth_date:
+                raise HTTPException(
+                    status_code=422,
+                    detail="Death date must be on or after birth date",
+                )
+        except TypeError:
+            pass  # non-comparable date strings — skip validation
 
     await db.flush()
     await record_revision(

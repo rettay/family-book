@@ -50,10 +50,46 @@ class MedicalConditionEntry(BaseModel):
 class AddressEntry(BaseModel):
     type: str = Field(min_length=1, max_length=40)
     label: str | None = Field(None, max_length=100)
-    place: str = Field(min_length=1, max_length=300)
+    place: str | None = Field(None, max_length=300)  # legacy/display string
+    line1: str | None = Field(None, max_length=300)
+    line2: str | None = Field(None, max_length=300)
+    city: str | None = Field(None, max_length=200)
+    state: str | None = Field(None, max_length=200)
+    postal_code: str | None = Field(None, max_length=20)
+    country: str | None = Field(None, max_length=100)
     country_code: str | None = Field(None, max_length=80)
+    place_id: str | None = Field(None, max_length=300)
     latitude: float | None = None
     longitude: float | None = None
+    is_primary: bool = False
+    is_partial: bool = False
+
+
+class PhoneEntry(BaseModel):
+    number: str = Field(min_length=1, max_length=50)
+    type: str | None = Field(None, max_length=20)
+    label: str | None = Field(None, max_length=100)
+    is_primary: bool = False
+
+
+class EmailEntry(BaseModel):
+    address: str = Field(min_length=1, max_length=320)
+    type: str | None = Field(None, max_length=20)
+    is_primary: bool = False
+
+
+class SocialAccountEntry(BaseModel):
+    platform: str = Field(min_length=1, max_length=50)
+    handle: str | None = Field(None, max_length=300)
+    url: str | None = Field(None, max_length=1000)
+    is_visible: bool = True
+
+
+class NameHistoryEntry(BaseModel):
+    surname: str | None = Field(None, max_length=200)
+    reason: str | None = Field(None, max_length=100)
+    year: str | None = Field(None, max_length=10)
+    notes: str | None = Field(None, max_length=500)
 
 
 # --- Person ---
@@ -95,6 +131,7 @@ class PersonCreate(BaseModel):
     medical_history: str | None = None
     obituary: str | None = Field(None, max_length=10000)
     obituary_source: str | None = Field(None, max_length=500)
+    obituary_url: str | None = Field(None, max_length=1000)
     education: list[EducationEntry] = []
     career: list[CareerEntry] = []
     organizations: list[OrganizationEntry] = []
@@ -116,6 +153,10 @@ class PersonCreate(BaseModel):
     contact_phone: str | None = None
     contact_email: str | None = None
     contact_addresses: list[AddressEntry] = []
+    contact_phones: list[PhoneEntry] = []
+    contact_emails: list[EmailEntry] = []
+    social_accounts: list[SocialAccountEntry] = []
+    name_history: list[NameHistoryEntry] = []
     social_instagram: str | None = Field(None, max_length=300)
     social_facebook: str | None = Field(None, max_length=300)
     social_twitter: str | None = Field(None, max_length=300)
@@ -137,6 +178,13 @@ class PersonCreate(BaseModel):
     def validate_remains_disposition(cls, v):
         if v is not None and v not in ("buried", "cremated", "unknown"):
             raise ValueError("remains_disposition must be one of: buried, cremated, unknown")
+        return v
+
+    @field_validator("obituary_url")
+    @classmethod
+    def validate_obituary_url(cls, v):
+        if v is not None and v.strip() and not v.strip().startswith(("http://", "https://")):
+            raise ValueError("obituary_url must start with http:// or https://")
         return v
 
 
@@ -177,6 +225,7 @@ class PersonUpdate(BaseModel):
     medical_history: str | None = None
     obituary: str | None = Field(None, max_length=10000)
     obituary_source: str | None = Field(None, max_length=500)
+    obituary_url: str | None = Field(None, max_length=1000)
     education: list[EducationEntry] | None = None
     career: list[CareerEntry] | None = None
     organizations: list[OrganizationEntry] | None = None
@@ -199,6 +248,10 @@ class PersonUpdate(BaseModel):
     contact_phone: str | None = None
     contact_email: str | None = None
     contact_addresses: list[AddressEntry] | None = None
+    contact_phones: list[PhoneEntry] | None = None
+    contact_emails: list[EmailEntry] | None = None
+    social_accounts: list[SocialAccountEntry] | None = None
+    name_history: list[NameHistoryEntry] | None = None
     social_instagram: str | None = Field(None, max_length=300)
     social_facebook: str | None = Field(None, max_length=300)
     social_twitter: str | None = Field(None, max_length=300)
@@ -220,6 +273,13 @@ class PersonUpdate(BaseModel):
     def validate_remains_disposition(cls, v):
         if v is not None and v not in ("buried", "cremated", "unknown"):
             raise ValueError("remains_disposition must be one of: buried, cremated, unknown")
+        return v
+
+    @field_validator("obituary_url")
+    @classmethod
+    def validate_obituary_url(cls, v):
+        if v is not None and v.strip() and not v.strip().startswith(("http://", "https://")):
+            raise ValueError("obituary_url must start with http:// or https://")
         return v
 
 
@@ -272,6 +332,7 @@ class PersonDetail(PersonSummary):
     medical_history: str | None = None
     obituary: str | None = None
     obituary_source: str | None = None
+    obituary_url: str | None = None
     education: list[dict] = []
     career: list[dict] = []
     organizations: list[dict] = []
@@ -296,6 +357,10 @@ class PersonDetail(PersonSummary):
     contact_phone: str | None = None
     contact_email: str | None = None
     contact_addresses: list[dict] = []
+    contact_phones: list[dict] = []
+    contact_emails: list[dict] = []
+    social_accounts: list[dict] = []
+    name_history: list[dict] = []
     social_instagram: str | None = None
     social_facebook: str | None = None
     social_twitter: str | None = None
@@ -392,6 +457,7 @@ def person_to_detail(person) -> PersonDetail:
         medical_history=person.medical_history,
         obituary=person.obituary,
         obituary_source=person.obituary_source,
+        obituary_url=person.obituary_url,
         education=person.education,
         career=person.career,
         organizations=person.organizations,
@@ -414,6 +480,10 @@ def person_to_detail(person) -> PersonDetail:
         contact_phone=person.contact_phone,
         contact_email=person.contact_email,
         contact_addresses=person.contact_addresses,
+        contact_phones=person.contact_phones,
+        contact_emails=person.contact_emails,
+        social_accounts=person.social_accounts,
+        name_history=person.name_history,
         social_instagram=person.social_instagram,
         social_facebook=person.social_facebook,
         social_twitter=person.social_twitter,

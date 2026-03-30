@@ -73,20 +73,35 @@
     return loaderPromise;
   }
 
-  function extractCountryCode(place) {
+  function extractAddressComponent(place, type, useShort) {
     var components = (place && (place.addressComponents || place.address_components)) || [];
     for (var i = 0; i < components.length; i += 1) {
       var component = components[i];
-      if ((component.types || []).indexOf('country') !== -1) {
-        return safeText(
-          component.shortText ||
-          component.short_name ||
-          component.longText ||
-          component.long_name
-        ).toUpperCase();
+      if ((component.types || []).indexOf(type) !== -1) {
+        if (useShort) {
+          return safeText(component.shortText || component.short_name || '');
+        }
+        return safeText(component.longText || component.long_name || component.shortText || component.short_name || '');
       }
     }
     return '';
+  }
+
+  function extractCountryCode(place) {
+    return extractAddressComponent(place, 'country', true).toUpperCase();
+  }
+
+  function extractStructuredAddress(place) {
+    return {
+      street_number: extractAddressComponent(place, 'street_number', false),
+      route: extractAddressComponent(place, 'route', false),
+      city: extractAddressComponent(place, 'locality', false) || extractAddressComponent(place, 'sublocality', false),
+      state: extractAddressComponent(place, 'administrative_area_level_1', false),
+      postal_code: extractAddressComponent(place, 'postal_code', false),
+      country: extractAddressComponent(place, 'country', false),
+      country_code: extractCountryCode(place),
+      place_id: (place && place.id) || '',
+    };
   }
 
   function extractLatitude(location) {
@@ -244,12 +259,36 @@
           clearCoordinates(group);
         }
 
+        // Populate structured address card subfields if present
+        var structured = extractStructuredAddress(place);
+        var card = group.closest('.person-edit-address-card');
+        if (card) {
+          var line1 = structured.street_number
+            ? structured.street_number + ' ' + structured.route
+            : structured.route;
+          _setCardField(card, 'line1', line1 || resolvedPlace);
+          _setCardField(card, 'city', structured.city);
+          _setCardField(card, 'state', structured.state);
+          _setCardField(card, 'postal_code', structured.postal_code);
+          _setCardField(card, 'country', structured.country);
+          _setCardField(card, 'country_code', structured.country_code);
+          _setCardField(card, 'place_id', structured.place_id);
+        }
+
         resetSessionToken();
         hideSuggestions();
         setStatus(group, verifiedHint, 'verified');
       } catch (_error) {
         hideSuggestions();
         setStatus(group, failedHint, 'warning');
+      }
+    }
+
+    function _setCardField(card, key, value) {
+      var input = card.querySelector('[data-address-key="' + key + '"]');
+      if (input && value) {
+        input.value = value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     }
 
@@ -368,6 +407,3 @@
     init: init,
   };
 })();
-    if (suggestionsLabel) {
-      suggestionBox.setAttribute('aria-label', suggestionsLabel);
-    }

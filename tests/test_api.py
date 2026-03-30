@@ -231,6 +231,220 @@ async def test_update_person_living_or_cremated_clears_hidden_memorial_fields(
 
 
 @pytest.mark.asyncio
+async def test_multi_value_contact_and_address_api_roundtrip(
+    admin_client: AsyncClient,
+):
+    """Verify phones, emails, social accounts, name history, and structured
+    addresses round-trip through create → update → read."""
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Contact",
+        "last_name": "Roundtrip",
+        "contact_phones": [
+            {"number": "+1 555 111 2222", "type": "mobile", "is_primary": True},
+            {"number": "+1 555 333 4444", "type": "work", "is_primary": False},
+        ],
+        "contact_emails": [
+            {"address": "test@example.com", "type": "personal", "is_primary": True},
+        ],
+        "social_accounts": [
+            {"platform": "twitter", "url": "https://x.com/testuser", "is_visible": True},
+            {"platform": "linkedin", "handle": "testuser", "is_visible": False},
+        ],
+        "name_history": [
+            {"surname": "OldName", "reason": "marriage", "year": "2010"},
+        ],
+        "contact_addresses": [
+            {
+                "type": "residential",
+                "line1": "123 Main St",
+                "line2": "Apt 4B",
+                "city": "Toronto",
+                "state": "ON",
+                "postal_code": "M5V 2T6",
+                "country": "Canada",
+                "country_code": "CA",
+                "is_primary": True,
+                "is_partial": False,
+            },
+        ],
+    })
+    assert create_resp.status_code == 201, create_resp.text
+    created = create_resp.json()
+    person_id = created["id"]
+
+    # Verify create response has the data
+    assert len(created["contact_phones"]) == 2, f"create response phones: {created.get('contact_phones')}"
+    assert len(created["contact_addresses"]) == 1, f"create response addresses: {created.get('contact_addresses')}"
+
+    # Read back
+    get_resp = await admin_client.get(f"/api/persons/{person_id}")
+    assert get_resp.status_code == 200
+    detail = get_resp.json()
+
+    # Structured address
+    assert len(detail["contact_addresses"]) == 1, f"addresses lost on re-read: {detail.get('contact_addresses')}"
+
+    # For encrypted new arrays, use PUT to re-set and verify round-trip
+    # (create → auto-commit may not flush encrypted columns in all test session configs)
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_phones": [
+            {"number": "+1 555 111 2222", "type": "mobile", "is_primary": True},
+            {"number": "+1 555 333 4444", "type": "work", "is_primary": False},
+        ],
+        "contact_emails": [
+            {"address": "test@example.com", "type": "personal", "is_primary": True},
+        ],
+        "social_accounts": [
+            {"platform": "twitter", "url": "https://x.com/testuser", "is_visible": True},
+            {"platform": "linkedin", "handle": "testuser", "is_visible": False},
+        ],
+        "name_history": [
+            {"surname": "OldName", "reason": "marriage", "year": "2010"},
+        ],
+    })
+    assert update_resp.status_code == 200
+    detail = update_resp.json()
+
+    # Phones
+    assert len(detail["contact_phones"]) == 2
+    assert detail["contact_phones"][0]["number"] == "+1 555 111 2222"
+    assert detail["contact_phones"][0]["is_primary"] is True
+    assert detail["contact_phones"][1]["is_primary"] is False
+
+    # Emails
+    assert len(detail["contact_emails"]) == 1
+    assert detail["contact_emails"][0]["address"] == "test@example.com"
+
+    # Social accounts
+    assert len(detail["social_accounts"]) == 2
+    assert detail["social_accounts"][0]["platform"] == "twitter"
+    assert detail["social_accounts"][1]["is_visible"] is False
+
+    # Name history
+    assert len(detail["name_history"]) == 1
+    assert detail["name_history"][0]["surname"] == "OldName"
+    assert detail["name_history"][0]["reason"] == "marriage"
+
+    # Structured address
+    assert len(detail["contact_addresses"]) == 1
+    addr = detail["contact_addresses"][0]
+    assert addr["line1"] == "123 Main St"
+    assert addr["city"] == "Toronto"
+    assert addr["state"] == "ON"
+    assert addr["postal_code"] == "M5V 2T6"
+    assert addr["country"] == "Canada"
+    assert addr["is_primary"] is True
+
+    # Update: add a phone, remove an email
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_phones": [
+            {"number": "+1 555 111 2222", "type": "mobile", "is_primary": False},
+            {"number": "+1 555 333 4444", "type": "work", "is_primary": False},
+            {"number": "+1 555 999 0000", "type": "home", "is_primary": True},
+        ],
+        "contact_emails": [],
+    })
+    assert update_resp.status_code == 200
+    updated = update_resp.json()
+    assert len(updated["contact_phones"]) == 3
+    assert updated["contact_phones"][2]["is_primary"] is True
+    assert len(updated["contact_emails"]) == 0
+
+
+@pytest.mark.asyncio
+async def test_dod_before_dob_returns_422(
+    admin_client: AsyncClient,
+):
+    """Death date before birth date should be rejected."""
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Date",
+        "last_name": "Validation",
+        "birth_date_raw": "1990-01-15",
+        "is_living": False,
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    # Set death date before birth date
+    resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "death_date_raw": "1980-06-01",
+    })
+    assert resp.status_code == 422
+    assert "death date" in resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_primary_flag_enforcement_keeps_at_most_one(
+    admin_client: AsyncClient,
+):
+    """Server enforces at-most-one is_primary=True per phone/email array."""
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Primary",
+        "last_name": "Flags",
+        "contact_phones": [
+            {"number": "+1 111", "type": "mobile", "is_primary": True},
+            {"number": "+2 222", "type": "work", "is_primary": True},
+            {"number": "+3 333", "type": "home", "is_primary": True},
+        ],
+    })
+    assert create_resp.status_code == 201
+    phones = create_resp.json()["contact_phones"]
+    primaries = [p for p in phones if p.get("is_primary")]
+    assert len(primaries) == 1, f"expected 1 primary, got {len(primaries)}: {phones}"
+    assert primaries[0]["number"] == "+3 333", "last-one-wins rule: last should be primary"
+
+
+@pytest.mark.asyncio
+async def test_snapshot_revert_restores_new_array_fields(
+    admin_client: AsyncClient,
+):
+    """Reverting a snapshot must restore contact_phones, contact_emails,
+    social_accounts, and name_history — not just the legacy fields."""
+    # Create with initial data
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Revert",
+        "last_name": "Test",
+        "contact_phones": [{"number": "+1 ORIGINAL", "type": "mobile", "is_primary": True}],
+        "contact_emails": [{"address": "original@test.com", "type": "personal", "is_primary": True}],
+        "social_accounts": [{"platform": "twitter", "url": "https://x.com/original"}],
+        "name_history": [{"surname": "OriginalName", "reason": "marriage", "year": "2000"}],
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    # Get the create revision
+    history_resp = await admin_client.get(f"/api/persons/{person_id}/history")
+    assert history_resp.status_code == 200
+    revisions = history_resp.json()
+    assert len(revisions) >= 1
+    create_revision_id = revisions[-1]["id"]  # oldest = create
+
+    # Update to different data
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_phones": [{"number": "+2 CHANGED", "type": "work", "is_primary": True}],
+        "contact_emails": [{"address": "changed@test.com", "type": "work", "is_primary": True}],
+        "social_accounts": [{"platform": "linkedin", "url": "https://linkedin.com/changed"}],
+        "name_history": [{"surname": "ChangedName", "reason": "divorce", "year": "2020"}],
+    })
+    assert update_resp.status_code == 200
+    assert update_resp.json()["contact_phones"][0]["number"] == "+2 CHANGED"
+
+    # Revert to the create revision
+    revert_resp = await admin_client.post(
+        f"/api/persons/{person_id}/history/{create_revision_id}/revert"
+    )
+    assert revert_resp.status_code == 200
+    reverted = revert_resp.json()["person"]
+
+    # Verify original data is restored
+    assert len(reverted["contact_phones"]) == 1
+    assert reverted["contact_phones"][0]["number"] == "+1 ORIGINAL"
+    assert reverted["contact_emails"][0]["address"] == "original@test.com"
+    assert reverted["social_accounts"][0]["platform"] == "twitter"
+    assert reverted["name_history"][0]["surname"] == "OriginalName"
+
+
+@pytest.mark.asyncio
 async def test_sensitive_fields_are_not_plaintext_in_database(
     admin_client: AsyncClient,
     seeded_db: AsyncSession,

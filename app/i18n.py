@@ -15,7 +15,7 @@ _translations: dict[str, dict] = {}
 _relationship_terms: dict[str, dict] = {}
 
 DEFAULT_LOCALE = "en"
-SUPPORTED_LOCALES = ("en", "es", "ru")
+SUPPORTED_LOCALES = ("en", "es", "ru", "it", "zh")
 
 _LOCALES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "locales")
 

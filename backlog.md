@@ -1,9 +1,29 @@
 # Family Book Backlog
 
-Sprint: `S31 - Tree Relationship Correction and Repair`
+Sprint: `S32 - Person Details Enhancement`
 Status: In Progress
 
-## Current Sprint `S31 - Tree Relationship Correction and Repair`
+## Current Sprint `S32 - Person Details Enhancement`
+
+Sprint goal:
+- Upgrade person edit form to multi-value contact fields, structured addresses with Places auto-population, inline rich-text bio editing, and ISO 639-1 controlled language vocabulary.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-053 | Person Contact and Identity Data Model Enhancement | P0 | todo | `task_packets/FB-053_person_contact_and_identity_data_model_enhancement.md` |
+| FB-054 | Multi-Value Contact and Social Edit UX | P1 | todo | `task_packets/FB-054_multi_value_contact_and_social_edit_ux.md` |
+| FB-055 | Structured Addresses and Places Auto-Population | P1 | todo | `task_packets/FB-055_structured_addresses_and_places_auto_population.md` |
+| FB-056 | Person Edit Form Polish and Bio Integration | P1 | todo | `task_packets/FB-056_person_edit_form_polish_and_bio_integration.md` |
+
+Execution slices:
+- `S32-1` Data model: new columns, Pydantic sub-models, migration, API handling
+- `S32-2` Frontend: multi-value phone/email/social/name-history card editing
+- `S32-3` Addresses: structured subfields and Places auto-population
+- `S32-4` Polish: Trix bio editor, structured education/career cards, languages combobox
+
+## Closed Sprint `S31 - Tree Relationship Correction and Repair`
 
 Sprint goal:
 - Make mistaken family links repairable directly from the tree by adding canonical relationship update/reverse primitives and exposing edit, reverse, and remove actions on the existing relationship cards.
@@ -12,8 +32,8 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-051 | Relationship Correction Primitives and API Truth | P0 | in_progress | `task_packets/FB-051_relationship_correction_primitives_and_api_truth.md` |
-| FB-052 | Tree Relationship Correction and Editing Flow | P1 | in_progress | `task_packets/FB-052_tree_relationship_correction_and_editing_flow.md` |
+| FB-051 | Relationship Correction Primitives and API Truth | P0 | done | `task_packets/FB-051_relationship_correction_primitives_and_api_truth.md` |
+| FB-052 | Tree Relationship Correction and Editing Flow | P1 | done | `task_packets/FB-052_tree_relationship_correction_and_editing_flow.md` |
 
 Execution slices:
 - `S31-1` Canonical parent-child update and reverse primitives

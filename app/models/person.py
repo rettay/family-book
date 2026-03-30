@@ -118,6 +118,7 @@ class Person(Base, TimestampMixin):
 
     obituary: Mapped[str | None] = mapped_column(Text, default=None)
     obituary_source: Mapped[str | None] = mapped_column(String(500), default=None)
+    obituary_url: Mapped[str | None] = mapped_column(String(1000), default=None)
     _education: Mapped[str | None] = mapped_column("education", Text, default="[]")
     _career: Mapped[str | None] = mapped_column("career", Text, default="[]")
     _organizations: Mapped[str | None] = mapped_column("organizations", Text, default="[]")
@@ -150,6 +151,12 @@ class Person(Base, TimestampMixin):
     social_tiktok: Mapped[str | None] = mapped_column(String(300), default=None)
     social_youtube: Mapped[str | None] = mapped_column(String(300), default=None)
 
+    # Multi-value social accounts (public, not encrypted) — replaces individual social_* columns
+    _social_accounts: Mapped[str | None] = mapped_column("social_accounts", Text, default="[]")
+
+    # Name history (encrypted — contains identity data)
+    _name_history: Mapped[str | None] = mapped_column("name_history", EncryptedText(), default="[]")
+
     # Wiki slug (URL-safe, generated once on create)
     slug: Mapped[str | None] = mapped_column(String(200), unique=True, default=None, index=True)
 
@@ -159,6 +166,8 @@ class Person(Base, TimestampMixin):
     contact_phone: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     contact_email: Mapped[str | None] = mapped_column(EncryptedText(), default=None)
     _contact_addresses: Mapped[str | None] = mapped_column("contact_addresses", EncryptedText(), default="[]")
+    _contact_phones: Mapped[str | None] = mapped_column("contact_phones", EncryptedText(), default="[]")
+    _contact_emails: Mapped[str | None] = mapped_column("contact_emails", EncryptedText(), default="[]")
     contact_email_hash: Mapped[str | None] = mapped_column(String(64), default=None)
     calendar_feed_token: Mapped[str] = mapped_column(String(36), unique=True, default=generate_uuid)
 
@@ -271,6 +280,46 @@ class Person(Base, TimestampMixin):
     @medical_conditions.setter
     def medical_conditions(self, value: list[dict]) -> None:
         self._medical_conditions = json.dumps(value)
+
+    @property
+    def contact_phones(self) -> list[dict]:
+        if self._contact_phones:
+            return json.loads(self._contact_phones)
+        return []
+
+    @contact_phones.setter
+    def contact_phones(self, value: list[dict]) -> None:
+        self._contact_phones = json.dumps(value)
+
+    @property
+    def contact_emails(self) -> list[dict]:
+        if self._contact_emails:
+            return json.loads(self._contact_emails)
+        return []
+
+    @contact_emails.setter
+    def contact_emails(self, value: list[dict]) -> None:
+        self._contact_emails = json.dumps(value)
+
+    @property
+    def social_accounts(self) -> list[dict]:
+        if self._social_accounts:
+            return json.loads(self._social_accounts)
+        return []
+
+    @social_accounts.setter
+    def social_accounts(self, value: list[dict]) -> None:
+        self._social_accounts = json.dumps(value)
+
+    @property
+    def name_history(self) -> list[dict]:
+        if self._name_history:
+            return json.loads(self._name_history)
+        return []
+
+    @name_history.setter
+    def name_history(self, value: list[dict]) -> None:
+        self._name_history = json.dumps(value)
 
     @property
     def display_name(self) -> str:

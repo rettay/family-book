@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     BASE_URL: str = "http://localhost:8000"
     STAGING_REVIEW_URL: str = ""
     ENABLE_API_DOCS: bool = False
+    DEV_BYPASS_AUTH: bool = False
     TRUSTED_HOSTS: str = ""
 
     # Database

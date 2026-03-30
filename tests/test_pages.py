@@ -112,7 +112,7 @@ async def test_person_edit_page_renders_labeled_fields_and_inline_error_containe
     assert 'data-place-field' in resp.text
     assert 'name="residence_place_latitude"' in resp.text
     assert 'id="contact-address-list"' in resp.text
-    assert 'id="edit-contact-phone"' in resp.text
+    assert 'id="phone-list"' in resp.text
     assert 'id="memorial-section"' in resp.text
     assert 'id="nickname-tag-input"' in resp.text
 

@@ -63,6 +63,42 @@ def _set_session_cookie(response: Response, token: str) -> None:
     )
 
 
+@router.get("/dev/login")
+async def dev_login(
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+):
+    """Dev-only login bypass. Active only when DEV_BYPASS_AUTH=true in .env."""
+    settings = get_settings()
+    if not settings.DEV_BYPASS_AUTH:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    # Find the first admin user, or fall back to any active user
+    result = await db.execute(
+        select(Person).where(
+            Person.lifecycle_state == "active",
+            Person.is_admin == True,
+        ).limit(1)
+    )
+    person = result.scalar_one_or_none()
+    if not person:
+        result = await db.execute(
+            select(Person).where(Person.lifecycle_state == "active").limit(1)
+        )
+        person = result.scalar_one_or_none()
+    if not person:
+        raise HTTPException(status_code=500, detail="No active users in database")
+
+    token = await create_session(db, person_id=person.id, auth_method="dev_bypass")
+    await db.commit()
+    _set_session_cookie(response, token)
+    logger.warning("DEV BYPASS: logged in as %s (%s)", person.display_name, person.id)
+    return_to = request.query_params.get("return_to", "/tree")
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=return_to, status_code=302)
+
+
 @router.post("/auth/google")
 async def authenticate_with_google(
     body: GoogleCredentialRequest,

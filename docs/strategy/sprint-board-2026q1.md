@@ -2,6 +2,90 @@
 
 ## Current Sprint
 
+### `S32 - Person Details Enhancement`
+
+Status: In Progress
+
+### Sprint Goal
+
+Upgrade the person edit form from single-field contact storage and raw JSON textareas to multi-value card-based editing for phones, emails, social accounts, and life-story fields, with structured address capture via Google Places auto-population, inline rich-text bio editing, and ISO 639-1 controlled language vocabulary.
+
+### Why This Sprint Next
+
+The person edit form is the primary surface for data contribution, but it currently limits contributors to one phone, one email, six hardcoded social fields, freeform language strings, and raw JSON for education/career. These constraints directly block complete person records and hurt CFLSR because contributors either can't record what they know or need to edit JSON to do so.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 53 | FB-053 | Person Contact and Identity Data Model Enhancement | P0 | todo |
+| 54 | FB-054 | Multi-Value Contact and Social Edit UX | P1 | todo |
+| 55 | FB-055 | Structured Addresses and Places Auto-Population | P1 | todo |
+| 56 | FB-056 | Person Edit Form Polish and Bio Integration | P1 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S32-1 | Data model: new columns, Pydantic sub-models, migration, API handling | todo |
+| S32-2 | Frontend: multi-value phone/email/social/name-history card editing | todo |
+| S32-3 | Addresses: structured subfields and Places auto-population | todo |
+| S32-4 | Polish: Trix bio editor, structured education/career cards, languages combobox | todo |
+
+### Sprint Exit Criteria
+
+The sprint is successful when all are true:
+
+- person records support multiple phone numbers, email addresses, and social accounts with add/remove editing
+- existing single-field contact data is migrated to the new arrays without data loss
+- addresses capture structured subfields with Google Places auto-population and graceful fallback
+- the bio field uses inline rich-text editing matching the wiki editor
+- education, career, and organizations use structured card-based editing instead of JSON textareas
+- languages use ISO 639-1 controlled vocabulary via searchable combobox
+- all new labels are localized in en, es, and ru
+- test and browser baselines remain intact
+- existing person data is preserved through migration
+
+### Verification Expectations
+
+- Structural lane:
+  - schema validation tests for all new Pydantic sub-models
+  - API round-trip tests for new multi-value fields
+- Rendered-behavior lane:
+  - page-load tests confirm form renders with new card-based controls
+  - form submission round-trips multi-value data correctly
+- Visual/persona lane:
+  - `contributing_member` can add phones, emails, education entries naturally
+  - `genealogy_researcher` can record complete contact and life-story data
+  - `mobile_first_relative` can reach all controls on narrow viewport
+
+### Risks to Watch
+
+- migration of encrypted contact fields requires careful decrypt/re-encrypt handling
+- form serialization complexity increases significantly with multiple card types
+- section reordering could break existing JS event bindings
+- Trix editor initialization timing vs form submission
+
+### Deferred Beyond S32
+
+| ID | Title | Reason |
+|---|---|---|
+| FB-031 | Research Tools UX Overhaul | Lower priority than person data capture improvements |
+| G-11 | Fan Chart | Platform completeness, not data-capture blocker |
+| G-12 | Duplicate Detection | Platform completeness |
+
+### Context
+
+- Packet files:
+  - `task_packets/FB-053_person_contact_and_identity_data_model_enhancement.md`
+  - `task_packets/FB-054_multi_value_contact_and_social_edit_ux.md`
+  - `task_packets/FB-055_structured_addresses_and_places_auto_population.md`
+  - `task_packets/FB-056_person_edit_form_polish_and_bio_integration.md`
+
+---
+
+## Closed Sprint
+
 ### `S31 - Tree Relationship Correction and Repair`
 
 Status: In Progress

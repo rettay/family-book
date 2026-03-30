@@ -2,7 +2,11 @@
 {% block title %}{{ t('person.edit') }} {{ person.display_name }} — {{ brand_display_name }}{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="https://unpkg.com/trix@2.1.12/dist/trix.css">
+<script src="https://unpkg.com/trix@2.1.12/dist/trix.umd.min.js"></script>
 <style>
+  trix-editor { min-height: 120px; border: 1px solid #ddd0bf; border-radius: 8px; padding: 0.75rem; background: #fff; }
+  trix-toolbar { border-bottom: 1px solid #e7ddd1; margin-bottom: 0.5rem; }
   .measurement-input { display: flex; gap: 0.5rem; align-items: flex-end; }
   .measurement-input__fields { display: flex; gap: 0.35rem; flex: 1; align-items: center; }
   .measurement-input__fields input { width: 70px; }
@@ -110,6 +114,16 @@
           </div>
           <p class="text-sm text-muted">{{ t('person.other_nicknames_hint') }}</p>
         </div>
+        {# ── Name History (multi-value) ── #}
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label>{{ t('person.name_history') }}</label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addNameHistory()" aria-label="{{ t('person.add_name_history') }}">{{ t('person.add_name_history') }}</button>
+          </div>
+          <p class="text-sm text-muted">{{ t('person.name_history_hint') }}</p>
+          <div id="name-history-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="name-history-hidden" name="name_history" value='{{ person.name_history | tojson }}'>
+        </div>
       </section>
 
       <section class="person-edit-section">
@@ -193,16 +207,27 @@
           <h2 class="person-edit-section__title">{{ t('person.contact_workspace') }}</h2>
           <p class="person-edit-section__hint">{{ t('person.contact_workspace_hint') }}</p>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="edit-contact-phone">{{ t('person.contact_phone') }}</label>
-            <input type="text" class="form-input" id="edit-contact-phone" name="contact_phone" value="{{ person.contact_phone or '' }}" placeholder="+1 555 555 5555">
+        {# ── Phone Numbers (multi-value) ── #}
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label>{{ t('person.phones') }}</label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addPhone()" aria-label="{{ t('person.add_phone') }}">{{ t('person.add_phone') }}</button>
           </div>
-          <div class="form-group">
-            <label for="edit-contact-email">{{ t('person.contact_email') }}</label>
-            <input type="email" class="form-input" id="edit-contact-email" name="contact_email" value="{{ person.contact_email or '' }}">
-          </div>
+          <p class="text-sm text-muted">{{ t('person.phones_hint') }}</p>
+          <div id="phone-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="phones-hidden" name="contact_phones" value='{{ person.contact_phones | tojson }}'>
         </div>
+        {# ── Email Addresses (multi-value) ── #}
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label>{{ t('person.emails') }}</label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addEmail()" aria-label="{{ t('person.add_email') }}">{{ t('person.add_email') }}</button>
+          </div>
+          <p class="text-sm text-muted">{{ t('person.emails_hint') }}</p>
+          <div id="email-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="emails-hidden" name="contact_emails" value='{{ person.contact_emails | tojson }}'>
+        </div>
+        {# ── Messaging apps (simple fields) ── #}
         <div class="form-row">
           <div class="form-group">
             <label for="edit-contact-whatsapp">{{ t('person.contact_whatsapp') }}</label>
@@ -219,56 +244,37 @@
             <input type="text" class="form-input" id="edit-contact-signal" name="contact_signal" value="{{ person.contact_signal or '' }}">
           </div>
         </div>
-        <div class="form-group">
-          <div class="person-edit-inline-heading">
-            <label>{{ t('person.contact_addresses') }}</label>
-            <button type="button" class="btn btn--ghost btn--sm" onclick="addContactAddress()">{{ t('person.add_address') }}</button>
-          </div>
-          <p class="text-sm text-muted">{{ t('person.contact_addresses_hint') }}</p>
-          <div id="contact-address-list" class="person-edit-address-list"></div>
-          <input type="hidden" id="contact-addresses-hidden" name="contact_addresses" value='{{ person.contact_addresses | tojson }}'>
+      </section>
+
+      {# ── Addresses section ── #}
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.contact_addresses') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.contact_addresses_hint') }}</p>
         </div>
         <div class="form-group">
           <div class="person-edit-inline-heading">
-            <label>{{ t('person.social_profiles') }}</label>
-            <span class="text-sm text-muted">{{ t('person.social_handles_hint') }}</span>
+            <label></label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addContactAddress()">{{ t('person.add_address') }}</button>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit-social-instagram">Instagram</label>
-              <input type="text" class="form-input" id="edit-social-instagram" name="social_instagram"
-                     value="{{ person.social_instagram or '' }}" placeholder="@username">
-            </div>
-            <div class="form-group">
-              <label for="edit-social-facebook">Facebook</label>
-              <input type="text" class="form-input" id="edit-social-facebook" name="social_facebook"
-                     value="{{ person.social_facebook or '' }}" placeholder="username or profile URL">
-            </div>
+          <div id="contact-address-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="contact-addresses-hidden" name="contact_addresses" value='{{ person.contact_addresses | tojson }}'>
+        </div>
+      </section>
+
+      {# ── Social section ── #}
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.social_accounts') }}</h2>
+          <p class="person-edit-section__hint">{{ t('person.social_accounts_hint') }}</p>
+        </div>
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label></label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addSocial()" aria-label="{{ t('person.add_social') }}">{{ t('person.add_social') }}</button>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit-social-twitter">X / Twitter</label>
-              <input type="text" class="form-input" id="edit-social-twitter" name="social_twitter"
-                     value="{{ person.social_twitter or '' }}" placeholder="@username">
-            </div>
-            <div class="form-group">
-              <label for="edit-social-linkedin">LinkedIn</label>
-              <input type="text" class="form-input" id="edit-social-linkedin" name="social_linkedin"
-                     value="{{ person.social_linkedin or '' }}" placeholder="username or profile URL">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="edit-social-tiktok">TikTok</label>
-              <input type="text" class="form-input" id="edit-social-tiktok" name="social_tiktok"
-                     value="{{ person.social_tiktok or '' }}" placeholder="@username">
-            </div>
-            <div class="form-group">
-              <label for="edit-social-youtube">YouTube</label>
-              <input type="text" class="form-input" id="edit-social-youtube" name="social_youtube"
-                     value="{{ person.social_youtube or '' }}" placeholder="@channel">
-            </div>
-          </div>
+          <div id="social-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="social-hidden" name="social_accounts" value='{{ person.social_accounts | tojson }}'>
         </div>
       </section>
 
@@ -311,6 +317,11 @@
           <textarea class="form-textarea" id="edit-obituary" name="obituary" rows="4">{{ person.obituary or '' }}</textarea>
         </div>
         <div class="form-group">
+          <label for="edit-obituary-url">{{ t('person.obituary_url') }}</label>
+          <input type="url" class="form-input" id="edit-obituary-url" name="obituary_url" value="{{ person.obituary_url or '' }}" placeholder="https://">
+          <p class="text-sm text-muted">{{ t('person.obituary_url_hint') }}</p>
+        </div>
+        <div class="form-group">
           <label for="edit-obituary-source">{{ t('person.obituary_source') }}</label>
           <input type="text" class="form-input" id="edit-obituary-source" name="obituary_source" value="{{ person.obituary_source or '' }}">
         </div>
@@ -322,8 +333,10 @@
           <p class="person-edit-section__hint">{{ t('person.story_workspace_hint') }}</p>
         </div>
         <div class="form-group">
-          <label for="edit-bio">{{ t('person.bio') }}</label>
-          <textarea class="form-textarea" id="edit-bio" name="bio" rows="3">{{ person.bio or '' }}</textarea>
+          <label>{{ t('person.bio_label') }}</label>
+          <p class="text-sm text-muted">{{ t('person.bio_hint') }}</p>
+          <input type="hidden" id="edit-bio" name="bio" value="{{ person.bio or '' }}">
+          <trix-editor input="edit-bio" class="trix-content"></trix-editor>
         </div>
         <div class="form-group">
           <label for="edit-research-notes">{{ t('person.research_notes_label') }}</label>
@@ -335,23 +348,50 @@
         </div>
       </section>
 
-      <h3 class="form-section-title">{{ t('person.education') }}</h3>
-      <div class="form-group">
-        <label for="edit-education">{{ t('person.education') }} (JSON)</label>
-        <textarea class="form-textarea" id="edit-education" name="education" rows="3">{{ person.education | tojson }}</textarea>
-      </div>
+      {# ── Education (structured cards) ── #}
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.education_section') }}</h2>
+        </div>
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label></label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addEducation()" aria-label="{{ t('person.add_education') }}">{{ t('person.add_education') }}</button>
+          </div>
+          <div id="education-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="education-hidden" name="education" value='{{ person.education | tojson }}'>
+        </div>
+      </section>
 
-      <h3 class="form-section-title">{{ t('person.career') }}</h3>
-      <div class="form-group">
-        <label for="edit-career">{{ t('person.career') }} (JSON)</label>
-        <textarea class="form-textarea" id="edit-career" name="career" rows="3">{{ person.career | tojson }}</textarea>
-      </div>
+      {# ── Career (structured cards) ── #}
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.career_section') }}</h2>
+        </div>
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label></label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addCareer()" aria-label="{{ t('person.add_career') }}">{{ t('person.add_career') }}</button>
+          </div>
+          <div id="career-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="career-hidden" name="career" value='{{ person.career | tojson }}'>
+        </div>
+      </section>
 
-      <h3 class="form-section-title">{{ t('person.organizations') }}</h3>
-      <div class="form-group">
-        <label for="edit-organizations">{{ t('person.organizations') }} (JSON)</label>
-        <textarea class="form-textarea" id="edit-organizations" name="organizations" rows="3">{{ person.organizations | tojson }}</textarea>
-      </div>
+      {# ── Organizations (structured cards) ── #}
+      <section class="person-edit-section">
+        <div class="person-edit-section__header">
+          <h2 class="person-edit-section__title">{{ t('person.organizations_section') }}</h2>
+        </div>
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label></label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addOrganization()" aria-label="{{ t('person.add_organization') }}">{{ t('person.add_organization') }}</button>
+          </div>
+          <div id="organization-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="organization-hidden" name="organizations" value='{{ person.organizations | tojson }}'>
+        </div>
+      </section>
 
       <h3 class="form-section-title">{{ t('person.physical_attributes') }}</h3>
       {# ── Height with unit selector ── #}
@@ -585,6 +625,29 @@ var allLanguages = [];
 var selectedLangs = {{ person.languages | tojson }};
 var alternateNicknames = {{ person.alternate_nicknames | tojson }};
 var contactAddresses = {{ person.contact_addresses | tojson }};
+var contactPhones = {{ person.contact_phones | tojson }};
+var contactEmails = {{ person.contact_emails | tojson }};
+var socialAccounts = {{ person.social_accounts | tojson }};
+var nameHistoryEntries = {{ person.name_history | tojson }};
+var educationEntries = {{ person.education | tojson }};
+var careerEntries = {{ person.career | tojson }};
+var organizationEntries = {{ person.organizations | tojson }};
+
+var SOCIAL_PLATFORMS = [
+  {value: 'instagram', label: 'Instagram'},
+  {value: 'facebook', label: 'Facebook'},
+  {value: 'twitter', label: 'X / Twitter'},
+  {value: 'linkedin', label: 'LinkedIn'},
+  {value: 'tiktok', label: 'TikTok'},
+  {value: 'youtube', label: 'YouTube'},
+  {value: 'threads', label: 'Threads'},
+  {value: 'bluesky', label: 'Bluesky'},
+  {value: 'github', label: 'GitHub'},
+  {value: 'pinterest', label: 'Pinterest'},
+  {value: 'snapchat', label: 'Snapchat'},
+  {value: 'reddit', label: 'Reddit'},
+  {value: 'other', label: {{ t('person.phone_type_other')|tojson }}}
+];
 
 (function() {
   fetch('/static/data/languages.json')
@@ -592,6 +655,13 @@ var contactAddresses = {{ person.contact_addresses | tojson }};
     .then(function(data) { allLanguages = data; renderLangChips(); });
   renderNicknameChips();
   renderContactAddresses();
+  renderPhones();
+  renderEmails();
+  renderSocials();
+  renderNameHistory();
+  renderEducation();
+  renderCareers();
+  renderOrganizations();
   syncMemorialState();
 })();
 
@@ -726,6 +796,182 @@ function langKeydown(event) {
   }
 }
 
+/* ── Generic card helper ── */
+function renderCardList(arr, containerId, hiddenId, renderFn) {
+  var container = document.getElementById(containerId);
+  container.innerHTML = '';
+  arr.forEach(function(item, index) { container.appendChild(renderFn(item, index)); });
+  document.getElementById(hiddenId).value = JSON.stringify(arr);
+}
+function syncHidden(arr, hiddenId) { document.getElementById(hiddenId).value = JSON.stringify(arr); }
+function bindCardInputs(containerId, arr, hiddenId) {
+  document.querySelectorAll('#' + containerId + ' [data-card-index]').forEach(function(input) {
+    input.oninput = input.onchange = function() {
+      var i = parseInt(this.dataset.cardIndex, 10);
+      if (arr[i]) { arr[i][this.dataset.cardKey] = this.type === 'checkbox' ? this.checked : this.value; syncHidden(arr, hiddenId); }
+    };
+  });
+}
+
+/* ── Phones ── */
+function renderPhoneCard(phone, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.phone_number')|tojson }} + '</label>' +
+    '<input type="tel" class="form-input" value="' + escapeHtml(phone.number || '') + '" data-card-index="' + index + '" data-card-key="number" pattern="^\\+?[\\d\\s\\-\\(\\)\\.]{7,20}$"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.phone_type')|tojson }} + '</label>' +
+    '<select class="form-select" data-card-index="' + index + '" data-card-key="type">' +
+    '<option value="mobile"' + (phone.type === 'mobile' ? ' selected' : '') + '>' + {{ t('person.phone_type_mobile')|tojson }} + '</option>' +
+    '<option value="home"' + (phone.type === 'home' ? ' selected' : '') + '>' + {{ t('person.phone_type_home')|tojson }} + '</option>' +
+    '<option value="work"' + (phone.type === 'work' ? ' selected' : '') + '>' + {{ t('person.phone_type_work')|tojson }} + '</option>' +
+    '<option value="other"' + (phone.type === 'other' ? ' selected' : '') + '>' + {{ t('person.phone_type_other')|tojson }} + '</option>' +
+    '</select></div></div>' +
+    '<button type="button" class="btn btn--ghost btn--sm" onclick="removePhone(' + index + ')" aria-label="{{ t("person.remove_phone") }}">&times;</button></div>' +
+    '<div class="form-row"><div class="form-group"><label>' + {{ t('person.phone_label')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(phone.label || '') + '" data-card-index="' + index + '" data-card-key="label"></div>' +
+    '<div class="form-group" style="align-self:center;padding-top:1.4rem;"><label><input type="radio" name="phone_primary" ' + (phone.is_primary ? 'checked' : '') + ' onchange="setPhonePrimary(' + index + ')"> ' + {{ t('person.phone_primary')|tojson }} + '</label></div></div>';
+  return card;
+}
+function renderPhones() { renderCardList(contactPhones, 'phone-list', 'phones-hidden', renderPhoneCard); bindCardInputs('phone-list', contactPhones, 'phones-hidden'); }
+function addPhone() { contactPhones.push({number: '', type: 'mobile', label: '', is_primary: contactPhones.length === 0}); renderPhones(); }
+function removePhone(i) { contactPhones.splice(i, 1); renderPhones(); }
+function setPhonePrimary(i) { contactPhones.forEach(function(p, idx) { p.is_primary = idx === i; }); renderPhones(); }
+
+/* ── Emails ── */
+function renderEmailCard(email, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.email_address')|tojson }} + '</label>' +
+    '<input type="email" class="form-input" value="' + escapeHtml(email.address || '') + '" data-card-index="' + index + '" data-card-key="address"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.email_type')|tojson }} + '</label>' +
+    '<select class="form-select" data-card-index="' + index + '" data-card-key="type">' +
+    '<option value="personal"' + (email.type === 'personal' ? ' selected' : '') + '>' + {{ t('person.email_type_personal')|tojson }} + '</option>' +
+    '<option value="work"' + (email.type === 'work' ? ' selected' : '') + '>' + {{ t('person.email_type_work')|tojson }} + '</option>' +
+    '<option value="other"' + (email.type === 'other' ? ' selected' : '') + '>' + {{ t('person.email_type_other')|tojson }} + '</option>' +
+    '</select></div></div>' +
+    '<button type="button" class="btn btn--ghost btn--sm" onclick="removeEmail(' + index + ')" aria-label="{{ t("person.remove_email") }}">&times;</button></div>' +
+    '<div class="form-row"><div class="form-group" style="align-self:center;"><label><input type="radio" name="email_primary" ' + (email.is_primary ? 'checked' : '') + ' onchange="setEmailPrimary(' + index + ')"> ' + {{ t('person.email_primary')|tojson }} + '</label></div></div>';
+  return card;
+}
+function renderEmails() { renderCardList(contactEmails, 'email-list', 'emails-hidden', renderEmailCard); bindCardInputs('email-list', contactEmails, 'emails-hidden'); }
+function addEmail() { contactEmails.push({address: '', type: 'personal', is_primary: contactEmails.length === 0}); renderEmails(); }
+function removeEmail(i) { contactEmails.splice(i, 1); renderEmails(); }
+function setEmailPrimary(i) { contactEmails.forEach(function(e, idx) { e.is_primary = idx === i; }); renderEmails(); }
+
+/* ── Social Accounts ── */
+function renderSocialCard(acct, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  var platformOpts = SOCIAL_PLATFORMS.map(function(p) { return '<option value="' + p.value + '"' + (acct.platform === p.value ? ' selected' : '') + '>' + escapeHtml(p.label) + '</option>'; }).join('');
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.social_platform')|tojson }} + '</label>' +
+    '<select class="form-select" data-card-index="' + index + '" data-card-key="platform">' + platformOpts + '</select></div>' +
+    '<div class="form-group"><label>' + {{ t('person.social_handle')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(acct.handle || acct.url || '') + '" data-card-index="' + index + '" data-card-key="url" placeholder="@username or URL"></div>' +
+    '</div><button type="button" class="btn btn--ghost btn--sm" onclick="removeSocial(' + index + ')" aria-label="{{ t("person.remove_social") }}">&times;</button></div>' +
+    '<div class="form-row"><div class="form-group"><label><input type="checkbox" ' + (acct.is_visible !== false ? 'checked' : '') + ' data-card-index="' + index + '" data-card-key="is_visible"> ' + {{ t('person.social_visible')|tojson }} + '</label></div></div>';
+  return card;
+}
+function renderSocials() { renderCardList(socialAccounts, 'social-list', 'social-hidden', renderSocialCard); bindCardInputs('social-list', socialAccounts, 'social-hidden'); }
+function addSocial() { socialAccounts.push({platform: 'instagram', url: '', is_visible: true}); renderSocials(); }
+function removeSocial(i) { socialAccounts.splice(i, 1); renderSocials(); }
+
+/* ── Name History ── */
+function renderNameHistoryCard(entry, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.name_history_surname')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.surname || '') + '" data-card-index="' + index + '" data-card-key="surname"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.name_history_reason')|tojson }} + '</label>' +
+    '<select class="form-select" data-card-index="' + index + '" data-card-key="reason">' +
+    '<option value="">—</option>' +
+    '<option value="marriage"' + (entry.reason === 'marriage' ? ' selected' : '') + '>' + {{ t('person.name_history_reason_marriage')|tojson }} + '</option>' +
+    '<option value="divorce"' + (entry.reason === 'divorce' ? ' selected' : '') + '>' + {{ t('person.name_history_reason_divorce')|tojson }} + '</option>' +
+    '<option value="legal"' + (entry.reason === 'legal' ? ' selected' : '') + '>' + {{ t('person.name_history_reason_legal')|tojson }} + '</option>' +
+    '<option value="adoption"' + (entry.reason === 'adoption' ? ' selected' : '') + '>' + {{ t('person.name_history_reason_adoption')|tojson }} + '</option>' +
+    '<option value="other"' + (entry.reason === 'other' ? ' selected' : '') + '>' + {{ t('person.name_history_reason_other')|tojson }} + '</option>' +
+    '</select></div></div>' +
+    '<button type="button" class="btn btn--ghost btn--sm" onclick="removeNameHistory(' + index + ')" aria-label="{{ t("person.remove_name_history") }}">&times;</button></div>' +
+    '<div class="form-row"><div class="form-group"><label>' + {{ t('person.name_history_year')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year || '') + '" data-card-index="' + index + '" data-card-key="year" maxlength="10" style="width:100px"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.name_history_notes')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.notes || '') + '" data-card-index="' + index + '" data-card-key="notes"></div></div>';
+  return card;
+}
+function renderNameHistory() { renderCardList(nameHistoryEntries, 'name-history-list', 'name-history-hidden', renderNameHistoryCard); bindCardInputs('name-history-list', nameHistoryEntries, 'name-history-hidden'); }
+function addNameHistory() { nameHistoryEntries.push({surname: '', reason: '', year: '', notes: ''}); renderNameHistory(); }
+function removeNameHistory(i) { nameHistoryEntries.splice(i, 1); renderNameHistory(); }
+
+/* ── Education ── */
+function renderEducationCard(entry, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.education_institution')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.institution || '') + '" data-card-index="' + index + '" data-card-key="institution"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.education_degree')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.degree || '') + '" data-card-index="' + index + '" data-card-key="degree"></div>' +
+    '</div><button type="button" class="btn btn--ghost btn--sm" onclick="removeEducation(' + index + ')" aria-label="{{ t("person.remove_education") }}">&times;</button></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.education_field')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.field_of_study || '') + '" data-card-index="' + index + '" data-card-key="field_of_study"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.education_start')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year_start || '') + '" data-card-index="' + index + '" data-card-key="year_start" style="width:80px"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.education_end')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year_end || '') + '" data-card-index="' + index + '" data-card-key="year_end" style="width:80px"></div></div>';
+  return card;
+}
+function renderEducation() { renderCardList(educationEntries, 'education-list', 'education-hidden', renderEducationCard); bindCardInputs('education-list', educationEntries, 'education-hidden'); }
+function addEducation() { educationEntries.push({institution: '', degree: '', field_of_study: '', year_start: '', year_end: ''}); renderEducation(); }
+function removeEducation(i) { educationEntries.splice(i, 1); renderEducation(); }
+
+/* ── Career ── */
+function renderCareerCard(entry, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.career_employer')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.employer || '') + '" data-card-index="' + index + '" data-card-key="employer"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.career_title')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.title || '') + '" data-card-index="' + index + '" data-card-key="title"></div>' +
+    '</div><button type="button" class="btn btn--ghost btn--sm" onclick="removeCareer(' + index + ')" aria-label="{{ t("person.remove_career") }}">&times;</button></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.career_location')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.location || '') + '" data-card-index="' + index + '" data-card-key="location"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.career_start')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year_start || '') + '" data-card-index="' + index + '" data-card-key="year_start" style="width:80px"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.career_end')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year_end || '') + '" data-card-index="' + index + '" data-card-key="year_end" style="width:80px"></div></div>';
+  return card;
+}
+function renderCareers() { renderCardList(careerEntries, 'career-list', 'career-hidden', renderCareerCard); bindCardInputs('career-list', careerEntries, 'career-hidden'); }
+function addCareer() { careerEntries.push({employer: '', title: '', location: '', year_start: '', year_end: ''}); renderCareers(); }
+function removeCareer(i) { careerEntries.splice(i, 1); renderCareers(); }
+
+/* ── Organizations ── */
+function renderOrgCard(entry, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.org_name')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.name || '') + '" data-card-index="' + index + '" data-card-key="name"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.org_role')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.role || '') + '" data-card-index="' + index + '" data-card-key="role"></div>' +
+    '</div><button type="button" class="btn btn--ghost btn--sm" onclick="removeOrganization(' + index + ')" aria-label="{{ t("person.remove_organization") }}">&times;</button></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.org_joined')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year_joined || '') + '" data-card-index="' + index + '" data-card-key="year_joined" style="width:80px"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.org_left')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.year_left || '') + '" data-card-index="' + index + '" data-card-key="year_left" style="width:80px"></div></div>';
+  return card;
+}
+function renderOrganizations() { renderCardList(organizationEntries, 'organization-list', 'organization-hidden', renderOrgCard); bindCardInputs('organization-list', organizationEntries, 'organization-hidden'); }
+function addOrganization() { organizationEntries.push({name: '', role: '', year_joined: '', year_left: ''}); renderOrganizations(); }
+function removeOrganization(i) { organizationEntries.splice(i, 1); renderOrganizations(); }
+
 function syncContactAddressesHidden() {
   document.getElementById('contact-addresses-hidden').value = JSON.stringify(contactAddresses);
 }
@@ -734,10 +980,18 @@ function addContactAddress() {
   contactAddresses.push({
     type: 'mailing',
     label: '',
-    place: '',
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: '',
     country_code: '',
+    place_id: '',
     latitude: '',
-    longitude: ''
+    longitude: '',
+    is_primary: contactAddresses.length === 0,
+    is_partial: false
   });
   renderContactAddresses();
 }
@@ -761,6 +1015,7 @@ function renderContactAddresses() {
   contactAddresses.forEach(function(address, index) {
     var card = document.createElement('div');
     card.className = 'person-edit-address-card';
+    var isPartial = !address.latitude && !address.longitude;
     card.innerHTML =
       '<div class="person-edit-address-card__head">' +
       '<div class="form-row">' +
@@ -770,6 +1025,7 @@ function renderContactAddresses() {
       '<option value="mailing"' + (address.type === 'mailing' ? ' selected' : '') + '>' + {{ t('person.address_type_mailing')|tojson }} + '</option>' +
       '<option value="residential"' + (address.type === 'residential' ? ' selected' : '') + '>' + {{ t('person.address_type_residential')|tojson }} + '</option>' +
       '<option value="work"' + (address.type === 'work' ? ' selected' : '') + '>' + {{ t('person.address_type_work')|tojson }} + '</option>' +
+      '<option value="historical"' + (address.type === 'historical' ? ' selected' : '') + '>' + {{ t('person.address_type_historical')|tojson }} + '</option>' +
       '<option value="other"' + (address.type === 'other' ? ' selected' : '') + '>' + {{ t('person.address_type_other')|tojson }} + '</option>' +
       '</select>' +
       '</div>' +
@@ -778,22 +1034,43 @@ function renderContactAddresses() {
       '<input type="text" class="form-input" value="' + escapeHtml(address.label || '') + '" data-address-index="' + index + '" data-address-key="label" placeholder="' + {{ t('person.address_label_placeholder')|tojson }} + '">' +
       '</div>' +
       '</div>' +
-      '<button type="button" class="btn btn--ghost btn--sm" onclick="removeContactAddress(' + index + ')">' + {{ t('person.remove_address')|tojson }} + '</button>' +
+      '<button type="button" class="btn btn--ghost btn--sm" onclick="removeContactAddress(' + index + ')" aria-label="{{ t("person.remove_address") }}">&times;</button>' +
       '</div>' +
       '<div class="form-group person-edit-address-card__field" data-place-field>' +
-      '<label>' + {{ t('person.contact_address')|tojson }} + '</label>' +
-      '<input type="text" class="form-input" value="' + escapeHtml(address.place || '') + '" data-place-input data-address-index="' + index + '" data-address-key="place">' +
+      '<label>' + {{ t('person.address_line1')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.line1 || address.place || '') + '" data-place-input data-address-index="' + index + '" data-address-key="line1">' +
       '<input type="hidden" value="' + escapeHtml(address.country_code || '') + '" data-country-input data-address-index="' + index + '" data-address-key="country_code">' +
+      '<input type="hidden" value="' + escapeHtml(address.place_id || '') + '" data-address-index="' + index + '" data-address-key="place_id">' +
       '<input type="hidden" value="' + escapeHtml(address.latitude || '') + '" data-place-latitude data-address-index="' + index + '" data-address-key="latitude">' +
       '<input type="hidden" value="' + escapeHtml(address.longitude || '') + '" data-place-longitude data-address-index="' + index + '" data-address-key="longitude">' +
       '<p class="text-sm text-muted" data-place-status></p>' +
-      '</div>';
+      '</div>' +
+      '<div class="form-group person-edit-address-card__field">' +
+      '<label>' + {{ t('person.address_line2')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.line2 || '') + '" data-address-index="' + index + '" data-address-key="line2">' +
+      '</div>' +
+      '<div class="form-row">' +
+      '<div class="form-group"><label>' + {{ t('person.address_city')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.city || '') + '" data-address-index="' + index + '" data-address-key="city"></div>' +
+      '<div class="form-group"><label>' + {{ t('person.address_state')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.state || '') + '" data-address-index="' + index + '" data-address-key="state"></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+      '<div class="form-group"><label>' + {{ t('person.address_postal_code')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.postal_code || '') + '" data-address-index="' + index + '" data-address-key="postal_code" style="width:120px"></div>' +
+      '<div class="form-group"><label>' + {{ t('person.address_country')|tojson }} + '</label>' +
+      '<input type="text" class="form-input" value="' + escapeHtml(address.country || '') + '" data-address-index="' + index + '" data-address-key="country"></div>' +
+      '<div class="form-group" style="align-self:center;padding-top:1.4rem;"><label><input type="radio" name="address_primary" ' + (address.is_primary ? 'checked' : '') + ' onchange="setAddressPrimary(' + index + ')"> ' + {{ t('person.address_primary')|tojson }} + '</label></div>' +
+      '</div>' +
+      (isPartial ? '<p class="text-sm text-muted" style="color:#b8860b;">' + {{ t('person.address_partial')|tojson }} + '</p>' : '');
     container.appendChild(card);
   });
   bindContactAddressInputs();
   window.familyBookLocations.init(container, PERSON_LOCATION_CONFIG);
   syncContactAddressesHidden();
 }
+
+function setAddressPrimary(i) { contactAddresses.forEach(function(a, idx) { a.is_primary = idx === i; }); renderContactAddresses(); }
 
 function bindContactAddressInputs() {
   document.querySelectorAll('#contact-address-list [data-address-index]').forEach(function(input) {
@@ -807,23 +1084,15 @@ function bindContactAddressInputs() {
 
 function syncAddressesFromDom() {
   document.querySelectorAll('#contact-address-list .person-edit-address-card').forEach(function(card, index) {
-    var placeInput = card.querySelector('[data-address-key="place"]');
-    var countryInput = card.querySelector('[data-address-key="country_code"]');
-    var latInput = card.querySelector('[data-address-key="latitude"]');
-    var lngInput = card.querySelector('[data-address-key="longitude"]');
-    var typeInput = card.querySelector('[data-address-key="type"]');
-    var labelInput = card.querySelector('[data-address-key="label"]');
-    contactAddresses[index] = {
-      type: typeInput ? typeInput.value : 'mailing',
-      label: labelInput ? labelInput.value.trim() : '',
-      place: placeInput ? placeInput.value.trim() : '',
-      country_code: countryInput ? countryInput.value.trim() : '',
-      latitude: latInput ? latInput.value.trim() : '',
-      longitude: lngInput ? lngInput.value.trim() : ''
-    };
+    if (!contactAddresses[index]) return;
+    var fields = ['type', 'label', 'line1', 'line2', 'city', 'state', 'postal_code', 'country', 'country_code', 'place_id', 'latitude', 'longitude'];
+    fields.forEach(function(key) {
+      var el = card.querySelector('[data-address-key="' + key + '"]');
+      if (el) contactAddresses[index][key] = el.value.trim();
+    });
   });
   contactAddresses = contactAddresses.filter(function(entry) {
-    return entry.place || entry.label;
+    return entry.line1 || entry.place || entry.label || entry.city;
   });
   syncContactAddressesHidden();
 }
@@ -961,10 +1230,10 @@ async function savePerson(e) {
 
   var fd = new FormData(e.target);
   var data = {};
-  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions', 'contact_addresses'];
+  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions', 'contact_addresses', 'contact_phones', 'contact_emails', 'social_accounts', 'name_history'];
   var nullableFields = [
     'nickname',
-    'contact_phone',
+    'obituary_url',
     'birth_place',
     'birth_country_code',
     'birth_place_latitude',
@@ -998,9 +1267,6 @@ async function savePerson(e) {
   }
 
   data.is_living = document.getElementById('edit-is-living').checked;
-  ['social_instagram', 'social_facebook', 'social_twitter', 'social_linkedin', 'social_tiktok', 'social_youtube'].forEach(function(fieldName) {
-    data[fieldName] = normalizeSocialValue(fieldName, data[fieldName] || '');
-  });
 
   // Collect unified date inputs — always send as raw, server parses to ISO
   var birthText = document.getElementById('edit-birth-date-text').value.trim();

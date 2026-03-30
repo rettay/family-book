@@ -45,6 +45,7 @@ PERSON_MUTABLE_FIELDS = [
     "medical_history",
     "obituary",
     "obituary_source",
+    "obituary_url",
     "contact_whatsapp",
     "contact_telegram",
     "contact_signal",
@@ -90,6 +91,9 @@ PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS = [
     "admixture",
     "medical_conditions",
     "contact_addresses",
+    "contact_phones",
+    "contact_emails",
+    "name_history",
 ]
 
 
@@ -118,6 +122,10 @@ def serialize_person_snapshot(person: Person) -> dict:
     snapshot["admixture"] = person.admixture
     snapshot["medical_conditions"] = person.medical_conditions
     snapshot["contact_addresses"] = person.contact_addresses
+    snapshot["contact_phones"] = person.contact_phones
+    snapshot["contact_emails"] = person.contact_emails
+    snapshot["social_accounts"] = person.social_accounts
+    snapshot["name_history"] = person.name_history
     snapshot = encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
     for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
         if field in snapshot and snapshot[field] is not None:
@@ -153,6 +161,14 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
         person.medical_conditions = snapshot["medical_conditions"] or []
     if "contact_addresses" in snapshot:
         person.contact_addresses = snapshot["contact_addresses"] or []
+    if "contact_phones" in snapshot:
+        person.contact_phones = snapshot["contact_phones"] or []
+    if "contact_emails" in snapshot:
+        person.contact_emails = snapshot["contact_emails"] or []
+    if "name_history" in snapshot:
+        person.name_history = snapshot["name_history"] or []
+    if "social_accounts" in snapshot:
+        person.social_accounts = snapshot["social_accounts"] or []
 
 
 async def record_revision(

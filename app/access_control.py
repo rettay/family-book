@@ -203,6 +203,9 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "medical_history": _profile_value(person.medical_history, access),
         "obituary": _profile_value(person.obituary, access),
         "obituary_source": _profile_value(person.obituary_source, access),
+        "obituary_url": _profile_value(person.obituary_url, access),
+        "name_history": _profile_list(person.name_history, access),
+        "social_accounts": _profile_list(person.social_accounts, access),
         "education": _profile_list(person.education, access),
         "career": _profile_list(person.career, access),
         "organizations": _profile_list(person.organizations, access),
@@ -229,6 +232,8 @@ def _detail_contact_payload(person: Person, access: PersonAccess) -> dict[str, o
         "contact_phone": _contact_value(person.contact_phone, access),
         "contact_email": _contact_value(person.contact_email, access),
         "contact_addresses": _contact_list(person.contact_addresses, access),
+        "contact_phones": _contact_list(person.contact_phones, access),
+        "contact_emails": _contact_list(person.contact_emails, access),
     }
 
 

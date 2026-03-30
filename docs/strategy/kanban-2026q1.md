@@ -2,12 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-047 | Google Maps Platform Contract and Railway Runtime Setup | P0 | `task_packets/FB-047_google_maps_platform_contract_and_runtime_setup.md` |
-| FB-048 | Place Autocomplete and Country Normalization Across Person Surfaces | P1 | `task_packets/FB-048_place_autocomplete_and_country_normalization_across_person_surfaces.md` |
-| FB-049 | Coordinate Persistence and Truthful Map Marker Placement | P1 | `task_packets/FB-049_coordinate_persistence_and_truthful_map_marker_placement.md` |
-| FB-050 | Kinship-Aware Map Semantics and Family Distribution Readability | P2 | `task_packets/FB-050_kinship_aware_map_semantics_and_family_distribution_readability.md` |
+None.
 
 ## In Progress
 
@@ -21,6 +16,16 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-053 | Person Contact and Identity Data Model Enhancement | P0 | `task_packets/FB-053_person_contact_and_identity_data_model_enhancement.md` |
+| FB-054 | Multi-Value Contact and Social Edit UX | P1 | `task_packets/FB-054_multi_value_contact_and_social_edit_ux.md` |
+| FB-055 | Structured Addresses and Places Auto-Population | P1 | `task_packets/FB-055_structured_addresses_and_places_auto_population.md` |
+| FB-056 | Person Edit Form Polish and Bio Integration | P1 | `task_packets/FB-056_person_edit_form_polish_and_bio_integration.md` |
+| FB-051 | Relationship Correction Primitives and API Truth | P0 | `task_packets/FB-051_relationship_correction_primitives_and_api_truth.md` |
+| FB-052 | Tree Relationship Correction and Editing Flow | P1 | `task_packets/FB-052_tree_relationship_correction_and_editing_flow.md` |
+| FB-047 | Google Maps Platform Contract and Railway Runtime Setup | P0 | `task_packets/FB-047_google_maps_platform_contract_and_runtime_setup.md` |
+| FB-048 | Place Autocomplete and Country Normalization Across Person Surfaces | P1 | `task_packets/FB-048_place_autocomplete_and_country_normalization_across_person_surfaces.md` |
+| FB-049 | Coordinate Persistence and Truthful Map Marker Placement | P1 | `task_packets/FB-049_coordinate_persistence_and_truthful_map_marker_placement.md` |
+| FB-050 | Kinship-Aware Map Semantics and Family Distribution Readability | P2 | `task_packets/FB-050_kinship_aware_map_semantics_and_family_distribution_readability.md` |
 | FB-033 | Collapsible Tree Controls Panel | P2 | `task_packets/FB-033_collapsible_tree_controls_panel.md` |
 | FB-034 | Wiki Biography Enhancement and Rich Text Editor | P1 | `task_packets/FB-034_wiki_biography_enhancement_and_rich_text_editor.md` |
 | FB-035 | UI Cleanup: Rebrand Wiki, Remove Moments/People/Health | P1 | Interstitial — `.claude/plans/spicy-bouncing-llama.md` |
