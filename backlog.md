@@ -1,6 +1,32 @@
 # Family Book Backlog
 
-Sprint: `S36 - Person Enrichment and Sidebar Polish`
+Sprint: `S37 - Auth Visibility and Invite Reliability`
+Status: Ready
+
+## Current Sprint `S37 - Auth Visibility and Invite Reliability`
+
+Sprint goal:
+- Give the admin full visibility into who has logged in and when, persist invite delivery status, surface active sessions, set up Resend email delivery, and fix login/invite error messages so family members can actually get in.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-072 | Login Tracking and Admin Visibility | P0 | todo | `task_packets/FB-072_login_tracking_and_admin_visibility.md` |
+| FB-073 | Persist Invite Delivery Status | P0 | todo | `task_packets/FB-073_persist_invite_delivery_status.md` |
+| FB-074 | Admin Session Visibility | P1 | todo | `task_packets/FB-074_admin_session_visibility.md` |
+| FB-075 | Resend Setup and Invite Email Polish | P1 | todo | `task_packets/FB-075_resend_setup_and_invite_email_polish.md` |
+| FB-076 | Login and Invite Claim Error UX | P1 | todo | `task_packets/FB-076_login_error_ux.md` |
+
+Execution slices:
+- `S37-1` last_login_at on Person, login/logout audit entries, admin dashboard login column
+- `S37-2` Invite delivery columns, persist Resend result, admin delivery badges, resend button
+- `S37-3` Admin session list with device/IP, session revocation
+- `S37-4` HTML invite email template, Resend config verification, copy-link fallback
+- `S37-5` Login/invite claim error messages with actionable hints, failed attempt logging
+
+## Closed Sprint `S36 - Person Enrichment and Sidebar Polish`
+
 Status: Done
 
 ## Current Sprint `S36 - Person Enrichment and Sidebar Polish`

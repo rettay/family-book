@@ -2,7 +2,49 @@
 
 ## Current Sprint
 
-None.
+### `S37 - Auth Visibility and Invite Reliability`
+
+Status: Ready
+
+### Sprint Goal
+
+Give the admin full visibility into login activity and invite delivery, surface active sessions, set up Resend for email invites, and fix error messages so family members can successfully access the app.
+
+### Why This Sprint Next
+
+Real family members are actively using the site and reporting access issues. The admin has no tools to diagnose what's happening — no login timestamps, no invite delivery tracking, no session visibility. This must be fixed before adding new features or infrastructure.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 72 | FB-072 | Login Tracking and Admin Visibility | P0 | todo |
+| 73 | FB-073 | Persist Invite Delivery Status | P0 | todo |
+| 74 | FB-074 | Admin Session Visibility | P1 | todo |
+| 75 | FB-075 | Resend Setup and Invite Email Polish | P1 | todo |
+| 76 | FB-076 | Login and Invite Claim Error UX | P1 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S37-1 | last_login_at, login/logout audit, admin login column | todo |
+| S37-2 | Invite delivery persistence, admin badges, resend button | todo |
+| S37-3 | Admin session list, device parsing, session revocation | todo |
+| S37-4 | HTML invite email, Resend config, copy-link fallback | todo |
+| S37-5 | Login/invite error messages, failed attempt logging | todo |
+
+### Sprint Exit Criteria
+
+- admin can see when each person last logged in
+- login/logout events appear in the audit log
+- invite delivery status persisted and visible on admin dashboard
+- admin can see active sessions per person with device/IP info
+- admin can revoke sessions
+- invite email is polished HTML with branding
+- Resend is configured (or setup documented)
+- login and invite claim pages show clear, actionable error messages
+- failed auth attempts logged to audit trail
 
 ---
 
