@@ -2,9 +2,15 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S36 - Person Enrichment and Sidebar Polish`
 
-Status: Ready
+Status: Closed
 
 ### Sprint Goal
 
@@ -28,11 +34,11 @@ Direct user feedback: people move over time and a single residence field isn't e
 
 | Slice | Title | Status |
 |---|---|---|
-| S36-1 | PlaceHistoryEntry data model, migration, card editors, wiki section | todo |
-| S36-2 | Language autocomplete from languages.json | todo |
-| S36-3 | Debounced auto-save on sidebar person fields | todo |
-| S36-4 | Sidebar label audit and placeholder polish | todo |
-| S36-5 | Google Places autocomplete on sidebar place fields | todo |
+| S36-1 | PlaceHistoryEntry data model, migration, card editors, wiki section | done |
+| S36-2 | Language autocomplete from languages.json | done |
+| S36-3 | Debounced auto-save on sidebar person fields | done |
+| S36-4 | Sidebar label audit and placeholder polish | done |
+| S36-5 | Google Places autocomplete on sidebar place fields | done (already wired) |
 
 ### Sprint Exit Criteria
 

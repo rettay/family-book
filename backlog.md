@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S36 - Person Enrichment and Sidebar Polish`
-Status: Ready
+Status: Done
 
 ## Current Sprint `S36 - Person Enrichment and Sidebar Polish`
 
@@ -12,11 +12,11 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-067 | Place History Timeline | P0 | todo | `task_packets/FB-067_place_history_timeline.md` |
-| FB-068 | Language Input Autocomplete | P1 | todo | `task_packets/FB-068_language_autocomplete.md` |
-| FB-069 | Auto-Save Person Fields | P1 | todo | `task_packets/FB-069_auto_save_person_fields.md` |
-| FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | todo | `task_packets/FB-070_sidebar_label_tightening.md` |
-| FB-071 | Sidebar Place Autocomplete | P2 | todo | `task_packets/FB-071_sidebar_place_autocomplete.md` |
+| FB-067 | Place History Timeline | P0 | done | `task_packets/FB-067_place_history_timeline.md` |
+| FB-068 | Language Input Autocomplete | P1 | done | `task_packets/FB-068_language_autocomplete.md` |
+| FB-069 | Auto-Save Person Fields | P1 | done | `task_packets/FB-069_auto_save_person_fields.md` |
+| FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | done | `task_packets/FB-070_sidebar_label_tightening.md` |
+| FB-071 | Sidebar Place Autocomplete | P2 | done | `task_packets/FB-071_sidebar_place_autocomplete.md` |
 
 Execution slices:
 - `S36-1` PlaceHistoryEntry data model, migration, card editors, wiki section

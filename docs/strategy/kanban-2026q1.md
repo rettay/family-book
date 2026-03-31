@@ -2,13 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-067 | Place History Timeline | P0 | `task_packets/FB-067_place_history_timeline.md` |
-| FB-068 | Language Input Autocomplete | P1 | `task_packets/FB-068_language_autocomplete.md` |
-| FB-069 | Auto-Save Person Fields | P1 | `task_packets/FB-069_auto_save_person_fields.md` |
-| FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | `task_packets/FB-070_sidebar_label_tightening.md` |
-| FB-071 | Sidebar Place Autocomplete | P2 | `task_packets/FB-071_sidebar_place_autocomplete.md` |
+None.
 
 ## In Progress
 
@@ -28,6 +22,11 @@ None.
 | FB-064 | Remove Purpose Selector from Upload UI | P1 | `task_packets/FB-064_remove_purpose_from_upload_ui.md` |
 | FB-065 | Media Delete Buttons | P0 | `task_packets/FB-065_media_delete_buttons.md` |
 | FB-066 | Click Circle to Upload Headshot | P1 | `task_packets/FB-066_click_circle_to_upload_headshot.md` |
+| FB-067 | Place History Timeline | P0 | `task_packets/FB-067_place_history_timeline.md` |
+| FB-068 | Language Input Autocomplete | P1 | `task_packets/FB-068_language_autocomplete.md` |
+| FB-069 | Auto-Save Person Fields | P1 | `task_packets/FB-069_auto_save_person_fields.md` |
+| FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | `task_packets/FB-070_sidebar_label_tightening.md` |
+| FB-071 | Sidebar Place Autocomplete | P2 | `task_packets/FB-071_sidebar_place_autocomplete.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
