@@ -2,6 +2,49 @@
 
 ## Current Sprint
 
+### `S36 - Person Enrichment and Sidebar Polish`
+
+Status: Ready
+
+### Sprint Goal
+
+Add place history timeline to person records, wire language autocomplete, introduce auto-save on sidebar fields, tighten sidebar labels, and extend Places autocomplete to the tree sidebar. Last sprint shipping directly to production — S37 will establish a UAT/staging pipeline.
+
+### Why This Sprint Next
+
+Direct user feedback: people move over time and a single residence field isn't enough; language input has no autocomplete guidance; the sidebar save button is too far from the action; labels are verbose for a narrow panel. These are the remaining high-friction UX gaps before shifting focus to infrastructure.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 67 | FB-067 | Place History Timeline | P0 | todo |
+| 68 | FB-068 | Language Input Autocomplete | P1 | todo |
+| 69 | FB-069 | Auto-Save Person Fields | P1 | todo |
+| 70 | FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | todo |
+| 71 | FB-071 | Sidebar Place Autocomplete | P2 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S36-1 | PlaceHistoryEntry data model, migration, card editors, wiki section | todo |
+| S36-2 | Language autocomplete from languages.json | todo |
+| S36-3 | Debounced auto-save on sidebar person fields | todo |
+| S36-4 | Sidebar label audit and placeholder polish | todo |
+| S36-5 | Google Places autocomplete on sidebar place fields | todo |
+
+### Sprint Exit Criteria
+
+- person records support multiple place history entries with date ranges and descriptions
+- language input offers autocomplete from the languages vocabulary
+- sidebar fields auto-save with debounce and visual feedback
+- sidebar labels are concise with helpful placeholders
+- sidebar place fields have Google Places autocomplete when configured
+- i18n parity maintained
+
+---
+
 ### `S35 - Media UX Cleanup`
 
 Status: Closed

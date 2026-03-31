@@ -1,5 +1,32 @@
 # Family Book Backlog
 
+Sprint: `S36 - Person Enrichment and Sidebar Polish`
+Status: Ready
+
+## Current Sprint `S36 - Person Enrichment and Sidebar Polish`
+
+Sprint goal:
+- Add place history timeline to person records, wire language autocomplete, introduce auto-save on sidebar fields, tighten sidebar labels, and extend Places autocomplete to the tree sidebar.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-067 | Place History Timeline | P0 | todo | `task_packets/FB-067_place_history_timeline.md` |
+| FB-068 | Language Input Autocomplete | P1 | todo | `task_packets/FB-068_language_autocomplete.md` |
+| FB-069 | Auto-Save Person Fields | P1 | todo | `task_packets/FB-069_auto_save_person_fields.md` |
+| FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | todo | `task_packets/FB-070_sidebar_label_tightening.md` |
+| FB-071 | Sidebar Place Autocomplete | P2 | todo | `task_packets/FB-071_sidebar_place_autocomplete.md` |
+
+Execution slices:
+- `S36-1` PlaceHistoryEntry data model, migration, card editors, wiki section
+- `S36-2` Language autocomplete from languages.json on edit page and sidebar
+- `S36-3` Debounced auto-save on sidebar person fields with saved indicator
+- `S36-4` Label audit and placeholder polish across sidebar Details tab
+- `S36-5` Google Places autocomplete on sidebar place fields and place history cards
+
+## Closed Sprint `S35 - Media UX Cleanup`
+
 Sprint: `S35 - Media UX Cleanup`
 Status: Done
 
