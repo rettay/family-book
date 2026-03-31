@@ -1090,7 +1090,7 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
 .tree-sidebar-card__avatar-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.4); color: #fff; font-size: 1.4rem; border-radius: 50%;
-  opacity: 0; transition: opacity 0.15s ease;
+  opacity: 0; transition: opacity 0.15s ease; pointer-events: none;
 }
 .tree-sidebar-card__avatar--clickable:hover .tree-sidebar-card__avatar-overlay,
 .tree-sidebar-card__avatar--clickable:focus-visible .tree-sidebar-card__avatar-overlay {
