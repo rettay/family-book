@@ -2,9 +2,15 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S37 - Auth Visibility and Invite Reliability`
 
-Status: Ready
+Status: Closed
 
 ### Sprint Goal
 

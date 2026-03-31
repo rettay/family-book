@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S37 - Auth Visibility and Invite Reliability`
-Status: Ready
+Status: Done
 
 ## Current Sprint `S37 - Auth Visibility and Invite Reliability`
 
@@ -12,11 +12,11 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-072 | Login Tracking and Admin Visibility | P0 | todo | `task_packets/FB-072_login_tracking_and_admin_visibility.md` |
-| FB-073 | Persist Invite Delivery Status | P0 | todo | `task_packets/FB-073_persist_invite_delivery_status.md` |
-| FB-074 | Admin Session Visibility | P1 | todo | `task_packets/FB-074_admin_session_visibility.md` |
-| FB-075 | Resend Setup and Invite Email Polish | P1 | todo | `task_packets/FB-075_resend_setup_and_invite_email_polish.md` |
-| FB-076 | Login and Invite Claim Error UX | P1 | todo | `task_packets/FB-076_login_error_ux.md` |
+| FB-072 | Login Tracking and Admin Visibility | P0 | done | `task_packets/FB-072_login_tracking_and_admin_visibility.md` |
+| FB-073 | Persist Invite Delivery Status | P0 | done | `task_packets/FB-073_persist_invite_delivery_status.md` |
+| FB-074 | Admin Session Visibility | P1 | done | `task_packets/FB-074_admin_session_visibility.md` |
+| FB-075 | Resend Setup and Invite Email Polish | P1 | done | `task_packets/FB-075_resend_setup_and_invite_email_polish.md` |
+| FB-076 | Login and Invite Claim Error UX | P1 | done | `task_packets/FB-076_login_error_ux.md` |
 
 Execution slices:
 - `S37-1` last_login_at on Person, login/logout audit entries, admin dashboard login column

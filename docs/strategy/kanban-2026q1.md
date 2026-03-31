@@ -2,13 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-072 | Login Tracking and Admin Visibility | P0 | `task_packets/FB-072_login_tracking_and_admin_visibility.md` |
-| FB-073 | Persist Invite Delivery Status | P0 | `task_packets/FB-073_persist_invite_delivery_status.md` |
-| FB-074 | Admin Session Visibility | P1 | `task_packets/FB-074_admin_session_visibility.md` |
-| FB-075 | Resend Setup and Invite Email Polish | P1 | `task_packets/FB-075_resend_setup_and_invite_email_polish.md` |
-| FB-076 | Login and Invite Claim Error UX | P1 | `task_packets/FB-076_login_error_ux.md` |
+None.
 
 ## In Progress
 
@@ -33,6 +27,11 @@ None.
 | FB-069 | Auto-Save Person Fields | P1 | `task_packets/FB-069_auto_save_person_fields.md` |
 | FB-070 | Sidebar Label Tightening and Placeholder Polish | P2 | `task_packets/FB-070_sidebar_label_tightening.md` |
 | FB-071 | Sidebar Place Autocomplete | P2 | `task_packets/FB-071_sidebar_place_autocomplete.md` |
+| FB-072 | Login Tracking and Admin Visibility | P0 | `task_packets/FB-072_login_tracking_and_admin_visibility.md` |
+| FB-073 | Persist Invite Delivery Status | P0 | `task_packets/FB-073_persist_invite_delivery_status.md` |
+| FB-074 | Admin Session Visibility | P1 | `task_packets/FB-074_admin_session_visibility.md` |
+| FB-075 | Resend Setup and Invite Email Polish | P1 | `task_packets/FB-075_resend_setup_and_invite_email_polish.md` |
+| FB-076 | Login and Invite Claim Error UX | P1 | `task_packets/FB-076_login_error_ux.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
