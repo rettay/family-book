@@ -92,6 +92,18 @@ class NameHistoryEntry(BaseModel):
     notes: str | None = Field(None, max_length=500)
 
 
+class PlaceHistoryEntry(BaseModel):
+    place: str | None = Field(None, max_length=300)
+    country_code: str | None = Field(None, max_length=80)
+    from_year: str | None = Field(None, max_length=10)
+    to_year: str | None = Field(None, max_length=10)
+    description: str | None = Field(None, max_length=1000)
+    place_latitude: float | None = None
+    place_longitude: float | None = None
+    place_id: str | None = Field(None, max_length=300)
+    is_current: bool | None = None
+
+
 # --- Person ---
 
 class PersonCreate(BaseModel):
@@ -157,6 +169,7 @@ class PersonCreate(BaseModel):
     contact_emails: list[EmailEntry] = []
     social_accounts: list[SocialAccountEntry] = []
     name_history: list[NameHistoryEntry] = []
+    place_history: list[PlaceHistoryEntry] = []
     social_instagram: str | None = Field(None, max_length=300)
     social_facebook: str | None = Field(None, max_length=300)
     social_twitter: str | None = Field(None, max_length=300)
@@ -252,6 +265,7 @@ class PersonUpdate(BaseModel):
     contact_emails: list[EmailEntry] | None = None
     social_accounts: list[SocialAccountEntry] | None = None
     name_history: list[NameHistoryEntry] | None = None
+    place_history: list[PlaceHistoryEntry] | None = None
     social_instagram: str | None = Field(None, max_length=300)
     social_facebook: str | None = Field(None, max_length=300)
     social_twitter: str | None = Field(None, max_length=300)
@@ -361,6 +375,7 @@ class PersonDetail(PersonSummary):
     contact_emails: list[dict] = []
     social_accounts: list[dict] = []
     name_history: list[dict] = []
+    place_history: list[dict] = []
     social_instagram: str | None = None
     social_facebook: str | None = None
     social_twitter: str | None = None
@@ -484,6 +499,7 @@ def person_to_detail(person) -> PersonDetail:
         contact_emails=person.contact_emails,
         social_accounts=person.social_accounts,
         name_history=person.name_history,
+        place_history=person.place_history,
         social_instagram=person.social_instagram,
         social_facebook=person.social_facebook,
         social_twitter=person.social_twitter,

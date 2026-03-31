@@ -1310,6 +1310,15 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
 .tree-rel-list li + li {
   margin-top: 6px;
 }
+.tree-person-save-status {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  transition: opacity 0.3s;
+  min-height: 1.2em;
+}
+.tree-person-save-status--saving { color: var(--amber, #c49a3c); }
+.tree-person-save-status--saved { color: #2d5016; }
+.tree-person-save-status--error { color: #c0392b; }
 .tree-inline-form {
   display: grid;
   gap: 10px;

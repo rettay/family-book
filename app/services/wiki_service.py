@@ -207,6 +207,40 @@ def build_personal_life_section(person, partnerships: list, children: list) -> d
                     edit_fields=["residence_place", "residence_country_code"])
 
 
+def build_place_history_section(person) -> dict | None:
+    """From place_history[] array — chronological list of places lived."""
+    if not person.place_history:
+        return None
+    lines = []
+    # Sort by from_year (entries without from_year go last)
+    entries = sorted(
+        person.place_history,
+        key=lambda e: (e.get("from_year") or "9999") if isinstance(e, dict) else "9999",
+    )
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        place = entry.get("place")
+        if not place:
+            continue
+        parts = [str(_esc(place))]
+        from_year = entry.get("from_year")
+        to_year = entry.get("to_year")
+        if from_year and to_year:
+            parts.append(f"({_esc(str(from_year))}\u2013{_esc(str(to_year))})")
+        elif from_year:
+            parts.append(f"({_esc(str(from_year))}\u2013)")
+        elif to_year:
+            parts.append(f"(\u2013{_esc(str(to_year))})")
+        if entry.get("is_current"):
+            parts.append("(current)")
+        desc = entry.get("description")
+        if desc:
+            parts.append(f"\u2014 {_esc(desc)}")
+        lines.append(" ".join(parts))
+    return _section("place-history", "Places Lived", lines, edit_fields=["place_history"])
+
+
 def build_organizations_section(person) -> dict | None:
     """From organizations[] array."""
     if not person.organizations:
@@ -421,6 +455,11 @@ async def assemble_wiki_sections(db, person, current_user) -> list[dict]:
     personal = build_personal_life_section(person, partnerships, children)
     if personal:
         sections.append(personal)
+
+    # 5b. Places Lived
+    places_lived = build_place_history_section(person)
+    if places_lived:
+        sections.append(places_lived)
 
     # 6. Organizations
     orgs = build_organizations_section(person)

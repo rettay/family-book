@@ -209,6 +209,7 @@ async def _person_history_entries(
                     "medical_conditions": snapshot.get("medical_conditions", []),
                     "source_detail": snapshot.get("source_detail"),
                     "confidence": snapshot.get("confidence"),
+                    "place_history": snapshot.get("place_history", []),
                 },
             }
         )
@@ -420,6 +421,7 @@ async def create_person(
     person.contact_emails = _enforce_single_primary(payload.get("contact_emails") or [])
     person.social_accounts = payload.get("social_accounts") or []
     person.name_history = payload.get("name_history") or []
+    person.place_history = [e.model_dump(exclude_none=True) for e in body.place_history]
     person.obituary_url = payload.get("obituary_url")
     person.education = [e.model_dump(exclude_none=True) for e in body.education]
     person.career = [e.model_dump(exclude_none=True) for e in body.career]
@@ -502,6 +504,8 @@ async def update_person(
         person.social_accounts = _strip_none_entries(update_data.pop("social_accounts"))
     if "name_history" in update_data:
         person.name_history = _strip_none_entries(update_data.pop("name_history"))
+    if "place_history" in update_data:
+        person.place_history = _strip_none_entries(update_data.pop("place_history"))
 
     for field, value in update_data.items():
         if field in RICH_TEXT_FIELDS and value:

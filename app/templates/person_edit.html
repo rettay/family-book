@@ -128,6 +128,16 @@
           <div id="name-history-list" class="person-edit-address-list"></div>
           <input type="hidden" id="name-history-hidden" name="name_history" value='{{ person.name_history | tojson }}'>
         </div>
+        {# ── Place History (multi-value) ── #}
+        <div class="form-group">
+          <div class="person-edit-inline-heading">
+            <label>{{ t('person.place_history') }}</label>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="addPlaceHistory()" aria-label="{{ t('person.add_place_history') }}">{{ t('person.add_place_history') }}</button>
+          </div>
+          <p class="text-sm text-muted">{{ t('person.place_history_hint') }}</p>
+          <div id="place-history-list" class="person-edit-address-list"></div>
+          <input type="hidden" id="place-history-hidden" name="place_history" value='{{ person.place_history | tojson }}'>
+        </div>
       </section>
 
       <section class="person-edit-section">
@@ -188,20 +198,16 @@
             <p class="text-sm text-muted" data-place-status></p>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="lang-autocomplete-container">
           <label>{{ t('person.languages') }}</label>
-          <div class="tag-input" id="lang-tag-input">
-            <div class="tag-input__chips" id="lang-chips" onclick="document.getElementById('lang-search').focus()">
-              <input type="text" class="tag-input__text" id="lang-search"
+          <div class="tag-input" data-lang-autocomplete>
+            <div class="tag-input__chips" data-lang-chips>
+              <input type="text" class="tag-input__text" data-lang-search
                      placeholder="{{ t('person.languages_search_placeholder') }}"
-                     autocomplete="off"
-                     oninput="filterLanguages()"
-                     onkeydown="langKeydown(event)"
-                     onfocus="filterLanguages()"
-                     onblur="setTimeout(closeLangDropdown, 200)">
+                     autocomplete="off">
             </div>
-            <div class="tag-input__dropdown" id="lang-dropdown"></div>
-            <input type="hidden" id="lang-hidden" name="languages" value="{{ person.languages | join(',') }}">
+            <div class="tag-input__dropdown" data-lang-dropdown></div>
+            <input type="hidden" name="languages" data-lang-hidden value="{{ person.languages | join(',') }}">
           </div>
         </div>
       </section>
@@ -625,8 +631,6 @@ var PERSON_LOCATION_CONFIG = {
 };
 window.familyBookLocations.init(document, PERSON_LOCATION_CONFIG);
 
-var allLanguages = [];
-var selectedLangs = {{ person.languages | tojson }};
 var alternateNicknames = {{ person.alternate_nicknames | tojson }};
 var contactAddresses = {{ person.contact_addresses | tojson }};
 var contactPhones = {{ person.contact_phones | tojson }};
@@ -636,6 +640,7 @@ var nameHistoryEntries = {{ person.name_history | tojson }};
 var educationEntries = {{ person.education | tojson }};
 var careerEntries = {{ person.career | tojson }};
 var organizationEntries = {{ person.organizations | tojson }};
+var placeHistoryEntries = {{ person.place_history | tojson }};
 
 var SOCIAL_PLATFORMS = [
   {value: 'instagram', label: 'Instagram'},
@@ -654,15 +659,14 @@ var SOCIAL_PLATFORMS = [
 ];
 
 (function() {
-  fetch('/static/data/languages.json')
-    .then(function(r) { return r.json(); })
-    .then(function(data) { allLanguages = data; renderLangChips(); });
+  initLanguageAutocomplete(document.getElementById('lang-autocomplete-container'));
   renderNicknameChips();
   renderContactAddresses();
   renderPhones();
   renderEmails();
   renderSocials();
   renderNameHistory();
+  renderPlaceHistory();
   renderEducation();
   renderCareers();
   renderOrganizations();
@@ -729,74 +733,6 @@ function nicknameKeydown(event) {
   if (event.key === 'Backspace' && !event.target.value && alternateNicknames.length > 0) {
     alternateNicknames.pop();
     renderNicknameChips();
-  }
-}
-
-function renderLangChips() {
-  var container = document.getElementById('lang-chips');
-  var search = document.getElementById('lang-search');
-  container.querySelectorAll('.tag-input__chip').forEach(function(node) { node.remove(); });
-  selectedLangs.forEach(function(code) {
-    var lang = allLanguages.find(function(entry) { return entry.code === code; });
-    var chip = document.createElement('span');
-    chip.className = 'tag-input__chip';
-    chip.textContent = lang ? lang.name + ' (' + code + ')' : code;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'tag-input__chip-remove';
-    btn.innerHTML = '&times;';
-    btn.onclick = function() { removeLang(code); };
-    chip.appendChild(btn);
-    container.insertBefore(chip, search);
-  });
-  document.getElementById('lang-hidden').value = selectedLangs.join(',');
-}
-
-function filterLanguages() {
-  var query = document.getElementById('lang-search').value.toLowerCase();
-  var dropdown = document.getElementById('lang-dropdown');
-  if (!query) {
-    dropdown.className = 'tag-input__dropdown';
-    dropdown.innerHTML = '';
-    return;
-  }
-  var matches = allLanguages.filter(function(entry) {
-    return (entry.name.toLowerCase().indexOf(query) !== -1 || entry.code.toLowerCase().indexOf(query) !== -1)
-      && selectedLangs.indexOf(entry.code) === -1;
-  }).slice(0, 8);
-  if (!matches.length) {
-    dropdown.className = 'tag-input__dropdown';
-    dropdown.innerHTML = '';
-    return;
-  }
-  dropdown.innerHTML = matches.map(function(entry) {
-    return '<div class="tag-input__option" onmousedown="addLang(\'' + escapeHtml(entry.code) + '\')">' + escapeHtml(entry.name) + ' (' + escapeHtml(entry.code) + ')</div>';
-  }).join('');
-  dropdown.className = 'tag-input__dropdown tag-input__dropdown--open';
-}
-
-function addLang(code) {
-  if (selectedLangs.indexOf(code) === -1) {
-    selectedLangs.push(code);
-    renderLangChips();
-  }
-  document.getElementById('lang-search').value = '';
-  closeLangDropdown();
-}
-
-function removeLang(code) {
-  selectedLangs = selectedLangs.filter(function(entry) { return entry !== code; });
-  renderLangChips();
-}
-
-function closeLangDropdown() {
-  document.getElementById('lang-dropdown').className = 'tag-input__dropdown';
-}
-
-function langKeydown(event) {
-  if (event.key === 'Backspace' && !event.target.value && selectedLangs.length > 0) {
-    selectedLangs.pop();
-    renderLangChips();
   }
 }
 
@@ -908,6 +844,30 @@ function renderNameHistoryCard(entry, index) {
 function renderNameHistory() { renderCardList(nameHistoryEntries, 'name-history-list', 'name-history-hidden', renderNameHistoryCard); bindCardInputs('name-history-list', nameHistoryEntries, 'name-history-hidden'); }
 function addNameHistory() { nameHistoryEntries.push({surname: '', reason: '', year: '', notes: ''}); renderNameHistory(); }
 function removeNameHistory(i) { nameHistoryEntries.splice(i, 1); renderNameHistory(); }
+
+/* ── Place History ── */
+function renderPlaceHistoryCard(entry, index) {
+  var card = document.createElement('div'); card.className = 'person-edit-address-card';
+  card.innerHTML =
+    '<div class="person-edit-address-card__head"><div class="form-row">' +
+    '<div class="form-group" style="flex:2"><label>' + {{ t('person.place_history_place')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.place || '') + '" data-card-index="' + index + '" data-card-key="place"></div>' +
+    '</div><button type="button" class="btn btn--ghost btn--sm" onclick="removePlaceHistory(' + index + ')" aria-label="{{ t("person.remove_place_history") }}">&times;</button></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label>' + {{ t('person.place_history_from')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.from_year || '') + '" data-card-index="' + index + '" data-card-key="from_year" maxlength="4" style="width:80px" placeholder="YYYY"></div>' +
+    '<div class="form-group"><label>' + {{ t('person.place_history_to')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.to_year || '') + '" data-card-index="' + index + '" data-card-key="to_year" maxlength="4" style="width:80px" placeholder="YYYY"></div>' +
+    '<div class="form-group" style="flex:2"><label>' + {{ t('person.place_history_description')|tojson }} + '</label>' +
+    '<input type="text" class="form-input" value="' + escapeHtml(entry.description || '') + '" data-card-index="' + index + '" data-card-key="description"></div></div>' +
+    '<div class="form-row"><div class="form-group"><label class="person-edit-switch person-edit-switch--compact">' +
+    '<input type="checkbox" data-card-index="' + index + '" data-card-key="is_current"' + (entry.is_current ? ' checked' : '') + '>' +
+    '<span>' + {{ t('person.place_history_current')|tojson }} + '</span></label></div></div>';
+  return card;
+}
+function renderPlaceHistory() { renderCardList(placeHistoryEntries, 'place-history-list', 'place-history-hidden', renderPlaceHistoryCard); bindCardInputs('place-history-list', placeHistoryEntries, 'place-history-hidden'); }
+function addPlaceHistory() { placeHistoryEntries.push({place: '', from_year: '', to_year: '', description: '', is_current: false}); renderPlaceHistory(); }
+function removePlaceHistory(i) { placeHistoryEntries.splice(i, 1); renderPlaceHistory(); }
 
 /* ── Education ── */
 function renderEducationCard(entry, index) {
@@ -1234,7 +1194,7 @@ async function savePerson(e) {
 
   var fd = new FormData(e.target);
   var data = {};
-  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions', 'contact_addresses', 'contact_phones', 'contact_emails', 'social_accounts', 'name_history'];
+  var jsonFields = ['education', 'career', 'organizations', 'admixture', 'medical_conditions', 'contact_addresses', 'contact_phones', 'contact_emails', 'social_accounts', 'name_history', 'place_history'];
   var nullableFields = [
     'nickname',
     'obituary_url',

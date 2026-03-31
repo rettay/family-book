@@ -42,6 +42,12 @@
   var treePhotoHrefCache = {};
   var treePhotoPromiseCache = {};
 
+  // ── Auto-Save State ────────────────────────────────────────────────
+  var autoSaveTimer = null;
+  var autoSaveBaseline = null;
+  var autoSavePersonId = null;
+  var autoSaveFadeTimer = null;
+
   var root = document.getElementById('tree-root');
   var statusNode = document.getElementById('tree-status');
   var sidebar = document.getElementById('person-sidebar');
@@ -930,9 +936,17 @@
         suggestionsLabel: root.dataset.placeSuggestionsLabel
       });
     }
+    if (typeof window.initLanguageAutocomplete === 'function') {
+      window.initLanguageAutocomplete(sidebarContent);
+    }
     switchTreeSidebarTab(chooseDefaultSidebarTab(), sidebarState.relationshipGroup);
     applyRelationshipHighlights();
     updateGraphModeBanner();
+    // Wire auto-save on the edit form
+    var editForm = sidebarContent.querySelector('#tree-person-edit-form');
+    if (editForm) {
+      wireAutoSave(editForm, personId);
+    }
   }
 
   function resolvePhotoHref(photoUrl) {
@@ -1187,6 +1201,9 @@
   }
 
   async function renderSidebar(personId) {
+    // Flush any pending auto-save before switching person
+    flushAutoSave();
+    teardownAutoSave();
     currentSidebarPersonId = personId;
     var clearedGraphMode = false;
     if (sidebarState.graphMode && sidebarState.graphMode.sourcePersonId !== personId) {
@@ -3056,9 +3073,150 @@
     return false;
   }
 
+  // ── Auto-Save Helpers ────────────────────────────────────────────────
+
+  function buildFullPayload(form) {
+    var payload = formDataToJson(form, {
+      nullableFields: [
+        'nickname', 'birth_date_raw', 'birth_date_precision',
+        'death_date_raw', 'death_date_precision',
+        'birth_place', 'birth_country_code',
+        'birth_place_latitude', 'birth_place_longitude',
+        'residence_place', 'residence_country_code',
+        'residence_place_latitude', 'residence_place_longitude',
+        'burial_place', 'burial_country_code',
+        'burial_place_latitude', 'burial_place_longitude',
+        'burial_cemetery_name', 'burial_plot_number',
+        'branch', 'bio', 'research_notes',
+        'patronymic', 'birth_last_name', 'gender',
+        'contact_whatsapp', 'contact_telegram', 'contact_signal',
+        'contact_phone', 'contact_email',
+        'remains_disposition', 'obituary', 'obituary_source',
+        'height', 'weight', 'eye_color', 'hair_color', 'blood_type',
+        'maternal_haplogroup', 'paternal_haplogroup', 'dna_test_provider',
+        'source_detail', 'confidence'
+      ]
+    });
+    ['education', 'career', 'organizations', 'admixture', 'medical_conditions'].forEach(function(fieldName) {
+      if (form.querySelector('[data-json-field="' + fieldName + '"]') || form.querySelector('#tree-' + fieldName + '-entries')) {
+        payload[fieldName] = collectJsonArrayEntries(fieldName);
+      }
+    });
+    var livingCheckbox = form.querySelector('[name="is_living"]');
+    if (livingCheckbox) {
+      payload.is_living = livingCheckbox.checked;
+    }
+    var langInput = form.querySelector('[name="languages"]');
+    if (langInput) {
+      var langVal = langInput.value.trim();
+      payload.languages = langVal ? langVal.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
+    }
+    return payload;
+  }
+
+  function captureAutoSaveBaseline(form) {
+    return buildFullPayload(form);
+  }
+
+  function setAutoSaveStatus(state, message) {
+    var el = document.getElementById('tree-person-save-status');
+    if (!el) return;
+    el.className = 'tree-person-save-status';
+    if (state) {
+      el.classList.add('tree-person-save-status--' + state);
+    }
+    el.textContent = message || '';
+    clearTimeout(autoSaveFadeTimer);
+    if (state === 'saved') {
+      autoSaveFadeTimer = setTimeout(function() {
+        el.textContent = '';
+        el.className = 'tree-person-save-status';
+      }, 2000);
+    }
+  }
+
+  function scheduleAutoSave(form, personId) {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(function() {
+      performAutoSave(form, personId);
+    }, 1000);
+  }
+
+  async function performAutoSave(form, personId) {
+    if (!autoSaveBaseline) return;
+    var current = buildFullPayload(form);
+    var changed = {};
+    var hasChanges = false;
+    var allKeys = {};
+    var k;
+    for (k in current) { allKeys[k] = true; }
+    for (k in autoSaveBaseline) { allKeys[k] = true; }
+    for (k in allKeys) {
+      var curVal = current.hasOwnProperty(k) ? current[k] : undefined;
+      var baseVal = autoSaveBaseline.hasOwnProperty(k) ? autoSaveBaseline[k] : undefined;
+      if (JSON.stringify(curVal) !== JSON.stringify(baseVal)) {
+        changed[k] = curVal !== undefined ? curVal : null;
+        hasChanges = true;
+      }
+    }
+    if (!hasChanges) return;
+
+    setAutoSaveStatus('saving', root.dataset.autoSavingLabel || 'Saving...');
+
+    try {
+      var resp = await fetch('/api/persons/' + personId, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(changed)
+      });
+      var data = await resp.json().catch(function() { return {}; });
+      if (!resp.ok) {
+        throw new Error(data.detail || root.dataset.autoSaveErrorLabel || 'Save failed');
+      }
+      autoSaveBaseline = buildFullPayload(form);
+      syncPersonIntoTreeData(personId, data);
+      render();
+      setAutoSaveStatus('saved', root.dataset.autoSavedLabel || 'Saved');
+    } catch (err) {
+      setAutoSaveStatus('error', err.message || root.dataset.autoSaveErrorLabel || 'Save failed');
+    }
+  }
+
+  function flushAutoSave() {
+    if (!autoSaveTimer) return;
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+    var form = document.getElementById('tree-person-edit-form');
+    if (form && autoSavePersonId) {
+      performAutoSave(form, autoSavePersonId);
+    }
+  }
+
+  function teardownAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+    autoSaveBaseline = null;
+    autoSavePersonId = null;
+    clearTimeout(autoSaveFadeTimer);
+    autoSaveFadeTimer = null;
+  }
+
+  function wireAutoSave(form, personId) {
+    autoSavePersonId = personId;
+    autoSaveBaseline = captureAutoSaveBaseline(form);
+    var handler = function() {
+      scheduleAutoSave(form, personId);
+    };
+    form.addEventListener('input', handler);
+    form.addEventListener('change', handler);
+  }
+
   async function saveTreePerson(event, personId) {
     event.preventDefault();
     clearErrors();
+    // Flush and cancel any pending auto-save before manual save
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
     var form = event.target;
     var button = form.querySelector('button[type="submit"]');
     var originalLabel = button.textContent;
@@ -3066,76 +3224,7 @@
     button.textContent = root.dataset.savingLabel;
 
     try {
-      var payload = formDataToJson(form, {
-          nullableFields: [
-            'nickname',
-            'birth_date_raw',
-            'birth_date_precision',
-            'death_date_raw',
-            'death_date_precision',
-            'birth_place',
-            'birth_country_code',
-            'birth_place_latitude',
-            'birth_place_longitude',
-            'residence_place',
-            'residence_country_code',
-            'residence_place_latitude',
-            'residence_place_longitude',
-            'burial_place',
-            'burial_country_code',
-            'burial_place_latitude',
-            'burial_place_longitude',
-            'burial_cemetery_name',
-            'burial_plot_number',
-            'branch',
-            'bio',
-            'research_notes',
-            'patronymic',
-            'birth_last_name',
-            'gender',
-            'contact_whatsapp',
-            'contact_telegram',
-            'contact_signal',
-            'contact_phone',
-            'contact_email',
-            'remains_disposition',
-            'obituary',
-            'obituary_source',
-            'height',
-            'weight',
-            'eye_color',
-            'hair_color',
-            'blood_type',
-            'maternal_haplogroup',
-            'paternal_haplogroup',
-            'dna_test_provider',
-            'source_detail',
-            'confidence'
-          ]
-        });
-      // Only send advanced collection fields when the compact tree form exposes them.
-      [
-        'education',
-        'career',
-        'organizations',
-        'admixture',
-        'medical_conditions'
-      ].forEach(function(fieldName) {
-        if (form.querySelector('[data-json-field="' + fieldName + '"]') || form.querySelector('#tree-' + fieldName + '-entries')) {
-          payload[fieldName] = collectJsonArrayEntries(fieldName);
-        }
-      });
-      // Handle is_living checkbox (unchecked = not in FormData)
-      var livingCheckbox = form.querySelector('[name="is_living"]');
-      if (livingCheckbox) {
-        payload.is_living = livingCheckbox.checked;
-      }
-      // Handle languages as array
-      var langInput = form.querySelector('[name="languages"]');
-      if (langInput) {
-        var langVal = langInput.value.trim();
-        payload.languages = langVal ? langVal.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [];
-      }
+      var payload = buildFullPayload(form);
       var resp = await fetch('/api/persons/' + personId, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
@@ -3149,6 +3238,7 @@
       syncPersonIntoTreeData(personId, data);
       render();
       await renderSidebar(personId);
+      // Reset auto-save baseline after manual save (renderSidebar re-inits it)
       showToastMessage(root.dataset.savedMessage);
     } catch (err) {
       setError('tree-person-edit-error', err.message || root.dataset.updateError);
@@ -3620,6 +3710,9 @@
   };
 
   window.closeSidebar = function() {
+    // Flush any pending auto-save before closing sidebar
+    flushAutoSave();
+    teardownAutoSave();
     if (_relCalcMode) {
       _relCalcMode = false;
       _relCalcFirst = null;

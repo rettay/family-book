@@ -268,7 +268,10 @@
       </div>
       {% if can_manage %}
       <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
-        <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite" style="flex:1"></div>
+          <span id="tree-person-save-status" class="tree-person-save-status" aria-live="polite"></span>
+        </div>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="identity" open>
           <summary>{{ t('tree.identity_section') }}</summary>
@@ -285,7 +288,7 @@
           <div class="tree-inline-form__row">
             <label>
               {{ t('person.preferred_nickname') }}
-              <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}">
+              <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}" placeholder="{{ t('person.nickname_placeholder') }}">
             </label>
             <label>
               {{ t('person.gender') }}
@@ -308,7 +311,7 @@
           <div class="tree-inline-form__row">
             <label>
               {{ t('person.birth_date') }}
-              <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}" placeholder="{{ t('person.date_placeholder') }}">
+              <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}" placeholder="Jan 15, 1950">
             </label>
             <label>
               {{ t('tree.precision') }}
@@ -326,7 +329,7 @@
           <div class="tree-inline-form__row">
             <label>
               {{ t('person.death_date') }}
-              <input class="form-input" type="text" name="death_date_raw" value="{{ person.death_date_raw or '' }}" placeholder="{{ t('person.date_placeholder') }}">
+              <input class="form-input" type="text" name="death_date_raw" value="{{ person.death_date_raw or '' }}" placeholder="Mar 20, 2020">
             </label>
             <label>
               {{ t('tree.precision') }}
@@ -353,7 +356,7 @@
             <div class="tree-inline-form__location" data-place-field>
               <label>
                 {{ t('person.birth_place') }}
-                <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input>
+                <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input placeholder="City, State, Country">
               </label>
               <input class="form-input" type="hidden" name="birth_country_code" value="{{ person.birth_country_code or '' }}" data-country-input>
               <input type="hidden" name="birth_place_latitude" value="{{ person.birth_place_latitude or '' }}" data-place-latitude>
@@ -365,7 +368,7 @@
             <div class="tree-inline-form__location" data-place-field>
               <label>
                 {{ t('person.residence') }}
-                <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input>
+                <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input placeholder="City, State, Country">
               </label>
               <input class="form-input" type="hidden" name="residence_country_code" value="{{ person.residence_country_code or '' }}" data-country-input>
               <input type="hidden" name="residence_place_latitude" value="{{ person.residence_place_latitude or '' }}" data-place-latitude>
@@ -373,6 +376,26 @@
               <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
             </div>
           </div>
+          {% if person.place_history %}
+          <div class="tree-inline-form__row">
+            <label>{{ t('person.place_history') }}</label>
+            <div class="tree-sidebar-card__place-history">
+              {% for entry in person.place_history %}
+              <div class="tree-sidebar-card__place-entry">
+                <span class="tree-sidebar-card__place-name">{{ entry.place or '' }}</span>
+                {% if entry.get('from_year') or entry.get('to_year') %}
+                <span class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">
+                  {{ entry.get('from_year', '') }}{% if entry.get('from_year') and entry.get('to_year') %}&ndash;{% endif %}{{ entry.get('to_year', '') }}
+                </span>
+                {% endif %}
+                {% if entry.get('is_current') %}
+                <span class="tag tag--sm tag--accent">{{ t('person.place_history_current') }}</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
           {% if not person.is_living or person.death_date_raw or person.death_date %}
           <div class="tree-inline-form__row">
             <label>
@@ -389,7 +412,7 @@
             <div class="tree-inline-form__location" data-place-field>
               <label>
                 {{ t('person.final_resting_place') }}
-                <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}" data-place-input>
+                <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}" data-place-input placeholder="Cemetery or city">
               </label>
               <input class="form-input" type="hidden" name="burial_country_code" value="{{ person.burial_country_code or '' }}" data-country-input>
               <input type="hidden" name="burial_place_latitude" value="{{ person.burial_place_latitude or '' }}" data-place-latitude>
@@ -416,16 +439,22 @@
           <summary>{{ t('tree.story_notes_section') }}</summary>
           <label>
             {{ t('person.bio') }}
-            <textarea class="form-textarea" name="bio" rows="4">{{ person.bio or '' }}</textarea>
+            <textarea class="form-textarea" name="bio" rows="4" placeholder="{{ t('person.bio_placeholder') }}">{{ person.bio or '' }}</textarea>
           </label>
           <label>
             {{ t('person.research_notes_label') }}
             <textarea class="form-textarea" name="research_notes" rows="4" placeholder="{{ t('tree.research_notes_placeholder') }}">{{ person.research_notes or '' }}</textarea>
           </label>
-          <label>
-            {{ t('person.languages') }}
-            <input class="form-input" type="text" name="languages" value="{{ person.languages | join(', ') }}" placeholder="{{ t('tree.languages_placeholder') }}">
-          </label>
+          <label>{{ t('person.languages') }}</label>
+          <div class="tag-input" data-lang-autocomplete>
+            <div class="tag-input__chips" data-lang-chips>
+              <input type="text" class="tag-input__text" data-lang-search
+                     placeholder="{{ t('person.languages_search_placeholder') }}"
+                     autocomplete="off">
+            </div>
+            <div class="tag-input__dropdown" data-lang-dropdown></div>
+            <input type="hidden" name="languages" data-lang-hidden value="{{ person.languages | join(',') }}">
+          </div>
         </details>
 
         <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="contact">
@@ -460,13 +489,13 @@
           <summary>{{ t('person.metadata_workspace') }}</summary>
           <label>
             {{ t('person.branch_tag') }}
-            <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}" placeholder="{{ t('person.branch_placeholder') }}">
           </label>
           <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('person.branch_hint') }}</p>
         </details>
 
         <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.advanced_fields_hint') }}</p>
-        <button type="submit" class="btn btn--primary btn--block">{{ t('tree.save_changes') }}</button>
+        <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}
       <p class="tree-sidebar-card__muted">{{ t('tree.view_only_details') }}</p>

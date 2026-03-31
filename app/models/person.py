@@ -157,6 +157,9 @@ class Person(Base, TimestampMixin):
     # Name history (encrypted — contains identity data)
     _name_history: Mapped[str | None] = mapped_column("name_history", EncryptedText(), default="[]")
 
+    # Place history timeline (not encrypted — location data)
+    _place_history: Mapped[str | None] = mapped_column("place_history", Text, default="[]")
+
     # Wiki slug (URL-safe, generated once on create)
     slug: Mapped[str | None] = mapped_column(String(200), unique=True, default=None, index=True)
 
@@ -320,6 +323,16 @@ class Person(Base, TimestampMixin):
     @name_history.setter
     def name_history(self, value: list[dict]) -> None:
         self._name_history = json.dumps(value)
+
+    @property
+    def place_history(self) -> list[dict]:
+        if self._place_history:
+            return json.loads(self._place_history)
+        return []
+
+    @place_history.setter
+    def place_history(self, value: list[dict]) -> None:
+        self._place_history = json.dumps(value)
 
     @property
     def display_name(self) -> str:

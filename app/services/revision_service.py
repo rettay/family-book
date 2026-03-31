@@ -126,6 +126,7 @@ def serialize_person_snapshot(person: Person) -> dict:
     snapshot["contact_emails"] = person.contact_emails
     snapshot["social_accounts"] = person.social_accounts
     snapshot["name_history"] = person.name_history
+    snapshot["place_history"] = person.place_history
     snapshot = encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
     for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
         if field in snapshot and snapshot[field] is not None:
@@ -167,6 +168,8 @@ def apply_person_snapshot(person: Person, snapshot: dict) -> None:
         person.contact_emails = snapshot["contact_emails"] or []
     if "name_history" in snapshot:
         person.name_history = snapshot["name_history"] or []
+    if "place_history" in snapshot:
+        person.place_history = snapshot["place_history"] or []
     if "social_accounts" in snapshot:
         person.social_accounts = snapshot["social_accounts"] or []
 

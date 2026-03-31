@@ -769,6 +769,133 @@ async function deleteMedia(mediaId, options) {
 }
 window.deleteMedia = deleteMedia;
 
+// ── Language autocomplete (shared) ──
+var _langCache = null;
+function _fetchLanguages() {
+  if (_langCache) return _langCache;
+  _langCache = fetch('/static/data/languages.json')
+    .then(function(r) { return r.json(); })
+    .catch(function() { _langCache = null; return []; });
+  return _langCache;
+}
+
+/**
+ * Initialize a language autocomplete chip input.
+ * @param {HTMLElement} container – element containing [data-lang-autocomplete]
+ * @param {Object} opts – { placeholder: string }
+ * Expects this HTML structure inside container:
+ *   <div class="tag-input" data-lang-autocomplete>
+ *     <div class="tag-input__chips" data-lang-chips>
+ *       <input type="text" class="tag-input__text" data-lang-search ...>
+ *     </div>
+ *     <div class="tag-input__dropdown" data-lang-dropdown></div>
+ *     <input type="hidden" name="languages" data-lang-hidden value="en,es">
+ *   </div>
+ */
+function initLanguageAutocomplete(container, opts) {
+  if (!container) return null;
+  var wrapper = container.querySelector ? container.querySelector('[data-lang-autocomplete]') : null;
+  if (!wrapper) return null;
+  var chipsEl = wrapper.querySelector('[data-lang-chips]');
+  var searchEl = wrapper.querySelector('[data-lang-search]');
+  var dropdownEl = wrapper.querySelector('[data-lang-dropdown]');
+  var hiddenEl = wrapper.querySelector('[data-lang-hidden]');
+  if (!chipsEl || !searchEl || !dropdownEl || !hiddenEl) return null;
+
+  var allLanguages = [];
+  var selectedCodes = (hiddenEl.value || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+  function renderChips() {
+    chipsEl.querySelectorAll('.tag-input__chip').forEach(function(n) { n.remove(); });
+    selectedCodes.forEach(function(code) {
+      var lang = allLanguages.find(function(e) { return e.code === code; });
+      var chip = document.createElement('span');
+      chip.className = 'tag-input__chip';
+      chip.textContent = lang ? lang.name + ' (' + code + ')' : code;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tag-input__chip-remove';
+      btn.innerHTML = '&times;';
+      btn.onclick = function() { removeCode(code); };
+      chip.appendChild(btn);
+      chipsEl.insertBefore(chip, searchEl);
+    });
+    hiddenEl.value = selectedCodes.join(',');
+  }
+
+  function filterDropdown() {
+    var query = searchEl.value.toLowerCase();
+    if (!query) {
+      dropdownEl.className = 'tag-input__dropdown';
+      dropdownEl.innerHTML = '';
+      return;
+    }
+    var matches = allLanguages.filter(function(e) {
+      return (e.name.toLowerCase().indexOf(query) !== -1 || e.code.toLowerCase().indexOf(query) !== -1)
+        && selectedCodes.indexOf(e.code) === -1;
+    }).slice(0, 8);
+    if (!matches.length) {
+      dropdownEl.className = 'tag-input__dropdown';
+      dropdownEl.innerHTML = '';
+      return;
+    }
+    dropdownEl.innerHTML = matches.map(function(e) {
+      return '<div class="tag-input__option" data-lang-code="' + escapeHtml(e.code) + '">' + escapeHtml(e.name) + ' (' + escapeHtml(e.code) + ')</div>';
+    }).join('');
+    dropdownEl.className = 'tag-input__dropdown tag-input__dropdown--open';
+  }
+
+  function addCode(code) {
+    if (selectedCodes.indexOf(code) === -1) {
+      selectedCodes.push(code);
+      renderChips();
+    }
+    searchEl.value = '';
+    closeDropdown();
+  }
+
+  function removeCode(code) {
+    selectedCodes = selectedCodes.filter(function(c) { return c !== code; });
+    renderChips();
+  }
+
+  function closeDropdown() {
+    dropdownEl.className = 'tag-input__dropdown';
+    dropdownEl.innerHTML = '';
+  }
+
+  // Event listeners
+  searchEl.addEventListener('input', filterDropdown);
+  searchEl.addEventListener('focus', filterDropdown);
+  searchEl.addEventListener('blur', function() { setTimeout(closeDropdown, 200); });
+  searchEl.addEventListener('keydown', function(event) {
+    if (event.key === 'Backspace' && !searchEl.value && selectedCodes.length > 0) {
+      selectedCodes.pop();
+      renderChips();
+    }
+  });
+  chipsEl.addEventListener('click', function() { searchEl.focus(); });
+
+  // Delegate click on dropdown options
+  dropdownEl.addEventListener('mousedown', function(event) {
+    var opt = event.target.closest('[data-lang-code]');
+    if (opt) {
+      addCode(opt.getAttribute('data-lang-code'));
+    }
+  });
+
+  // Load data and render
+  _fetchLanguages().then(function(data) {
+    allLanguages = data;
+    renderChips();
+  });
+
+  return {
+    getSelectedCodes: function() { return selectedCodes.slice(); }
+  };
+}
+window.initLanguageAutocomplete = initLanguageAutocomplete;
+
 // Person sidebar (tree page)
 function closeSidebar() {
   var el = document.getElementById('person-sidebar');
