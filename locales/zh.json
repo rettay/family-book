@@ -268,7 +268,11 @@
     "no_media": "暂无媒体文件",
     "upload": "上传",
     "set_headshot": "设为头像",
-    "headshot_updated": "头像已更新"
+    "headshot_updated": "头像已更新",
+    "delete": "删除",
+    "confirm_delete": "删除此媒体？此操作无法撤消。",
+    "deleted": "媒体已删除",
+    "upload_headshot": "上传照片"
   },
   "gallery": {
     "title": "家族图库",

@@ -19,6 +19,11 @@
       <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
       {% endif %}
       {% if m.taken_date or m.created_at %}<span>{{ m.taken_date or m.created_at[:10] }}</span>{% endif %}
+      {% if current_user.is_admin or m.uploaded_by == current_user.id %}
+      <button type="button" class="media-gallery__delete-btn media-gallery__delete-btn--inline"
+              onclick="deleteMedia('{{ m.id }}', { onDelete: function() { this.closest('article').remove(); }.bind(this) })"
+              title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">&#128465;</button>
+      {% endif %}
     </div>
   </div>
 </article>
@@ -38,6 +43,11 @@
       <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
       {% endif %}
       {% if m.duration_seconds %}<span>{{ (m.duration_seconds // 60) | int }}:{{ '%02d' | format((m.duration_seconds % 60) | int) }}</span>{% endif %}
+      {% if current_user.is_admin or m.uploaded_by == current_user.id %}
+      <button type="button" class="media-gallery__delete-btn media-gallery__delete-btn--inline"
+              onclick="deleteMedia('{{ m.id }}', { onDelete: function() { this.closest('article').remove(); }.bind(this) })"
+              title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">&#128465;</button>
+      {% endif %}
     </div>
   </div>
 </article>
@@ -53,6 +63,11 @@
     <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
     {% endif %}
   </div>
+  {% if current_user.is_admin or m.uploaded_by == current_user.id %}
+  <button type="button" class="media-gallery__delete-btn media-gallery__delete-btn--inline"
+          onclick="deleteMedia('{{ m.id }}', { onDelete: function() { this.closest('article').remove(); }.bind(this) })"
+          title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">&#128465;</button>
+  {% endif %}
   <audio controls preload="metadata" style="width:100%;">
     <source src="/api/media/{{ m.id }}/file" type="{{ m.mime_type or 'audio/mpeg' }}">
   </audio>
@@ -67,6 +82,11 @@
   <div class="media-gallery__meta-row">
     {% if m.person_display_name and m.person_slug %}
     <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
+    {% endif %}
+    {% if current_user.is_admin or m.uploaded_by == current_user.id %}
+    <button type="button" class="media-gallery__delete-btn media-gallery__delete-btn--inline"
+            onclick="deleteMedia('{{ m.id }}', { onDelete: function() { this.closest('article').remove(); }.bind(this) })"
+            title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">&#128465;</button>
     {% endif %}
   </div>
 </article>

@@ -35,12 +35,20 @@
              onerror="this.src='/api/media/{{ m.id }}/thumbnail'">
       </button>
       {% if person_id is defined and can_upload %}
-      <button type="button" class="media-gallery__headshot-btn{% if person_photo_url == m.id %} media-gallery__headshot-btn--active{% endif %}"
-              onclick="setHeadshot('{{ person_id }}', '{{ m.id }}', this)"
-              title="{{ t('media.set_headshot') if t else 'Set as headshot' }}"
-              aria-label="{{ t('media.set_headshot') if t else 'Set as headshot' }}">
-        &#9733;
-      </button>
+      <div class="media-gallery__item-actions">
+        <button type="button" class="media-gallery__headshot-btn{% if person_photo_url == m.id %} media-gallery__headshot-btn--active{% endif %}"
+                onclick="setHeadshot('{{ person_id }}', '{{ m.id }}', this)"
+                title="{{ t('media.set_headshot') if t else 'Set as headshot' }}"
+                aria-label="{{ t('media.set_headshot') if t else 'Set as headshot' }}">
+          &#9733;
+        </button>
+        <button type="button" class="media-gallery__delete-btn"
+                onclick="deleteMedia('{{ m.id }}', { onDelete: function() { location.reload(); } })"
+                title="{{ t('media.delete') if t else 'Delete' }}"
+                aria-label="{{ t('media.delete') if t else 'Delete' }}">
+          &#128465;
+        </button>
+      </div>
       {% endif %}
     </div>
     {% endfor %}
@@ -65,6 +73,14 @@
         <span class="media-gallery__play-icon" aria-hidden="true">&#9654;</span>
       </button>
       {% if m.duration_seconds %}<span class="media-gallery__duration">{{ (m.duration_seconds // 60) | int }}:{{ '%02d' | format((m.duration_seconds % 60) | int) }}</span>{% endif %}
+      {% if can_upload %}
+      <button type="button" class="media-gallery__delete-btn"
+              onclick="deleteMedia('{{ m.id }}', { onDelete: function() { location.reload(); } })"
+              title="{{ t('media.delete') if t else 'Delete' }}"
+              aria-label="{{ t('media.delete') if t else 'Delete' }}">
+        &#128465;
+      </button>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
@@ -89,6 +105,14 @@
       <audio controls preload="metadata" style="width:100%;">
         <source src="/api/media/{{ m.id }}/file" type="{{ m.mime_type or 'audio/mpeg' }}">
       </audio>
+      {% if can_upload %}
+      <button type="button" class="media-gallery__delete-btn"
+              onclick="deleteMedia('{{ m.id }}', { onDelete: function() { location.reload(); } })"
+              title="{{ t('media.delete') if t else 'Delete' }}"
+              aria-label="{{ t('media.delete') if t else 'Delete' }}">
+        &#128465;
+      </button>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
@@ -109,6 +133,14 @@
         <span class="media-gallery__doc-icon" aria-hidden="true">&#128196;</span>
         <span>{{ m.title or m.caption or m.original_filename or 'Document' }}</span>
       </a>
+      {% if can_upload %}
+      <button type="button" class="media-gallery__delete-btn"
+              onclick="deleteMedia('{{ m.id }}', { onDelete: function() { location.reload(); } })"
+              title="{{ t('media.delete') if t else 'Delete' }}"
+              aria-label="{{ t('media.delete') if t else 'Delete' }}">
+        &#128465;
+      </button>
+      {% endif %}
     </div>
     {% endfor %}
   </div>

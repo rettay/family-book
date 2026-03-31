@@ -19,6 +19,9 @@ None.
 | FB-061 | Tree Headshot Rendering and Gallery Access | P0 | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
 | FB-062 | Upload Metadata Panel and Progress Bars | P1 | `task_packets/FB-062_upload_metadata_and_progress.md` |
 | FB-063 | Global Family Gallery and Variant Backfill | P1 | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
+| FB-064 | Remove Purpose Selector from Upload UI | P1 | `task_packets/FB-064_remove_purpose_from_upload_ui.md` |
+| FB-065 | Media Delete Buttons | P0 | `task_packets/FB-065_media_delete_buttons.md` |
+| FB-066 | Click Circle to Upload Headshot | P1 | `task_packets/FB-066_click_circle_to_upload_headshot.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|

@@ -47,14 +47,18 @@
       <div id="person-edit-error" class="form-error hidden" role="status" aria-live="polite"></div>
       <!-- Upload profile photo -->
       <div class="form-group" style="text-align:center;">
-        <div class="avatar avatar--xl" style="margin:0 auto 8px;">
+        <div class="avatar avatar--xl tree-sidebar-card__avatar--clickable" style="margin:0 auto 8px;cursor:pointer;"
+             role="button" tabindex="0"
+             title="{{ t('media.upload_headshot') }}"
+             onclick="document.getElementById('profile-photo-input').click()"
+             onkeydown="if(event.key==='Enter')this.click()">
           {% if person.photo_url %}
           <img src="/api/media/{{ person.photo_url }}/file" alt="" id="profile-photo-preview">
           {% else %}
           <span id="profile-initials">{{ person.display_name[:2] }}</span>
           {% endif %}
+          <span class="tree-sidebar-card__avatar-overlay" aria-hidden="true">&#128247;</span>
         </div>
-        <button type="button" class="btn btn--secondary btn--sm" onclick="document.getElementById('profile-photo-input').click()">{{ t('person.change_photo') }}</button>
         <input type="file" id="profile-photo-input" accept="image/*" class="hidden"
                onchange="uploadProfilePhoto(this)">
       </div>

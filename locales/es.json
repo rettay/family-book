@@ -268,7 +268,11 @@
     "no_media": "Sin archivos multimedia",
     "upload": "Subir",
     "set_headshot": "Usar como foto de perfil",
-    "headshot_updated": "Foto de perfil actualizada"
+    "headshot_updated": "Foto de perfil actualizada",
+    "delete": "Eliminar",
+    "confirm_delete": "¿Eliminar este archivo? Esta acción no se puede deshacer.",
+    "deleted": "Archivo eliminado",
+    "upload_headshot": "Subir foto"
   },
   "gallery": {
     "title": "Galería Familiar",

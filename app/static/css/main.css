@@ -1083,6 +1083,17 @@ body.has-overlay { overflow: hidden; }
 }
 .tree-sidebar-card__avatar {
   flex-shrink: 0;
+  position: relative;
+}
+.tree-sidebar-card__avatar--clickable { cursor: pointer; }
+.tree-sidebar-card__avatar-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.4); color: #fff; font-size: 1.4rem; border-radius: 50%;
+  opacity: 0; transition: opacity 0.15s ease;
+}
+.tree-sidebar-card__avatar--clickable:hover .tree-sidebar-card__avatar-overlay,
+.tree-sidebar-card__avatar--clickable:focus-visible .tree-sidebar-card__avatar-overlay {
+  opacity: 1;
 }
 .tree-sidebar-card__identity {
   min-width: 0;
@@ -2825,6 +2836,13 @@ body.has-overlay { overflow: hidden; }
 .media-gallery__headshot-btn { position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 1rem; color: var(--brown-mid, #999); line-height: 28px; text-align: center; }
 .media-gallery__headshot-btn--active { color: var(--amber, #c49a3c); }
 .media-gallery__headshot-btn:hover { color: var(--amber, #c49a3c); }
+.media-gallery__item-actions { position: absolute; top: 4px; right: 4px; display: flex; gap: 4px; }
+.media-gallery__item-actions .media-gallery__headshot-btn { position: static; }
+.media-gallery__delete-btn { background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 0.85rem; color: var(--brown-mid, #999); line-height: 28px; text-align: center; }
+.media-gallery__delete-btn:hover { color: #c0392b; background: rgba(255,255,255,0.95); }
+.media-gallery__delete-btn--inline { position: static; display: inline-flex; align-items: center; justify-content: center; padding: 0; margin-left: auto; }
+.tree-sidebar-mini-action--danger { color: var(--brown-mid, #999); }
+.tree-sidebar-mini-action--danger:hover { color: #c0392b; }
 .media-gallery__audio-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; }
 .media-gallery__audio-icon { font-size: 1.2rem; }
 .media-gallery__audio-title { flex: 1; font-weight: 500; font-size: 0.9rem; }

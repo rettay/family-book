@@ -268,7 +268,11 @@
     "no_media": "No media yet",
     "upload": "Upload",
     "set_headshot": "Set as headshot",
-    "headshot_updated": "Headshot updated"
+    "headshot_updated": "Headshot updated",
+    "delete": "Delete",
+    "confirm_delete": "Remove this media? This cannot be undone.",
+    "deleted": "Media removed",
+    "upload_headshot": "Upload photo"
   },
   "gallery": {
     "title": "Family Gallery",

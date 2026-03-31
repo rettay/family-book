@@ -1,7 +1,25 @@
 # Family Book Backlog
 
-Sprint: `S34 - Media Polish and Platform Completeness`
+Sprint: `S35 - Media UX Cleanup`
 Status: Done
+
+## Current Sprint `S35 - Media UX Cleanup`
+
+Sprint goal:
+- Simplify the upload experience by removing the purpose selector, add delete buttons so users can remove media, and make the avatar circle a one-click headshot upload shortcut.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-064 | Remove Purpose Selector from Upload UI | P1 | done | `task_packets/FB-064_remove_purpose_from_upload_ui.md` |
+| FB-065 | Media Delete Buttons | P0 | done | `task_packets/FB-065_media_delete_buttons.md` |
+| FB-066 | Click Circle to Upload Headshot | P1 | done | `task_packets/FB-066_click_circle_to_upload_headshot.md` |
+
+Execution slices:
+- `S35-1` Remove purpose dropdown from upload forms, default to "memory"
+- `S35-2` Add delete button with confirmation to sidebar, wiki gallery, and global gallery
+- `S35-3` Make avatar circles clickable upload triggers with camera overlay
 
 ## Closed Sprint `S34 - Media Polish and Platform Completeness`
 

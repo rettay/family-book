@@ -2,7 +2,43 @@
 
 ## Current Sprint
 
-None.
+### `S35 - Media UX Cleanup`
+
+Status: Closed
+
+### Sprint Goal
+
+Simplify the upload experience by removing the purpose selector, add delete buttons so users can remove media, and make the avatar circle a one-click headshot upload shortcut.
+
+### Why This Sprint Next
+
+Direct user feedback: purpose field confuses contributors, no way to delete media without admin help, and the headshot upload path is too many steps. These are the highest-friction media UX gaps blocking comfortable daily use.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 64 | FB-064 | Remove Purpose Selector from Upload UI | P1 | done |
+| 65 | FB-065 | Media Delete Buttons | P0 | done |
+| 66 | FB-066 | Click Circle to Upload Headshot | P1 | done |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S35-1 | Remove purpose dropdown from upload forms | done |
+| S35-2 | Add delete button with confirmation to all media surfaces | done |
+| S35-3 | Make avatar circles clickable upload triggers | done |
+
+### Sprint Exit Criteria
+
+- upload forms have no purpose dropdown; uploads default to "memory"
+- media items show a delete button (trash) on sidebar, wiki gallery, and global gallery
+- clicking delete shows confirmation then removes the item
+- clicking the sidebar avatar circle opens a file picker and auto-sets as headshot
+- clicking the person edit page avatar does the same
+- avatar shows a camera overlay on hover
+- i18n parity maintained across en, es, ru, it, zh
 
 ---
 

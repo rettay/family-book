@@ -747,6 +747,28 @@ async function uploadMedia(source) {
   });
 }
 
+// Media delete
+async function deleteMedia(mediaId, options) {
+  var opts = options || {};
+  var label = familyBookLabel('media.confirm_delete', 'Remove this media? This cannot be undone.');
+  if (!confirm(label)) {
+    return false;
+  }
+  var resp = await fetch('/api/media/' + mediaId, {method: 'DELETE'});
+  if (!resp.ok) {
+    var detail = '';
+    try { detail = (await resp.json()).detail || ''; } catch (e) { /* ignore */ }
+    showToast(detail || familyBookLabel('common.error', 'Something went wrong'));
+    return false;
+  }
+  showToast(familyBookLabel('media.deleted', 'Media removed'));
+  if (typeof opts.onDelete === 'function') {
+    opts.onDelete();
+  }
+  return true;
+}
+window.deleteMedia = deleteMedia;
+
 // Person sidebar (tree page)
 function closeSidebar() {
   var el = document.getElementById('person-sidebar');

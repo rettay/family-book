@@ -268,7 +268,11 @@
     "no_media": "Nessun file multimediale",
     "upload": "Carica",
     "set_headshot": "Imposta come foto profilo",
-    "headshot_updated": "Foto profilo aggiornata"
+    "headshot_updated": "Foto profilo aggiornata",
+    "delete": "Elimina",
+    "confirm_delete": "Eliminare questo file? Questa azione non può essere annullata.",
+    "deleted": "File eliminato",
+    "upload_headshot": "Carica foto"
   },
   "gallery": {
     "title": "Galleria di famiglia",

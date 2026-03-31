@@ -11,7 +11,15 @@
   data-tree-sidebar-can-manage="{{ 'true' if can_manage else 'false' }}"
 >
   <div class="tree-sidebar-card__header">
-    <div class="avatar avatar--xl tree-sidebar-card__avatar">
+    <div class="avatar avatar--xl tree-sidebar-card__avatar{% if can_manage %} tree-sidebar-card__avatar--clickable{% endif %}"
+         {% if can_manage %}
+         role="button"
+         tabindex="0"
+         title="{{ t('media.upload_headshot') }}"
+         aria-label="{{ t('media.upload_headshot') }}"
+         onclick="document.getElementById('sidebar-headshot-input').click()"
+         onkeydown="if(event.key==='Enter')this.click()"
+         {% endif %}>
       {% if person.photo_url and (person.photo_url.startswith('http') or person.photo_url.startswith('/')) %}
       <img src="{{ person.photo_url }}" alt="{{ person.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
       {% elif person.photo_url %}
@@ -19,7 +27,14 @@
       {% else %}
       {{ person.display_name[:2] }}
       {% endif %}
+      {% if can_manage %}
+      <span class="tree-sidebar-card__avatar-overlay" aria-hidden="true">&#128247;</span>
+      {% endif %}
     </div>
+    {% if can_manage %}
+    <input type="file" id="sidebar-headshot-input" accept="image/*" hidden
+           onchange="if(this.files[0] && typeof window.startMediaUploadWorkflow==='function'){window.startMediaUploadWorkflow({files:[this.files[0]],personId:'{{ person.id }}',purpose:'memory',autoSetHeadshot:'always',title:'{{ t("upload.profile_title") }}',onComplete:function(){window.location.reload();}});this.value='';}" >
+    {% endif %}
     <div class="tree-sidebar-card__identity">
       <h2 class="tree-sidebar-card__title">{{ person.display_name }}</h2>
       {% if person.nickname %}
@@ -1086,14 +1101,6 @@
         <label>
           {{ t('tree.media_caption_placeholder') }}
           <input class="form-input" type="text" name="caption" maxlength="300" placeholder="{{ t('tree.media_caption_placeholder') }}">
-        </label>
-        <label>
-          {{ t('media.purpose') }}
-          <select class="form-input" name="purpose">
-            <option value="memory" selected>{{ t('media.purpose_memory') }}</option>
-            <option value="document">{{ t('media.purpose_document') }}</option>
-            <option value="evidence">{{ t('media.purpose_evidence') }}</option>
-          </select>
         </label>
         <button type="submit" class="btn btn--primary btn--block">{{ t('tree.upload_media') }}</button>
       </form>

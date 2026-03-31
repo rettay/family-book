@@ -645,6 +645,25 @@
       });
       actions.appendChild(headBtn);
     }
+    // Delete button
+    if (getSidebarCanManage()) {
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'tree-sidebar-mini-action tree-sidebar-mini-action--danger';
+      delBtn.textContent = '\u{1F5D1}';
+      delBtn.title = root.dataset.deleteMediaLabel || 'Delete';
+      delBtn.addEventListener('click', function() {
+        var pid = getSidebarPersonId();
+        window.deleteMedia(media.id, {
+          onDelete: function() {
+            if (pid) {
+              refreshTreeWorkspace(pid);
+            }
+          }
+        });
+      });
+      actions.appendChild(delBtn);
+    }
     item.appendChild(actions);
     return item;
   }
@@ -951,17 +970,14 @@
       }
       return fetch(candidates[index], {credentials: 'same-origin'}).then(function(resp) {
         if (!resp.ok) {
-          console.log('[tree-photo] ' + candidates[index] + ' → ' + resp.status);
           return tryCandidate(index + 1);
         }
         return resp.blob().then(function(blob) {
           var objectUrl = URL.createObjectURL(blob);
           treePhotoHrefCache[photoUrl] = objectUrl;
-          console.log('[tree-photo] loaded ' + photoUrl + ' via ' + candidates[index] + ' → blob ' + blob.size + 'B');
           return objectUrl;
         });
-      }).catch(function(err) {
-        console.warn('[tree-photo] fetch error for ' + candidates[index] + ':', err.message || err);
+      }).catch(function() {
         return tryCandidate(index + 1);
       });
     })(0);
@@ -2242,9 +2258,6 @@
       .style('cursor', 'pointer');
 
     var showPhoto = preferences.show_photos && person.photo_url;
-    if (person.photo_url) {
-      console.log('[tree-photo] ' + person.display_name + ': photo_url=' + person.photo_url + ' show_photos=' + preferences.show_photos + ' showPhoto=' + showPhoto);
-    }
     if (showPhoto) {
       var clipId = 'clip-' + person.id.replace(/[^a-zA-Z0-9]/g, '');
       var defs = nodeGroup.append('defs');
@@ -2261,10 +2274,8 @@
       var initialsEl = appendNodeInitials(nodeGroup, nodeLabel, true);
       loadTreePhotoHref(person.photo_url).then(function(photoHref) {
         if (!nodeGroup || !nodeGroup.node() || !nodeGroup.node().isConnected) {
-          console.warn('[tree-photo] node disconnected for ' + person.display_name + ', discarding blob');
           return;
         }
-        console.log('[tree-photo] inserting image for ' + person.display_name + ': ' + photoHref.substring(0, 40));
         // Remove initials and make clip circle transparent first
         if (initialsEl) {
           initialsEl.remove();
@@ -2280,8 +2291,7 @@
           .attr('height', NODE_RADIUS * 2)
           .attr('clip-path', 'url(#' + clipId + ')')
           .attr('preserveAspectRatio', 'xMidYMid slice');
-      }).catch(function(err) {
-        console.warn('[tree-photo] render failed for ' + person.display_name + ':', err.message || err);
+      }).catch(function() {
         if (initialsEl) {
           initialsEl.style('display', null);
         }
@@ -3023,13 +3033,12 @@
       setError('tree-media-error', root.dataset.mediaError);
       return false;
     }
-    var purposeSelect = form.querySelector('select[name="purpose"]');
     var captionInput = form.querySelector('input[name="caption"]');
     var treePerson = (treeData && treeData.persons || []).find(function(p) { return p.id === personId; });
     window.startMediaUploadWorkflow({
       files: Array.from(fileInput.files),
       personId: personId,
-      purpose: purposeSelect && purposeSelect.value ? purposeSelect.value : 'memory',
+      purpose: 'memory',
       caption: captionInput && captionInput.value.trim() ? captionInput.value.trim() : '',
       autoSetHeadshot: 'if-empty',
       currentPhotoUrl: treePerson ? treePerson.photo_url : null,
