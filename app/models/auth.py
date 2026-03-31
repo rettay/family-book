@@ -50,6 +50,10 @@ class Invite(Base):
     claimed_at: Mapped[datetime | None] = mapped_column(default=None)
     expires_at: Mapped[datetime] = mapped_column()
     revoked: Mapped[bool] = mapped_column(default=False)
+    delivery_status: Mapped[str | None] = mapped_column(String(20), default=None)
+    delivery_error: Mapped[str | None] = mapped_column(String(500), default=None)
+    delivery_message_id: Mapped[str | None] = mapped_column(String(200), default=None)
+    sent_at: Mapped[str | None] = mapped_column(String(40), default=None)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
 
     def __repr__(self) -> str:

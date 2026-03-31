@@ -365,7 +365,19 @@
     "google_help": "Accedi con l'account Google associato all'email del tuo profilo familiare.",
     "google_not_configured": "L'accesso con Google non è ancora configurato su questo server.",
     "invite_welcome": "Benvenuto nell'Albero Genealogico",
-    "claim_invite": "Unisciti alla famiglia"
+    "claim_invite": "Unisciti alla famiglia",
+    "no_account": "Nessun account trovato per la tua email Google. Chiedi un invito al tuo amministratore familiare.",
+    "account_suspended": "Il tuo account è stato sospeso. Contatta l'amministratore familiare.",
+    "account_pending": "Il tuo account è in attesa di approvazione.",
+    "invite_expired": "Questo invito è scaduto. Chiedi uno nuovo al tuo amministratore familiare.",
+    "invite_claimed": "Questo invito è già stato utilizzato.",
+    "invite_revoked": "Questo invito è stato annullato.",
+    "invite_email_mismatch": "Accedi con l'email che è stata invitata per utilizzare questo invito.",
+    "login_error": "Impossibile accedere. Riprova.",
+    "session_revoked": "Sessione terminata",
+    "all_sessions_revoked": "Tutte le sessioni terminate",
+    "invite_resent": "Invito reinviato",
+    "copy_link": "Copia link"
   },
   "common": {
     "save": "Salva",

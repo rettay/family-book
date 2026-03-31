@@ -150,7 +150,20 @@
             {{ p.account_state }}
           </span>
         </div>
+        <div class="invite-row__meta" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+          {% if p.last_login_at %}
+          Last login: {{ p.last_login_at }}
+          {% else %}
+          Last login: Never
+          {% endif %}
+          {% set sc = session_counts.get(p.id, 0) %}
+          &middot; Active sessions: {{ sc }}
+        </div>
         <div class="invite-row__actions">
+          {% set sc = session_counts.get(p.id, 0) %}
+          {% if sc > 0 %}
+          <button class="btn btn--outline btn--sm" onclick="revokeAllSessions('{{ p.id }}')">Log out all</button>
+          {% endif %}
           {% if p.contact_email %}
           <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">{{ t('admin.invite') }}</button>
           {% endif %}
@@ -181,9 +194,18 @@
           <span class="invite-row__status {% if invite.revoked %}invite-row__status--expired{% elif invite.claimed_at %}invite-row__status--claimed{% else %}invite-row__status--active{% endif %}">
             {% if invite.revoked %}Revoked{% elif invite.claimed_at %}Claimed{% else %}Open{% endif %}
           </span>
+          {% if invite.delivery_status == 'sent' %}
+          <span class="invite-row__delivery" style="font-size:0.8rem; color:var(--success, #2d5016);" title="Sent{% if invite.sent_at %} at {{ invite.sent_at }}{% endif %}">Sent &#10003;</span>
+          {% elif invite.delivery_status == 'failed' %}
+          <span class="invite-row__delivery" style="font-size:0.8rem; color:var(--danger);" title="{{ invite.delivery_error or 'Unknown error' }}">Failed &#10007;</span>
+          {% elif invite.delivery_status == 'not_configured' %}
+          <span class="invite-row__delivery" style="font-size:0.8rem; color:var(--text-muted);">Not sent</span>
+          {% endif %}
         </div>
         <div class="invite-row__actions">
           {% if not invite.revoked and not invite.claimed_at %}
+          <button class="btn btn--outline btn--sm" onclick="copyInviteLink('{{ invite.person_id }}')">Copy link</button>
+          <button class="btn btn--secondary btn--sm" onclick="resendInvite('{{ invite.id }}')">Resend</button>
           <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
           {% endif %}
         </div>
@@ -325,6 +347,58 @@ async function createInvite(id) {
 async function revokeInvite(id) {
   const resp = await fetch('/api/admin/invites/' + id + '/revoke', {method: 'POST'});
   if (resp.ok) window.location.reload();
+}
+
+async function revokeAllSessions(personId) {
+  if (!confirm('Log out all sessions for this person?')) return;
+  const resp = await fetch('/api/admin/persons/' + personId + '/revoke-sessions', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (resp.ok) {
+    showToast('All sessions ended (' + (data.revoked_count || 0) + ')');
+    window.location.reload();
+  } else {
+    showToast(data.detail || 'Failed to revoke sessions');
+  }
+}
+
+async function resendInvite(inviteId) {
+  const page = document.getElementById('admin-page');
+  const resp = await fetch('/api/admin/invites/' + inviteId + '/resend', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Resend failed');
+    return;
+  }
+  let feedback = page.dataset.inviteFallback;
+  if (data.delivery_status === 'sent') {
+    feedback = page.dataset.inviteSent.replace('%s', data.contact_email || '');
+  } else if (data.delivery_status === 'failed') {
+    feedback = page.dataset.inviteFailed.replace('%s', data.delivery_error || 'unknown error');
+  }
+  try {
+    await navigator.clipboard.writeText(data.invite_url);
+    showToast(feedback + ' ' + page.dataset.inviteLinkCopied);
+  } catch (err) {
+    showToast(feedback);
+  }
+  window.location.reload();
+}
+
+async function copyInviteLink(personId) {
+  // Create a fresh invite just to get the URL, then copy it
+  const page = document.getElementById('admin-page');
+  const resp = await fetch('/api/admin/persons/' + personId + '/invite', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Failed to create invite link');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(data.invite_url);
+    showToast(page.dataset.inviteLinkCopied);
+  } catch (err) {
+    showToast(data.invite_url);
+  }
 }
 </script>
 {% endblock %}

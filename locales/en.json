@@ -365,7 +365,19 @@
     "google_help": "Sign in with the Google account that matches the email on your family profile.",
     "google_not_configured": "Google Sign-In is not configured on this server yet.",
     "invite_welcome": "Welcome to Family Tree",
-    "claim_invite": "Join Family"
+    "claim_invite": "Join Family",
+    "no_account": "No account found for your Google email. Ask your family admin for an invite.",
+    "account_suspended": "Your account has been suspended. Contact your family admin.",
+    "account_pending": "Your account is pending approval.",
+    "invite_expired": "This invite has expired. Ask your family admin for a new one.",
+    "invite_claimed": "This invite has already been used.",
+    "invite_revoked": "This invite was cancelled.",
+    "invite_email_mismatch": "Sign in with the email that was invited to claim this invite.",
+    "login_error": "Unable to sign in. Please try again.",
+    "session_revoked": "Session ended",
+    "all_sessions_revoked": "All sessions ended",
+    "invite_resent": "Invite resent",
+    "copy_link": "Copy link"
   },
   "common": {
     "save": "Save",

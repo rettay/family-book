@@ -365,7 +365,19 @@
     "google_help": "使用与您家庭资料中邮箱匹配的 Google 账号登录。",
     "google_not_configured": "此服务器尚未配置 Google 登录。",
     "invite_welcome": "欢迎来到家族树",
-    "claim_invite": "加入家庭"
+    "claim_invite": "加入家庭",
+    "no_account": "未找到与您 Google 邮箱关联的账号。请向家庭管理员索取邀请。",
+    "account_suspended": "您的账号已被暂停。请联系家庭管理员。",
+    "account_pending": "您的账号正在等待审批。",
+    "invite_expired": "此邀请已过期。请向家庭管理员索取新的邀请。",
+    "invite_claimed": "此邀请已被使用。",
+    "invite_revoked": "此邀请已被取消。",
+    "invite_email_mismatch": "请使用被邀请的邮箱登录以领取此邀请。",
+    "login_error": "无法登录。请重试。",
+    "session_revoked": "会话已结束",
+    "all_sessions_revoked": "所有会话已结束",
+    "invite_resent": "邀请已重新发送",
+    "copy_link": "复制链接"
   },
   "common": {
     "save": "保存",

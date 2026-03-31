@@ -186,6 +186,7 @@ class Person(Base, TimestampMixin):
     )
     deleted_at: Mapped[str | None] = mapped_column(String(40), default=None)
     deleted_by: Mapped[str | None] = mapped_column(String(36), default=None)
+    last_login_at: Mapped[str | None] = mapped_column(String(40), default=None)
 
     google_sub: Mapped[str | None] = mapped_column(String(255), unique=True, default=None)
     google_email: Mapped[str | None] = mapped_column(String(320), default=None)

@@ -134,12 +134,35 @@ async def invite_page(
     if current_user:
         return RedirectResponse("/tree", status_code=302)
 
-    from app.services.auth_service import get_valid_invite
+    from app.services.auth_service import get_valid_invite, get_invite_by_token, get_invite_rejection_reason
 
     invite = await get_valid_invite(db, token)
     if not invite:
+        # Look up the invite regardless of status for a specific error message
+        raw_invite = await get_invite_by_token(db, token)
+        reason = get_invite_rejection_reason(raw_invite)
+        if reason == "revoked":
+            error_msg = "This invite was cancelled. Ask your family admin for a new one."
+        elif reason == "claimed":
+            claimed_label = ""
+            if raw_invite and raw_invite.claimed_at:
+                try:
+                    claimed_label = f" (claimed {raw_invite.claimed_at.strftime('%B %d, %Y')})"
+                except Exception:
+                    pass
+            error_msg = f"This invite has already been used{claimed_label}."
+        elif reason == "expired":
+            expires_label = ""
+            if raw_invite and raw_invite.expires_at:
+                try:
+                    expires_label = f" on {raw_invite.expires_at.strftime('%B %d, %Y')}"
+                except Exception:
+                    pass
+            error_msg = f"This invite expired{expires_label}. Ask your family admin for a new one."
+        else:
+            error_msg = "This invite is invalid or not found."
         return templates.TemplateResponse("invite.html", _ctx(
-            request, error="This invite is invalid, expired, or already claimed.", token=token
+            request, error=error_msg, token=token
         ))
 
     person = await db.get(Person, invite.person_id)
@@ -459,12 +482,17 @@ async def admin_page(
         if person:
             invite_people[invite.id] = person
 
+    # Session counts per person (FB-074)
+    from app.services.auth_service import get_active_session_counts
+    session_counts = await get_active_session_counts(db)
+
     return templates.TemplateResponse("admin.html", _ctx(
         request, current_user, active_page="admin",
         stats=stats, pending_persons=pending_persons,
         managed_people=managed_people,
         invites=invites,
         invite_people=invite_people,
+        session_counts=session_counts,
         backup_health=get_backup_health(),
         resend_enabled=settings.resend_enabled,
         staging_review_url=settings.STAGING_REVIEW_URL.strip() or None,

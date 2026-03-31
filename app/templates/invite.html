@@ -18,7 +18,12 @@
       {% endif %}
 
       {% if error %}
-      <p style="color: var(--danger); margin: 16px 0;">{{ error }}</p>
+      <div style="margin: 16px 0; padding: 16px; border-radius: 8px; background: var(--danger-bg, #fef2f2); border: 1px solid var(--danger-border, #fecaca);">
+        <p style="color: var(--danger); margin: 0; font-size: 0.95rem; line-height: 1.5;">{{ error }}</p>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 12px;">
+        <a href="/login" style="color: var(--primary, #2d5016); text-decoration: underline;">Go to login</a>
+      </p>
       {% else %}
       <p class="auth-card__subtitle" style="margin-bottom:16px;">
         <strong style="font-family: var(--font-serif); color: var(--brown-dark);">{{ person_name }}</strong>
@@ -53,8 +58,14 @@
         if (resp.ok) {
           window.location.href = '/tree';
         } else {
-          const data = await resp.json();
-          btn.textContent = data.detail || '{{ t("common.error") }}';
+          const data = await resp.json().catch(() => ({}));
+          btn.disabled = true;
+          btn.style.display = 'none';
+          const errDiv = document.createElement('div');
+          errDiv.style.cssText = 'margin:16px 0;padding:16px;border-radius:8px;background:var(--danger-bg, #fef2f2);border:1px solid var(--danger-border, #fecaca);';
+          errDiv.innerHTML = '<p style="color:var(--danger);margin:0;font-size:0.95rem;">' +
+            (data.detail || '{{ t("common.error") }}') + '</p>';
+          btn.parentElement.appendChild(errDiv);
         }
       } catch(err) {
         btn.disabled = false;
