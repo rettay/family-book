@@ -951,13 +951,13 @@
       }
       return fetch(candidates[index], {credentials: 'same-origin'}).then(function(resp) {
         if (!resp.ok) {
-          console.debug('[tree-photo] ' + candidates[index] + ' → ' + resp.status);
+          console.log('[tree-photo] ' + candidates[index] + ' → ' + resp.status);
           return tryCandidate(index + 1);
         }
         return resp.blob().then(function(blob) {
           var objectUrl = URL.createObjectURL(blob);
           treePhotoHrefCache[photoUrl] = objectUrl;
-          console.debug('[tree-photo] loaded ' + photoUrl + ' via ' + candidates[index] + ' → blob ' + blob.size + 'B');
+          console.log('[tree-photo] loaded ' + photoUrl + ' via ' + candidates[index] + ' → blob ' + blob.size + 'B');
           return objectUrl;
         });
       }).catch(function(err) {
@@ -2243,7 +2243,7 @@
 
     var showPhoto = preferences.show_photos && person.photo_url;
     if (person.photo_url) {
-      console.debug('[tree-photo] ' + person.display_name + ': photo_url=' + person.photo_url + ' show_photos=' + preferences.show_photos + ' showPhoto=' + showPhoto);
+      console.log('[tree-photo] ' + person.display_name + ': photo_url=' + person.photo_url + ' show_photos=' + preferences.show_photos + ' showPhoto=' + showPhoto);
     }
     if (showPhoto) {
       var clipId = 'clip-' + person.id.replace(/[^a-zA-Z0-9]/g, '');
@@ -2264,7 +2264,7 @@
           console.warn('[tree-photo] node disconnected for ' + person.display_name + ', discarding blob');
           return;
         }
-        console.debug('[tree-photo] inserting image for ' + person.display_name + ': ' + photoHref.substring(0, 40));
+        console.log('[tree-photo] inserting image for ' + person.display_name + ': ' + photoHref.substring(0, 40));
         nodeGroup.insert('image', '.photo-clip')
           .attr('href', photoHref)
           .attr('xlink:href', photoHref)
