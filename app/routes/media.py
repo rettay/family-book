@@ -410,6 +410,14 @@ async def delete_media(
                 detail="This media is another person's headshot. Unset their headshot first.",
             )
 
+    # Clear photo_url on any person using this media as their headshot
+    headshot_persons = await db.execute(
+        select(Person).where(Person.photo_url == media_id)
+    )
+    for person in headshot_persons.scalars().all():
+        person.photo_url = None
+        await db.flush()
+
     if current_user.is_admin:
         # Admin delete is permanent by default; use PATCH visibility to soft-delete instead
         delete_media_files(media)
