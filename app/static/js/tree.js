@@ -2265,7 +2265,13 @@
           return;
         }
         console.log('[tree-photo] inserting image for ' + person.display_name + ': ' + photoHref.substring(0, 40));
-        nodeGroup.insert('image', '.photo-clip')
+        // Remove initials and make clip circle transparent first
+        if (initialsEl) {
+          initialsEl.remove();
+        }
+        nodeGroup.select('.photo-clip').attr('fill', 'none');
+        // Append image AFTER the circle so it paints on top in SVG draw order
+        nodeGroup.append('image')
           .attr('href', photoHref)
           .attr('xlink:href', photoHref)
           .attr('x', -NODE_RADIUS)
@@ -2274,10 +2280,6 @@
           .attr('height', NODE_RADIUS * 2)
           .attr('clip-path', 'url(#' + clipId + ')')
           .attr('preserveAspectRatio', 'xMidYMid slice');
-        if (initialsEl) {
-          initialsEl.remove();
-        }
-        nodeGroup.select('.photo-clip').attr('fill', 'none');
       }).catch(function(err) {
         console.warn('[tree-photo] render failed for ' + person.display_name + ':', err.message || err);
         if (initialsEl) {
