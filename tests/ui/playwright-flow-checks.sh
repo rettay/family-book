@@ -275,6 +275,9 @@ assert_run "calendar surface uses locale strings in Spanish" \
 
 "${PWCLI}" cookie-set locale en --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
 
+# Auto-accept confirm dialogs for relationship tests that trigger browser prompts
+"${PWCLI}" run-code "async page => { page.on('dialog', dialog => dialog.accept()); }"
+
 "${PWCLI}" goto "${BASE_URL}/tree"
 "${PWCLI}" run-code "async page => { await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(1200); const node = page.locator('#tree-svg [data-id=\"tyler-000-0000-0000-000000000002\"]').first(); await node.click(); await page.locator('button[data-tree-sidebar-tab=\"relationships\"]').waitFor(); }"
 "${PWCLI}" run-code "async page => { await page.locator('button[data-tree-sidebar-tab=\"relationships\"]').click(); await page.locator('[data-tree-sidebar-panel=\"relationships\"]:not([hidden])').waitFor(); const editButton = page.locator('[data-tree-sidebar-panel=\"relationships\"]:not([hidden]) button[onclick*=\"editTreeRelationship(\"]').first(); await editButton.waitFor(); await editButton.click(); await page.waitForFunction(() => { const shell = document.getElementById('tree-relationship-editor-shell'); return shell && !shell.classList.contains('hidden'); }); }"
