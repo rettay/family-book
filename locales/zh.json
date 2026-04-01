@@ -580,7 +580,9 @@
     "view_ancestors": "查看祖先",
     "view_branch": "查看分支",
     "show_full_tree": "显示完整家谱",
-    "ancestor_banner": "显示 {name} 的分支"
+    "ancestor_banner": "显示 {name} 的分支",
+    "branch_hint": "在家谱中选择一个人，然后点击\u201c查看分支\u201d。",
+    "view_branch_of": "查看 {name} 的分支"
   },
   "calendar": {
     "title": "家庭日历",

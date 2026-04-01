@@ -580,7 +580,9 @@
     "view_ancestors": "Ver ancestros",
     "view_branch": "Ver rama",
     "show_full_tree": "Mostrar árbol completo",
-    "ancestor_banner": "Mostrando rama de {name}"
+    "ancestor_banner": "Mostrando rama de {name}",
+    "branch_hint": "Seleccione una persona en el árbol, luego haga clic en Ver rama.",
+    "view_branch_of": "Ver rama de {name}"
   },
   "calendar": {
     "title": "Calendario Familiar",

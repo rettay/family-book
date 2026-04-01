@@ -580,7 +580,9 @@
     "view_ancestors": "Показать предков",
     "view_branch": "Показать ветвь",
     "show_full_tree": "Показать всё дерево",
-    "ancestor_banner": "Показана ветвь: {name}"
+    "ancestor_banner": "Показана ветвь: {name}",
+    "branch_hint": "Выберите человека на дереве, затем нажмите «Показать ветвь».",
+    "view_branch_of": "Показать ветвь: {name}"
   },
   "calendar": {
     "title": "Семейный Календарь",

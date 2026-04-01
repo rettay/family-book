@@ -300,6 +300,8 @@
   data-auto-saved-label="{{ t('tree.auto_saved') }}"
   data-auto-save-error-label="{{ t('tree.auto_save_error') }}"
   data-ancestor-banner-label="{{ t('tree.ancestor_banner') }}"
+  data-branch-hint-label="{{ t('tree.branch_hint') }}"
+  data-view-branch-of-label="{{ t('tree.view_branch_of') }}"
 >
   <aside class="tree-panel" id="tree-panel-content">
     <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
@@ -321,6 +323,15 @@
           aria-autocomplete="list"
         >
         <div class="tree-search-results" id="tree-search-results" role="listbox" hidden></div>
+      </div>
+    </section>
+
+    <section class="tree-panel__group" data-tree-panel-group="branch" id="tree-branch-controls">
+      <h2 class="tree-panel__title">{{ t('tree.view_branch') }}</h2>
+      <p class="tree-panel__hint" style="margin-top:0" id="tree-branch-hint">{{ t('tree.branch_hint') }}</p>
+      <div class="tree-panel__actions" id="tree-branch-actions">
+        <button class="btn btn--primary" type="button" id="tree-branch-apply" onclick="window.applyBranchFromPanel()" disabled>{{ t('tree.view_branch') }}</button>
+        <button class="btn btn--ghost" type="button" id="tree-branch-clear" onclick="clearAncestorView()" hidden>{{ t('tree.show_full_tree') }}</button>
       </div>
     </section>
 

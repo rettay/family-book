@@ -141,18 +141,37 @@
 
   function updateAncestorBanner() {
     var banner = document.getElementById('tree-ancestor-banner');
-    if (!banner) return;
+    var hint = document.getElementById('tree-branch-hint');
+    var actions = document.getElementById('tree-branch-actions');
+    var person = null;
+    var name = '';
     if (ancestorViewPersonId) {
-      var person = (treeData.persons || []).find(function(p) { return p.id === ancestorViewPersonId; });
+      person = (treeData.persons || []).find(function(p) { return p.id === ancestorViewPersonId; });
       if (!person && fullTreeData) {
         person = (fullTreeData.persons || []).find(function(p) { return p.id === ancestorViewPersonId; });
       }
-      var name = person ? person.display_name : ancestorViewPersonId;
-      var template = root.dataset.ancestorBannerLabel || 'Showing ancestors of {name}';
-      banner.querySelector('.tree-ancestor-banner__text').textContent = template.replace('{name}', name);
-      banner.hidden = false;
+      name = person ? person.display_name : ancestorViewPersonId;
+    }
+    if (banner) {
+      if (ancestorViewPersonId) {
+        var template = root.dataset.ancestorBannerLabel || 'Showing branch of {name}';
+        banner.querySelector('.tree-ancestor-banner__text').textContent = template.replace('{name}', name);
+        banner.hidden = false;
+      } else {
+        banner.hidden = true;
+      }
+    }
+    // Update left panel branch controls
+    var applyBtn = document.getElementById('tree-branch-apply');
+    var clearBtn = document.getElementById('tree-branch-clear');
+    if (ancestorViewPersonId) {
+      if (hint) hint.textContent = (root.dataset.ancestorBannerLabel || 'Showing branch of {name}').replace('{name}', name);
+      if (applyBtn) { applyBtn.hidden = true; }
+      if (clearBtn) { clearBtn.hidden = false; }
     } else {
-      banner.hidden = true;
+      if (hint) hint.textContent = root.dataset.branchHintLabel || 'Select a person on the tree, then click View branch.';
+      if (clearBtn) { clearBtn.hidden = true; }
+      updateBranchApplyButton();
     }
   }
 
@@ -1321,6 +1340,7 @@
     window.replaceNodeChildrenFromHTML(sidebarContent, html);
     sidebarContent.setAttribute('aria-busy', 'false');
     initializeTreeSidebar(personId);
+    updateBranchApplyButton();
     applyContextHighlight(currentSidebarPersonId, latestStructures);
     if (clearedGraphMode && treeData) {
       render();
@@ -3772,8 +3792,28 @@
     }
   };
 
+  function updateBranchApplyButton() {
+    var applyBtn = document.getElementById('tree-branch-apply');
+    if (!applyBtn) return;
+    if (currentSidebarPersonId && !ancestorViewPersonId) {
+      var person = (treeData.persons || []).find(function(p) { return p.id === currentSidebarPersonId; });
+      var label = (root.dataset.viewBranchOfLabel || 'View branch of {name}').replace('{name}', person ? person.display_name : '');
+      applyBtn.textContent = label;
+      applyBtn.disabled = false;
+      applyBtn.hidden = false;
+    } else if (!ancestorViewPersonId) {
+      applyBtn.disabled = true;
+      applyBtn.hidden = false;
+    }
+  }
+
   window.applyAncestorView = applyAncestorView;
   window.clearAncestorView = clearAncestorView;
+  window.applyBranchFromPanel = function() {
+    if (currentSidebarPersonId) {
+      applyAncestorView(currentSidebarPersonId);
+    }
+  };
 
   window.treeFitView = function() {
     if (lastFitTransform) {
