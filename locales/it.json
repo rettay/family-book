@@ -576,7 +576,10 @@
     "edit_more_details": "Modifica altri dettagli",
     "expand_settings": "Espandi impostazioni",
     "hide_settings": "Nascondi impostazioni",
-    "profile_complete": "campi completati"
+    "profile_complete": "campi completati",
+    "view_ancestors": "Vedi antenati",
+    "show_full_tree": "Mostra albero completo",
+    "ancestor_banner": "Mostrando antenati di {name}"
   },
   "calendar": {
     "title": "Calendario familiare",

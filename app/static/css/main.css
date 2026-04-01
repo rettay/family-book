@@ -2741,6 +2741,9 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
 .tree-node--relcalc-selected circle.photo-clip { stroke: #059669 !important; stroke-width: 3 !important; }
 
 /* Relationship calculator banner & result */
+.tree-ancestor-banner { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10; background: #2d5016; color: #fff; padding: 8px 16px; border-radius: 12px; font-size: 0.88rem; font-weight: 500; box-shadow: 0 4px 16px rgba(45,80,22,0.25); display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.tree-ancestor-banner .btn { color: #fff; border-color: rgba(255,255,255,0.4); font-size: 0.82rem; }
+.tree-ancestor-banner .btn:hover { background: rgba(255,255,255,0.15); }
 .tree-relcalc-banner { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10; background: var(--accent, #2563eb); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 .tree-relcalc-result { position: absolute; bottom: 60px; right: 16px; z-index: 10; background: var(--surface, #fff); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; max-width: 340px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .tree-relcalc-result__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }

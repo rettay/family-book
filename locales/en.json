@@ -576,7 +576,10 @@
     "edit_more_details": "Edit more details",
     "expand_settings": "Expand Family Tree Settings",
     "hide_settings": "Hide Family Tree Settings",
-    "profile_complete": "fields complete"
+    "profile_complete": "fields complete",
+    "view_ancestors": "View ancestors",
+    "show_full_tree": "Show full tree",
+    "ancestor_banner": "Showing ancestors of {name}"
   },
   "calendar": {
     "title": "Family Calendar",

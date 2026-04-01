@@ -576,7 +576,10 @@
     "edit_more_details": "编辑更多详情",
     "expand_settings": "展开家谱设置",
     "hide_settings": "隐藏家谱设置",
-    "profile_complete": "个字段已完成"
+    "profile_complete": "个字段已完成",
+    "view_ancestors": "查看祖先",
+    "show_full_tree": "显示完整家谱",
+    "ancestor_banner": "显示 {name} 的祖先"
   },
   "calendar": {
     "title": "家庭日历",

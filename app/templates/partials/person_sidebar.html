@@ -73,6 +73,7 @@
       <button type="button" class="btn btn--secondary btn--sm" id="tree-sidebar-set-focus" onclick="setTreeFocus('{{ person.id }}')">{{ t('tree.set_focus_here') }}</button>
       <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-return-focus" onclick="treeReturnToFocus()" hidden>{{ t('tree.return_to_focus') }}</button>
       <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-center-root" onclick="treeCenterRoot()">{{ t('tree.center_root') }}</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-view-ancestors" onclick="applyAncestorView('{{ person.id }}')">{{ t('tree.view_ancestors') }}</button>
     </div>
   </section>
 

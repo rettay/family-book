@@ -299,6 +299,7 @@
   data-auto-saving-label="{{ t('tree.auto_saving') }}"
   data-auto-saved-label="{{ t('tree.auto_saved') }}"
   data-auto-save-error-label="{{ t('tree.auto_save_error') }}"
+  data-ancestor-banner-label="{{ t('tree.ancestor_banner') }}"
 >
   <aside class="tree-panel" id="tree-panel-content">
     <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
@@ -349,6 +350,10 @@
         <button type="button" onclick="window.openAddPersonPanel()" title="{{ t('person.add') }}" aria-label="{{ t('person.add') }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></button>
       </div>
 
+      <div class="tree-ancestor-banner" id="tree-ancestor-banner" hidden aria-live="polite">
+        <span class="tree-ancestor-banner__text"></span>
+        <button type="button" class="btn btn--ghost btn--sm" onclick="clearAncestorView()">{{ t('tree.show_full_tree') }}</button>
+      </div>
       <div class="tree-relcalc-banner" id="tree-relcalc-banner" hidden aria-live="polite"></div>
       <div class="tree-graph-prompt" id="tree-graph-prompt" hidden aria-live="polite">
         <span id="tree-graph-prompt-text"></span>

@@ -7,6 +7,8 @@
   var g;
   var zoom;
   var treeData;
+  var fullTreeData = null;
+  var ancestorViewPersonId = '';
   var sidebarTrigger = null;
   var currentSidebarPersonId = null;
   var sidebarState = {
@@ -61,6 +63,104 @@
     } catch (err) {
       return '';
     }
+  }
+
+  function readAncestorParamFromUrl() {
+    try {
+      var url = new URL(window.location.href);
+      return url.searchParams.get('ancestors_of') || '';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function collectAncestorIds(personId, data) {
+    var ids = new Set();
+    ids.add(personId);
+    var queue = [personId];
+    while (queue.length > 0) {
+      var current = queue.shift();
+      (data.parent_child || []).forEach(function(edge) {
+        if (edge.child_id === current && !ids.has(edge.parent_id)) {
+          ids.add(edge.parent_id);
+          queue.push(edge.parent_id);
+        }
+      });
+    }
+    // Include partners of all ancestors
+    (data.partnerships || []).forEach(function(p) {
+      if (ids.has(p.person_a_id) && !ids.has(p.person_b_id)) {
+        ids.add(p.person_b_id);
+      } else if (ids.has(p.person_b_id) && !ids.has(p.person_a_id)) {
+        ids.add(p.person_a_id);
+      }
+    });
+    return ids;
+  }
+
+  function filterTreeDataToAncestors(personId, data) {
+    var ancestorIds = collectAncestorIds(personId, data);
+    return {
+      root_id: data.root_id,
+      persons: data.persons.filter(function(p) { return ancestorIds.has(p.id); }),
+      parent_child: data.parent_child.filter(function(e) {
+        return ancestorIds.has(e.parent_id) && ancestorIds.has(e.child_id);
+      }),
+      partnerships: data.partnerships.filter(function(p) {
+        return ancestorIds.has(p.person_a_id) && ancestorIds.has(p.person_b_id);
+      })
+    };
+  }
+
+  function applyAncestorView(personId) {
+    if (!fullTreeData) {
+      fullTreeData = treeData;
+    }
+    ancestorViewPersonId = personId;
+    treeData = filterTreeDataToAncestors(personId, fullTreeData);
+    render();
+    updateAncestorBanner();
+    updateAncestorUrlParam(personId);
+  }
+
+  function clearAncestorView() {
+    if (fullTreeData) {
+      treeData = fullTreeData;
+      fullTreeData = null;
+    }
+    ancestorViewPersonId = '';
+    render();
+    updateAncestorBanner();
+    updateAncestorUrlParam('');
+  }
+
+  function updateAncestorBanner() {
+    var banner = document.getElementById('tree-ancestor-banner');
+    if (!banner) return;
+    if (ancestorViewPersonId) {
+      var person = (treeData.persons || []).find(function(p) { return p.id === ancestorViewPersonId; });
+      if (!person && fullTreeData) {
+        person = (fullTreeData.persons || []).find(function(p) { return p.id === ancestorViewPersonId; });
+      }
+      var name = person ? person.display_name : ancestorViewPersonId;
+      var template = root.dataset.ancestorBannerLabel || 'Showing ancestors of {name}';
+      banner.querySelector('.tree-ancestor-banner__text').textContent = template.replace('{name}', name);
+      banner.hidden = false;
+    } else {
+      banner.hidden = true;
+    }
+  }
+
+  function updateAncestorUrlParam(personId) {
+    try {
+      var url = new URL(window.location.href);
+      if (personId) {
+        url.searchParams.set('ancestors_of', personId);
+      } else {
+        url.searchParams.delete('ancestors_of');
+      }
+      window.history.replaceState({}, '', url.toString());
+    } catch (e) { /* ignore */ }
   }
 
   function updateFocusParam(personId) {
@@ -1234,7 +1334,14 @@
         return;
       }
       treeData = initialState[1];
+      var ancestorParam = readAncestorParamFromUrl();
+      if (ancestorParam) {
+        fullTreeData = treeData;
+        ancestorViewPersonId = ancestorParam;
+        treeData = filterTreeDataToAncestors(ancestorParam, fullTreeData);
+      }
       render();
+      updateAncestorBanner();
     } catch (err) {
       document.getElementById('tree-page').textContent = root.dataset.loadError;
     }
@@ -3659,6 +3766,9 @@
       svg.transition().call(zoom.scaleBy, 0.7);
     }
   };
+
+  window.applyAncestorView = applyAncestorView;
+  window.clearAncestorView = clearAncestorView;
 
   window.treeFitView = function() {
     if (lastFitTransform) {
