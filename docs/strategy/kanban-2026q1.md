@@ -2,10 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-081 | Tree Node Context Menu | P0 | `task_packets/FB-081_tree_node_context_menu.md` |
-| FB-082 | Remove Node Hover Buttons | P1 | `task_packets/FB-082_remove_node_hover_buttons.md` |
+None.
 
 ## In Progress
 
@@ -39,6 +36,8 @@ None.
 | FB-078 | Sidebar Identity and Orientation Redesign | P0 | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
 | FB-079 | Sidebar Details Form and Visual Polish | P1 | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
 | FB-080 | Ancestor Branch View | P0 | `task_packets/FB-080_ancestor_branch_view.md` |
+| FB-081 | Tree Node Context Menu | P0 | `task_packets/FB-081_tree_node_context_menu.md` |
+| FB-082 | Remove Node Hover Buttons | P1 | `task_packets/FB-082_remove_node_hover_buttons.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|

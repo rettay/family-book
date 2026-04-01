@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S40 - Tree Context Menu (Phase 1: Tree-Native Interactions)`
-Status: Ready
+Status: Done
 
 ## Current Sprint `S40 - Tree Context Menu`
 
@@ -12,8 +12,8 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-081 | Tree Node Context Menu | P0 | todo | `task_packets/FB-081_tree_node_context_menu.md` |
-| FB-082 | Remove Node Hover Buttons | P1 | todo | `task_packets/FB-082_remove_node_hover_buttons.md` |
+| FB-081 | Tree Node Context Menu | P0 | done | `task_packets/FB-081_tree_node_context_menu.md` |
+| FB-082 | Remove Node Hover Buttons | P1 | done | `task_packets/FB-082_remove_node_hover_buttons.md` |
 
 Execution slices:
 - `S40-1` Context menu: right-click/long-press, 7 actions, keyboard nav, viewport positioning, i18n

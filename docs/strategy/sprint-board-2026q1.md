@@ -2,9 +2,15 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S40 - Tree Context Menu (Phase 1: Tree-Native Interactions)`
 
-Status: Ready
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,15 +24,15 @@ Current tree interactions require sidebar detours for common actions. The contex
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 81 | FB-081 | Tree Node Context Menu | P0 | todo |
-| 82 | FB-082 | Remove Node Hover Buttons | P1 | todo |
+| 81 | FB-081 | Tree Node Context Menu | P0 | done |
+| 82 | FB-082 | Remove Node Hover Buttons | P1 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S40-1 | Context menu: right-click/long-press, 7 actions, keyboard nav, positioning, i18n | todo |
-| S40-2 | Remove camera icon and plus button overlays from nodes | todo |
+| S40-1 | Context menu: right-click/long-press, 7 actions, keyboard nav, positioning, i18n | done |
+| S40-2 | Remove camera icon and plus button overlays from nodes | done |
 
 ### Sprint Exit Criteria
 
