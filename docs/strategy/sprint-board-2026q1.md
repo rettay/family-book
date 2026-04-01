@@ -2,7 +2,49 @@
 
 ## Current Sprint
 
-None.
+### `S38 - Tree Sidebar Redesign`
+
+Status: Ready
+
+### Sprint Goal
+
+Transform the tree sidebar from a form-heavy wall into a reading surface that answers "who is this person?" in under 2 seconds, with editing as a smooth secondary mode.
+
+### Design Principle
+
+Sidebar is a reading surface first, editing surface second. Primary job is fast orientation — who is this person, how are they related? Editing slides in as a secondary mode, not the default state.
+
+### Why This Sprint Next
+
+Direct user feedback: the sidebar is overwhelming. Too many sections, too many empty fields, too much chrome. Family members opening a person node want quick orientation, not a 40-field form. This redesign makes the tree workspace feel welcoming for non-technical family members.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 77 | FB-077 | Left Panel Cleanup | P1 | todo |
+| 78 | FB-078 | Sidebar Identity and Orientation Redesign | P0 | todo |
+| 79 | FB-079 | Sidebar Details Form and Visual Polish | P1 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S38-1 | Left panel: strip to Search + Preferences, update toggle labels | todo |
+| S38-2 | Right sidebar: identity elevation, completeness collapse, tab unification | todo |
+| S38-3 | Details form: hide empty sections, reduce chrome, whitespace polish | todo |
+
+### Sprint Exit Criteria
+
+- left panel shows only Search and Display Preferences
+- collapse/expand labels read "Expand/Hide Family Tree Settings"
+- sidebar identity block (name, photo, key relationships) visible above tabs without scrolling
+- completeness shows "X of Y complete" with chevron expander
+- "What Should Happen Next" removed, actions merged into completeness items
+- tab content uses subtle h3 headings, no card borders
+- Details tab hides empty sections by default with "Edit more details" expander
+- reduced visual chrome: no card outlines, subtle background fills, more whitespace
+- tab strip uses underline indicator
 
 ---
 

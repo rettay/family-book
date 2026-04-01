@@ -1,6 +1,28 @@
 # Family Book Backlog
 
-Sprint: `S37 - Auth Visibility and Invite Reliability`
+Sprint: `S38 - Tree Sidebar Redesign`
+Status: Ready
+
+## Current Sprint `S38 - Tree Sidebar Redesign`
+
+Sprint goal:
+- Transform the tree sidebar from a form-heavy wall into a reading surface that answers "who is this person?" in under 2 seconds, with editing as a smooth secondary mode.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-077 | Left Panel Cleanup | P1 | todo | `task_packets/FB-077_left_panel_cleanup.md` |
+| FB-078 | Sidebar Identity and Orientation Redesign | P0 | todo | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
+| FB-079 | Sidebar Details Form and Visual Polish | P1 | todo | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
+
+Execution slices:
+- `S38-1` Left panel: strip to Search + Display Preferences, update toggle labels
+- `S38-2` Right sidebar: elevate identity, collapse completeness, unify tabs, remove "What Next"
+- `S38-3` Details form: hide empty sections, reduce chrome, increase whitespace
+
+## Closed Sprint `S37 - Auth Visibility and Invite Reliability`
+
 Status: Done
 
 ## Current Sprint `S37 - Auth Visibility and Invite Reliability`
