@@ -572,7 +572,11 @@
     "advanced_fields_hint": "La investigación avanzada, los datos médicos y los campos extensos del perfil permanecen en la página completa de edición.",
     "auto_saving": "Guardando...",
     "auto_saved": "Guardado",
-    "auto_save_error": "Error al guardar"
+    "auto_save_error": "Error al guardar",
+    "edit_more_details": "Editar m\u00e1s detalles",
+    "expand_settings": "Expandir configuraci\u00f3n",
+    "hide_settings": "Ocultar configuraci\u00f3n",
+    "profile_complete": "campos completos"
   },
   "calendar": {
     "title": "Calendario Familiar",

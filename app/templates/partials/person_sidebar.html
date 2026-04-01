@@ -52,33 +52,24 @@
   </div>
 
   <section class="tree-sidebar-card__section tree-sidebar-card__section--first tree-sidebar-context">
-    <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
-      <div>
-        <h3 class="tree-sidebar-card__section-title">{{ t('tree.family_context') }}</h3>
-        <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.family_context_hint') }}</p>
-      </div>
-      <div class="tree-sidebar-pill-row tree-sidebar-context__badges">
-        {% if person.is_root %}
-        <span class="tree-sidebar-pill tree-sidebar-pill--accent">{{ t('tree.family_root') }}</span>
-        {% endif %}
-        <span class="tree-sidebar-pill tree-sidebar-pill--focus" id="tree-sidebar-focus-badge" hidden>{{ t('tree.current_focus') }}</span>
-      </div>
-    </div>
-    <div class="tree-sidebar-context__summary">
-      {% if parent_people %}
-      <p><strong>{{ t('tree.child_of') }}</strong> {% for related in parent_people %}{% if not loop.first %}{% if loop.last %} {{ t('tree.and_label') }} {% else %}, {% endif %}{% endif %}<a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a>{% endfor %}.</p>
-      {% endif %}
-      {% if partner_people %}
-      <p><strong>{{ t('tree.partner_of') }}</strong> {% for related in partner_people %}{% if not loop.first %}{% if loop.last %} {{ t('tree.and_label') }} {% else %}, {% endif %}{% endif %}<a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a>{% endfor %}.</p>
-      {% endif %}
-      {% if child_people %}
-      <p><strong>{{ t('tree.parent_of') }}</strong> {% for related in child_people %}{% if not loop.first %}{% if loop.last %} {{ t('tree.and_label') }} {% else %}, {% endif %}{% endif %}<a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a>{% endfor %}.</p>
-      {% endif %}
-      {% if not parent_people and not partner_people and not child_people %}
+    <div class="tree-sidebar-context__summary tree-sidebar-context__summary--compact">
+      {% set rel_parts = [] %}
+      {% if partner_people %}{% for related in partner_people %}{% if loop.first %}{% set _ = rel_parts.append(t('tree.partner_of') ~ ' ') %}{% endif %}{% if not loop.first %}{% if loop.last %}{% set _ = rel_parts.append(' ' ~ t('tree.and_label') ~ ' ') %}{% else %}{% set _ = rel_parts.append(', ') %}{% endif %}{% endif %}{% set _ = rel_parts.append('<a href="#" onclick="openTreeSidebarPerson(\'' ~ related.id ~ '\'); return false;">' ~ related.display_name ~ '</a>') %}{% endfor %}{% endif %}
+      {% if child_people %}{% if rel_parts %}{% set _ = rel_parts.append(' &middot; ') %}{% endif %}{% for related in child_people %}{% if loop.first %}{% set _ = rel_parts.append(t('tree.parent_of') ~ ' ') %}{% endif %}{% if not loop.first %}{% if loop.last %}{% set _ = rel_parts.append(' ' ~ t('tree.and_label') ~ ' ') %}{% else %}{% set _ = rel_parts.append(', ') %}{% endif %}{% endif %}{% set _ = rel_parts.append('<a href="#" onclick="openTreeSidebarPerson(\'' ~ related.id ~ '\'); return false;">' ~ related.display_name ~ '</a>') %}{% endfor %}{% endif %}
+      {% if parent_people %}{% if rel_parts %}{% set _ = rel_parts.append(' &middot; ') %}{% endif %}{% for related in parent_people %}{% if loop.first %}{% set _ = rel_parts.append(t('tree.child_of') ~ ' ') %}{% endif %}{% if not loop.first %}{% if loop.last %}{% set _ = rel_parts.append(' ' ~ t('tree.and_label') ~ ' ') %}{% else %}{% set _ = rel_parts.append(', ') %}{% endif %}{% endif %}{% set _ = rel_parts.append('<a href="#" onclick="openTreeSidebarPerson(\'' ~ related.id ~ '\'); return false;">' ~ related.display_name ~ '</a>') %}{% endfor %}{% endif %}
+      {% if rel_parts %}
+      <p class="tree-sidebar-context__line">{{ rel_parts|join('')|safe }}</p>
+      {% else %}
       <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
       {% endif %}
     </div>
-    <div class="tree-sidebar-prompts tree-sidebar-context__actions">
+    <div class="tree-sidebar-context__badges">
+      {% if person.is_root %}
+      <span class="tree-sidebar-pill tree-sidebar-pill--accent">{{ t('tree.family_root') }}</span>
+      {% endif %}
+      <span class="tree-sidebar-pill tree-sidebar-pill--focus" id="tree-sidebar-focus-badge" hidden>{{ t('tree.current_focus') }}</span>
+    </div>
+    <div class="tree-sidebar-context__actions tree-sidebar-context__actions--compact">
       <button type="button" class="btn btn--secondary btn--sm" id="tree-sidebar-set-focus" onclick="setTreeFocus('{{ person.id }}')">{{ t('tree.set_focus_here') }}</button>
       <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-return-focus" onclick="treeReturnToFocus()" hidden>{{ t('tree.return_to_focus') }}</button>
       <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-center-root" onclick="treeCenterRoot()">{{ t('tree.center_root') }}</button>
@@ -134,8 +125,8 @@
   </nav>
 
   <section class="tree-sidebar-panel tree-sidebar-panel--active" data-tree-sidebar-panel="overview">
-    <div class="tree-sidebar-card__section">
-      <h3 class="tree-sidebar-card__section-title">{{ t('tree.richness') }}</h3>
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('tree.richness') }}</h3>
       <div class="tree-sidebar-metrics">
         <button
           type="button"
@@ -156,67 +147,45 @@
       </div>
     </div>
 
-    {% if can_manage and (not person.birth_date_raw or not person.photo_url or not person.bio or not person.birth_place or not person.gender) %}
-    <section class="tree-sidebar-card__section">
-      <h3 class="tree-sidebar-card__section-title">Complete this profile</h3>
-      <div class="tree-sidebar-completeness">
-        {% if not person.birth_date_raw %}
-        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('dates')">No birth date — add one?</button>
-        {% endif %}
-        {% if not person.photo_url %}
-        <button type="button" class="btn btn--ghost btn--sm" onclick="switchTreeSidebarTab('media')">No photo — add one?</button>
-        {% endif %}
-        {% if not person.bio %}
-        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('notes')">No bio — write one?</button>
-        {% endif %}
-        {% if not person.birth_place %}
-        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('places')">No birth place — add it?</button>
-        {% endif %}
-        {% if not person.gender %}
-        <button type="button" class="btn btn--ghost btn--sm" onclick="openSidebarDetailsSection('identity')">No gender — set it?</button>
-        {% endif %}
-      </div>
-    </section>
+    {% if can_manage %}
+
+    {% set completeness_total = 5 %}
+    {% set completeness_done = (1 if person.birth_date_raw else 0) + (1 if person.photo_url else 0) + (1 if person.bio else 0) + (1 if person.birth_place else 0) + (1 if person.gender else 0) %}
+    {% if completeness_done < completeness_total %}
+    <div class="tree-sidebar-completeness-bar" onclick="this.nextElementSibling.toggleAttribute('hidden');this.querySelector('.tree-sidebar-completeness-bar__chevron').classList.toggle('tree-sidebar-completeness-bar__chevron--open')" data-completeness-toggle>
+      <span class="tree-sidebar-completeness-bar__text">{{ completeness_done }} / {{ completeness_total }} {{ t('tree.profile_complete') }}</span>
+      <span class="tree-sidebar-completeness-bar__chevron">&#x25B6;</span>
+    </div>
+    <div class="tree-sidebar-completeness-bar__items" hidden>
+      {% if not person.birth_date_raw %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('dates')">{{ t('person.birth_date') }}</button>
+      {% endif %}
+      {% if not person.photo_url %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="switchTreeSidebarTab('media')">{{ t('tree.add_first_photo') }}</button>
+      {% endif %}
+      {% if not person.bio %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('notes')">{{ t('person.bio') }}</button>
+      {% endif %}
+      {% if not person.birth_place %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('places')">{{ t('person.birth_place') }}</button>
+      {% endif %}
+      {% if not person.gender %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('identity')">{{ t('person.gender') }}</button>
+      {% endif %}
+    </div>
+    {% endif %}
     {% endif %}
 
     {% if person.bio %}
-    <section class="tree-sidebar-card__section">
-      <h3 class="tree-sidebar-card__section-title">{{ t('person.bio') }}</h3>
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('person.bio') }}</h3>
       <p class="tree-sidebar-card__copy">{{ person.bio }}</p>
-    </section>
+    </div>
     {% endif %}
 
-    <section class="tree-sidebar-card__section">
-      <h3 class="tree-sidebar-card__section-title">{{ t('tree.workspace_prompts') }}</h3>
-      <div class="tree-sidebar-prompts">
-        {% if can_manage and person_metrics.media_count == 0 %}
-        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('media')">
-          {{ t('tree.add_first_photo') }}
-        </button>
-        {% endif %}
-        {% if can_manage and parent_people|length == 0 %}
-        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('relationships', 'parent')">
-          {{ t('tree.add_parent') }}
-        </button>
-        {% endif %}
-        {% if can_manage and child_people|length == 0 %}
-        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('relationships', 'child')">
-          {{ t('tree.add_child') }}
-        </button>
-        {% endif %}
-        {% if can_manage and partner_people|length == 0 %}
-        <button type="button" class="btn btn--secondary btn--sm" onclick="switchTreeSidebarTab('relationships', 'partner')">
-          {{ t('tree.add_partner') }}
-        </button>
-        {% endif %}
-      </div>
-      {% if person_metrics.media_count or parent_people or child_people or partner_people %}
-      <p class="tree-sidebar-card__muted">{{ t('tree.workspace_ready') }}</p>
-      {% endif %}
-    </section>
 
-    <section class="tree-sidebar-card__section">
-      <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('tree.relationships') }}</h3>
       <div class="tree-rel-grid">
         <div>
           <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
@@ -255,17 +224,13 @@
           {% endif %}
         </div>
       </div>
-    </section>
+    </div>
   </section>
 
   <section class="tree-sidebar-panel" data-tree-sidebar-panel="details" hidden>
-    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
-      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
-        <div>
-          <h3 class="tree-sidebar-card__section-title">{{ t('tree.quick_edit') }}</h3>
-          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.quick_edit_hint') }}</p>
-        </div>
-      </div>
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('tree.quick_edit') }}</h3>
+      <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.quick_edit_hint') }}</p>
       {% if can_manage %}
       <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
         <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -273,7 +238,8 @@
           <span id="tree-person-save-status" class="tree-person-save-status" aria-live="polite"></span>
         </div>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="identity" open>
+        {% set has_identity = person.first_name or person.last_name or person.nickname or person.gender %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_identity %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="identity">
           <summary>{{ t('tree.identity_section') }}</summary>
           <div class="tree-inline-form__row">
             <label>
@@ -306,7 +272,8 @@
           </label>
         </details>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="dates">
+        {% set has_dates = person.birth_date_raw or person.death_date_raw or person.death_date %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_dates %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="dates">
           <summary>{{ t('tree.dates_section') }}</summary>
           <div class="tree-inline-form__row">
             <label>
@@ -350,7 +317,8 @@
           </label>
         </details>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="places">
+        {% set has_places = person.birth_place or person.residence_place or person.burial_place %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_places %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="places">
           <summary>{{ t('tree.places_section') }}</summary>
           <div class="tree-inline-form__row">
             <div class="tree-inline-form__location" data-place-field>
@@ -435,7 +403,8 @@
           {% endif %}
         </details>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="notes">
+        {% set has_notes = person.bio or person.research_notes or person.languages %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_notes %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="notes">
           <summary>{{ t('tree.story_notes_section') }}</summary>
           <label>
             {{ t('person.bio') }}
@@ -457,7 +426,8 @@
           </div>
         </details>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="contact">
+        {% set has_contact = person.contact_phone or person.contact_email or person.contact_whatsapp or person.contact_telegram or person.contact_signal %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_contact %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="contact">
           <summary>{{ t('person.contact') }}</summary>
           <div class="tree-inline-form__row">
             <label>
@@ -485,7 +455,8 @@
           </div>
         </details>
 
-        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" data-tree-details-section="metadata">
+        {% set has_metadata = person.branch %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_metadata %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="metadata">
           <summary>{{ t('person.metadata_workspace') }}</summary>
           <label>
             {{ t('person.branch_tag') }}
@@ -494,13 +465,17 @@
           <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('person.branch_hint') }}</p>
         </details>
 
+        <button type="button" class="tree-sidebar-edit-more" onclick="showAllDetailSections()">
+          {{ t('tree.edit_more_details') }}
+        </button>
+
         <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.advanced_fields_hint') }}</p>
         <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.save_changes') }}</button>
       </form>
       {% else %}
       <p class="tree-sidebar-card__muted">{{ t('tree.view_only_details') }}</p>
       {% endif %}
-    </section>
+    </div>
   </section>
 
   <section class="tree-sidebar-panel" data-tree-sidebar-panel="relationships" hidden>

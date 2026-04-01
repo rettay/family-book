@@ -572,7 +572,11 @@
     "advanced_fields_hint": "高级研究、医疗和详细资料字段请在完整编辑页面操作。",
     "auto_saving": "保存中...",
     "auto_saved": "已保存",
-    "auto_save_error": "保存失败"
+    "auto_save_error": "保存失败",
+    "edit_more_details": "编辑更多详情",
+    "expand_settings": "展开家谱设置",
+    "hide_settings": "隐藏家谱设置",
+    "profile_complete": "个字段已完成"
   },
   "calendar": {
     "title": "家庭日历",

@@ -572,7 +572,11 @@
     "advanced_fields_hint": "I campi avanzati di ricerca, medici e del profilo esteso si trovano nella pagina di modifica completa.",
     "auto_saving": "Salvataggio...",
     "auto_saved": "Salvato",
-    "auto_save_error": "Salvataggio fallito"
+    "auto_save_error": "Salvataggio fallito",
+    "edit_more_details": "Modifica altri dettagli",
+    "expand_settings": "Espandi impostazioni",
+    "hide_settings": "Nascondi impostazioni",
+    "profile_complete": "campi completati"
   },
   "calendar": {
     "title": "Calendario familiare",

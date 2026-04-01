@@ -572,7 +572,11 @@
     "advanced_fields_hint": "Advanced research, medical, and long-form profile fields stay on the full edit page.",
     "auto_saving": "Saving...",
     "auto_saved": "Saved",
-    "auto_save_error": "Save failed"
+    "auto_save_error": "Save failed",
+    "edit_more_details": "Edit more details",
+    "expand_settings": "Expand Family Tree Settings",
+    "hide_settings": "Hide Family Tree Settings",
+    "profile_complete": "fields complete"
   },
   "calendar": {
     "title": "Family Calendar",

@@ -302,11 +302,10 @@
 >
   <aside class="tree-panel" id="tree-panel-content">
     <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
-            aria-label="Collapse controls panel" title="Collapse controls panel"
-            onclick="toggleTreePanel()">&#x276E;</button>
+            aria-label="{{ t('tree.hide_settings') }}" title="{{ t('tree.hide_settings') }}"
+            onclick="toggleTreePanel()">&#x276E; {{ t('tree.hide_settings') }}</button>
+
     <section class="tree-panel__group" data-tree-panel-group="navigate">
-      <h2 class="tree-panel__title">{{ t('tree.navigate_tree') }}</h2>
-      <p class="tree-panel__hint" style="margin-top:0">{{ t('tree.navigate_tree_hint') }}</p>
       <div class="tree-search" id="tree-search">
         <input
           type="search"
@@ -322,19 +321,6 @@
         >
         <div class="tree-search-results" id="tree-search-results" role="listbox" hidden></div>
       </div>
-      <div class="tree-panel__context" id="tree-navigation-context">
-        <div class="tree-panel__context-copy">
-          <span class="tree-panel__eyebrow">{{ t('tree.current_focus') }}</span>
-          <strong id="tree-focus-status">{{ t('tree.no_focus_selected') }}</strong>
-          <span id="tree-root-status">{{ t('tree.family_root') }}</span>
-        </div>
-      </div>
-      <div class="tree-panel__actions tree-panel__actions--dual">
-        <button class="btn btn--secondary" type="button" onclick="treeFitView()" id="tree-fit-view">{{ t('tree.fit_tree') }}</button>
-        <button class="btn btn--ghost" type="button" onclick="treeReset()" id="tree-reset-view">{{ t('tree.reset_view') }}</button>
-        <button class="btn btn--secondary" type="button" onclick="treeCenterRoot()" id="tree-center-root">{{ t('tree.center_root') }}</button>
-        <button class="btn btn--ghost" type="button" onclick="treeReturnToFocus()" id="tree-return-focus">{{ t('tree.return_to_focus') }}</button>
-      </div>
     </section>
 
     <section class="tree-panel__group" data-tree-panel-group="view">
@@ -348,68 +334,6 @@
         <button class="btn btn--primary" id="save-tree-preferences">{{ t('tree.save_preferences') }}</button>
       </div>
       <p class="tree-panel__hint">{{ t('tree.preferences_hint') }}</p>
-    </section>
-
-    <section class="tree-panel__group" data-tree-panel-group="analyze">
-      <h2 class="tree-panel__title">{{ t('tree.analyze_tree') }}</h2>
-      <p class="tree-panel__hint" style="margin-top:0">{{ t('tree.relationship_calculator_hint') }}</p>
-      <div class="tree-panel__actions">
-        <button class="btn btn--primary" type="button" onclick="startRelationshipCalc()" id="tree-relcalc-start">{{ t('tree.calculate_relationship') }}</button>
-        <button class="btn btn--secondary" type="button" onclick="cancelRelationshipCalc()" id="tree-relcalc-cancel" hidden>{{ t('common.cancel') }}</button>
-      </div>
-      <details class="tree-legend">
-        <summary>{{ t('tree.relationship_legend') }}</summary>
-        <ul class="tree-legend__list">
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--biological"></span> {{ t('tree.relationship_kind_biological') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--adoptive"></span> {{ t('tree.relationship_kind_adoptive') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--step"></span> {{ t('tree.relationship_kind_step') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--foster"></span> {{ t('tree.relationship_kind_foster') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--guardian"></span> {{ t('tree.relationship_kind_guardian') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--unknown"></span> {{ t('tree.relationship_kind_unknown') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--married"></span> {{ t('tree.partnership_kind_married') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--domestic_partner"></span> {{ t('tree.partnership_kind_domestic_partner') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--co_parent"></span> {{ t('tree.partnership_kind_co_parent') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--engaged"></span> {{ t('tree.partnership_kind_engaged') }}</li>
-          <li class="tree-legend__item"><span class="tree-legend__line tree-legend__line--former"></span> {{ t('tree.partnership_status_former') }}</li>
-        </ul>
-        <p class="tree-panel__hint" style="margin-top:0.65rem">{{ t('tree.relationship_legend_hint') }}</p>
-      </details>
-    </section>
-
-    <section class="tree-panel__group" data-tree-panel-group="filter">
-      <h2 class="tree-panel__title">{{ t('tree.filter_tree') }}</h2>
-      <p class="tree-panel__hint" style="margin-top:0">{{ t('tree.filter_tree_hint') }}</p>
-      <label>
-        {{ t('tree.filter_living') }}
-        <select id="tree-filter-living">
-          <option value="all">{{ t('tree.filter_all') }}</option>
-          <option value="living">{{ t('tree.filter_living_only') }}</option>
-          <option value="deceased">{{ t('tree.filter_deceased_only') }}</option>
-        </select>
-      </label>
-      <label>
-        {{ t('tree.filter_branch') }}
-        <input type="text" id="tree-filter-branch" placeholder="{{ t('tree.filter_branch_placeholder') }}">
-      </label>
-      <label>
-        {{ t('tree.filter_residence_country') }}
-        <input type="text" id="tree-filter-residence-country" maxlength="2" placeholder="US">
-      </label>
-      <label>
-        {{ t('tree.filter_birth_country') }}
-        <input type="text" id="tree-filter-birth-country" maxlength="2" placeholder="MX">
-      </label>
-      <div class="tree-panel__actions">
-        <button class="btn btn--primary" id="apply-tree-filters">{{ t('tree.apply_filters') }}</button>
-        <button class="btn btn--secondary" id="reset-tree-filters">{{ t('tree.reset_filters') }}</button>
-      </div>
-    </section>
-
-    <section class="tree-panel__group">
-      <details class="tree-legend">
-        <summary>{{ t('tree.helpful_hint') }}</summary>
-        <p class="tree-panel__hint" style="margin-top:0">{{ t('tree.tree_reading_hint') }}</p>
-      </details>
     </section>
   </aside>
 
@@ -443,10 +367,10 @@
       </div>
 
       <button class="tree-panel-expand-tab" id="tree-panel-expand-tab" type="button"
-              aria-label="{{ t('tree.show_controls') }}" title="{{ t('tree.show_controls') }}"
+              aria-label="{{ t('tree.expand_settings') }}" title="{{ t('tree.expand_settings') }}"
               onclick="toggleTreePanel()" hidden>
         <span class="tree-panel-expand-tab__icon">&#x276F;</span>
-        <span class="tree-panel-expand-tab__label">{{ t('tree.show_controls') }}</span>
+        <span class="tree-panel-expand-tab__label">{{ t('tree.expand_settings') }}</span>
       </button>
       <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">

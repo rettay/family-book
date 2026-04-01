@@ -195,10 +195,10 @@
 
   function currentFilters() {
     return {
-      living: document.getElementById('tree-filter-living').value,
-      branch: document.getElementById('tree-filter-branch').value.trim(),
-      residence_country: document.getElementById('tree-filter-residence-country').value.trim().toUpperCase(),
-      birth_country: document.getElementById('tree-filter-birth-country').value.trim().toUpperCase()
+      living: 'all',
+      branch: '',
+      residence_country: '',
+      birth_country: ''
     };
   }
 
@@ -2639,11 +2639,22 @@
     setTimeout(function() {
       var section = sidebarContent.querySelector('[data-tree-details-section="' + sectionName + '"]');
       if (section) {
+        section.removeAttribute('hidden');
         section.open = true;
         var firstInput = section.querySelector('input, select, textarea');
         if (firstInput) firstInput.focus();
       }
     }, 50);
+  }
+
+  function showAllDetailSections() {
+    var empties = sidebarContent.querySelectorAll('[data-empty-section]');
+    empties.forEach(function(el) {
+      el.removeAttribute('hidden');
+      el.open = true;
+    });
+    var editMoreBtn = sidebarContent.querySelector('.tree-sidebar-edit-more');
+    if (editMoreBtn) editMoreBtn.style.display = 'none';
   }
 
   function relationshipDeleteEndpoint(relId, relationshipType) {
@@ -4606,6 +4617,7 @@
   window.openTreeSidebarPerson = openTreeSidebarPerson;
   window.switchTreeSidebarTab = switchTreeSidebarTab;
   window.openSidebarDetailsSection = openSidebarDetailsSection;
+  window.showAllDetailSections = showAllDetailSections;
   window.uploadTreeMedia = uploadTreeMedia;
   window.startTreeGraphMode = startTreeGraphMode;
   window.cancelTreeGraphMode = cancelTreeGraphMode;
@@ -4746,18 +4758,7 @@
   window.cancelRelationshipCalc = cancelRelationshipCalc;
 
   document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
-  document.getElementById('apply-tree-filters').addEventListener('click', function() {
-    window.closeSidebar();
-    loadTree();
-  });
-  document.getElementById('reset-tree-filters').addEventListener('click', function() {
-    document.getElementById('tree-filter-living').value = 'all';
-    document.getElementById('tree-filter-branch').value = '';
-    document.getElementById('tree-filter-residence-country').value = '';
-    document.getElementById('tree-filter-birth-country').value = '';
-    window.closeSidebar();
-    loadTree();
-  });
+  // Filter UI removed in FB-077 — filter event listeners no longer needed
 
   document.addEventListener('keydown', function(event) {
     if (event.key !== 'Escape') {
