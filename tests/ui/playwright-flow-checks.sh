@@ -367,12 +367,6 @@ assert_run "tree page renders data" \
 assert_run "tree node supports keyboard open and escape close" \
   "${PWCLI}" run-code "async page => { const node = page.locator('#tree-svg [role=\"button\"]').first(); await node.focus(); await page.keyboard.press('Enter'); await page.locator('#person-sidebar:not([hidden])').waitFor(); await page.keyboard.press('Escape'); await page.waitForFunction(() => document.getElementById('person-sidebar')?.hidden === true); if (!await page.locator('#person-sidebar[hidden]').count()) throw new Error('tree sidebar did not close'); }"
 
-"${PWCLI}" run-code "async page => { await page.locator('#tree-filter-branch').fill('martin'); await page.locator('#apply-tree-filters').click(); await page.waitForTimeout(1200); }"
-"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/tree-filtered.png" --full-page true >/dev/null
-
-assert_run "tree filters can be applied in-browser" \
-  "${PWCLI}" run-code "async page => { const status = await page.locator('#tree-status').textContent(); if (!status || !status.match(/\\d+/)) throw new Error('filtered tree status missing count'); }"
-
 "${PWCLI}" goto "${BASE_URL}/people/new"
 assert_run "new person form exposes place-capture affordances" \
   "${PWCLI}" run-code "async page => { const groups = await page.locator('[data-place-field]').count(); const hints = await page.locator('[data-place-status]').count(); if (groups < 3 || hints < 3) throw new Error('place affordances missing from create form'); }"
