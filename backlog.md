@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S38 - Tree Sidebar Redesign`
-Status: Ready
+Status: Done
 
 ## Current Sprint `S38 - Tree Sidebar Redesign`
 
@@ -12,9 +12,9 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-077 | Left Panel Cleanup | P1 | todo | `task_packets/FB-077_left_panel_cleanup.md` |
-| FB-078 | Sidebar Identity and Orientation Redesign | P0 | todo | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
-| FB-079 | Sidebar Details Form and Visual Polish | P1 | todo | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
+| FB-077 | Left Panel Cleanup | P1 | done | `task_packets/FB-077_left_panel_cleanup.md` |
+| FB-078 | Sidebar Identity and Orientation Redesign | P0 | done | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
+| FB-079 | Sidebar Details Form and Visual Polish | P1 | done | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
 
 Execution slices:
 - `S38-1` Left panel: strip to Search + Display Preferences, update toggle labels

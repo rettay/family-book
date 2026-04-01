@@ -2,11 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-077 | Left Panel Cleanup | P1 | `task_packets/FB-077_left_panel_cleanup.md` |
-| FB-078 | Sidebar Identity and Orientation Redesign | P0 | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
-| FB-079 | Sidebar Details Form and Visual Polish | P1 | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
+None.
 
 ## In Progress
 
@@ -36,6 +32,9 @@ None.
 | FB-074 | Admin Session Visibility | P1 | `task_packets/FB-074_admin_session_visibility.md` |
 | FB-075 | Resend Setup and Invite Email Polish | P1 | `task_packets/FB-075_resend_setup_and_invite_email_polish.md` |
 | FB-076 | Login and Invite Claim Error UX | P1 | `task_packets/FB-076_login_error_ux.md` |
+| FB-077 | Left Panel Cleanup | P1 | `task_packets/FB-077_left_panel_cleanup.md` |
+| FB-078 | Sidebar Identity and Orientation Redesign | P0 | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
+| FB-079 | Sidebar Details Form and Visual Polish | P1 | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|

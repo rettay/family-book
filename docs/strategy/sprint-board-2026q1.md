@@ -2,9 +2,15 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S38 - Tree Sidebar Redesign`
 
-Status: Ready
+Status: Closed
 
 ### Sprint Goal
 
@@ -22,17 +28,17 @@ Direct user feedback: the sidebar is overwhelming. Too many sections, too many e
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 77 | FB-077 | Left Panel Cleanup | P1 | todo |
-| 78 | FB-078 | Sidebar Identity and Orientation Redesign | P0 | todo |
-| 79 | FB-079 | Sidebar Details Form and Visual Polish | P1 | todo |
+| 77 | FB-077 | Left Panel Cleanup | P1 | done |
+| 78 | FB-078 | Sidebar Identity and Orientation Redesign | P0 | done |
+| 79 | FB-079 | Sidebar Details Form and Visual Polish | P1 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S38-1 | Left panel: strip to Search + Preferences, update toggle labels | todo |
-| S38-2 | Right sidebar: identity elevation, completeness collapse, tab unification | todo |
-| S38-3 | Details form: hide empty sections, reduce chrome, whitespace polish | todo |
+| S38-1 | Left panel: strip to Search + Preferences, update toggle labels | done |
+| S38-2 | Right sidebar: identity elevation, completeness collapse, tab unification | done |
+| S38-3 | Details form: hide empty sections, reduce chrome, whitespace polish | done |
 
 ### Sprint Exit Criteria
 
