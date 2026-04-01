@@ -1,6 +1,26 @@
 # Family Book Backlog
 
-Sprint: `S39 - Ancestor Branch View`
+Sprint: `S40 - Tree Context Menu (Phase 1: Tree-Native Interactions)`
+Status: Ready
+
+## Current Sprint `S40 - Tree Context Menu`
+
+Sprint goal:
+- Add a right-click / long-press context menu on tree nodes with the most common actions, and remove the hover-only buttons it replaces.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-081 | Tree Node Context Menu | P0 | todo | `task_packets/FB-081_tree_node_context_menu.md` |
+| FB-082 | Remove Node Hover Buttons | P1 | todo | `task_packets/FB-082_remove_node_hover_buttons.md` |
+
+Execution slices:
+- `S40-1` Context menu: right-click/long-press, 7 actions, keyboard nav, viewport positioning, i18n
+- `S40-2` Remove camera icon and plus button overlays from nodes
+
+## Closed Sprint `S39 - Ancestor Branch View`
+
 Status: Done
 
 ## Current Sprint `S39 - Ancestor Branch View`

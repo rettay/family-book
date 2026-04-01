@@ -2,7 +2,10 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-081 | Tree Node Context Menu | P0 | `task_packets/FB-081_tree_node_context_menu.md` |
+| FB-082 | Remove Node Hover Buttons | P1 | `task_packets/FB-082_remove_node_hover_buttons.md` |
 
 ## In Progress
 

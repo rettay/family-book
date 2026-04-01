@@ -2,7 +2,49 @@
 
 ## Current Sprint
 
-None.
+### `S40 - Tree Context Menu (Phase 1: Tree-Native Interactions)`
+
+Status: Ready
+
+### Sprint Goal
+
+Add a right-click / long-press context menu on tree nodes, replacing hover-only buttons with a discoverable, mobile-friendly interaction surface. Phase 1 of the tree-native interactions initiative.
+
+### Why This Sprint Next
+
+Current tree interactions require sidebar detours for common actions. The context menu puts the top 7 actions one right-click away. Hover-only buttons (camera icon, plus button) are invisible on mobile — the context menu replaces them with long-press.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 81 | FB-081 | Tree Node Context Menu | P0 | todo |
+| 82 | FB-082 | Remove Node Hover Buttons | P1 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S40-1 | Context menu: right-click/long-press, 7 actions, keyboard nav, positioning, i18n | todo |
+| S40-2 | Remove camera icon and plus button overlays from nodes | todo |
+
+### Sprint Exit Criteria
+
+- right-click on node shows floating context menu with 7 actions
+- long-press on mobile shows the same menu
+- menu is keyboard navigable and stays within viewport
+- hover-only camera/plus buttons removed from nodes
+- context menu does not interfere with graph mode
+- i18n parity maintained
+
+### Horizon: Tree-Native Interactions Phases 2-4
+
+See `docs/strategy/tree-native-interactions-roadmap.md` for the full initiative plan:
+- Phase 2: Inline node editing card (click node → floating edit card, not sidebar)
+- Phase 3: Canvas relationship creation (drag-to-connect nodes)
+- Phase 4: Remove left panel, float all controls (full-width tree)
+
+Phases 2-4 require UAT/staging pipeline before implementation.
 
 ---
 
