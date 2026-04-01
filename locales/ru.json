@@ -578,8 +578,9 @@
     "hide_settings": "Скрыть настройки",
     "profile_complete": "полей заполнено",
     "view_ancestors": "Показать предков",
+    "view_branch": "Показать ветвь",
     "show_full_tree": "Показать всё дерево",
-    "ancestor_banner": "Показаны предки: {name}"
+    "ancestor_banner": "Показана ветвь: {name}"
   },
   "calendar": {
     "title": "Семейный Календарь",

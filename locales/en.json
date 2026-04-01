@@ -578,8 +578,9 @@
     "hide_settings": "Hide Family Tree Settings",
     "profile_complete": "fields complete",
     "view_ancestors": "View ancestors",
+    "view_branch": "View branch",
     "show_full_tree": "Show full tree",
-    "ancestor_banner": "Showing ancestors of {name}"
+    "ancestor_banner": "Showing branch of {name}"
   },
   "calendar": {
     "title": "Family Calendar",

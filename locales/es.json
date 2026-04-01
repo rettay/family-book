@@ -578,8 +578,9 @@
     "hide_settings": "Ocultar configuraci\u00f3n",
     "profile_complete": "campos completos",
     "view_ancestors": "Ver ancestros",
+    "view_branch": "Ver rama",
     "show_full_tree": "Mostrar árbol completo",
-    "ancestor_banner": "Mostrando ancestros de {name}"
+    "ancestor_banner": "Mostrando rama de {name}"
   },
   "calendar": {
     "title": "Calendario Familiar",

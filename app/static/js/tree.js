@@ -74,10 +74,11 @@
     }
   }
 
-  function collectAncestorIds(personId, data) {
+  function collectBranchIds(personId, data) {
     var ids = new Set();
     ids.add(personId);
     var queue = [personId];
+    // BFS both directions: ancestors (child→parent) and descendants (parent→child)
     while (queue.length > 0) {
       var current = queue.shift();
       (data.parent_child || []).forEach(function(edge) {
@@ -85,9 +86,13 @@
           ids.add(edge.parent_id);
           queue.push(edge.parent_id);
         }
+        if (edge.parent_id === current && !ids.has(edge.child_id)) {
+          ids.add(edge.child_id);
+          queue.push(edge.child_id);
+        }
       });
     }
-    // Include partners of all ancestors
+    // Include partners of all collected persons
     (data.partnerships || []).forEach(function(p) {
       if (ids.has(p.person_a_id) && !ids.has(p.person_b_id)) {
         ids.add(p.person_b_id);
@@ -98,16 +103,16 @@
     return ids;
   }
 
-  function filterTreeDataToAncestors(personId, data) {
-    var ancestorIds = collectAncestorIds(personId, data);
+  function filterTreeDataToBranch(personId, data) {
+    var branchIds = collectBranchIds(personId, data);
     return {
       root_id: data.root_id,
-      persons: data.persons.filter(function(p) { return ancestorIds.has(p.id); }),
+      persons: data.persons.filter(function(p) { return branchIds.has(p.id); }),
       parent_child: data.parent_child.filter(function(e) {
-        return ancestorIds.has(e.parent_id) && ancestorIds.has(e.child_id);
+        return branchIds.has(e.parent_id) && branchIds.has(e.child_id);
       }),
       partnerships: data.partnerships.filter(function(p) {
-        return ancestorIds.has(p.person_a_id) && ancestorIds.has(p.person_b_id);
+        return branchIds.has(p.person_a_id) && branchIds.has(p.person_b_id);
       })
     };
   }
@@ -117,7 +122,7 @@
       fullTreeData = treeData;
     }
     ancestorViewPersonId = personId;
-    treeData = filterTreeDataToAncestors(personId, fullTreeData);
+    treeData = filterTreeDataToBranch(personId, fullTreeData);
     render();
     updateAncestorBanner();
     updateAncestorUrlParam(personId);
@@ -1338,7 +1343,7 @@
       if (ancestorParam) {
         fullTreeData = treeData;
         ancestorViewPersonId = ancestorParam;
-        treeData = filterTreeDataToAncestors(ancestorParam, fullTreeData);
+        treeData = filterTreeDataToBranch(ancestorParam, fullTreeData);
       }
       render();
       updateAncestorBanner();
