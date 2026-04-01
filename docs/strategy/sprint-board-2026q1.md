@@ -2,9 +2,15 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S39 - Ancestor Branch View`
 
-Status: Ready
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,13 +24,13 @@ Direct user request: a family member wants to see only a specific branch of the 
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 80 | FB-080 | Ancestor Branch View | P0 | todo |
+| 80 | FB-080 | Ancestor Branch View | P0 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S39-1 | Client-side ancestor collection, tree filtering, banner, URL state, sidebar button, i18n | todo |
+| S39-1 | Client-side ancestor collection, tree filtering, banner, URL state, sidebar button, i18n | done |
 
 ### Sprint Exit Criteria
 

@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S39 - Ancestor Branch View`
-Status: Ready
+Status: Done
 
 ## Current Sprint `S39 - Ancestor Branch View`
 
@@ -12,7 +12,7 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-080 | Ancestor Branch View | P0 | todo | `task_packets/FB-080_ancestor_branch_view.md` |
+| FB-080 | Ancestor Branch View | P0 | done | `task_packets/FB-080_ancestor_branch_view.md` |
 
 Execution slices:
 - `S39-1` Client-side ancestor collection, tree filtering, banner, URL state, sidebar button, i18n

@@ -2,9 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-080 | Ancestor Branch View | P0 | `task_packets/FB-080_ancestor_branch_view.md` |
+None.
 
 ## In Progress
 
@@ -37,6 +35,7 @@ None.
 | FB-077 | Left Panel Cleanup | P1 | `task_packets/FB-077_left_panel_cleanup.md` |
 | FB-078 | Sidebar Identity and Orientation Redesign | P0 | `task_packets/FB-078_sidebar_identity_and_orientation_redesign.md` |
 | FB-079 | Sidebar Details Form and Visual Polish | P1 | `task_packets/FB-079_sidebar_details_form_and_visual_polish.md` |
+| FB-080 | Ancestor Branch View | P0 | `task_packets/FB-080_ancestor_branch_view.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
