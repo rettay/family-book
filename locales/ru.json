@@ -582,7 +582,14 @@
     "show_full_tree": "Показать всё дерево",
     "ancestor_banner": "Показана ветвь: {name}",
     "branch_hint": "Выберите человека на дереве, затем нажмите «Показать ветвь».",
-    "view_branch_of": "Показать ветвь: {name}"
+    "view_branch_of": "Показать ветвь: {name}",
+    "ctx_view_branch": "Показать ветвь",
+    "ctx_add_parent": "Добавить родителя",
+    "ctx_add_child": "Добавить ребёнка",
+    "ctx_add_partner": "Добавить партнёра",
+    "ctx_upload_photo": "Загрузить фото",
+    "ctx_edit_details": "Редактировать",
+    "ctx_view_profile": "Открыть профиль"
   },
   "calendar": {
     "title": "Семейный Календарь",

@@ -582,7 +582,14 @@
     "show_full_tree": "Show full tree",
     "ancestor_banner": "Showing branch of {name}",
     "branch_hint": "Select a person on the tree, then click View branch.",
-    "view_branch_of": "View branch of {name}"
+    "view_branch_of": "View branch of {name}",
+    "ctx_view_branch": "View branch",
+    "ctx_add_parent": "Add parent",
+    "ctx_add_child": "Add child",
+    "ctx_add_partner": "Add partner",
+    "ctx_upload_photo": "Upload photo",
+    "ctx_edit_details": "Edit details",
+    "ctx_view_profile": "View profile"
   },
   "calendar": {
     "title": "Family Calendar",

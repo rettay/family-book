@@ -582,7 +582,14 @@
     "show_full_tree": "Mostrar árbol completo",
     "ancestor_banner": "Mostrando rama de {name}",
     "branch_hint": "Seleccione una persona en el árbol, luego haga clic en Ver rama.",
-    "view_branch_of": "Ver rama de {name}"
+    "view_branch_of": "Ver rama de {name}",
+    "ctx_view_branch": "Ver rama",
+    "ctx_add_parent": "Agregar padre/madre",
+    "ctx_add_child": "Agregar hijo/a",
+    "ctx_add_partner": "Agregar pareja",
+    "ctx_upload_photo": "Subir foto",
+    "ctx_edit_details": "Editar detalles",
+    "ctx_view_profile": "Ver perfil"
   },
   "calendar": {
     "title": "Calendario Familiar",

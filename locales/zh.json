@@ -582,7 +582,14 @@
     "show_full_tree": "显示完整家谱",
     "ancestor_banner": "显示 {name} 的分支",
     "branch_hint": "在家谱中选择一个人，然后点击\u201c查看分支\u201d。",
-    "view_branch_of": "查看 {name} 的分支"
+    "view_branch_of": "查看 {name} 的分支",
+    "ctx_view_branch": "查看分支",
+    "ctx_add_parent": "添加父母",
+    "ctx_add_child": "添加子女",
+    "ctx_add_partner": "添加伴侣",
+    "ctx_upload_photo": "上传照片",
+    "ctx_edit_details": "编辑详情",
+    "ctx_view_profile": "查看资料"
   },
   "calendar": {
     "title": "家庭日历",

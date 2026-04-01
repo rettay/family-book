@@ -310,6 +310,7 @@ class PersonSummary(BaseModel):
     branch: str | None
     is_living: bool
     visibility: str
+    slug: str | None = None
     media_count: int = 0
 
     model_config = {"from_attributes": True}

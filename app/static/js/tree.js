@@ -187,6 +187,91 @@
     } catch (e) { /* ignore */ }
   }
 
+  // ── Context Menu ────────────────────────────────────────────────────
+  function showTreeContextMenu(personId, x, y) {
+    var menu = document.getElementById('tree-context-menu');
+    if (!menu) return;
+    var person = lookupPerson(personId);
+    var slug = person ? person.slug : '';
+    var items = [
+      { icon: '\ud83c\udf3f', label: root.dataset.ctxViewBranch || 'View branch', action: function() { applyAncestorView(personId); } },
+      { separator: true },
+      { icon: '\ud83d\udc46', label: root.dataset.ctxAddParent || 'Add parent', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('relationships'); openTreeRelationshipCreate('parent'); }); } },
+      { icon: '\ud83d\udc76', label: root.dataset.ctxAddChild || 'Add child', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('relationships'); openTreeRelationshipCreate('child'); }); } },
+      { icon: '\ud83d\udc91', label: root.dataset.ctxAddPartner || 'Add partner', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('relationships'); openTreeRelationshipCreate('partner'); }); } },
+      { separator: true },
+      { icon: '\ud83d\udcf7', label: root.dataset.ctxUploadPhoto || 'Upload photo', action: function() { triggerTreePhotoUpload(personId); } },
+      { icon: '\u270f\ufe0f', label: root.dataset.ctxEditDetails || 'Edit details', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('details'); }); } }
+    ];
+    // Only add "View profile" if person has a slug
+    if (slug) {
+      items.push({ icon: '\ud83d\udc64', label: root.dataset.ctxViewProfile || 'View profile', action: function() { window.location.href = '/wiki/' + slug; } });
+    }
+
+    menu.innerHTML = '';
+    items.forEach(function(item, index) {
+      if (item.separator) {
+        var sep = document.createElement('div');
+        sep.className = 'tree-context-menu__separator';
+        menu.appendChild(sep);
+        return;
+      }
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tree-context-menu__item';
+      if (item.danger) btn.className += ' tree-context-menu__item--danger';
+      btn.setAttribute('role', 'menuitem');
+      btn.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      btn.innerHTML = '<span>' + item.icon + '</span><span>' + item.label + '</span>';
+      btn.addEventListener('click', function() {
+        hideTreeContextMenu();
+        item.action();
+      });
+      menu.appendChild(btn);
+    });
+
+    // Position within viewport
+    menu.hidden = false;
+    var rect = menu.getBoundingClientRect();
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    if (x + rect.width > vw - 8) x = vw - rect.width - 8;
+    if (y + rect.height > vh - 8) y = vh - rect.height - 8;
+    if (x < 8) x = 8;
+    if (y < 8) y = 8;
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+
+    // Focus first item
+    var firstItem = menu.querySelector('.tree-context-menu__item');
+    if (firstItem) firstItem.focus();
+
+    // Keyboard navigation
+    menu.onkeydown = function(event) {
+      var menuItems = Array.from(menu.querySelectorAll('.tree-context-menu__item'));
+      var current = menuItems.indexOf(document.activeElement);
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        var next = current + 1 < menuItems.length ? current + 1 : 0;
+        menuItems[next].focus();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        var prev = current - 1 >= 0 ? current - 1 : menuItems.length - 1;
+        menuItems[prev].focus();
+      } else if (event.key === 'Escape') {
+        hideTreeContextMenu();
+      }
+    };
+  }
+
+  function hideTreeContextMenu() {
+    var menu = document.getElementById('tree-context-menu');
+    if (menu) {
+      menu.hidden = true;
+      menu.innerHTML = '';
+    }
+  }
+
   function updateFocusParam(personId) {
     try {
       var url = new URL(window.location.href);
@@ -2450,77 +2535,11 @@
         .attr('class', 'photo-clip')
         .attr('r', NODE_RADIUS);
       appendNodeInitials(nodeGroup, nodeLabel, false);
-      // Camera icon overlay for photo-less nodes
-      if (preferences.show_photos) {
-        var iconGroup = nodeGroup.append('g')
-          .attr('class', 'tree-node__add-photo')
-          .attr('pointer-events', 'all')
-          .style('cursor', 'pointer');
-        iconGroup.append('circle')
-          .attr('r', 12)
-          .attr('cx', NODE_RADIUS - 8)
-          .attr('cy', NODE_RADIUS - 8)
-          .attr('fill', 'var(--bg-warm, #faf8f5)')
-          .attr('stroke', 'var(--border, #e0d6c8)')
-          .attr('stroke-width', 1);
-        // Camera body path
-        iconGroup.append('path')
-          .attr('d', 'M' + (NODE_RADIUS - 13) + ',' + (NODE_RADIUS - 11) +
-            ' l2,-3 h6 l2,3 h2 a1,1 0 0,1 1,1 v6 a1,1 0 0,1 -1,1 h-14 a1,1 0 0,1 -1,-1 v-6 a1,1 0 0,1 1,-1 z')
-          .attr('fill', 'none')
-          .attr('stroke', 'var(--green-deep, #2d5016)')
-          .attr('stroke-width', 1.2)
-          .attr('stroke-linecap', 'round')
-          .attr('stroke-linejoin', 'round');
-        // Camera lens circle
-        iconGroup.append('circle')
-          .attr('cx', NODE_RADIUS - 8)
-          .attr('cy', NODE_RADIUS - 6)
-          .attr('r', 2.5)
-          .attr('fill', 'none')
-          .attr('stroke', 'var(--green-deep, #2d5016)')
-          .attr('stroke-width', 1.2);
-        iconGroup.on('click', function(event) {
-          event.stopPropagation();
-          triggerTreePhotoUpload(person.id);
-        });
-      }
     }
 
     nodeGroup.append('circle')
       .attr('class', 'tap-target')
       .attr('r', NODE_RADIUS + 10);
-
-    // Add-relative plus button (hover-revealed, hidden during graph mode)
-    if (!sidebarState.graphMode && !_relCalcMode) {
-      var addRelGroup = nodeGroup.append('g')
-        .attr('class', 'tree-node__add-relative')
-        .attr('pointer-events', 'all')
-        .style('cursor', 'pointer');
-      addRelGroup.append('circle')
-        .attr('r', 10)
-        .attr('cx', 0)
-        .attr('cy', -(NODE_RADIUS + 4))
-        .attr('fill', 'var(--green-pale, #d9eac9)')
-        .attr('stroke', 'var(--green-mid, #7da362)')
-        .attr('stroke-width', 1.5);
-      addRelGroup.append('text')
-        .attr('x', 0)
-        .attr('y', -(NODE_RADIUS + 4))
-        .attr('text-anchor', 'middle')
-        .attr('dy', '0.35em')
-        .attr('fill', 'var(--green-deep, #2d5016)')
-        .attr('font-size', '14px')
-        .attr('font-weight', '700')
-        .attr('pointer-events', 'none')
-        .text('+');
-      addRelGroup.on('click', function(event) {
-        event.stopPropagation();
-        openPersonSidebar(person.id).then(function() {
-          switchTreeSidebarTab('relationships');
-        });
-      });
-    }
 
     var nextTextY = NODE_RADIUS + 16;
     if (preferences.show_names) {
@@ -2593,6 +2612,30 @@
           return;
         }
         openPersonSidebar(person.id, this);
+      }
+    });
+
+    // Context menu (right-click / long-press)
+    nodeGroup.on('contextmenu', function(event) {
+      if (sidebarState.graphMode || _relCalcMode) return;
+      event.preventDefault();
+      showTreeContextMenu(person.id, event.clientX, event.clientY);
+    });
+
+    // Long-press for mobile
+    var longPressTimer = null;
+    nodeGroup.on('touchstart', function(event) {
+      if (sidebarState.graphMode || _relCalcMode) return;
+      longPressTimer = setTimeout(function() {
+        longPressTimer = null;
+        var touch = event.touches[0] || event.changedTouches[0];
+        showTreeContextMenu(person.id, touch.clientX, touch.clientY);
+      }, 500);
+    });
+    nodeGroup.on('touchend touchmove', function() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
       }
     });
   }
@@ -3777,7 +3820,11 @@
       if (!event.target.closest('#tree-search')) {
         hideSearchResults();
       }
+      if (!event.target.closest('#tree-context-menu')) {
+        hideTreeContextMenu();
+      }
     });
+    document.addEventListener('scroll', function() { hideTreeContextMenu(); }, true);
   }
 
   window.treeZoomIn = function() {
@@ -3809,6 +3856,8 @@
 
   window.applyAncestorView = applyAncestorView;
   window.clearAncestorView = clearAncestorView;
+  window.showTreeContextMenu = showTreeContextMenu;
+  window.hideTreeContextMenu = hideTreeContextMenu;
   window.applyBranchFromPanel = function() {
     if (currentSidebarPersonId) {
       applyAncestorView(currentSidebarPersonId);

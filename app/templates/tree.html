@@ -302,6 +302,13 @@
   data-ancestor-banner-label="{{ t('tree.ancestor_banner') }}"
   data-branch-hint-label="{{ t('tree.branch_hint') }}"
   data-view-branch-of-label="{{ t('tree.view_branch_of') }}"
+  data-ctx-view-branch="{{ t('tree.ctx_view_branch') }}"
+  data-ctx-add-parent="{{ t('tree.ctx_add_parent') }}"
+  data-ctx-add-child="{{ t('tree.ctx_add_child') }}"
+  data-ctx-add-partner="{{ t('tree.ctx_add_partner') }}"
+  data-ctx-upload-photo="{{ t('tree.ctx_upload_photo') }}"
+  data-ctx-edit-details="{{ t('tree.ctx_edit_details') }}"
+  data-ctx-view-profile="{{ t('tree.ctx_view_profile') }}"
 >
   <aside class="tree-panel" id="tree-panel-content">
     <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
@@ -351,6 +358,7 @@
 
   <div class="tree-canvas">
     <div class="tree-page" id="tree-page">
+      <div class="tree-context-menu" id="tree-context-menu" hidden role="menu" aria-label="Node actions"></div>
       <div class="tree-controls">
         <button type="button" onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}" aria-label="{{ t('tree.zoom_in') }}">+</button>
         <button type="button" onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}" aria-label="{{ t('tree.zoom_out') }}">&minus;</button>
