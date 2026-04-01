@@ -1,6 +1,32 @@
 # Family Book Backlog
 
-Sprint: `S40 - Tree Context Menu (Phase 1: Tree-Native Interactions)`
+Sprint: `S41 - UAT/Staging Pipeline`
+Status: Ready
+
+## Current Sprint `S41 - UAT/Staging Pipeline`
+
+Sprint goal:
+- Establish a staging environment with demo data, a promotion workflow with manual approval gate, and an acceptance checklist — so production deploys only happen after staging verification.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-083 | Staging Environment Configuration | P0 | todo | `task_packets/FB-083_staging_environment_config.md` |
+| FB-084 | Promotion Workflow and CI Gate | P0 | todo | `task_packets/FB-084_promotion_workflow_and_ci_gate.md` |
+| FB-085 | Staging Acceptance Checklist | P1 | todo | `task_packets/FB-085_staging_acceptance_checklist.md` |
+| FB-086 | Comprehensive Demo Seed Data | P1 | todo | `task_packets/FB-086_comprehensive_demo_seed.md` |
+| FB-087 | Developer Workflow Documentation | P2 | todo | `task_packets/FB-087_developer_workflow_docs.md` |
+
+Execution slices:
+- `S41-1` Railway staging env vars, volume verification, first staging deploy
+- `S41-2` CI manual approval gate for production, promotion guide
+- `S41-3` Staging acceptance checklist (quick + full versions)
+- `S41-4` ~100 person comprehensive seed with international names and complex relations
+- `S41-5` Developer workflow docs, CLAUDE.md update
+
+## Closed Sprint `S40 - Tree Context Menu (Phase 1: Tree-Native Interactions)`
+
 Status: Done
 
 ## Current Sprint `S40 - Tree Context Menu`

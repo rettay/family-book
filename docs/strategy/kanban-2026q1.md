@@ -2,7 +2,13 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-083 | Staging Environment Configuration | P0 | `task_packets/FB-083_staging_environment_config.md` |
+| FB-084 | Promotion Workflow and CI Gate | P0 | `task_packets/FB-084_promotion_workflow_and_ci_gate.md` |
+| FB-085 | Staging Acceptance Checklist | P1 | `task_packets/FB-085_staging_acceptance_checklist.md` |
+| FB-086 | Comprehensive Demo Seed Data | P1 | `task_packets/FB-086_comprehensive_demo_seed.md` |
+| FB-087 | Developer Workflow Documentation | P2 | `task_packets/FB-087_developer_workflow_docs.md` |
 
 ## In Progress
 

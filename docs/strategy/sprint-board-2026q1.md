@@ -2,7 +2,47 @@
 
 ## Current Sprint
 
-None.
+### `S41 - UAT/Staging Pipeline`
+
+Status: Ready
+
+### Sprint Goal
+
+Establish a staging environment with comprehensive demo data, a promotion workflow with manual approval gate, and an acceptance checklist — so production deploys only happen after staging verification. This is the last infrastructure sprint before the stories feature.
+
+### Why This Sprint Next
+
+Real family members are on production. Every push to main auto-deploys with no testing buffer. The stories feature and tree-native Phase 2 both need safe testing before they reach real users. This sprint builds the safety net.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 83 | FB-083 | Staging Environment Configuration | P0 | todo |
+| 84 | FB-084 | Promotion Workflow and CI Gate | P0 | todo |
+| 85 | FB-085 | Staging Acceptance Checklist | P1 | todo |
+| 86 | FB-086 | Comprehensive Demo Seed Data | P1 | todo |
+| 87 | FB-087 | Developer Workflow Documentation | P2 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S41-1 | Railway staging env vars, volume verification, first deploy | todo |
+| S41-2 | CI manual approval gate for production, promotion guide | todo |
+| S41-3 | Staging acceptance checklist (quick + full) | todo |
+| S41-4 | ~100 person comprehensive seed with international names | todo |
+| S41-5 | Developer workflow docs, CLAUDE.md update | todo |
+
+### Sprint Exit Criteria
+
+- staging environment boots and serves pages at a staging URL
+- pushing to codex/staging auto-deploys to staging
+- pushing to main triggers quality checks then waits for manual approval before production deploy
+- staging acceptance checklist exists (quick 5-item + full 30-item versions)
+- ~100 person demo seed runs on staging with international names, complex relations, diverse ages
+- developer workflow documented end-to-end
+- CLAUDE.md updated to reference new workflow
 
 ---
 
