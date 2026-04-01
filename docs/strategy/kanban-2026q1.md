@@ -2,7 +2,9 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-080 | Ancestor Branch View | P0 | `task_packets/FB-080_ancestor_branch_view.md` |
 
 ## In Progress
 

@@ -1,6 +1,24 @@
 # Family Book Backlog
 
-Sprint: `S38 - Tree Sidebar Redesign`
+Sprint: `S39 - Ancestor Branch View`
+Status: Ready
+
+## Current Sprint `S39 - Ancestor Branch View`
+
+Sprint goal:
+- Add ancestor branch filtering so users can focus on a single lineage within the family tree.
+
+Committed packets:
+
+| ID | Title | Priority | Status | Task Packet |
+|---|---|---:|---|---|
+| FB-080 | Ancestor Branch View | P0 | todo | `task_packets/FB-080_ancestor_branch_view.md` |
+
+Execution slices:
+- `S39-1` Client-side ancestor collection, tree filtering, banner, URL state, sidebar button, i18n
+
+## Closed Sprint `S38 - Tree Sidebar Redesign`
+
 Status: Done
 
 ## Current Sprint `S38 - Tree Sidebar Redesign`

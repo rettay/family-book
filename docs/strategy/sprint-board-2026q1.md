@@ -2,7 +2,37 @@
 
 ## Current Sprint
 
-None.
+### `S39 - Ancestor Branch View`
+
+Status: Ready
+
+### Sprint Goal
+
+Add ancestor branch filtering so users can focus on a single person's lineage within the family tree, reducing visual noise from unrelated branches.
+
+### Why This Sprint Next
+
+Direct user request: a family member wants to see only a specific branch of the tree. With the tree growing as more family members contribute, focused exploration is essential for usability.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 80 | FB-080 | Ancestor Branch View | P0 | todo |
+
+### Planned Slices
+
+| Slice | Title | Status |
+|---|---|---|
+| S39-1 | Client-side ancestor collection, tree filtering, banner, URL state, sidebar button, i18n | todo |
+
+### Sprint Exit Criteria
+
+- clicking "View ancestors" on a person filters the tree to their ancestors + partners
+- a banner shows "Showing ancestors of {name}" with "Show full tree" to exit
+- URL updates to ?ancestors_of={id} and is bookmarkable
+- loading a page with ?ancestors_of applies the filter on initial render
+- i18n parity maintained
 
 ---
 
