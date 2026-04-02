@@ -79,7 +79,7 @@ ANGLO = [
             birth_date_raw="1948-01-22", birth_date="1948-01-22", birth_date_precision="exact",
             birth_place="Boston, MA", birth_country_code="US", branch="Harrison",
             bio="Eldest son. Practiced law in Boston for 40 years before retiring to Cape Cod.",
-            is_admin=True, google_email="familybook.demo@gmail.com", google_sub="demo-google-sub-001"),
+            is_admin=True, google_email=None, google_sub=None),
     _person("seed-004", "Margaret", "Harrison", gender="female",
             birth_date_raw="1950-06-11", birth_date="1950-06-11", birth_date_precision="exact",
             birth_place="Boston, MA", birth_country_code="US", branch="Harrison", nickname="Maggie"),
@@ -832,9 +832,22 @@ async def seed() -> None:
         await session.flush()
 
         # ------------------------------------------------------------------
-        # Create admin session for Playwright
+        # Link admin person to the bootstrap email so real user can log in
         # ------------------------------------------------------------------
         admin_id = "seed-003"
+        from app.config import get_settings
+        from app.services.field_protection import contact_email_lookup_hash, normalize_email_for_lookup
+        settings = get_settings()
+        bootstrap_email = normalize_email_for_lookup(settings.BOOTSTRAP_ADMIN_EMAIL)
+        if bootstrap_email:
+            admin_person = await session.get(Person, admin_id)
+            if admin_person:
+                admin_person.contact_email = bootstrap_email
+                admin_person.contact_email_hash = contact_email_lookup_hash(bootstrap_email)
+                admin_person.account_state = "active"
+                await session.flush()
+                print(f"Linked admin (seed-003) to {bootstrap_email}")
+
         token = await create_session(session, admin_id, "google_oauth")
         print(f"Admin session token: {token}")
 
