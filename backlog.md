@@ -1,7 +1,7 @@
 # Family Book Backlog
 
 Sprint: `S41 - UAT/Staging Pipeline`
-Status: Ready
+Status: Done
 
 ## Current Sprint `S41 - UAT/Staging Pipeline`
 
@@ -12,11 +12,11 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-083 | Staging Environment Configuration | P0 | todo | `task_packets/FB-083_staging_environment_config.md` |
-| FB-084 | Promotion Workflow and CI Gate | P0 | todo | `task_packets/FB-084_promotion_workflow_and_ci_gate.md` |
-| FB-085 | Staging Acceptance Checklist | P1 | todo | `task_packets/FB-085_staging_acceptance_checklist.md` |
-| FB-086 | Comprehensive Demo Seed Data | P1 | todo | `task_packets/FB-086_comprehensive_demo_seed.md` |
-| FB-087 | Developer Workflow Documentation | P2 | todo | `task_packets/FB-087_developer_workflow_docs.md` |
+| FB-083 | Staging Environment Configuration | P0 | done | `task_packets/FB-083_staging_environment_config.md` |
+| FB-084 | Promotion Workflow and CI Gate | P0 | done | `task_packets/FB-084_promotion_workflow_and_ci_gate.md` |
+| FB-085 | Staging Acceptance Checklist | P1 | done | `task_packets/FB-085_staging_acceptance_checklist.md` |
+| FB-086 | Comprehensive Demo Seed Data | P1 | done | `task_packets/FB-086_comprehensive_demo_seed.md` |
+| FB-087 | Developer Workflow Documentation | P2 | done | `task_packets/FB-087_developer_workflow_docs.md` |
 
 Execution slices:
 - `S41-1` Railway staging env vars, volume verification, first staging deploy

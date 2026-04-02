@@ -2,13 +2,7 @@
 
 ## Ready
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-083 | Staging Environment Configuration | P0 | `task_packets/FB-083_staging_environment_config.md` |
-| FB-084 | Promotion Workflow and CI Gate | P0 | `task_packets/FB-084_promotion_workflow_and_ci_gate.md` |
-| FB-085 | Staging Acceptance Checklist | P1 | `task_packets/FB-085_staging_acceptance_checklist.md` |
-| FB-086 | Comprehensive Demo Seed Data | P1 | `task_packets/FB-086_comprehensive_demo_seed.md` |
-| FB-087 | Developer Workflow Documentation | P2 | `task_packets/FB-087_developer_workflow_docs.md` |
+None.
 
 ## In Progress
 
@@ -44,6 +38,11 @@ None.
 | FB-080 | Ancestor Branch View | P0 | `task_packets/FB-080_ancestor_branch_view.md` |
 | FB-081 | Tree Node Context Menu | P0 | `task_packets/FB-081_tree_node_context_menu.md` |
 | FB-082 | Remove Node Hover Buttons | P1 | `task_packets/FB-082_remove_node_hover_buttons.md` |
+| FB-083 | Staging Environment Configuration | P0 | `task_packets/FB-083_staging_environment_config.md` |
+| FB-084 | Promotion Workflow and CI Gate | P0 | `task_packets/FB-084_promotion_workflow_and_ci_gate.md` |
+| FB-085 | Staging Acceptance Checklist | P1 | `task_packets/FB-085_staging_acceptance_checklist.md` |
+| FB-086 | Comprehensive Demo Seed Data | P1 | `task_packets/FB-086_comprehensive_demo_seed.md` |
+| FB-087 | Developer Workflow Documentation | P2 | `task_packets/FB-087_developer_workflow_docs.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|

@@ -2,9 +2,15 @@
 
 ## Current Sprint
 
+None.
+
+---
+
+## Closed Sprint
+
 ### `S41 - UAT/Staging Pipeline`
 
-Status: Ready
+Status: Closed
 
 ### Sprint Goal
 
@@ -18,21 +24,21 @@ Real family members are on production. Every push to main auto-deploys with no t
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 83 | FB-083 | Staging Environment Configuration | P0 | todo |
-| 84 | FB-084 | Promotion Workflow and CI Gate | P0 | todo |
-| 85 | FB-085 | Staging Acceptance Checklist | P1 | todo |
-| 86 | FB-086 | Comprehensive Demo Seed Data | P1 | todo |
-| 87 | FB-087 | Developer Workflow Documentation | P2 | todo |
+| 83 | FB-083 | Staging Environment Configuration | P0 | done |
+| 84 | FB-084 | Promotion Workflow and CI Gate | P0 | done |
+| 85 | FB-085 | Staging Acceptance Checklist | P1 | done |
+| 86 | FB-086 | Comprehensive Demo Seed Data | P1 | done |
+| 87 | FB-087 | Developer Workflow Documentation | P2 | done |
 
 ### Planned Slices
 
 | Slice | Title | Status |
 |---|---|---|
-| S41-1 | Railway staging env vars, volume verification, first deploy | todo |
-| S41-2 | CI manual approval gate for production, promotion guide | todo |
-| S41-3 | Staging acceptance checklist (quick + full) | todo |
-| S41-4 | ~100 person comprehensive seed with international names | todo |
-| S41-5 | Developer workflow docs, CLAUDE.md update | todo |
+| S41-1 | Railway staging env vars, volume verification, first deploy | done |
+| S41-2 | CI manual approval gate for production, promotion guide | done |
+| S41-3 | Staging acceptance checklist (quick + full) | done |
+| S41-4 | ~100 person comprehensive seed with international names | done |
+| S41-5 | Developer workflow docs, CLAUDE.md update | done |
 
 ### Sprint Exit Criteria
 
