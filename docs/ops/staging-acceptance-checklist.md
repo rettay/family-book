@@ -1,85 +1,104 @@
 # Staging Acceptance Checklist
 
-## Goal
+Run this checklist on the staging environment before promoting to production.
 
-Use this checklist to decide whether a sprint build on Railway staging is acceptable for promotion toward `main`.
+**Staging URL:** `https://family-book-staging.up.railway.app`
 
-Staging URL:
-- [family-book-staging.up.railway.app](https://family-book-staging.up.railway.app)
+---
 
-Primary evidence sources:
-- GitHub Actions run for the branch
-- Playwright artifacts uploaded from `make test-ui-playwright`
-- manual staging verification against the current sprint scope
+## Quick Smoke Test (2 minutes)
 
-## Entry Conditions
+For low-risk changes (copy, styling, minor fixes). If any item fails, do NOT promote.
 
-Before manual staging review starts, confirm all are true:
+- [ ] `/health` returns `{"status":"ok","db":"connected"}`
+- [ ] Login with Google OAuth succeeds → lands on tree page
+- [ ] Tree renders nodes with photos/initials — click a node → sidebar opens
+- [ ] Upload a photo via sidebar Media tab → photo appears in media list
+- [ ] Edit a field in sidebar Details tab → auto-save indicator shows "Saved"
 
-1. The branch has a green `CI and Railway Deploy` run.
-2. Railway staging is serving the new branch build.
-3. `/health` returns `200` on staging.
-4. The Playwright artifact bundle exists for the branch run.
+---
 
-## Core Acceptance Flows
+## Full Acceptance (15 minutes)
 
-These flows should be checked every sprint unless the sprint explicitly excludes a surface:
+For significant changes (new features, data model changes, auth changes). Run the quick smoke test first, then continue with these sections.
 
-1. Login and session continuity
-- open `/login`
-- confirm successful sign-in
-- refresh one authenticated page and confirm the session remains valid
+### Health & Infrastructure
 
-2. Shared family feed
-- confirm the home feed renders
-- create or inspect one recent moment
-- confirm another member can see shared content where appropriate
+- [ ] `/health` returns ok
+- [ ] Server logs show no startup errors (check Railway logs dashboard)
+- [ ] Alembic migrations ran successfully on boot
 
-3. Person workflow
-- open a person page
-- confirm timeline/media sections render
-- if the sprint touched people flows, create or edit one person and verify persistence
+### Authentication & Access
 
-4. Tree and map
-- confirm `/tree` renders and can accept filters or preferences
-- confirm `/map` renders and shows markers or truthful empty state
+- [ ] Login with Google OAuth → redirected to tree
+- [ ] Logout → redirected to login page
+- [ ] Session persists across page reload (no re-login required)
+- [ ] Admin dashboard accessible at `/admin`
+- [ ] Non-admin user cannot access `/admin`
 
-5. Admin surface
-- open `/admin`
-- confirm backup/protection status renders
-- if the sprint touched admin controls, verify the changed admin path directly
+### Tree
 
-## Sprint-Specific Acceptance
+- [ ] Tree renders all persons as nodes with names/initials
+- [ ] Persons with headshots show photos in node circles
+- [ ] Click node → sidebar opens with person overview
+- [ ] Right-click node → context menu appears with actions
+- [ ] Context menu "View branch" filters tree to that person's lineage
+- [ ] "Show full tree" restores complete tree
+- [ ] Double-click node → navigates to person edit page
+- [ ] Search (left panel) finds persons by name
+- [ ] Display preferences toggle (names, photos, dates) works
 
-Add a short sprint-specific section to the PR or sprint notes with:
+### Person Editing
 
-- the exact changed flows that need manual review
-- what “pass” looks like
-- any temporary known limitations that are acceptable for this sprint
+- [ ] Sidebar Details tab → edit a field → auto-save shows "Saved"
+- [ ] Sidebar Details tab → "Edit more details" reveals hidden sections
+- [ ] Person edit page → save changes → data persists on reload
+- [ ] Place history → add a residence entry → saves correctly
+- [ ] Language autocomplete → type a language → suggestions appear
 
-Do not rely on memory. If the sprint changed UI behavior, write down what the reviewer should actually click.
+### Media
 
-## Evidence to Collect
+- [ ] Upload a photo via sidebar → upload modal appears with progress bar
+- [ ] Set as headshot (star button) → tree node updates on reload
+- [ ] Delete media (trash button) → item removed after confirmation
+- [ ] Global gallery page (`/gallery`) renders with filters
+- [ ] Click avatar circle → file picker opens → photo uploads as headshot
 
-Minimum evidence before production promotion:
+### Wiki / Family Bios
 
-1. green CI run
-2. uploaded Playwright artifacts
-3. one short written staging acceptance note in the PR, merge thread, or sprint closeout
+- [ ] Person wiki page (`/wiki/{slug}`) renders all sections
+- [ ] Wiki page shows media gallery section when person has media
+- [ ] Place history section renders chronologically
 
-The acceptance note should answer:
+### Admin
 
-- what was checked
-- what environment was checked
-- whether any deviations were accepted intentionally
+- [ ] Admin dashboard shows person list with last login timestamps
+- [ ] Active session counts visible per person
+- [ ] "Log out all" button works for a person with sessions
+- [ ] Create invite → delivery status shows (Sent/Failed/Not configured)
 
-## Promotion Decision
+### Internationalization
 
-Staging is acceptable for promotion only when:
+- [ ] Switch browser locale to Spanish → key surfaces render in Spanish
+- [ ] Tree sidebar labels show translated text
 
-- automated checks are green
-- Playwright artifacts show the current branch behavior
-- the manual checklist is complete
-- no open blocker findings remain from auditor review
+### Mobile / Responsive
 
-If one of those is missing, do not merge to `main`.
+- [ ] Tree page: no horizontal overflow at 390px viewport width
+- [ ] Sidebar: usable at 390px (fields reachable, tabs work)
+- [ ] Person edit page: form stacks properly on narrow viewport
+
+---
+
+## After Acceptance
+
+If all items pass:
+1. Merge `codex/staging` → `main`
+2. Approve the production deploy in GitHub Actions
+3. Verify `/health` on production after deploy
+
+If any items fail:
+1. Note the failing items
+2. Fix on a feature branch
+3. Re-deploy to staging
+4. Re-run the failed checklist items

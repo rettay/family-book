@@ -42,10 +42,18 @@ uv run alembic downgrade -1  # Rollback
 ```
 
 ## Deploy (Railway)
-```bash
-railway up
+
+All changes go through staging before production. See `docs/ops/developer-workflow.md` for the full process.
+
 ```
-Railway runs the Dockerfile. Persistent volume at `/data`. Health check at `/health`.
+feature branch → codex/staging (auto-deploy) → acceptance test → main (manual approval) → production
+```
+
+- Staging: `https://family-book-staging.up.railway.app`
+- Production: `https://cutroni.xyz`
+- Staging env vars: `docs/ops/staging-env-vars.md`
+- Acceptance checklist: `docs/ops/staging-acceptance-checklist.md`
+- Promotion guide: `docs/ops/release-promotion-guide.md`
 
 ## Backup / Restore
 ```bash
