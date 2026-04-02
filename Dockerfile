@@ -13,6 +13,7 @@ COPY pyproject.toml uv.lock* ./
 RUN uv sync --frozen --no-dev 2>/dev/null || uv sync --no-dev
 
 COPY . .
+ARG CACHE_BUST=1
 COPY docker/start.sh /start.sh
 
 RUN useradd --create-home --shell /usr/sbin/nologin appuser \
