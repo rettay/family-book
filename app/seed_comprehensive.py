@@ -835,10 +835,14 @@ async def seed() -> None:
         # Link admin person to the bootstrap email so real user can log in
         # ------------------------------------------------------------------
         admin_id = "seed-003"
+        import os
         from app.config import get_settings
         from app.services.field_protection import contact_email_lookup_hash, normalize_email_for_lookup
         settings = get_settings()
-        bootstrap_email = normalize_email_for_lookup(settings.BOOTSTRAP_ADMIN_EMAIL)
+        raw_env = os.environ.get("BOOTSTRAP_ADMIN_EMAIL", "")
+        raw_setting = settings.BOOTSTRAP_ADMIN_EMAIL
+        bootstrap_email = normalize_email_for_lookup(raw_setting)
+        print(f"DEBUG: BOOTSTRAP_ADMIN_EMAIL env={raw_env!r} setting={raw_setting!r} normalized={bootstrap_email!r}")
         if bootstrap_email:
             admin_person = await session.get(Person, admin_id)
             if admin_person:
