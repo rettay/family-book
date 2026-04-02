@@ -19,6 +19,11 @@ dependencies = [
     "pillow>=12.1.1",
     "google-auth>=2.38,<3",
     "requests>=2.32,<3",
+    "nh3>=0.3.4",
+    "icalendar>=6,<7",
+    "recurring-ical-events>=3,<4",
+    "pycountry>=24,<25",
+    "mutagen>=1.47,<2",
 ]
 
 [project.optional-dependencies]

@@ -16,7 +16,6 @@ from app.routes.persons import router as persons_router
 from app.routes.relationships import router as relationships_router
 from app.routes.tree import router as tree_router
 from app.routes.media import router as media_router
-from app.routes.moments import router as moments_router
 
 logger = logging.getLogger(__name__)
 
@@ -82,11 +81,32 @@ def create_app() -> FastAPI:
     application.include_router(relationships_router)
     application.include_router(tree_router)
     application.include_router(media_router)
-    application.include_router(moments_router)
 
     # HTML page routes (HTMX frontend)
     from app.routes.pages import router as pages_router
     application.include_router(pages_router)
+
+    # Calendar routes
+    from app.routes.calendar import router as calendar_router
+    application.include_router(calendar_router)
+
+    # Timeline routes
+    from app.routes.timeline import router as timeline_router
+    application.include_router(timeline_router)
+
+    # Wiki routes
+    from app.routes.wiki import router as wiki_router
+    application.include_router(wiki_router)
+
+    # Research routes
+    from app.routes.research import router as research_router
+    application.include_router(research_router)
+
+    # Import and external records routes
+    from app.routes.imports import router as imports_router
+    from app.routes.external_records import router as external_records_router
+    application.include_router(imports_router)
+    application.include_router(external_records_router)
 
     # Phase 3 routes (infrastructure)
     from app.backup.routes import router as backup_router

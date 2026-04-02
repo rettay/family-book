@@ -1,49 +1,1216 @@
-<div style="padding: 24px 20px; text-align:center;">
-  <div class="avatar avatar--xl" style="margin:0 auto 14px;">
-    {% if person.photo_url and (person.photo_url.startswith('http') or person.photo_url.startswith('/')) %}
-    <img src="{{ person.photo_url }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-    {% elif person.photo_url %}
-    <img src="/api/media/{{ person.photo_url }}/file" alt="">
-    {% else %}
-    {{ person.display_name[:2] }}
+<div
+  class="tree-sidebar-card"
+  data-tree-sidebar-person-id="{{ person.id }}"
+  data-tree-sidebar-person-name="{{ person.display_name }}"
+  data-tree-sidebar-is-root="{{ 'true' if person.is_root else 'false' }}"
+  data-tree-sidebar-default-tab="overview"
+  data-tree-sidebar-media-count="{{ person_metrics.media_count }}"
+  data-tree-sidebar-parent-count="{{ parent_people|length }}"
+  data-tree-sidebar-child-count="{{ child_people|length }}"
+  data-tree-sidebar-partner-count="{{ partner_people|length }}"
+  data-tree-sidebar-can-manage="{{ 'true' if can_manage else 'false' }}"
+>
+  <div class="tree-sidebar-card__header">
+    <div class="avatar avatar--xl tree-sidebar-card__avatar{% if can_manage %} tree-sidebar-card__avatar--clickable{% endif %}"
+         {% if can_manage %}
+         role="button"
+         tabindex="0"
+         title="{{ t('media.upload_headshot') }}"
+         aria-label="{{ t('media.upload_headshot') }}"
+         onclick="document.getElementById('sidebar-headshot-input').click()"
+         onkeydown="if(event.key==='Enter')this.click()"
+         {% endif %}>
+      {% if person.photo_url and (person.photo_url.startswith('http') or person.photo_url.startswith('/')) %}
+      <img src="{{ person.photo_url }}" alt="{{ person.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+      {% elif person.photo_url %}
+      <img src="/api/media/{{ person.photo_url }}/file" alt="{{ person.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+      {% else %}
+      {{ person.display_name[:2] }}
+      {% endif %}
+      {% if can_manage %}
+      <span class="tree-sidebar-card__avatar-overlay" aria-hidden="true">&#128247;</span>
+      {% endif %}
+    </div>
+    {% if can_manage %}
+    <input type="file" id="sidebar-headshot-input" accept="image/*" hidden
+           onchange="if(this.files[0] && typeof window.startMediaUploadWorkflow==='function'){window.startMediaUploadWorkflow({files:[this.files[0]],personId:'{{ person.id }}',purpose:'memory',autoSetHeadshot:'always',title:'{{ t("upload.profile_title") }}',onComplete:function(){window.location.reload();}});this.value='';}" >
+    {% endif %}
+    <div class="tree-sidebar-card__identity">
+      <h2 class="tree-sidebar-card__title">{{ person.display_name }}</h2>
+      {% if person.nickname %}
+      <p class="tree-sidebar-card__subtitle">"{{ person.nickname }}"</p>
+      {% endif %}
+      {% if person.birth_date_raw %}
+      <p class="tree-sidebar-card__meta">{{ person.birth_date_raw }}</p>
+      {% endif %}
+      {% if person.residence_country_code or person.residence_place %}
+      <p class="tree-sidebar-card__meta">
+        {{ country_flag(person.residence_country_code) }} {{ person.residence_place or '' }}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <section class="tree-sidebar-card__section tree-sidebar-card__section--first tree-sidebar-context">
+    <div class="tree-sidebar-context__summary tree-sidebar-context__summary--compact">
+      {% set rel_parts = [] %}
+      {% if partner_people %}{% for related in partner_people %}{% if loop.first %}{% set _ = rel_parts.append(t('tree.partner_of') ~ ' ') %}{% endif %}{% if not loop.first %}{% if loop.last %}{% set _ = rel_parts.append(' ' ~ t('tree.and_label') ~ ' ') %}{% else %}{% set _ = rel_parts.append(', ') %}{% endif %}{% endif %}{% set _ = rel_parts.append('<a href="#" onclick="openTreeSidebarPerson(\'' ~ related.id ~ '\'); return false;">' ~ related.display_name ~ '</a>') %}{% endfor %}{% endif %}
+      {% if child_people %}{% if rel_parts %}{% set _ = rel_parts.append(' &middot; ') %}{% endif %}{% for related in child_people %}{% if loop.first %}{% set _ = rel_parts.append(t('tree.parent_of') ~ ' ') %}{% endif %}{% if not loop.first %}{% if loop.last %}{% set _ = rel_parts.append(' ' ~ t('tree.and_label') ~ ' ') %}{% else %}{% set _ = rel_parts.append(', ') %}{% endif %}{% endif %}{% set _ = rel_parts.append('<a href="#" onclick="openTreeSidebarPerson(\'' ~ related.id ~ '\'); return false;">' ~ related.display_name ~ '</a>') %}{% endfor %}{% endif %}
+      {% if parent_people %}{% if rel_parts %}{% set _ = rel_parts.append(' &middot; ') %}{% endif %}{% for related in parent_people %}{% if loop.first %}{% set _ = rel_parts.append(t('tree.child_of') ~ ' ') %}{% endif %}{% if not loop.first %}{% if loop.last %}{% set _ = rel_parts.append(' ' ~ t('tree.and_label') ~ ' ') %}{% else %}{% set _ = rel_parts.append(', ') %}{% endif %}{% endif %}{% set _ = rel_parts.append('<a href="#" onclick="openTreeSidebarPerson(\'' ~ related.id ~ '\'); return false;">' ~ related.display_name ~ '</a>') %}{% endfor %}{% endif %}
+      {% if rel_parts %}
+      <p class="tree-sidebar-context__line">{{ rel_parts|join('')|safe }}</p>
+      {% else %}
+      <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+      {% endif %}
+    </div>
+    <div class="tree-sidebar-context__badges">
+      {% if person.is_root %}
+      <span class="tree-sidebar-pill tree-sidebar-pill--accent">{{ t('tree.family_root') }}</span>
+      {% endif %}
+      <span class="tree-sidebar-pill tree-sidebar-pill--focus" id="tree-sidebar-focus-badge" hidden>{{ t('tree.current_focus') }}</span>
+    </div>
+    <div class="tree-sidebar-context__actions tree-sidebar-context__actions--compact">
+      <button type="button" class="btn btn--secondary btn--sm" id="tree-sidebar-set-focus" onclick="setTreeFocus('{{ person.id }}')">{{ t('tree.set_focus_here') }}</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-return-focus" onclick="treeReturnToFocus()" hidden>{{ t('tree.return_to_focus') }}</button>
+      <button type="button" class="btn btn--ghost btn--sm" id="tree-sidebar-center-root" onclick="treeCenterRoot()">{{ t('tree.center_root') }}</button>
+    </div>
+  </section>
+
+  <nav class="tree-sidebar-tabs" aria-label="{{ t('tree.workspace_sections') }}">
+    <button
+      type="button"
+      class="tree-sidebar-tab tree-sidebar-tab--active"
+      data-tree-sidebar-tab="overview"
+      aria-pressed="true"
+      onclick="switchTreeSidebarTab('overview')"
+    >
+      {{ t('tree.overview') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="details"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('details')"
+    >
+      {{ t('tree.details') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="relationships"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('relationships')"
+    >
+      {{ t('tree.relationships') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="media"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('media')"
+    >
+      {{ t('tree.media_count') }}
+    </button>
+    <button
+      type="button"
+      class="tree-sidebar-tab"
+      data-tree-sidebar-tab="records"
+      aria-pressed="false"
+      onclick="switchTreeSidebarTab('records')"
+    >
+      {{ t('nav.research') }}
+    </button>
+  </nav>
+
+  <section class="tree-sidebar-panel tree-sidebar-panel--active" data-tree-sidebar-panel="overview">
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('tree.richness') }}</h3>
+      <div class="tree-sidebar-metrics">
+        <button
+          type="button"
+          class="tree-sidebar-metric tree-sidebar-metric--button"
+          data-tree-metric="media"
+          onclick="switchTreeSidebarTab('media')"
+        >
+          <span class="tree-sidebar-metric__label">{{ t('tree.media_count') }}</span>
+          <strong class="tree-sidebar-metric__value">{{ person_metrics.media_count }}</strong>
+          <span class="tree-sidebar-metric__hint">
+            {% if person_metrics.media_count %}
+            {{ t('tree.view_items') }}
+            {% else %}
+            {{ t('tree.add_first_photo') }}
+            {% endif %}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    {% if can_manage %}
+
+    {% set completeness_total = 5 %}
+    {% set completeness_done = (1 if person.birth_date_raw else 0) + (1 if person.photo_url else 0) + (1 if person.bio else 0) + (1 if person.birth_place else 0) + (1 if person.gender else 0) %}
+    {% if completeness_done < completeness_total %}
+    <div class="tree-sidebar-completeness-bar" onclick="this.nextElementSibling.toggleAttribute('hidden');this.querySelector('.tree-sidebar-completeness-bar__chevron').classList.toggle('tree-sidebar-completeness-bar__chevron--open')" data-completeness-toggle>
+      <span class="tree-sidebar-completeness-bar__text">{{ completeness_done }} / {{ completeness_total }} {{ t('tree.profile_complete') }}</span>
+      <span class="tree-sidebar-completeness-bar__chevron">&#x25B6;</span>
+    </div>
+    <div class="tree-sidebar-completeness-bar__items" hidden>
+      {% if not person.birth_date_raw %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('dates')">{{ t('person.birth_date') }}</button>
+      {% endif %}
+      {% if not person.photo_url %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="switchTreeSidebarTab('media')">{{ t('tree.add_first_photo') }}</button>
+      {% endif %}
+      {% if not person.bio %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('notes')">{{ t('person.bio') }}</button>
+      {% endif %}
+      {% if not person.birth_place %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('places')">{{ t('person.birth_place') }}</button>
+      {% endif %}
+      {% if not person.gender %}
+      <button type="button" class="btn btn--ghost btn--sm btn--block" onclick="openSidebarDetailsSection('identity')">{{ t('person.gender') }}</button>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if person.bio %}
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('person.bio') }}</h3>
+      <p class="tree-sidebar-card__copy">{{ person.bio }}</p>
+    </div>
+    {% endif %}
+
+
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('tree.relationships') }}</h3>
+      <div class="tree-rel-grid">
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
+          {% if parent_people %}
+          <ul class="tree-rel-list">
+            {% for related in parent_people %}
+            <li><a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
+          {% if child_people %}
+          <ul class="tree-rel-list">
+            {% for related in child_people %}
+            <li><a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
+          {% if partner_people %}
+          <ul class="tree-rel-list">
+            {% for related in partner_people %}
+            <li><a href="#" onclick="openTreeSidebarPerson('{{ related.id }}'); return false;">{{ related.display_name }}</a></li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.none_yet') }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="details" hidden>
+    <div class="tree-sidebar-tab-section">
+      <h3 class="tree-sidebar-section-heading">{{ t('tree.quick_edit') }}</h3>
+      <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.quick_edit_hint') }}</p>
+      {% if can_manage %}
+      <form class="tree-inline-form" id="tree-person-edit-form" onsubmit="saveTreePerson(event, '{{ person.id }}')">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div id="tree-person-edit-error" class="form-error hidden" role="status" aria-live="polite" style="flex:1"></div>
+          <span id="tree-person-save-status" class="tree-person-save-status" aria-live="polite"></span>
+        </div>
+
+        {% set has_identity = person.first_name or person.last_name or person.nickname or person.gender %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_identity %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="identity">
+          <summary>{{ t('tree.identity_section') }}</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.first_name') }}
+              <input class="form-input" type="text" name="first_name" value="{{ person.first_name or '' }}">
+            </label>
+            <label>
+              {{ t('person.last_name') }}
+              <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.preferred_nickname') }}
+              <input class="form-input" type="text" name="nickname" value="{{ person.nickname or '' }}" placeholder="{{ t('person.nickname_placeholder') }}">
+            </label>
+            <label>
+              {{ t('person.gender') }}
+              <select class="form-input" name="gender">
+                <option value="">—</option>
+                <option value="male"{% if person.gender == 'male' %} selected{% endif %}>{{ t('person.male') }}</option>
+                <option value="female"{% if person.gender == 'female' %} selected{% endif %}>{{ t('person.female') }}</option>
+                <option value="other"{% if person.gender == 'other' %} selected{% endif %}>{{ t('person.other') }}</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            {{ t('person.birth_last_name') }}
+            <input class="form-input" type="text" name="birth_last_name" value="{{ person.birth_last_name or '' }}">
+          </label>
+        </details>
+
+        {% set has_dates = person.birth_date_raw or person.death_date_raw or person.death_date %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_dates %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="dates">
+          <summary>{{ t('tree.dates_section') }}</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.birth_date') }}
+              <input class="form-input" type="text" name="birth_date_raw" value="{{ person.birth_date_raw or '' }}" placeholder="Jan 15, 1950">
+            </label>
+            <label>
+              {{ t('tree.precision') }}
+              <select class="form-input" name="birth_date_precision">
+                <option value="">—</option>
+                <option value="exact"{% if person.birth_date_precision == 'exact' %} selected{% endif %}>{{ t('person.date_precision_exact') }}</option>
+                <option value="month"{% if person.birth_date_precision == 'month' %} selected{% endif %}>{{ t('person.date_precision_month') }}</option>
+                <option value="year"{% if person.birth_date_precision == 'year' %} selected{% endif %}>{{ t('person.date_precision_year') }}</option>
+                <option value="decade"{% if person.birth_date_precision == 'decade' %} selected{% endif %}>{{ t('tree.date_precision_decade') }}</option>
+                <option value="approximate"{% if person.birth_date_precision == 'approximate' %} selected{% endif %}>{{ t('person.date_precision_approximate') }}</option>
+              </select>
+            </label>
+          </div>
+          {% if not person.is_living or person.death_date_raw or person.death_date %}
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.death_date') }}
+              <input class="form-input" type="text" name="death_date_raw" value="{{ person.death_date_raw or '' }}" placeholder="Mar 20, 2020">
+            </label>
+            <label>
+              {{ t('tree.precision') }}
+              <select class="form-input" name="death_date_precision">
+                <option value="">—</option>
+                <option value="exact"{% if person.death_date_precision == 'exact' %} selected{% endif %}>{{ t('person.date_precision_exact') }}</option>
+                <option value="month"{% if person.death_date_precision == 'month' %} selected{% endif %}>{{ t('person.date_precision_month') }}</option>
+                <option value="year"{% if person.death_date_precision == 'year' %} selected{% endif %}>{{ t('person.date_precision_year') }}</option>
+                <option value="decade"{% if person.death_date_precision == 'decade' %} selected{% endif %}>{{ t('tree.date_precision_decade') }}</option>
+                <option value="approximate"{% if person.death_date_precision == 'approximate' %} selected{% endif %}>{{ t('person.date_precision_approximate') }}</option>
+              </select>
+            </label>
+          </div>
+          {% endif %}
+          <label class="tree-toggle">
+            <input type="checkbox" name="is_living" value="true"{% if person.is_living %} checked{% endif %}>
+            {{ t('person.living') }}
+          </label>
+        </details>
+
+        {% set has_places = person.birth_place or person.residence_place or person.burial_place %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_places %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="places">
+          <summary>{{ t('tree.places_section') }}</summary>
+          <div class="tree-inline-form__row">
+            <div class="tree-inline-form__location" data-place-field>
+              <label>
+                {{ t('person.birth_place') }}
+                <input class="form-input" type="text" name="birth_place" value="{{ person.birth_place or '' }}" data-place-input placeholder="City, State, Country">
+              </label>
+              <input class="form-input" type="hidden" name="birth_country_code" value="{{ person.birth_country_code or '' }}" data-country-input>
+              <input type="hidden" name="birth_place_latitude" value="{{ person.birth_place_latitude or '' }}" data-place-latitude>
+              <input type="hidden" name="birth_place_longitude" value="{{ person.birth_place_longitude or '' }}" data-place-longitude>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
+            </div>
+          </div>
+          <div class="tree-inline-form__row">
+            <div class="tree-inline-form__location" data-place-field>
+              <label>
+                {{ t('person.residence') }}
+                <input class="form-input" type="text" name="residence_place" value="{{ person.residence_place or '' }}" data-place-input placeholder="City, State, Country">
+              </label>
+              <input class="form-input" type="hidden" name="residence_country_code" value="{{ person.residence_country_code or '' }}" data-country-input>
+              <input type="hidden" name="residence_place_latitude" value="{{ person.residence_place_latitude or '' }}" data-place-latitude>
+              <input type="hidden" name="residence_place_longitude" value="{{ person.residence_place_longitude or '' }}" data-place-longitude>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
+            </div>
+          </div>
+          {% if person.place_history %}
+          <div class="tree-inline-form__row">
+            <label>{{ t('person.place_history') }}</label>
+            <div class="tree-sidebar-card__place-history">
+              {% for entry in person.place_history %}
+              <div class="tree-sidebar-card__place-entry">
+                <span class="tree-sidebar-card__place-name">{{ entry.place or '' }}</span>
+                {% if entry.get('from_year') or entry.get('to_year') %}
+                <span class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">
+                  {{ entry.get('from_year', '') }}{% if entry.get('from_year') and entry.get('to_year') %}&ndash;{% endif %}{{ entry.get('to_year', '') }}
+                </span>
+                {% endif %}
+                {% if entry.get('is_current') %}
+                <span class="tag tag--sm tag--accent">{{ t('person.place_history_current') }}</span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          {% if not person.is_living or person.death_date_raw or person.death_date %}
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.remains_disposition') }}
+              <select class="form-input" name="remains_disposition">
+                <option value="">—</option>
+                <option value="buried"{% if person.remains_disposition == 'buried' %} selected{% endif %}>{{ t('person.remains_disposition_buried') }}</option>
+                <option value="cremated"{% if person.remains_disposition == 'cremated' %} selected{% endif %}>{{ t('person.remains_disposition_cremated') }}</option>
+                <option value="unknown"{% if person.remains_disposition == 'unknown' %} selected{% endif %}>{{ t('person.remains_disposition_unknown') }}</option>
+              </select>
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <div class="tree-inline-form__location" data-place-field>
+              <label>
+                {{ t('person.final_resting_place') }}
+                <input class="form-input" type="text" name="burial_place" value="{{ person.burial_place or '' }}" data-place-input placeholder="Cemetery or city">
+              </label>
+              <input class="form-input" type="hidden" name="burial_country_code" value="{{ person.burial_country_code or '' }}" data-country-input>
+              <input type="hidden" name="burial_place_latitude" value="{{ person.burial_place_latitude or '' }}" data-place-latitude>
+              <input type="hidden" name="burial_place_longitude" value="{{ person.burial_place_longitude or '' }}" data-place-longitude>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" data-place-status></p>
+            </div>
+          </div>
+          {% if person.remains_disposition != 'cremated' %}
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.burial_cemetery_name') }}
+              <input class="form-input" type="text" name="burial_cemetery_name" value="{{ person.burial_cemetery_name or '' }}">
+            </label>
+            <label>
+              {{ t('person.burial_plot_number') }}
+              <input class="form-input" type="text" name="burial_plot_number" value="{{ person.burial_plot_number or '' }}">
+            </label>
+          </div>
+          {% endif %}
+          {% endif %}
+        </details>
+
+        {% set has_notes = person.bio or person.research_notes or person.languages %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_notes %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="notes">
+          <summary>{{ t('tree.story_notes_section') }}</summary>
+          <label>
+            {{ t('person.bio') }}
+            <textarea class="form-textarea" name="bio" rows="4" placeholder="{{ t('person.bio_placeholder') }}">{{ person.bio or '' }}</textarea>
+          </label>
+          <label>
+            {{ t('person.research_notes_label') }}
+            <textarea class="form-textarea" name="research_notes" rows="4" placeholder="{{ t('tree.research_notes_placeholder') }}">{{ person.research_notes or '' }}</textarea>
+          </label>
+          <label>{{ t('person.languages') }}</label>
+          <div class="tag-input" data-lang-autocomplete>
+            <div class="tag-input__chips" data-lang-chips>
+              <input type="text" class="tag-input__text" data-lang-search
+                     placeholder="{{ t('person.languages_search_placeholder') }}"
+                     autocomplete="off">
+            </div>
+            <div class="tag-input__dropdown" data-lang-dropdown></div>
+            <input type="hidden" name="languages" data-lang-hidden value="{{ person.languages | join(',') }}">
+          </div>
+        </details>
+
+        {% set has_contact = person.contact_phone or person.contact_email or person.contact_whatsapp or person.contact_telegram or person.contact_signal %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_contact %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="contact">
+          <summary>{{ t('person.contact') }}</summary>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.contact_phone') }}
+              <input class="form-input" type="text" name="contact_phone" value="{{ person.contact_phone or '' }}">
+            </label>
+            <label>
+              {{ t('person.contact_email') }}
+              <input class="form-input" type="email" name="contact_email" value="{{ person.contact_email or '' }}">
+            </label>
+            <label>
+              {{ t('person.contact_whatsapp') }}
+              <input class="form-input" type="text" name="contact_whatsapp" value="{{ person.contact_whatsapp or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              {{ t('person.contact_telegram') }}
+              <input class="form-input" type="text" name="contact_telegram" value="{{ person.contact_telegram or '' }}">
+            </label>
+            <label>
+              {{ t('person.contact_signal') }}
+              <input class="form-input" type="text" name="contact_signal" value="{{ person.contact_signal or '' }}">
+            </label>
+          </div>
+        </details>
+
+        {% set has_metadata = person.branch %}
+        <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section" {% if has_metadata %}open{% else %}hidden data-empty-section{% endif %} data-tree-details-section="metadata">
+          <summary>{{ t('person.metadata_workspace') }}</summary>
+          <label>
+            {{ t('person.branch_tag') }}
+            <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}" placeholder="{{ t('person.branch_placeholder') }}">
+          </label>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('person.branch_hint') }}</p>
+        </details>
+
+        <button type="button" class="tree-sidebar-edit-more" onclick="showAllDetailSections()">
+          {{ t('tree.edit_more_details') }}
+        </button>
+
+        <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.advanced_fields_hint') }}</p>
+        <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.save_changes') }}</button>
+      </form>
+      {% else %}
+      <p class="tree-sidebar-card__muted">{{ t('tree.view_only_details') }}</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="relationships" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('tree.relationships') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.relationships_workspace_subtitle') }}</p>
+        </div>
+        <div class="tree-sidebar-pill-row">
+          <span class="tree-sidebar-pill">{{ parent_people|length }} {{ t('tree.parents_label') }}</span>
+          <span class="tree-sidebar-pill">{{ child_people|length }} {{ t('tree.children_label') }}</span>
+          <span class="tree-sidebar-pill">{{ partner_people|length }} {{ t('tree.partners_label') }}</span>
+        </div>
+      </div>
+      <div id="tree-relationship-error" class="form-error hidden" role="status" aria-live="polite"></div>
+      <div id="tree-graph-mode-banner" class="tree-graph-mode-banner hidden" role="status" aria-live="polite">
+        <div class="tree-graph-mode-banner__copy">
+          <strong id="tree-graph-mode-title"></strong>
+          <p id="tree-graph-mode-description"></p>
+        </div>
+        <div class="tree-graph-mode-banner__actions">
+          <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeGraphMode()">{{ t('common.cancel') }}</button>
+        </div>
+      </div>
+
+      <div class="tree-rel-grid tree-rel-grid--workspace">
+        <section class="tree-relationship-group-card" data-tree-relationship-card="parent">
+          <h4 class="tree-rel-grid__title">{{ t('tree.parents_label') }}</h4>
+          {% if can_manage %}
+          <div class="tree-related-group-actions">
+            <button type="button" class="btn btn--secondary btn--sm" onclick="startTreeGraphMode('{{ person.id }}', 'parent')">{{ t('tree.pick_on_tree') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipSearch('parent')">{{ t('tree.search_and_link') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipCreate('parent')">{{ t('tree.create_in_tree') }}</button>
+          </div>
+          {% endif %}
+          {% if parent_people %}
+          <div class="tree-relationship-list">
+            {% for related in parent_people %}
+            <article class="tree-related-card" data-tree-related-person="{{ related.id }}">
+              <div class="tree-related-card__body">
+                <div class="avatar avatar--sm tree-related-card__avatar">
+                  {% if related.photo_url and (related.photo_url.startswith('http') or related.photo_url.startswith('/')) %}
+                  <img src="{{ related.photo_url }}" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% elif related.photo_url %}
+                  <img src="/api/media/{{ related.photo_url }}/file" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                  {{ related.display_name[:2] }}
+                  {% endif %}
+                </div>
+                <div class="tree-related-card__identity">
+                  <strong class="tree-related-card__name">{{ related.display_name }}</strong>
+                  {% if related.relationship_kind %}
+                  <span class="tree-related-card__meta">{{ t('tree.relationship_kind_' ~ related.relationship_kind) }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="tree-related-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
+                <a href="/wiki/{{ related.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+                {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='editTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.edit_relationship') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "parent", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
+                {% endif %}
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.no_parents_prompt') }}</p>
+          {% endif %}
+        </section>
+        <section class="tree-relationship-group-card" data-tree-relationship-card="child">
+          <h4 class="tree-rel-grid__title">{{ t('tree.children_label') }}</h4>
+          {% if can_manage %}
+          <div class="tree-related-group-actions">
+            <button type="button" class="btn btn--secondary btn--sm" onclick="startTreeGraphMode('{{ person.id }}', 'child')">{{ t('tree.pick_on_tree') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipSearch('child')">{{ t('tree.search_and_link') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipCreate('child')">{{ t('tree.create_in_tree') }}</button>
+          </div>
+          {% endif %}
+          {% if child_people %}
+          <div class="tree-relationship-list">
+            {% for related in child_people %}
+            <article class="tree-related-card" data-tree-related-person="{{ related.id }}">
+              <div class="tree-related-card__body">
+                <div class="avatar avatar--sm tree-related-card__avatar">
+                  {% if related.photo_url and (related.photo_url.startswith('http') or related.photo_url.startswith('/')) %}
+                  <img src="{{ related.photo_url }}" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% elif related.photo_url %}
+                  <img src="/api/media/{{ related.photo_url }}/file" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                  {{ related.display_name[:2] }}
+                  {% endif %}
+                </div>
+                <div class="tree-related-card__identity">
+                  <strong class="tree-related-card__name">{{ related.display_name }}</strong>
+                  {% if related.relationship_kind %}
+                  <span class="tree-related-card__meta">{{ t('tree.relationship_kind_' ~ related.relationship_kind) }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="tree-related-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
+                <a href="/wiki/{{ related.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+                {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='editTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.edit_relationship') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "confidence": related.relationship_confidence, "source": related.relationship_source, "source_detail": related.relationship_source_detail, "notes": related.relationship_notes, "start_date": related.relationship_start_date, "end_date": related.relationship_end_date}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "parent-child", {{ person.id|tojson }}, "child", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
+                {% endif %}
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.no_children_prompt') }}</p>
+          {% endif %}
+        </section>
+        <section class="tree-relationship-group-card" data-tree-relationship-card="partner">
+          <h4 class="tree-rel-grid__title">{{ t('tree.partners_label') }}</h4>
+          {% if can_manage %}
+          <div class="tree-related-group-actions">
+            <button type="button" class="btn btn--secondary btn--sm" onclick="startTreeGraphMode('{{ person.id }}', 'partner')">{{ t('tree.pick_on_tree') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipSearch('partner')">{{ t('tree.search_and_link') }}</button>
+            <button type="button" class="btn btn--ghost btn--sm" onclick="openTreeRelationshipCreate('partner')">{{ t('tree.create_in_tree') }}</button>
+          </div>
+          {% endif %}
+          {% if partner_people %}
+          <div class="tree-relationship-list">
+            {% for related in partner_people %}
+            <article class="tree-related-card" data-tree-related-person="{{ related.id }}">
+              <div class="tree-related-card__body">
+                <div class="avatar avatar--sm tree-related-card__avatar">
+                  {% if related.photo_url and (related.photo_url.startswith('http') or related.photo_url.startswith('/')) %}
+                  <img src="{{ related.photo_url }}" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% elif related.photo_url %}
+                  <img src="/api/media/{{ related.photo_url }}/file" alt="{{ related.display_name }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                  {% else %}
+                  {{ related.display_name[:2] }}
+                  {% endif %}
+                </div>
+                <div class="tree-related-card__identity">
+                  <strong class="tree-related-card__name">{{ related.display_name }}</strong>
+                  {% if related.relationship_status %}
+                  <span class="tree-related-card__meta">{{ t('tree.partnership_status_' ~ related.relationship_status) }}</span>
+                  {% elif related.relationship_kind %}
+                  <span class="tree-related-card__meta">{{ t('tree.partnership_kind_' ~ related.relationship_kind) }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="tree-related-card__actions">
+                <button type="button" class="btn btn--secondary btn--sm" onclick="openTreeSidebarPerson('{{ related.id }}')">{{ t('tree.open_in_tree') }}</button>
+                <a href="/wiki/{{ related.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+                {% if can_manage and related.relationship_id %}
+                <button type="button" class="btn btn--ghost btn--sm" onclick='editTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "status": related.relationship_status, "start_date": related.relationship_start_date, "start_date_precision": related.relationship_start_date_precision, "end_date": related.relationship_end_date, "end_date_precision": related.relationship_end_date_precision, "source": related.relationship_source, "notes": related.relationship_notes}|tojson }})'>{{ t('tree.edit_relationship') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='replaceTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.id|tojson }}, {{ related.display_name|tojson }}, {{ {"kind": related.relationship_kind, "status": related.relationship_status, "start_date": related.relationship_start_date, "start_date_precision": related.relationship_start_date_precision, "end_date": related.relationship_end_date, "end_date_precision": related.relationship_end_date_precision, "source": related.relationship_source, "notes": related.relationship_notes}|tojson }})'>{{ t('tree.replace_on_tree') }}</button>
+                <button type="button" class="btn btn--ghost btn--sm" onclick='removeTreeRelationship({{ related.relationship_id|tojson }}, "partnership", {{ person.id|tojson }}, "partner", {{ related.display_name|tojson }})'>{{ t('tree.remove_relationship') }}</button>
+                {% endif %}
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="tree-sidebar-card__muted">{{ t('tree.no_partners_prompt') }}</p>
+          {% endif %}
+        </section>
+      </div>
+
+      {% if can_manage %}
+      <div class="tree-sidebar-action-groups">
+        <details class="tree-sidebar-disclosure" data-tree-relationship-group="parent">
+          <summary>{{ t('tree.add_parent') }}</summary>
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-link-form="parent" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'parent')">
+            <label>
+              {{ t('tree.link_existing_parent') }}
+              <div class="tree-picker" data-tree-picker>
+                <input
+                  class="form-input tree-picker__input"
+                  type="search"
+                  placeholder="{{ t('tree.search_people_placeholder') }}"
+                  data-tree-picker-input
+                  autocomplete="off"
+                >
+                <input type="hidden" name="related_person_id" data-tree-picker-value>
+                <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
+              </div>
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_parent') }}</button>
+          </form>
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="parent" onsubmit="createTreeRelative(event, '{{ person.id }}', 'parent')">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.first_name') }}
+                <input class="form-input" type="text" name="first_name" required>
+              </label>
+              <label>
+                {{ t('person.last_name') }}
+                <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
+              </label>
+            </div>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_parent') }}</button>
+          </form>
+        </details>
+
+        <details class="tree-sidebar-disclosure" data-tree-relationship-group="child">
+          <summary>{{ t('tree.add_child') }}</summary>
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-link-form="child" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'child')">
+            <label>
+              {{ t('tree.link_existing_child') }}
+              <div class="tree-picker" data-tree-picker>
+                <input
+                  class="form-input tree-picker__input"
+                  type="search"
+                  placeholder="{{ t('tree.search_people_placeholder') }}"
+                  data-tree-picker-input
+                  autocomplete="off"
+                >
+                <input type="hidden" name="related_person_id" data-tree-picker-value>
+                <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
+              </div>
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_child') }}</button>
+          </form>
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="child" onsubmit="createTreeRelative(event, '{{ person.id }}', 'child')">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.first_name') }}
+                <input class="form-input" type="text" name="first_name" required>
+              </label>
+              <label>
+                {{ t('person.last_name') }}
+                <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
+              </label>
+            </div>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_child') }}</button>
+          </form>
+        </details>
+
+        <details class="tree-sidebar-disclosure" data-tree-relationship-group="partner">
+          <summary>{{ t('tree.add_partner') }}</summary>
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-link-form="partner" onsubmit="linkTreeRelationship(event, '{{ person.id }}', 'partner')">
+            <label>
+              {{ t('tree.link_existing_partner') }}
+              <div class="tree-picker" data-tree-picker>
+                <input
+                  class="form-input tree-picker__input"
+                  type="search"
+                  placeholder="{{ t('tree.search_people_placeholder') }}"
+                  data-tree-picker-input
+                  autocomplete="off"
+                >
+                <input type="hidden" name="related_person_id" data-tree-picker-value>
+                <div class="tree-picker__results hidden" data-tree-picker-results role="listbox"></div>
+              </div>
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.partnership_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="married">{{ t('tree.partnership_kind_married') }}</option>
+                  <option value="domestic_partner">{{ t('tree.partnership_kind_domestic_partner') }}</option>
+                  <option value="co_parent">{{ t('tree.partnership_kind_co_parent') }}</option>
+                  <option value="engaged">{{ t('tree.partnership_kind_engaged') }}</option>
+                  <option value="other">{{ t('tree.partnership_kind_other') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.partnership_status_label') }}
+                <select class="form-input" name="status">
+                  <option value="active">{{ t('tree.partnership_status_active') }}</option>
+                  <option value="dissolved">{{ t('tree.partnership_status_dissolved') }}</option>
+                  <option value="separated">{{ t('tree.partnership_status_separated') }}</option>
+                  <option value="widowed">{{ t('tree.partnership_status_widowed') }}</option>
+                  <option value="annulled">{{ t('tree.partnership_status_annulled') }}</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--secondary btn--block">{{ t('tree.add_partner') }}</button>
+          </form>
+          <form class="tree-inline-form tree-inline-form--compact" data-tree-create-form="partner" onsubmit="createTreeRelative(event, '{{ person.id }}', 'partner')">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.first_name') }}
+                <input class="form-input" type="text" name="first_name" required>
+              </label>
+              <label>
+                {{ t('person.last_name') }}
+                <input class="form-input" type="text" name="last_name" value="{{ person.last_name or '' }}" required>
+              </label>
+            </div>
+            <label>
+              {{ t('tree.filter_branch') }}
+              <input class="form-input" type="text" name="branch" value="{{ person.branch or '' }}">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.partnership_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="married">{{ t('tree.partnership_kind_married') }}</option>
+                  <option value="domestic_partner">{{ t('tree.partnership_kind_domestic_partner') }}</option>
+                  <option value="co_parent">{{ t('tree.partnership_kind_co_parent') }}</option>
+                  <option value="engaged">{{ t('tree.partnership_kind_engaged') }}</option>
+                  <option value="other">{{ t('tree.partnership_kind_other') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.partnership_status_label') }}
+                <select class="form-input" name="status">
+                  <option value="active">{{ t('tree.partnership_status_active') }}</option>
+                  <option value="dissolved">{{ t('tree.partnership_status_dissolved') }}</option>
+                  <option value="separated">{{ t('tree.partnership_status_separated') }}</option>
+                  <option value="widowed">{{ t('tree.partnership_status_widowed') }}</option>
+                  <option value="annulled">{{ t('tree.partnership_status_annulled') }}</option>
+                </select>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--ghost btn--block">{{ t('tree.create_and_link_partner') }}</button>
+          </form>
+        </details>
+
+        <section class="tree-sidebar-disclosure tree-sidebar-disclosure--section hidden" id="tree-relationship-editor-shell">
+          <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+            <div>
+              <h4 class="tree-sidebar-card__section-title" id="tree-relationship-editor-title">{{ t('tree.edit_relationship') }}</h4>
+              <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">
+                <strong>{{ t('tree.current_related_person') }}</strong>
+                <span id="tree-relationship-editor-related-name"></span>
+              </p>
+            </div>
+          </div>
+
+          <form class="tree-inline-form tree-inline-form--compact hidden" data-tree-relationship-edit-form="parent" onsubmit="saveTreeRelationshipEdit(event)">
+            <input type="hidden" name="relationship_id">
+            <input type="hidden" name="relationship_type" value="parent-child">
+            <input type="hidden" name="person_id" value="{{ person.id }}">
+            <input type="hidden" name="group_name" value="parent">
+            <input type="hidden" name="related_person_id">
+            <input type="hidden" name="related_name">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              {{ t('person.source') }}
+              <input class="form-input" type="text" name="source" placeholder="{{ t('person.source_placeholder') }}">
+            </label>
+            <label>
+              {{ t('person.source_detail') }}
+              <input class="form-input" type="text" name="source_detail">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.start_date') }}
+                <input class="form-input" type="date" name="start_date">
+              </label>
+              <label>
+                {{ t('person.end_date') }}
+                <input class="form-input" type="date" name="end_date">
+              </label>
+            </div>
+            <label>
+              {{ t('person.notes') }}
+              <textarea class="form-input" name="notes" rows="3"></textarea>
+            </label>
+            <div class="tree-sidebar-inline-actions">
+              <button type="submit" class="btn btn--primary btn--sm">{{ t('tree.save_relationship') }}</button>
+              <button type="button" class="btn btn--secondary btn--sm" onclick="reverseTreeRelationshipEdit(this.form)">{{ t('tree.reverse_direction') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationshipFromEditor(this.form)">{{ t('tree.remove_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeRelationshipEdit()">{{ t('common.cancel') }}</button>
+            </div>
+          </form>
+
+          <form class="tree-inline-form tree-inline-form--compact hidden" data-tree-relationship-edit-form="child" onsubmit="saveTreeRelationshipEdit(event)">
+            <input type="hidden" name="relationship_id">
+            <input type="hidden" name="relationship_type" value="parent-child">
+            <input type="hidden" name="person_id" value="{{ person.id }}">
+            <input type="hidden" name="group_name" value="child">
+            <input type="hidden" name="related_person_id">
+            <input type="hidden" name="related_name">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.relationship_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="biological">{{ t('tree.relationship_kind_biological') }}</option>
+                  <option value="adoptive">{{ t('tree.relationship_kind_adoptive') }}</option>
+                  <option value="step">{{ t('tree.relationship_kind_step') }}</option>
+                  <option value="foster">{{ t('tree.relationship_kind_foster') }}</option>
+                  <option value="guardian">{{ t('tree.relationship_kind_guardian') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_kind_unknown') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.relationship_confidence_label') }}
+                <select class="form-input" name="confidence">
+                  <option value="confirmed">{{ t('tree.relationship_confidence_confirmed') }}</option>
+                  <option value="probable">{{ t('tree.relationship_confidence_probable') }}</option>
+                  <option value="uncertain">{{ t('tree.relationship_confidence_uncertain') }}</option>
+                  <option value="unknown">{{ t('tree.relationship_confidence_unknown') }}</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              {{ t('person.source') }}
+              <input class="form-input" type="text" name="source" placeholder="{{ t('person.source_placeholder') }}">
+            </label>
+            <label>
+              {{ t('person.source_detail') }}
+              <input class="form-input" type="text" name="source_detail">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.start_date') }}
+                <input class="form-input" type="date" name="start_date">
+              </label>
+              <label>
+                {{ t('person.end_date') }}
+                <input class="form-input" type="date" name="end_date">
+              </label>
+            </div>
+            <label>
+              {{ t('person.notes') }}
+              <textarea class="form-input" name="notes" rows="3"></textarea>
+            </label>
+            <div class="tree-sidebar-inline-actions">
+              <button type="submit" class="btn btn--primary btn--sm">{{ t('tree.save_relationship') }}</button>
+              <button type="button" class="btn btn--secondary btn--sm" onclick="reverseTreeRelationshipEdit(this.form)">{{ t('tree.reverse_direction') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationshipFromEditor(this.form)">{{ t('tree.remove_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeRelationshipEdit()">{{ t('common.cancel') }}</button>
+            </div>
+          </form>
+
+          <form class="tree-inline-form tree-inline-form--compact hidden" data-tree-relationship-edit-form="partner" onsubmit="saveTreeRelationshipEdit(event)">
+            <input type="hidden" name="relationship_id">
+            <input type="hidden" name="relationship_type" value="partnership">
+            <input type="hidden" name="person_id" value="{{ person.id }}">
+            <input type="hidden" name="group_name" value="partner">
+            <input type="hidden" name="related_person_id">
+            <input type="hidden" name="related_name">
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('tree.partnership_kind_label') }}
+                <select class="form-input" name="kind">
+                  <option value="married">{{ t('tree.partnership_kind_married') }}</option>
+                  <option value="domestic_partner">{{ t('tree.partnership_kind_domestic_partner') }}</option>
+                  <option value="co_parent">{{ t('tree.partnership_kind_co_parent') }}</option>
+                  <option value="engaged">{{ t('tree.partnership_kind_engaged') }}</option>
+                  <option value="other">{{ t('tree.partnership_kind_other') }}</option>
+                </select>
+              </label>
+              <label>
+                {{ t('tree.partnership_status_label') }}
+                <select class="form-input" name="status">
+                  <option value="active">{{ t('tree.partnership_status_active') }}</option>
+                  <option value="dissolved">{{ t('tree.partnership_status_dissolved') }}</option>
+                  <option value="separated">{{ t('tree.partnership_status_separated') }}</option>
+                  <option value="widowed">{{ t('tree.partnership_status_widowed') }}</option>
+                  <option value="annulled">{{ t('tree.partnership_status_annulled') }}</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              {{ t('person.source') }}
+              <input class="form-input" type="text" name="source" placeholder="{{ t('person.source_placeholder') }}">
+            </label>
+            <div class="tree-inline-form__row">
+              <label>
+                {{ t('person.start_date') }}
+                <input class="form-input" type="date" name="start_date">
+              </label>
+              <label>
+                {{ t('person.end_date') }}
+                <input class="form-input" type="date" name="end_date">
+              </label>
+            </div>
+            <label>
+              {{ t('person.notes') }}
+              <textarea class="form-input" name="notes" rows="3"></textarea>
+            </label>
+            <div class="tree-sidebar-inline-actions">
+              <button type="submit" class="btn btn--primary btn--sm">{{ t('tree.save_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="removeTreeRelationshipFromEditor(this.form)">{{ t('tree.remove_relationship') }}</button>
+              <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeRelationshipEdit()">{{ t('common.cancel') }}</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      {% endif %}
+    </section>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="media" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('tree.media_count') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('tree.media_workspace_subtitle') }}</p>
+        </div>
+        <div class="tree-sidebar-pill-row">
+          <span class="tree-sidebar-pill">{{ person_metrics.media_count }} {{ t('tree.media_count') }}</span>
+        </div>
+      </div>
+
+      {% if can_manage %}
+      <form class="tree-inline-form tree-inline-form--compact" id="tree-media-form" onsubmit="uploadTreeMedia(event, '{{ person.id }}')">
+        <div id="tree-media-error" class="form-error hidden" role="status" aria-live="polite"></div>
+        <label>
+          {{ t('tree.upload_media') }}
+          <input class="form-input" type="file" name="file" accept="image/*,video/*,audio/*,.pdf" required multiple>
+        </label>
+        <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact" id="tree-media-file-name">{{ t('tree.media_file_pending') }}</p>
+        <div class="tree-composer-token-list" id="tree-media-file-list" aria-live="polite"></div>
+        <label>
+          {{ t('tree.media_caption_placeholder') }}
+          <input class="form-input" type="text" name="caption" maxlength="300" placeholder="{{ t('tree.media_caption_placeholder') }}">
+        </label>
+        <button type="submit" class="btn btn--primary btn--block">{{ t('tree.upload_media') }}</button>
+      </form>
+      {% endif %}
+
+      <div class="tree-sidebar-inline-actions">
+        <a href="/wiki/{{ person.slug }}" class="btn btn--ghost btn--sm">{{ t('tree.full_profile') }}</a>
+        <a href="/wiki/{{ person.slug }}#person-media-gallery" class="btn btn--ghost btn--sm">{{ t('gallery.person_gallery') }}</a>
+      </div>
+      <div id="tree-sidebar-media" class="tree-sidebar-stream" aria-live="polite" aria-busy="false"></div>
+    </section>
+  </section>
+
+  <section class="tree-sidebar-panel" data-tree-sidebar-panel="records" hidden>
+    <section class="tree-sidebar-card__section tree-sidebar-card__section--first">
+      <div class="tree-sidebar-section-header tree-sidebar-section-header--stack">
+        <div>
+          <h3 class="tree-sidebar-card__section-title">{{ t('research.title') }}</h3>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">{{ t('research.subtitle') }}</p>
+        </div>
+      </div>
+
+      {% if person.is_root %}
+      <p class="tree-sidebar-card__muted">External record searches are not available for this person.</p>
+      {% else %}
+      <div class="tree-external-records-controls">
+        <button type="button" class="btn btn--primary btn--block" onclick="searchAllExternalRecords('{{ person.id }}')">
+          Search All Sources
+        </button>
+        <div class="tree-external-records-source-buttons">
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'chronicling_america')">Newspapers (USA)</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'nara')">NARA Archives</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'trove')">Trove (Australia)</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'dpla')">DPLA Archives</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'familysearch')">FamilySearch</button>
+          <button type="button" class="btn btn--ghost btn--sm" onclick="searchExternalSource('{{ person.id }}', 'antenati')">Antenati (Italy)</button>
+        </div>
+      </div>
+
+      <div id="tree-external-records-status" class="tree-sidebar-card__muted" role="status" aria-live="polite"></div>
+      <div id="tree-external-records-results" class="tree-external-records-results" aria-live="polite"></div>
+
+      <div id="tree-saved-records" class="tree-saved-records" data-person-id="{{ person.id }}"></div>
+
+      <div class="tree-sidebar-inline-actions" style="margin-top: 0.5rem;">
+        <a href="/research?person_id={{ person.id }}" class="btn btn--ghost btn--sm">Full Research Page</a>
+      </div>
+
+      <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section">
+        <summary>CEMLA Immigration Search (Argentina)</summary>
+        <form class="tree-inline-form tree-inline-form--compact" onsubmit="searchCemla(event)">
+          <div class="tree-inline-form__row">
+            <label>
+              Surname
+              <input class="form-input" type="text" name="cemla_surname" value="{{ person.last_name or '' }}" required>
+            </label>
+            <label>
+              Given Name
+              <input class="form-input" type="text" name="cemla_given_name" value="{{ person.first_name or '' }}">
+            </label>
+          </div>
+          <div class="tree-inline-form__row">
+            <label>
+              Year From
+              <input class="form-input" type="text" name="cemla_year_from" maxlength="4" placeholder="1850">
+            </label>
+            <label>
+              Year To
+              <input class="form-input" type="text" name="cemla_year_to" maxlength="4" placeholder="1950">
+            </label>
+          </div>
+          <button type="submit" class="btn btn--secondary btn--block">Search CEMLA</button>
+        </form>
+        <div id="tree-cemla-results" aria-live="polite"></div>
+      </details>
+      {% endif %}
+
+      <details class="tree-sidebar-disclosure tree-sidebar-disclosure--section">
+        <summary>Import GEDCOM File</summary>
+        <form class="tree-inline-form tree-inline-form--compact" onsubmit="previewGedcom(event)">
+          <div id="tree-gedcom-error" class="form-error hidden" role="status" aria-live="polite"></div>
+          <label>
+            GEDCOM File (.ged)
+            <input class="form-input" type="file" name="gedcom_file" accept=".ged,.gedcom" required>
+          </label>
+          <p class="tree-sidebar-card__muted tree-sidebar-card__muted--compact">Upload a GEDCOM 5.5.1 file exported from Ancestry, FamilySearch, Gramps, or other genealogy software. Max 10MB.</p>
+          <button type="submit" class="btn btn--secondary btn--block">Preview Import</button>
+        </form>
+        <div id="tree-gedcom-preview" aria-live="polite"></div>
+        <div id="tree-gedcom-results" aria-live="polite"></div>
+      </details>
+    </section>
+  </section>
+
+  <div class="tree-sidebar-card__footer">
+    {% if person.slug %}
+    <a href="/wiki/{{ person.slug }}" class="btn btn--primary btn--block">{{ t('tree.full_profile') }}</a>
+    {% endif %}
+    {% if can_manage %}
+    <a href="/people/{{ person.id }}/edit" class="btn btn--ghost btn--block">{{ t('tree.advanced_edit') }}</a>
     {% endif %}
   </div>
-  <h2 style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.25rem; color: #3e2c1c; letter-spacing:-0.01em;">{{ person.display_name }}</h2>
-  {% if person.nickname %}
-  <p style="font-style:italic; color:var(--text-muted); font-size:0.9rem; margin-top:4px;">"{{ person.nickname }}"</p>
-  {% endif %}
-  {% if person.residence_country_code %}
-  <p style="font-size:0.9rem; margin-top:8px; color:var(--text-muted);">{{ country_flag(person.residence_country_code) }} {{ person.residence_place or '' }}</p>
-  {% endif %}
-  {% if person.birth_date_raw %}
-  <p class="text-sm text-muted mt-8" style="font-style:italic;">{{ person.birth_date_raw }}</p>
-  {% endif %}
-</div>
 
-{% if person.bio %}
-<div style="padding: 0 20px 16px;">
-  <p class="text-sm" style="line-height:1.6; color:var(--text);">{{ person.bio }}</p>
-</div>
-{% endif %}
-
-{% if not demo_mode %}
-{% if person.contact_whatsapp or person.contact_telegram or person.contact_email %}
-<div style="padding: 0 20px 20px;">
-  <div class="contact-btns">
-    {% if person.contact_whatsapp %}
-    <a href="https://wa.me/{{ person.contact_whatsapp }}" class="contact-btn" target="_blank" rel="noopener">💬 WhatsApp</a>
-    {% endif %}
-    {% if person.contact_telegram %}
-    <a href="https://t.me/{{ person.contact_telegram }}" class="contact-btn" target="_blank" rel="noopener">✈️ Telegram</a>
-    {% endif %}
-    {% if person.contact_email %}
-    <a href="mailto:{{ person.contact_email }}" class="contact-btn">📧 Email</a>
-    {% endif %}
-  </div>
-</div>
-{% endif %}
-{% endif %}
-
-<div style="padding: 0 20px 24px; text-align:center;">
-  <a href="{{ url_prefix }}/people/{{ person.id }}" class="btn btn--primary btn--block" style="border-radius: var(--radius-full);">View Full Profile</a>
+  <script type="application/json" id="tree-sidebar-people-options">[
+    {% for option in people_options %}
+    {"id": {{ option.id|tojson }}, "display_name": {{ option.display_name|tojson }}}{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]</script>
 </div>

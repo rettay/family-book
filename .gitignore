@@ -16,6 +16,7 @@ build/
 .ruff_cache/
 .playwright-cli/
 output/playwright/
+screenshots/
 
 # Docker Compose bridge data (one-time setup, local secrets)
 conduit-data/

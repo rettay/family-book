@@ -1,7 +1,10 @@
 """Tests for Media API — upload, serve, dedup, auth gate, thumbnails."""
 import io
+import os
 
 from PIL import Image
+
+ADMIN_ID = "tyler-000-0000-0000-000000000002"
 
 
 def _make_test_image(width=100, height=100, fmt="JPEG") -> bytes:
@@ -41,7 +44,7 @@ class TestMediaUpload:
         image_data = _make_test_image()
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("test.jpg", image_data, "image/jpeg")},
         )
         assert resp.status_code == 201
@@ -75,7 +78,7 @@ class TestMediaUpload:
     async def test_upload_rejects_unsupported_type(self, admin_client):
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("test.txt", b"hello", "text/plain")},
         )
         assert resp.status_code == 400
@@ -124,6 +127,34 @@ class TestMediaUpload:
         assert body["tagged_person_ids"] == ["member-00-0000-0000-000000000005"]
         assert body["tagged_people"][0]["id"] == "member-00-0000-0000-000000000005"
 
+    async def test_upload_persists_title_description_and_taken_date(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        resp = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": ADMIN_ID,
+                "title": "Family picnic",
+                "description": "Lunch by the lake",
+                "taken_at": "2024-07-04",
+            },
+            files={"file": ("metadata.jpg", image_data, "image/jpeg")},
+        )
+        assert resp.status_code == 201
+        media_id = resp.json()["id"]
+
+        metadata_resp = await admin_client.get(f"/api/media/{media_id}")
+        assert metadata_resp.status_code == 200
+        body = metadata_resp.json()
+        assert body["title"] == "Family picnic"
+        assert body["description"] == "Lunch by the lake"
+        assert body["taken_date"] == "2024-07-04"
+
 
 class TestMediaDedup:
     """SHA-256 dedup on upload."""
@@ -139,7 +170,7 @@ class TestMediaDedup:
         )
 
         image_data = _make_test_image()
-        person_id = "alex-000-0000-0000-000000000002"
+        person_id = ADMIN_ID
 
         # First upload
         resp1 = await admin_client.post(
@@ -180,7 +211,7 @@ class TestMediaServing:
         image_data = _make_test_image()
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("photo.jpg", image_data, "image/jpeg")},
         )
         media_id = resp.json()["id"]
@@ -283,7 +314,7 @@ class TestMediaThumbnails:
         image_data = _make_test_image(width=800, height=600)
         resp = await admin_client.post(
             "/api/media",
-            data={"person_id": "alex-000-0000-0000-000000000002"},
+            data={"person_id": ADMIN_ID},
             files={"file": ("big.jpg", image_data, "image/jpeg")},
         )
         media_id = resp.json()["id"]
@@ -311,7 +342,7 @@ class TestMediaMetadata:
         resp = await admin_client.post(
             "/api/media",
             data={
-                "person_id": "alex-000-0000-0000-000000000002",
+                "person_id": ADMIN_ID,
                 "caption": "Test caption",
             },
             files={"file": ("test.jpg", image_data, "image/jpeg")},
@@ -322,7 +353,7 @@ class TestMediaMetadata:
         assert resp2.status_code == 200
         body = resp2.json()
         assert body["caption"] == "Test caption"
-        assert body["person_id"] == "alex-000-0000-0000-000000000002"
+        assert body["person_id"] == ADMIN_ID
 
     async def test_list_media_for_person(self, admin_client, tmp_path, monkeypatch):
         from app.config import Settings
@@ -332,7 +363,7 @@ class TestMediaMetadata:
         )
         monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
 
-        person_id = "alex-000-0000-0000-000000000002"
+        person_id = ADMIN_ID
         image_data = _make_test_image()
         await admin_client.post(
             "/api/media",
@@ -403,3 +434,285 @@ class TestMediaMetadata:
         resp = await member_client.get("/api/media?person_id=member-00-0000-0000-000000000005")
         assert resp.status_code == 200
         assert all(item["id"] != upload_resp.json()["id"] for item in resp.json())
+
+    async def test_gallery_api_filters_by_type_person_and_uploader(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        pdf_data = b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF"
+
+        tagged_upload = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": ADMIN_ID,
+                "tagged_person_ids": '["member-00-0000-0000-000000000005"]',
+            },
+            files={"file": ("gallery-photo.jpg", image_data, "image/jpeg")},
+        )
+        assert tagged_upload.status_code == 201
+
+        doc_upload = await admin_client.post(
+            "/api/media",
+            data={"person_id": "member-00-0000-0000-000000000005"},
+            files={"file": ("notes.pdf", pdf_data, "application/pdf")},
+        )
+        assert doc_upload.status_code == 201
+
+        photo_resp = await admin_client.get("/api/media/gallery?media_type=photo")
+        assert photo_resp.status_code == 200
+        assert len(photo_resp.json()["items"]) == 1
+
+        person_resp = await admin_client.get("/api/media/gallery?person_id=member-00-0000-0000-000000000005")
+        assert person_resp.status_code == 200
+        assert len(person_resp.json()["items"]) == 2
+
+        uploader_resp = await admin_client.get(f"/api/media/gallery?uploader_id={ADMIN_ID}")
+        assert uploader_resp.status_code == 200
+        assert len(uploader_resp.json()["items"]) >= 2
+
+
+class TestMediaVisibilityEnforcement:
+    """Test that visibility field controls access correctly."""
+
+    async def test_hidden_media_returns_403_for_non_admin(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("vis-test.jpg", image_data, "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+        media_id = upload_resp.json()["id"]
+
+        # Member can see family-visibility media
+        assert (await member_client.get(f"/api/media/{media_id}")).status_code == 200
+        assert (await member_client.get(f"/api/media/{media_id}/file")).status_code == 200
+
+        # Admin sets visibility to hidden
+        hide_resp = await admin_client.patch(
+            f"/api/media/{media_id}/visibility",
+            data={"visibility": "hidden"},
+        )
+        assert hide_resp.status_code == 200
+
+        # Member can no longer see it
+        assert (await member_client.get(f"/api/media/{media_id}")).status_code == 403
+        assert (await member_client.get(f"/api/media/{media_id}/file")).status_code == 403
+
+        # Admin can still see it
+        assert (await admin_client.get(f"/api/media/{media_id}")).status_code == 200
+        assert (await admin_client.get(f"/api/media/{media_id}/file")).status_code == 200
+
+    async def test_private_media_visible_only_to_uploader(self, admin_client, member_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        # Admin uploads, then sets to private
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("priv-test.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        priv_resp = await admin_client.patch(
+            f"/api/media/{media_id}/visibility",
+            data={"visibility": "private"},
+        )
+        assert priv_resp.status_code == 200
+
+        # Member cannot see private media uploaded by another user
+        assert (await member_client.get(f"/api/media/{media_id}")).status_code == 403
+
+
+class TestMediaSoftDelete:
+    """Test soft delete vs permanent delete behavior."""
+
+    async def test_non_admin_delete_is_soft(self, admin_client, member_client, tmp_path, monkeypatch):
+        """Member delete sets visibility=hidden but keeps file on disk."""
+        from app.config import Settings
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        # Upload as member to member's own person
+        upload_resp = await member_client.post(
+            "/api/media",
+            data={"person_id": "member-00-0000-0000-000000000005"},
+            files={"file": ("soft-del.jpg", image_data, "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+        media_id = upload_resp.json()["id"]
+
+        # Member deletes — should be soft
+        del_resp = await member_client.delete(f"/api/media/{media_id}")
+        assert del_resp.status_code == 204
+
+        # Admin can still see it (hidden visibility)
+        admin_resp = await admin_client.get(f"/api/media/{media_id}")
+        assert admin_resp.status_code == 200
+
+        # Member can no longer see it
+        member_resp = await member_client.get(f"/api/media/{media_id}")
+        assert member_resp.status_code == 403
+
+        # File still exists on disk
+        import os
+        file_path = os.path.join(str(tmp_path), "media", upload_resp.json()["id"] + ".jpg")
+        # File should still be on disk after soft delete
+        # (the exact path includes the media ID, check the media dir)
+        media_dir = os.path.join(str(tmp_path), "media")
+        files_on_disk = os.listdir(media_dir) if os.path.isdir(media_dir) else []
+        assert len(files_on_disk) > 0, "Media files should still exist after soft delete"
+
+    async def test_admin_delete_is_permanent(self, admin_client, tmp_path, monkeypatch):
+        """Admin delete removes files and DB record."""
+        from app.config import Settings
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("perm-del.jpg", image_data, "image/jpeg")},
+        )
+        media_id = upload_resp.json()["id"]
+
+        del_resp = await admin_client.delete(f"/api/media/{media_id}")
+        assert del_resp.status_code == 204
+
+        # DB record gone
+        assert (await admin_client.get(f"/api/media/{media_id}")).status_code == 404
+
+
+class TestMediaVariantGeneration:
+    """Test that image upload creates variant files on disk."""
+
+    async def test_image_upload_creates_thumb_and_medium_variants(self, admin_client, tmp_path, monkeypatch):
+        from app.config import Settings
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        # Create a large enough image that medium variant will be generated
+        image_data = _make_test_image(width=1200, height=900)
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("variant-test.jpg", image_data, "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+        media_id = upload_resp.json()["id"]
+
+        import os
+        variant_dir = os.path.join(str(tmp_path), "media", "variants", media_id)
+        assert os.path.isdir(variant_dir), f"Variant directory should exist: {variant_dir}"
+
+        thumb_path = os.path.join(variant_dir, "thumb.jpg")
+        assert os.path.isfile(thumb_path), "Thumb variant should exist"
+
+        medium_path = os.path.join(variant_dir, "medium.jpg")
+        assert os.path.isfile(medium_path), "Medium variant should exist (image is >800px)"
+
+        # Also verify the legacy thumbnail still exists
+        legacy_thumb = os.path.join(str(tmp_path), "media", "thumbnails", f"{media_id}.jpg")
+        assert os.path.isfile(legacy_thumb), "Legacy thumbnail should still be generated"
+
+        # Verify variant endpoint serves the files
+        thumb_resp = await admin_client.get(f"/api/media/{media_id}/variant/thumb")
+        assert thumb_resp.status_code == 200
+        assert thumb_resp.headers["content-type"] == "image/jpeg"
+
+        medium_resp = await admin_client.get(f"/api/media/{media_id}/variant/medium")
+        assert medium_resp.status_code == 200
+
+    async def test_small_image_skips_medium_variant(self, admin_client, tmp_path, monkeypatch, session_factory):
+        from app.backfill_variants import _backfill_one_media
+        from app.models.media import Media
+        from app.config import Settings
+        from sqlalchemy import select
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        # Small image — no medium variant needed
+        image_data = _make_test_image(width=200, height=200)
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": "tyler-000-0000-0000-000000000002"},
+            files={"file": ("small.jpg", image_data, "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+        media_id = upload_resp.json()["id"]
+
+        import os
+        variant_dir = os.path.join(str(tmp_path), "media", "variants", media_id)
+
+        # Thumb should exist
+        thumb_path = os.path.join(variant_dir, "thumb.jpg")
+        assert os.path.isfile(thumb_path), "Thumb variant should exist even for small images"
+
+        # Medium should NOT exist (image already ≤800px)
+        medium_path = os.path.join(variant_dir, "medium.jpg")
+        assert not os.path.isfile(medium_path), "Medium variant should be skipped for small images"
+
+        async with session_factory() as session:
+            stored_media = (
+                await session.execute(select(Media).where(Media.id == media_id))
+            ).scalar_one()
+
+        media = Media(
+            id=media_id,
+            person_id=ADMIN_ID,
+            file_path=stored_media.file_path,
+            media_type="image",
+            mime_type="image/jpeg",
+        )
+        changed = await _backfill_one_media(media, media_dir=os.path.join(str(tmp_path), "media"), dry_run=False)
+        assert changed is False, "Backfill should be idempotent when only a thumb variant is needed"
+
+    async def test_backfill_variants_recreates_missing_variants(self, admin_client, tmp_path, monkeypatch):
+        from app.backfill_variants import _backfill_one_media
+        from app.models.media import Media
+
+        media_dir = os.path.join(str(tmp_path), "media")
+        os.makedirs(media_dir, exist_ok=True)
+        relative_path = "backfill.jpg"
+        file_path = os.path.join(media_dir, relative_path)
+        with open(file_path, "wb") as fh:
+            fh.write(_make_test_image(width=1200, height=900))
+
+        media = Media(
+            id="backfill-media-1",
+            person_id=ADMIN_ID,
+            file_path=relative_path,
+            media_type="image",
+            mime_type="image/jpeg",
+        )
+        variant_dir = os.path.join(media_dir, "variants", media.id)
+        thumb_path = os.path.join(variant_dir, "thumb.jpg")
+        medium_path = os.path.join(variant_dir, "medium.jpg")
+
+        dry_run_changed = await _backfill_one_media(media, media_dir=media_dir, dry_run=True)
+        assert dry_run_changed is True
+        assert not os.path.exists(thumb_path)
+
+        changed = await _backfill_one_media(media, media_dir=media_dir, dry_run=False)
+        assert changed is True
+        assert os.path.isfile(thumb_path)
+        assert os.path.isfile(medium_path)

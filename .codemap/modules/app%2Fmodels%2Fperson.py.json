@@ -1,14 +1,14 @@
 {
   "id": "app/models/person.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
-  "source_hash": "4b7e1fcc",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "1b2bdb3b",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 6,
-    "lines": 173,
-    "rating": "green"
+    "cyclomatic": 11,
+    "lines": 253,
+    "rating": "yellow"
   },
   "dependencies": {
     "imports": [
@@ -22,17 +22,27 @@
       "app/models/__init__.py",
       "app/pwa/routes.py",
       "app/routes/auth_routes.py",
+      "app/routes/calendar.py",
+      "app/routes/demo.py",
+      "app/routes/external_records.py",
+      "app/routes/imports.py",
       "app/routes/media.py",
-      "app/routes/moments.py",
       "app/routes/pages.py",
       "app/routes/persons.py",
       "app/routes/relationships.py",
+      "app/routes/research.py",
+      "app/routes/timeline.py",
       "app/routes/tree.py",
+      "app/routes/wiki.py",
       "app/seed.py",
       "app/services/auth_service.py",
       "app/services/bootstrap_service.py",
-      "app/services/moment_service.py",
+      "app/services/calendar_service.py",
+      "app/services/import_service.py",
+      "app/services/relationship_calculator.py",
       "app/services/revision_service.py",
+      "app/services/timeline_service.py",
+      "app/services/wiki_service.py",
       "tests/conftest.py",
       "tests/test_access_control.py",
       "tests/test_api.py",
@@ -40,14 +50,17 @@
       "tests/test_models.py",
       "tests/test_phase1_edge_cases.py",
       "tests/test_protection_service.py",
+      "tests/test_research.py",
       "tests/test_revision_service.py",
       "tests/test_schema_models.py"
     ],
     "tested_by": [
       "tests/conftest.py",
       "tests/test_access_control.py",
-      "tests/test_protection_service.py",
-      "tests/test_revision_service.py",
+      "tests/test_api.py",
+      "tests/test_models.py",
+      "tests/test_phase1_edge_cases.py",
+      "tests/test_research.py",
       "tests/test_schema_models.py"
     ]
   },
@@ -235,7 +248,7 @@
     },
     {
       "function": "languages",
-      "line": 147,
+      "line": 177,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -256,7 +269,217 @@
     },
     {
       "function": "languages",
-      "line": 153,
+      "line": 183,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "education",
+      "line": 187,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "education",
+      "line": 193,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "career",
+      "line": 197,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "career",
+      "line": 203,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "organizations",
+      "line": 207,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "organizations",
+      "line": 213,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "admixture",
+      "line": 217,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "admixture",
+      "line": 223,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "medical_conditions",
+      "line": 227,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 3,
+        "nesting": 1,
+        "token_count": 17
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "medical_conditions",
+      "line": 233,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -277,7 +500,7 @@
     },
     {
       "function": "display_name",
-      "line": 157,
+      "line": 237,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 3,
@@ -291,20 +514,20 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 161,
-              "line_end": 161
+              "line_start": 241,
+              "line_end": 241
             },
             {
-              "line_start": 164,
-              "line_end": 164
+              "line_start": 244,
+              "line_end": 244
             },
             {
-              "line_start": 160,
-              "line_end": 160
+              "line_start": 240,
+              "line_end": 240
             },
             {
-              "line_start": 162,
-              "line_end": 162
+              "line_start": 242,
+              "line_end": 242
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -323,7 +546,7 @@
     },
     {
       "function": "__repr__",
-      "line": 166,
+      "line": 246,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -344,7 +567,7 @@
     },
     {
       "function": "_validate_contact_email",
-      "line": 170,
+      "line": 250,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -373,7 +596,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 5,
+    "churn_count": 11,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -392,10 +615,10 @@
       "Visibility"
     ],
     "package": null,
-    "change_velocity": 4.0,
+    "change_velocity": 10.0,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T19:38:18-04:00",
+    "last_modified": "2026-03-26T14:55:57-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -407,15 +630,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 1.0,
-  "attention_score": 0.33,
-  "centrality_score": 0.8,
+  "testability_score": 0.85,
+  "attention_score": 0.45,
+  "centrality_score": 0.75,
   "quality_radar": {
-    "understandability": 0.93,
+    "understandability": 0.59,
     "changeability": 0.6,
     "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.37
+    "stability": 0.3
   },
   "domain_role": "core",
   "detected_patterns": null,

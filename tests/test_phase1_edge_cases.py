@@ -152,10 +152,6 @@ async def test_concurrent_requests_to_same_endpoint_return_consistent_results(
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="Phase 1 accepts blank names because the schema only enforces max_length.",
-    strict=True,
-)
 async def test_create_person_rejects_empty_names(admin_client: AsyncClient):
     resp = await admin_client.post(
         "/api/persons",
@@ -274,4 +270,4 @@ async def test_hidden_person_edit_page_is_not_accessible_to_member(
 
     resp = await member_client.get(f"/people/{hidden_person.id}/edit", follow_redirects=False)
     assert resp.status_code == 302
-    assert resp.headers["location"] == "/people"
+    assert resp.headers["location"] == "/tree"

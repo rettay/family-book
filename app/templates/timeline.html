@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t('timeline.title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 16px; padding-bottom: 16px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">{{ t('timeline.title') }}</h1>
+    <p class="page-header__subtitle">{{ t('timeline.subtitle') }}</p>
+  </div>
+
+  <div class="timeline-filters">
+    <select class="form-select" id="timeline-type-filter"
+            hx-get="/partials/timeline-events"
+            hx-target="#timeline-events"
+            hx-include=".timeline-filter-input"
+            hx-trigger="change"
+            name="event_type">
+      <option value="" {% if not event_type %}selected{% endif %}>{{ t('timeline.filter_all') }}</option>
+      <option value="birth" {% if event_type == 'birth' %}selected{% endif %}>{{ t('timeline.filter_births') }}</option>
+      <option value="death" {% if event_type == 'death' %}selected{% endif %}>{{ t('timeline.filter_deaths') }}</option>
+      <option value="marriage" {% if event_type == 'marriage' %}selected{% endif %}>{{ t('timeline.filter_marriages') }}</option>
+    </select>
+    <input type="number" class="form-input timeline-filter-input" name="year_from" placeholder="{{ t('timeline.year_from') }}"
+           value="{{ year_from }}" style="width:100px;"
+           hx-get="/partials/timeline-events"
+           hx-target="#timeline-events"
+           hx-include=".timeline-filter-input, #timeline-type-filter"
+           hx-trigger="change">
+    <input type="number" class="form-input timeline-filter-input" name="year_to" placeholder="{{ t('timeline.year_to') }}"
+           value="{{ year_to }}" style="width:100px;"
+           hx-get="/partials/timeline-events"
+           hx-target="#timeline-events"
+           hx-include=".timeline-filter-input, #timeline-type-filter"
+           hx-trigger="change">
+    <input type="text" class="form-input timeline-filter-input" name="branch" placeholder="{{ t('timeline.filter_branch') }}"
+           value="{{ branch }}" style="width:140px;"
+           hx-get="/partials/timeline-events"
+           hx-target="#timeline-events"
+           hx-include=".timeline-filter-input, #timeline-type-filter"
+           hx-trigger="change">
+  </div>
+
+  <div id="timeline-events" aria-live="polite" aria-busy="false">
+    {% include "partials/timeline_events.html" %}
+  </div>
+</div>
+{% endblock %}

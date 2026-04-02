@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ person.display_name }} — {{ t('wiki.index_title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="wiki-page">
+  <div class="wiki-page__nav-row">
+    <a href="/wiki" class="wiki-page__back-link">&larr; {{ t('wiki.index_title') }}</a>
+    <div class="wiki-page__nav-actions">
+      <a href="/tree?focus={{ person.id }}" class="btn btn--sm btn--outline">{{ t('wiki.view_in_tree') }}</a>
+      <a href="/people/{{ person.id }}/edit" class="btn btn--sm btn--outline">{{ t('common.edit') }}</a>
+      {% if not person.is_root %}
+      <a href="/research?person_id={{ person.id }}" class="btn btn--sm btn--outline">{{ t('nav.research') }}</a>
+      {% endif %}
+      {% if current_user.is_admin and not person.is_root %}
+      <button type="button" class="btn btn--sm" style="background:#c00; color:#fff; border:none;"
+              onclick="deletePerson()">{{ t('person.delete_button') }}</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <article class="wiki-article">
+    {# ── Infobox ── #}
+    <aside class="wiki-infobox">
+      {% if person.photo_url %}
+      <div class="wiki-infobox__photo">
+        <img src="/api/media/{{ person.photo_url }}/file" alt="{{ person.display_name }}">
+      </div>
+      {% endif %}
+      <h2 class="wiki-infobox__name">{{ person.display_name }}</h2>
+      <table class="wiki-infobox__table">
+        {% if person.birth_date_raw %}
+        <tr><th>{{ t('wiki.infobox_born') }}</th><td>{{ person.birth_date_raw }}</td></tr>
+        {% endif %}
+        {% if not person.is_living and person.death_date_raw %}
+        <tr><th>{{ t('wiki.infobox_died') }}</th><td>{{ person.death_date_raw }}</td></tr>
+        {% endif %}
+        {% if person.birth_place %}
+        <tr><th>{{ t('wiki.infobox_birthplace') }}</th><td>{{ person.birth_place }}</td></tr>
+        {% endif %}
+        {% if person.residence_place %}
+        <tr><th>{{ t('wiki.infobox_residence') }}</th><td>{{ person.residence_place }}</td></tr>
+        {% endif %}
+        {% if person.branch %}
+        <tr><th>{{ t('wiki.infobox_branch') }}</th><td>{{ person.branch }}</td></tr>
+        {% endif %}
+      </table>
+      {% set social_links = [] %}
+      {% if person.social_instagram %}{% set _ = social_links.append(('Instagram', person.social_instagram)) %}{% endif %}
+      {% if person.social_facebook %}{% set _ = social_links.append(('Facebook', person.social_facebook)) %}{% endif %}
+      {% if person.social_twitter %}{% set _ = social_links.append(('X', person.social_twitter)) %}{% endif %}
+      {% if person.social_linkedin %}{% set _ = social_links.append(('LinkedIn', person.social_linkedin)) %}{% endif %}
+      {% if person.social_tiktok %}{% set _ = social_links.append(('TikTok', person.social_tiktok)) %}{% endif %}
+      {% if person.social_youtube %}{% set _ = social_links.append(('YouTube', person.social_youtube)) %}{% endif %}
+      {% if social_links %}
+      <div class="wiki-infobox__social">
+        {% for label, url in social_links %}
+        <a href="{{ url }}" target="_blank" rel="noopener" class="wiki-infobox__social-link" title="{{ label }}">{{ label }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </aside>
+
+    {# ── Sections ── #}
+    {% for section in sections %}
+    <div class="wiki-section" id="section-{{ section.id }}">
+      <h2 class="wiki-section__title">
+        {{ t('wiki.' ~ section.id|replace('-', '_')) }}
+        {% if can_edit and section.edit_fields %}
+        <a href="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+           class="wiki-section__edit-btn"
+           hx-get="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+           hx-target="#section-{{ section.id }}-form"
+           hx-swap="innerHTML">{{ t('wiki.edit_section') }}</a>
+        {% endif %}
+      </h2>
+      <div class="wiki-section__content">
+        {% if section.content %}
+        {% if section.id in ('summary', 'death-legacy', 'research-notes') %}
+        {% for line in section.content.split('\n') %}
+        <p>{{ line | safe }}</p>
+        {% endfor %}
+        {% else %}
+        {% for line in section.content.split('\n') %}
+        <p>{{ line }}</p>
+        {% endfor %}
+        {% endif %}
+        {% else %}
+        {% if can_edit and section.edit_fields %}
+        <p class="wiki-section__empty">
+          <a href="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+             hx-get="/wiki/{{ person.slug }}/edit/{{ section.id }}"
+             hx-target="#section-{{ section.id }}-form"
+             hx-swap="innerHTML">{{ t('wiki.add_section') }}</a>
+        </p>
+        {% endif %}
+        {% endif %}
+      </div>
+      <div id="section-{{ section.id }}-form"></div>
+    </div>
+    {% endfor %}
+
+    {% if media_list %}
+    <div class="wiki-section" id="person-media-gallery">
+      <h2 class="wiki-section__title">{{ t('gallery.person_gallery') }}</h2>
+      <div class="wiki-section__content" id="person-media">
+        {% include "partials/media_gallery.html" %}
+      </div>
+    </div>
+    {% endif %}
+  </article>
+</div>
+{% endblock %}
+
+{% if current_user.is_admin and not person.is_root %}
+{% block scripts %}
+<div id="delete-person-data"
+     data-person-id="{{ person.id }}"
+     data-person-name="{{ person.display_name }}"
+     data-confirm-msg="{{ t('person.delete_confirm') }}"
+     data-error-msg="{{ t('common.error') }}" hidden></div>
+<script src="/static/js/delete-person.js"></script>
+{% endblock %}
+{% endif %}

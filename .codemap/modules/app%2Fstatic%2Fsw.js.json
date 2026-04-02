@@ -1,7 +1,7 @@
 {
   "id": "app/static/sw.js",
   "language": "javascript",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "37503f8a",
   "staleness": false,
   "purpose": null,
@@ -60,7 +60,7 @@
   "attention_score": 0.34,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.84,
+    "understandability": 0.82,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,

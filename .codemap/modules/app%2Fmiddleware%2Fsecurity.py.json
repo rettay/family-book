@@ -1,7 +1,7 @@
 {
   "id": "app/middleware/security.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "56d9c4a6",
   "staleness": false,
   "purpose": null,
@@ -15,9 +15,12 @@
       "app/config.py"
     ],
     "imported_by": [
-      "app/main.py"
+      "app/main.py",
+      "tests/test_security_guardrails.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/test_security_guardrails.py"
+    ]
   },
   "exports": [
     {
@@ -157,6 +160,26 @@
           "category": "duplication",
           "evidence_spans": [
             {
+              "line_start": 81,
+              "line_end": 83
+            },
+            {
+              "line_start": 88,
+              "line_end": 90
+            },
+            {
+              "line_start": 78,
+              "line_end": 78
+            },
+            {
+              "line_start": 79,
+              "line_end": 79
+            },
+            {
+              "line_start": 80,
+              "line_end": 80
+            },
+            {
               "line_start": 64,
               "line_end": 64
             },
@@ -185,32 +208,12 @@
               "line_end": 97
             },
             {
-              "line_start": 78,
-              "line_end": 78
-            },
-            {
-              "line_start": 79,
-              "line_end": 79
-            },
-            {
-              "line_start": 80,
-              "line_end": 80
-            },
-            {
               "line_start": 87,
               "line_end": 87
             },
             {
               "line_start": 95,
               "line_end": 95
-            },
-            {
-              "line_start": 81,
-              "line_end": 83
-            },
-            {
-              "line_start": 88,
-              "line_end": 90
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -394,18 +397,6 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 175,
-              "line_end": 175
-            },
-            {
-              "line_start": 175,
-              "line_end": 175
-            },
-            {
-              "line_start": 179,
-              "line_end": 179
-            },
-            {
               "line_start": 176,
               "line_end": 176
             },
@@ -416,6 +407,18 @@
             {
               "line_start": 180,
               "line_end": 180
+            },
+            {
+              "line_start": 175,
+              "line_end": 175
+            },
+            {
+              "line_start": 175,
+              "line_end": 175
+            },
+            {
+              "line_start": 179,
+              "line_end": 179
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -480,7 +483,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
+    "churn_count": 4,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
@@ -496,11 +499,11 @@
       "add_security_middleware"
     ],
     "package": null,
-    "change_velocity": 1.0,
+    "change_velocity": 0.33,
     "bus_factor": 1,
-    "author_count": 1,
-    "last_modified": "2026-03-18T09:51:12+01:00",
-    "recency_score": 0.97,
+    "author_count": 2,
+    "last_modified": "2026-03-23T19:23:45-04:00",
+    "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": true,
     "convention_compliance": 1.0,
@@ -513,13 +516,13 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.4,
-  "attention_score": 0.44,
+  "testability_score": 0.7,
+  "attention_score": 0.28,
   "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.3,
-    "changeability": 0.68,
-    "correctness": 0.5,
+    "understandability": 0.35,
+    "changeability": 0.97,
+    "correctness": 1.0,
     "security": 1.0,
     "stability": 0.4
   },

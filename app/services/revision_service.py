@@ -1,15 +1,16 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 import logging
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.moments import Moment
 from app.models.person import Person
 from app.models.revisions import EntityRevision
-from app.services.field_protection import decrypt_mapping_fields, encrypt_mapping_fields
+from app.services.field_protection import decrypt_mapping_fields, decrypt_string, encrypt_mapping_fields, encrypt_string
+from app.services.sanitization import RICH_TEXT_FIELDS, sanitize_html
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ PERSON_MUTABLE_FIELDS = [
     "patronymic",
     "birth_last_name",
     "nickname",
+    "alternate_nicknames",
     "name_display_order",
     "gender",
     "birth_date_raw",
@@ -37,32 +39,39 @@ PERSON_MUTABLE_FIELDS = [
     "burial_country_code",
     "burial_cemetery_name",
     "burial_plot_number",
+    "remains_disposition",
     "bio",
+    "research_notes",
     "medical_history",
+    "obituary",
+    "obituary_source",
+    "obituary_url",
     "contact_whatsapp",
     "contact_telegram",
     "contact_signal",
+    "contact_phone",
     "contact_email",
+    "height",
+    "weight",
+    "eye_color",
+    "hair_color",
+    "blood_type",
+    "maternal_haplogroup",
+    "paternal_haplogroup",
+    "dna_test_provider",
+    "source_detail",
+    "confidence",
     "photo_url",
+    "social_instagram",
+    "social_facebook",
+    "social_twitter",
+    "social_linkedin",
+    "social_tiktok",
+    "social_youtube",
     "branch",
     "visibility",
     "lifecycle_state",
     "deleted_at",
-    "deleted_by",
-]
-
-MOMENT_MUTABLE_FIELDS = [
-    "person_id",
-    "kind",
-    "title",
-    "body",
-    "milestone_type",
-    "source",
-    "visibility",
-    "posted_by",
-    "lifecycle_state",
-    "moderated_by",
-    "moderation_reason",
     "deleted_by",
 ]
 
@@ -71,7 +80,20 @@ PERSON_SNAPSHOT_PROTECTED_FIELDS = [
     "contact_whatsapp",
     "contact_telegram",
     "contact_signal",
+    "contact_phone",
     "contact_email",
+    "maternal_haplogroup",
+    "paternal_haplogroup",
+    "dna_test_provider",
+]
+
+PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS = [
+    "admixture",
+    "medical_conditions",
+    "contact_addresses",
+    "contact_phones",
+    "contact_emails",
+    "name_history",
 ]
 
 
@@ -93,37 +115,63 @@ def _parse_datetime(value: str | None) -> datetime | None:
 def serialize_person_snapshot(person: Person) -> dict:
     snapshot = {field: getattr(person, field) for field in PERSON_MUTABLE_FIELDS}
     snapshot["languages"] = person.languages
-    return encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
+    snapshot["alternate_nicknames"] = person.alternate_nicknames
+    snapshot["education"] = person.education
+    snapshot["career"] = person.career
+    snapshot["organizations"] = person.organizations
+    snapshot["admixture"] = person.admixture
+    snapshot["medical_conditions"] = person.medical_conditions
+    snapshot["contact_addresses"] = person.contact_addresses
+    snapshot["contact_phones"] = person.contact_phones
+    snapshot["contact_emails"] = person.contact_emails
+    snapshot["social_accounts"] = person.social_accounts
+    snapshot["name_history"] = person.name_history
+    snapshot["place_history"] = person.place_history
+    snapshot = encrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
+    for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
+        if field in snapshot and snapshot[field] is not None:
+            snapshot[field] = encrypt_string(json.dumps(snapshot[field]))
+    return snapshot
 
 
 def apply_person_snapshot(person: Person, snapshot: dict) -> None:
     snapshot = decrypt_mapping_fields(snapshot, PERSON_SNAPSHOT_PROTECTED_FIELDS)
+    for field in PERSON_SNAPSHOT_PROTECTED_JSON_FIELDS:
+        if field in snapshot and isinstance(snapshot[field], str):
+            decrypted = decrypt_string(snapshot[field])
+            snapshot[field] = json.loads(decrypted) if decrypted else []
     for field in PERSON_MUTABLE_FIELDS:
         if field in snapshot:
-            setattr(person, field, snapshot[field])
+            value = snapshot[field]
+            if field in RICH_TEXT_FIELDS and value:
+                value = sanitize_html(value)
+            setattr(person, field, value)
     if "languages" in snapshot:
         person.languages = snapshot["languages"] or []
-
-
-def serialize_moment_snapshot(moment: Moment) -> dict:
-    snapshot = {field: getattr(moment, field) for field in MOMENT_MUTABLE_FIELDS}
-    snapshot["occurred_at"] = _serialize_datetime(moment.occurred_at)
-    snapshot["moderated_at"] = _serialize_datetime(moment.moderated_at)
-    snapshot["deleted_at"] = _serialize_datetime(moment.deleted_at)
-    snapshot["media_ids"] = moment.media_ids
-    snapshot["tagged_person_ids"] = moment.tagged_person_ids
-    return snapshot
-
-
-def apply_moment_snapshot(moment: Moment, snapshot: dict) -> None:
-    for field in MOMENT_MUTABLE_FIELDS:
-        if field in snapshot:
-            setattr(moment, field, snapshot[field])
-    moment.occurred_at = _parse_datetime(snapshot.get("occurred_at"))
-    moment.moderated_at = _parse_datetime(snapshot.get("moderated_at"))
-    moment.deleted_at = _parse_datetime(snapshot.get("deleted_at"))
-    moment.media_ids = snapshot.get("media_ids", [])
-    moment.tagged_person_ids = snapshot.get("tagged_person_ids", [])
+    if "alternate_nicknames" in snapshot:
+        person.alternate_nicknames = snapshot["alternate_nicknames"] or []
+    if "education" in snapshot:
+        person.education = snapshot["education"] or []
+    if "career" in snapshot:
+        person.career = snapshot["career"] or []
+    if "organizations" in snapshot:
+        person.organizations = snapshot["organizations"] or []
+    if "admixture" in snapshot:
+        person.admixture = snapshot["admixture"] or []
+    if "medical_conditions" in snapshot:
+        person.medical_conditions = snapshot["medical_conditions"] or []
+    if "contact_addresses" in snapshot:
+        person.contact_addresses = snapshot["contact_addresses"] or []
+    if "contact_phones" in snapshot:
+        person.contact_phones = snapshot["contact_phones"] or []
+    if "contact_emails" in snapshot:
+        person.contact_emails = snapshot["contact_emails"] or []
+    if "name_history" in snapshot:
+        person.name_history = snapshot["name_history"] or []
+    if "place_history" in snapshot:
+        person.place_history = snapshot["place_history"] or []
+    if "social_accounts" in snapshot:
+        person.social_accounts = snapshot["social_accounts"] or []
 
 
 async def record_revision(

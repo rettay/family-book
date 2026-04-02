@@ -1,7 +1,7 @@
 {
   "id": "alembic/versions/8c1f9e6b7d11_add_sensitive_field_encryption_support.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T23:57:08.763993+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "d10ce43c",
   "staleness": false,
   "purpose": null,
@@ -348,6 +348,30 @@
               "line_end": 37
             },
             {
+              "line_start": 35,
+              "line_end": 35
+            },
+            {
+              "line_start": 36,
+              "line_end": 36
+            },
+            {
+              "line_start": 37,
+              "line_end": 37
+            },
+            {
+              "line_start": 35,
+              "line_end": 35
+            },
+            {
+              "line_start": 36,
+              "line_end": 36
+            },
+            {
+              "line_start": 37,
+              "line_end": 37
+            },
+            {
               "line_start": 32,
               "line_end": 32
             },
@@ -358,30 +382,6 @@
             {
               "line_start": 34,
               "line_end": 34
-            },
-            {
-              "line_start": 35,
-              "line_end": 35
-            },
-            {
-              "line_start": 36,
-              "line_end": 36
-            },
-            {
-              "line_start": 37,
-              "line_end": 37
-            },
-            {
-              "line_start": 35,
-              "line_end": 35
-            },
-            {
-              "line_start": 36,
-              "line_end": 36
-            },
-            {
-              "line_start": 37,
-              "line_end": 37
             },
             {
               "line_start": 35,
@@ -448,11 +448,11 @@
   "attention_score": null,
   "centrality_score": null,
   "quality_radar": {
-    "understandability": 0.98,
+    "understandability": 0.97,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.78
+    "stability": 0.65
   },
   "domain_role": "utility",
   "detected_patterns": null,

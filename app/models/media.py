@@ -15,6 +15,7 @@ class MediaType(str, enum.Enum):
     sticker = "sticker"
     gif = "gif"
     embed = "embed"
+    document = "document"
 
 
 class MediaSource(str, enum.Enum):
@@ -50,10 +51,14 @@ class Media(Base):
     embed_provider: Mapped[str | None] = mapped_column(String(50), default=None)
     embed_html: Mapped[str | None] = mapped_column(Text, default=None)
     caption: Mapped[str | None] = mapped_column(String(1000), default=None)
+    title: Mapped[str | None] = mapped_column(String(300), default=None)
+    description: Mapped[str | None] = mapped_column(Text, default=None)
     taken_date: Mapped[str | None] = mapped_column(String(10), default=None)
     _tagged_person_ids: Mapped[str | None] = mapped_column("tagged_person_ids", Text, default="[]")
     source: Mapped[str] = mapped_column(String(30), default=MediaSource.manual.value)
-    is_profile: Mapped[bool] = mapped_column(Boolean, default=False)
+    purpose: Mapped[str | None] = mapped_column(String(20), default="memory")
+    visibility: Mapped[str] = mapped_column(String(20), default="family")
+    processing_status: Mapped[str] = mapped_column(String(20), default="ready")
     uploaded_by: Mapped[str | None] = mapped_column(String(36), default=None)
     created_at: Mapped[datetime] = mapped_column(
         default=lambda: __import__("datetime").datetime.now(__import__("datetime").timezone.utc)

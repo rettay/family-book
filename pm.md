@@ -49,6 +49,7 @@ Every cycle:
 
 4. Emit or update one task packet
 - Include objective, acceptance criteria, likely files, validation commands, out-of-scope bounds, and evaluation environment.
+- For material member-facing UI work, resolve target personas from the canonical persona registry and UI surface matrix, then include changed surfaces, scenario ids, structural/browser/visual oracles, and required CodeMap/Folio artifacts.
 
 5. Update backlog status
 - `todo` -> `in_progress` -> `in_review` -> `done`
@@ -75,6 +76,20 @@ Each packet must include:
 - Local validation commands
 - Testable acceptance criteria
 - Definition of done
+
+For material member-facing UI work, each packet must also include:
+
+- Changed surfaces
+- Target personas resolved from `/Users/cheech/code/family-book/docs/ops/persona_registry.yaml`
+- Scenario ids resolved from `/Users/cheech/code/family-book/docs/ops/ui_surface_matrix.yaml`
+- Required viewports and locales where they matter
+- Structural oracle
+- Browser oracle
+- Visual/persona oracle
+- Required artifacts
+- Baseline screenshots or explicit expected visual states when comparison matters
+
+Do not invent ad hoc personas in a packet when the canonical registry already covers the changed surface. If the registry or matrix is missing a needed persona or scenario, escalate and update those docs first.
 
 ## Evaluation Environment Requirements
 

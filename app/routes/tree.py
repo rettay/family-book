@@ -2,16 +2,24 @@ import logging
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access_control import get_accessible_person_ids, get_person_access, redact_person_summary
+from app.access_control import (
+    get_accessible_person_ids,
+    get_family_graph_distances,
+    get_person_access,
+    redact_person_summary,
+)
+from app.config import get_settings
 from app.auth import require_auth
 from app.database import get_db
+from app.models.media import Media
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.preferences import DEFAULT_TREE_PREFERENCES, TreePreference
 from app.models.relationships import ParentChild, Partnership
 from app.services.geo import country_centroid
+from app.services.location_service import lookup_known_place
 from app.schemas import (
     ParentChildResponse,
     PartnershipResponse,
@@ -24,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 class TreePreferencesPayload(BaseModel):
     show_names: bool = DEFAULT_TREE_PREFERENCES["show_names"]
+    show_nicknames: bool = DEFAULT_TREE_PREFERENCES["show_nicknames"]
     show_birth_dates: bool = DEFAULT_TREE_PREFERENCES["show_birth_dates"]
     show_country_flags: bool = DEFAULT_TREE_PREFERENCES["show_country_flags"]
     show_photos: bool = DEFAULT_TREE_PREFERENCES["show_photos"]
@@ -40,9 +49,12 @@ class MapMarker(BaseModel):
     kind: str
     label: str
     place: str | None
-    country_code: str
+    country_code: str | None
     latitude: float
     longitude: float
+    location_source: str
+    relationship_distance: int | None = None
+    relation_scope: str
 
 
 class MapResponse(BaseModel):
@@ -90,6 +102,26 @@ async def _filtered_tree_people(
     return result.scalars().all()
 
 
+async def _person_metric_maps(
+    db: AsyncSession,
+    current_user: Person,
+    person_ids: set[str],
+) -> dict[str, int]:
+    if not person_ids:
+        return {}
+
+    media_query = (
+        select(Media.person_id, func.count(Media.id))
+        .where(Media.person_id.in_(person_ids))
+        .group_by(Media.person_id)
+    )
+
+    media_rows = (await db.execute(media_query)).all()
+
+    media_counts = {person_id: count for person_id, count in media_rows}
+    return media_counts
+
+
 @router.get("/tree", response_model=TreeResponse)
 async def get_tree(
     branch: str | None = Query(None),
@@ -116,6 +148,9 @@ async def get_tree(
         living=living,
     )
     visible_person_ids = {person.id for person in persons}
+    media_counts = await _person_metric_maps(
+        db, current_user, visible_person_ids
+    )
 
     # Get root person
     result = await db.execute(
@@ -126,10 +161,11 @@ async def get_tree(
     )
     root = result.scalar_one_or_none()
     root_id = root.id if root and root.id in visible_person_ids else ""
-    summaries = [
-        redact_person_summary(person, await get_person_access(db, current_user, person))
-        for person in persons
-    ]
+    summaries = []
+    for person in persons:
+        summary = redact_person_summary(person, await get_person_access(db, current_user, person))
+        summary.media_count = media_counts.get(person.id, 0)
+        summaries.append(summary)
 
     # Get all parent-child relationships
     result = await db.execute(select(ParentChild))
@@ -184,9 +220,11 @@ async def get_map_data(
     residence_country: str | None = Query(None),
     birth_country: str | None = Query(None),
     living: str | None = Query(None),
+    relationship_scope: str | None = Query(None),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    settings = get_settings()
     persons = await _filtered_tree_people(
         db,
         current_user,
@@ -195,11 +233,63 @@ async def get_map_data(
         birth_country=birth_country,
         living=living,
     )
+    distances = await get_family_graph_distances(
+        db,
+        current_user.id,
+        settings.FAMILY_GRAPH_MAX_DISTANCE,
+    )
     markers: list[MapMarker] = []
 
+    def relation_scope_for(distance: int | None) -> str:
+        if distance == 0:
+            return "self"
+        if distance == 1:
+            return "one_step"
+        if distance == 2:
+            return "two_steps"
+        if distance is None:
+            return "unlinked"
+        return "extended"
+
+    def include_scope(scope: str) -> bool:
+        if not relationship_scope or relationship_scope == "all":
+            return True
+        return scope == relationship_scope
+
+    def marker_position(
+        person: Person,
+        *,
+        prefix: str,
+        country_code: str | None,
+        place: str | None,
+    ) -> tuple[float, float, str] | None:
+        latitude = getattr(person, f"{prefix}_place_latitude", None)
+        longitude = getattr(person, f"{prefix}_place_longitude", None)
+        if latitude is not None and longitude is not None:
+            return (latitude, longitude, "coordinates")
+
+        known_coordinates = lookup_known_place(place, country_code)
+        if known_coordinates:
+            return (known_coordinates[0], known_coordinates[1], "place_lookup")
+
+        centroid = country_centroid(country_code)
+        if centroid:
+            return (centroid[0], centroid[1], "country_centroid")
+        return None
+
     for person in persons:
-        if person.residence_country_code:
-            residence_coordinates = country_centroid(person.residence_country_code)
+        distance = distances.get(person.id)
+        relation_scope = relation_scope_for(distance)
+        if not include_scope(relation_scope):
+            continue
+
+        if person.residence_country_code or person.residence_place_latitude is not None:
+            residence_coordinates = marker_position(
+                person,
+                prefix="residence",
+                country_code=person.residence_country_code,
+                place=person.residence_place,
+            )
             if residence_coordinates:
                 markers.append(
                     MapMarker(
@@ -214,11 +304,19 @@ async def get_map_data(
                         country_code=person.residence_country_code,
                         latitude=residence_coordinates[0],
                         longitude=residence_coordinates[1],
+                        location_source=residence_coordinates[2],
+                        relationship_distance=distance,
+                        relation_scope=relation_scope,
                     )
                 )
 
-        if person.burial_place and person.burial_country_code:
-            burial_coordinates = country_centroid(person.burial_country_code)
+        if person.burial_place and (person.burial_country_code or person.burial_place_latitude is not None):
+            burial_coordinates = marker_position(
+                person,
+                prefix="burial",
+                country_code=person.burial_country_code,
+                place=person.burial_place,
+            )
             if burial_coordinates:
                 markers.append(
                     MapMarker(
@@ -233,6 +331,9 @@ async def get_map_data(
                         country_code=person.burial_country_code,
                         latitude=burial_coordinates[0],
                         longitude=burial_coordinates[1],
+                        location_source=burial_coordinates[2],
+                        relationship_distance=distance,
+                        relation_scope=relation_scope,
                     )
                 )
 

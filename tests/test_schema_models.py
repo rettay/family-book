@@ -1,9 +1,24 @@
-from app.models.moments import Moment, MomentKind
+from datetime import datetime, timezone
+
+import pytest
+import app.schemas as schemas
 from app.models.person import Person
-from app.schemas import person_to_detail, person_to_summary
+from pydantic import ValidationError
+from app.schemas import (
+    ParentChildCreate,
+    ParentChildResponse,
+    PartnershipResponse,
+    PartnershipUpdate,
+    PersonCreate,
+    PersonUpdate,
+    person_to_detail,
+    person_to_summary,
+)
 
 
 def test_person_schema_helpers_preserve_expected_fields():
+    assert schemas.PersonSummary.model_config["from_attributes"] is True
+
     person = Person(
         id="schema-person-1",
         first_name="Schema",
@@ -45,10 +60,71 @@ def test_root_person_detail_redacts_name_fields():
     assert detail.last_name is None
 
 
-def test_moment_model_list_properties_round_trip():
-    moment = Moment(person_id="person-id", kind=MomentKind.story.value, posted_by="poster-id")
-    moment.media_ids = ["media-1", "media-2"]
-    moment.tagged_person_ids = ["person-a", "person-b"]
+def test_schema_models_do_not_share_default_language_list():
+    first = PersonCreate(first_name="A", last_name="B")
+    second = PersonCreate(first_name="C", last_name="D")
 
-    assert moment.media_ids == ["media-1", "media-2"]
-    assert moment.tagged_person_ids == ["person-a", "person-b"]
+    first.languages.append("en")
+
+    assert second.languages == []
+
+
+def test_person_update_can_clear_fields_without_setting_unrelated_defaults():
+    update = PersonUpdate(contact_email=None, languages=None, visibility="hidden")
+
+    assert update.contact_email is None
+    assert update.languages is None
+    assert update.visibility == "hidden"
+
+
+def test_person_summary_helper_preserves_datetime_fields_for_detail():
+    created_at = datetime(2024, 1, 2, tzinfo=timezone.utc)
+    person = Person(
+        id="schema-person-2",
+        first_name="Detail",
+        last_name="Case",
+        is_living=True,
+        is_root=False,
+        is_admin=True,
+        visibility="visible",
+        source="manual",
+        created_at=created_at,
+        contact_email="detail@example.com",
+    )
+
+    detail = person_to_detail(person)
+
+    assert detail.created_at == created_at
+    assert detail.is_admin is True
+    assert detail.contact_email == "detail@example.com"
+
+
+def test_relationship_schemas_validate_integration_shapes():
+    relationship = ParentChildCreate(
+        parent_id="parent-1",
+        child_id="child-1",
+    )
+    relationship_response = ParentChildResponse(
+        id="pc-1",
+        parent_id="parent-1",
+        child_id="child-1",
+        kind="biological",
+        confidence="confirmed",
+        source="manual",
+    )
+    partnership = PartnershipResponse(
+        id="partner-1",
+        person_a_id="person-a",
+        person_b_id="person-b",
+        kind="married",
+        status="active",
+        source="manual",
+    )
+    partnership_update = PartnershipUpdate(status="ended", notes="archived")
+
+    with pytest.raises(ValidationError):
+        schemas.PersonCreate(first_name="x" * 201, last_name="Person")
+    assert relationship.kind == "biological"
+    assert relationship_response.parent_id == "parent-1"
+    assert partnership.status == "active"
+    assert partnership_update.status == "ended"

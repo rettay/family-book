@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ t('gallery.title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<section class="gallery-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-header__title">{{ t('gallery.title') }}</h1>
+      <p class="page-header__subtitle">{{ t('gallery.subtitle') }}</p>
+    </div>
+  </header>
+
+  <form class="gallery-filters" method="get" action="/gallery">
+    <label>
+      {{ t('gallery.filter_type') }}
+      <select name="media_type" class="form-input">
+        <option value="">{{ t('gallery.filter_all_types') }}</option>
+        <option value="photo" {% if gallery_filters.media_type == 'photo' %}selected{% endif %}>{{ t('media.photos') }}</option>
+        <option value="video" {% if gallery_filters.media_type == 'video' %}selected{% endif %}>{{ t('media.videos') }}</option>
+        <option value="audio" {% if gallery_filters.media_type == 'audio' %}selected{% endif %}>{{ t('media.recordings') }}</option>
+        <option value="document" {% if gallery_filters.media_type == 'document' %}selected{% endif %}>{{ t('media.documents') }}</option>
+      </select>
+    </label>
+    <label>
+      {{ t('gallery.filter_person') }}
+      <select name="person_id" class="form-input">
+        <option value="">{{ t('gallery.filter_any_person') }}</option>
+        {% for person in gallery_people %}
+        <option value="{{ person.id }}" {% if gallery_filters.person_id == person.id %}selected{% endif %}>{{ person.display_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      {{ t('gallery.filter_uploader') }}
+      <select name="uploader_id" class="form-input">
+        <option value="">{{ t('gallery.filter_any_uploader') }}</option>
+        {% for person in gallery_people %}
+        <option value="{{ person.id }}" {% if gallery_filters.uploader_id == person.id %}selected{% endif %}>{{ person.display_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      {{ t('gallery.filter_date_from') }}
+      <input type="date" name="date_from" class="form-input" value="{{ gallery_filters.date_from }}">
+    </label>
+    <label>
+      {{ t('gallery.filter_date_to') }}
+      <input type="date" name="date_to" class="form-input" value="{{ gallery_filters.date_to }}">
+    </label>
+    <div class="gallery-filters__actions">
+      <button type="submit" class="btn btn--primary">{{ t('gallery.apply_filters') }}</button>
+      <a href="/gallery" class="btn btn--ghost">{{ t('gallery.clear_filters') }}</a>
+    </div>
+  </form>
+
+  <div id="gallery-results" class="media-gallery media-gallery--grid">
+    {% include "partials/global_gallery_items.html" %}
+  </div>
+  <div id="gallery-load-more">
+    {% if gallery_page.has_more %}
+    <button
+      type="button"
+      class="btn btn--ghost btn--block"
+      hx-get="/partials/global-gallery?media_type={{ gallery_filters.media_type | urlencode }}&person_id={{ gallery_filters.person_id | urlencode }}&uploader_id={{ gallery_filters.uploader_id | urlencode }}&date_from={{ gallery_filters.date_from | urlencode }}&date_to={{ gallery_filters.date_to | urlencode }}&page={{ gallery_page.next_page }}"
+      hx-target="#gallery-results"
+      hx-swap="beforeend">
+      {{ t('gallery.load_more') }}
+    </button>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

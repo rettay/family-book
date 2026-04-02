@@ -1,7 +1,7 @@
 {
   "id": "app/database.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "06a9b6a6",
   "staleness": false,
   "purpose": null,
@@ -16,8 +16,10 @@
     ],
     "imported_by": [
       "app/auth.py",
+      "app/main.py",
       "app/matrix/startup.py",
       "app/routes/auth_routes.py",
+      "app/routes/demo.py",
       "app/routes/health.py",
       "app/routes/media.py",
       "app/routes/moments.py",
@@ -27,6 +29,7 @@
       "app/routes/tree.py",
       "app/seed.py",
       "app/services/bootstrap_service.py",
+      "app/services/protection_service.py",
       "tests/conftest.py"
     ],
     "tested_by": [
@@ -300,7 +303,7 @@
     "bus_factor": 2,
     "author_count": 2,
     "last_modified": "2026-03-22T23:40:48-04:00",
-    "recency_score": 1.0,
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -313,11 +316,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 1.0,
-  "attention_score": 0.22,
-  "centrality_score": 0.48,
+  "attention_score": 0.2,
+  "centrality_score": 0.46,
   "quality_radar": {
-    "understandability": 0.93,
-    "changeability": 0.73,
+    "understandability": 0.96,
+    "changeability": 0.76,
     "correctness": 1.0,
     "security": 1.0,
     "stability": 0.45

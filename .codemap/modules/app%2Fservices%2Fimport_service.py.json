@@ -1,0 +1,579 @@
+{
+  "id": "app/services/import_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "b611aa5e",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 42,
+    "lines": 254,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/importers/gedcom_parser.py",
+      "app/models/person.py",
+      "app/models/relationships.py",
+      "app/services/audit_service.py",
+      "app/services/revision_service.py"
+    ],
+    "imported_by": [
+      "app/routes/imports.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "find_duplicates",
+      "type": "function",
+      "summary": null,
+      "line": 49,
+      "signature": "( db: AsyncSession, individuals: list[GedcomIndividual], ) -> dict[str, DuplicateCandidate]"
+    },
+    {
+      "name": "import_gedcom",
+      "type": "function",
+      "summary": null,
+      "line": 91,
+      "signature": "( db: AsyncSession, parsed: GedcomParseResult, actor_id: str, skip_duplicates: bool = True, batch_id: str | None = None, ) -> ImportResult"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "find_duplicates",
+      "kind": "function",
+      "line": 49,
+      "signature": "( db: AsyncSession, individuals: list[GedcomIndividual], ) -> dict[str, DuplicateCandidate]",
+      "complexity": 11,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 54,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 55,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 55,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 59,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 59,
+          "module_hint": null
+        },
+        {
+          "name": "(p.first_name or '').strip().lower",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "(p.first_name or '').strip",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "(p.last_name or '').strip().lower",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "(p.last_name or '').strip",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "existing_by_name.setdefault(key, []).append",
+          "line": 65,
+          "module_hint": null
+        },
+        {
+          "name": "existing_by_name.setdefault",
+          "line": 65,
+          "module_hint": null
+        },
+        {
+          "name": "indi.first_name.strip().lower",
+          "line": 69,
+          "module_hint": null
+        },
+        {
+          "name": "indi.first_name.strip",
+          "line": 69,
+          "module_hint": null
+        },
+        {
+          "name": "indi.last_name.strip().lower",
+          "line": 69,
+          "module_hint": null
+        },
+        {
+          "name": "indi.last_name.strip",
+          "line": 69,
+          "module_hint": null
+        },
+        {
+          "name": "indi.birth.date.strip().lower",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "indi.birth.date.strip",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "existing.birth_date_raw.strip().lower",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "existing.birth_date_raw.strip",
+          "line": 75,
+          "module_hint": null
+        },
+        {
+          "name": "DuplicateCandidate",
+          "line": 79,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "import_gedcom",
+      "kind": "function",
+      "line": 91,
+      "signature": "( db: AsyncSession, parsed: GedcomParseResult, actor_id: str, skip_duplicates: bool = True, batch_id: str | None = None, ) -> ImportResult",
+      "complexity": 32,
+      "calls": [
+        {
+          "name": "ImportResult",
+          "line": 109,
+          "module_hint": null
+        },
+        {
+          "name": "find_duplicates",
+          "line": 112,
+          "module_hint": null
+        },
+        {
+          "name": "list",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "duplicates.values",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date_to_raw_and_iso",
+          "line": 131,
+          "module_hint": "app.importers.gedcom_parser"
+        },
+        {
+          "name": "_parse_date_to_raw_and_iso",
+          "line": 135,
+          "module_hint": "app.importers.gedcom_parser"
+        },
+        {
+          "name": "Person",
+          "line": 142,
+          "module_hint": "app.models.person"
+        },
+        {
+          "name": "db.add",
+          "line": 161,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "serialize_person_snapshot",
+          "line": 167,
+          "module_hint": "app.services.revision_service"
+        },
+        {
+          "name": "record_revision",
+          "line": 168,
+          "module_hint": "app.services.revision_service"
+        },
+        {
+          "name": "result.xref_to_person_id.get",
+          "line": 182,
+          "module_hint": null
+        },
+        {
+          "name": "result.xref_to_person_id.get",
+          "line": 183,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date_to_raw_and_iso",
+          "line": 196,
+          "module_hint": "app.importers.gedcom_parser"
+        },
+        {
+          "name": "Partnership",
+          "line": 198,
+          "module_hint": "app.models.relationships"
+        },
+        {
+          "name": "db.add",
+          "line": 207,
+          "module_hint": null
+        },
+        {
+          "name": "result.xref_to_person_id.get",
+          "line": 212,
+          "module_hint": null
+        },
+        {
+          "name": "ParentChild",
+          "line": 222,
+          "module_hint": "app.models.relationships"
+        },
+        {
+          "name": "db.add",
+          "line": 229,
+          "module_hint": null
+        },
+        {
+          "name": "db.flush",
+          "line": 232,
+          "module_hint": null
+        },
+        {
+          "name": "log_audit",
+          "line": 242,
+          "module_hint": "app.services.audit_service"
+        },
+        {
+          "name": "logger.info",
+          "line": 247,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "find_duplicates",
+      "line": 49,
+      "metrics": {
+        "cyclomatic": 11,
+        "cognitive": 16,
+        "size": 36,
+        "nesting": 5,
+        "token_count": 283
+      },
+      "findings": [
+        {
+          "rule_id": "perf.nested_linear_membership",
+          "category": "algorithmic_inefficiency",
+          "evidence_spans": [
+            {
+              "line_start": 75,
+              "line_end": 75
+            }
+          ],
+          "estimated_effect": "Potential O(n^2) behavior from nested iteration + linear membership",
+          "confidence": 0.88
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 64,
+              "line_end": 64
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 75,
+              "line_end": 75
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 75,
+              "line_end": 75
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n^2)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.84
+    },
+    {
+      "function": "import_gedcom",
+      "line": 91,
+      "metrics": {
+        "cyclomatic": 32,
+        "cognitive": 43,
+        "size": 157,
+        "nesting": 4,
+        "token_count": 688
+      },
+      "findings": [
+        {
+          "rule_id": "perf.nested_linear_membership",
+          "category": "algorithmic_inefficiency",
+          "evidence_spans": [
+            {
+              "line_start": 220,
+              "line_end": 220
+            },
+            {
+              "line_start": 220,
+              "line_end": 220
+            },
+            {
+              "line_start": 220,
+              "line_end": 220
+            },
+            {
+              "line_start": 220,
+              "line_end": 220
+            }
+          ],
+          "estimated_effect": "Potential O(n^2) behavior from nested iteration + linear membership",
+          "confidence": 0.88
+        },
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 119,
+              "line_end": 119
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 208,
+              "line_end": 208
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 131,
+              "line_end": 131
+            },
+            {
+              "line_start": 135,
+              "line_end": 135
+            },
+            {
+              "line_start": 196,
+              "line_end": 196
+            },
+            {
+              "line_start": 182,
+              "line_end": 182
+            },
+            {
+              "line_start": 183,
+              "line_end": 183
+            },
+            {
+              "line_start": 182,
+              "line_end": 182
+            },
+            {
+              "line_start": 183,
+              "line_end": 183
+            },
+            {
+              "line_start": 235,
+              "line_end": 235
+            },
+            {
+              "line_start": 236,
+              "line_end": 236
+            },
+            {
+              "line_start": 237,
+              "line_end": 237
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            },
+            {
+              "line_start": 125,
+              "line_end": 125
+            },
+            {
+              "line_start": 131,
+              "line_end": 131
+            },
+            {
+              "line_start": 135,
+              "line_end": 135
+            },
+            {
+              "line_start": 196,
+              "line_end": 196
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n^2)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.84
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 2,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [
+      "logging: logger.info() at line 247"
+    ],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "find_duplicates",
+      "import_gedcom"
+    ],
+    "package": null,
+    "change_velocity": 1.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-25T21:19:38-04:00",
+    "recency_score": 0.99,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.34,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.33,
+    "changeability": 0.69,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.67
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

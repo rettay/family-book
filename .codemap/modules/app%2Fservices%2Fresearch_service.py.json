@@ -1,0 +1,160 @@
+{
+  "id": "app/services/research_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "de191c05",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 3,
+    "lines": 81,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [
+      "app/config.py"
+    ],
+    "imported_by": [
+      "app/routes/research.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "get_available_sources",
+      "type": "function",
+      "summary": null,
+      "line": 64,
+      "signature": "() -> list[dict]"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "get_available_sources",
+      "kind": "function",
+      "line": 64,
+      "signature": "() -> list[dict]",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "get_settings",
+          "line": 66,
+          "module_hint": "app.config"
+        },
+        {
+          "name": "defn.get",
+          "line": 76,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 78,
+          "module_hint": null
+        },
+        {
+          "name": "bool",
+          "line": 79,
+          "module_hint": null
+        },
+        {
+          "name": "sources.append",
+          "line": 80,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "get_available_sources",
+      "line": 64,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 17,
+        "nesting": 2,
+        "token_count": 126
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 70,
+              "line_end": 70
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 72,
+              "line_end": 72
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "low",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "get_available_sources"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T16:47:46-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.08,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.95,
+    "changeability": 0.69,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.93
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

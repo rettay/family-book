@@ -1,7 +1,7 @@
 {
   "id": "app/services/io_limits.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "4b423bfd",
   "staleness": false,
   "purpose": null,
@@ -15,9 +15,12 @@
     "imported_by": [
       "app/inbound/routes.py",
       "app/pwa/routes.py",
-      "app/routes/media.py"
+      "app/routes/media.py",
+      "tests/test_security_guardrails.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/test_security_guardrails.py"
+    ]
   },
   "exports": [
     {
@@ -335,7 +338,7 @@
     "bus_factor": 1,
     "author_count": 1,
     "last_modified": "2026-03-22T23:40:48-04:00",
-    "recency_score": 1.0,
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": true,
     "convention_compliance": 1.0,
@@ -348,13 +351,13 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.35,
-  "attention_score": 0.33,
-  "centrality_score": 0.14,
+  "testability_score": 0.65,
+  "attention_score": 0.18,
+  "centrality_score": 0.11,
   "quality_radar": {
-    "understandability": 0.52,
-    "changeability": 0.64,
-    "correctness": 0.5,
+    "understandability": 0.57,
+    "changeability": 0.94,
+    "correctness": 1.0,
     "security": 0.88,
     "stability": 0.5
   },

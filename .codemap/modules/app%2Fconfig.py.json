@@ -1,13 +1,13 @@
 {
   "id": "app/config.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
-  "source_hash": "9dcb6a3a",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "9e566251",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 13,
-    "lines": 133,
+    "cyclomatic": 14,
+    "lines": 153,
     "rating": "yellow"
   },
   "dependencies": {
@@ -27,9 +27,13 @@
       "app/routes/pages.py",
       "app/services/auth_service.py",
       "app/services/bootstrap_service.py",
+      "app/services/email_delivery.py",
+      "app/services/external_records.py",
       "app/services/field_protection.py",
       "app/services/google_auth.py",
       "app/services/media_service.py",
+      "app/services/research_service.py",
+      "tests/test_config.py",
       "tests/test_media.py"
     ],
     "tested_by": [
@@ -48,7 +52,7 @@
       "name": "get_settings",
       "type": "function",
       "summary": null,
-      "line": 132,
+      "line": 152,
       "signature": "() -> Settings"
     }
   ],
@@ -64,13 +68,13 @@
     {
       "name": "get_settings",
       "kind": "function",
-      "line": 132,
+      "line": 152,
       "signature": "() -> Settings",
       "complexity": 1,
       "calls": [
         {
           "name": "Settings",
-          "line": 133,
+          "line": 153,
           "module_hint": null
         }
       ]
@@ -79,7 +83,7 @@
   "function_audits": [
     {
       "function": "admin_email_list",
-      "line": 69,
+      "line": 81,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -100,7 +104,7 @@
     },
     {
       "function": "resolved_data_dir",
-      "line": 75,
+      "line": 87,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -121,7 +125,7 @@
     },
     {
       "function": "normalized_database_url",
-      "line": 79,
+      "line": 91,
       "metrics": {
         "cyclomatic": 2,
         "cognitive": 1,
@@ -142,7 +146,7 @@
     },
     {
       "function": "sqlite_database_path",
-      "line": 85,
+      "line": 97,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 3,
@@ -163,7 +167,7 @@
     },
     {
       "function": "trusted_host_list",
-      "line": 102,
+      "line": 114,
       "metrics": {
         "cyclomatic": 3,
         "cognitive": 2,
@@ -184,7 +188,7 @@
     },
     {
       "function": "envelope_allowed_host_list",
-      "line": 112,
+      "line": 124,
       "metrics": {
         "cyclomatic": 5,
         "cognitive": 5,
@@ -204,8 +208,50 @@
       "review_priority": 0.0
     },
     {
+      "function": "google_maps_enabled",
+      "line": 144,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 12
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "resend_enabled",
+      "line": 148,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 1,
+        "nesting": 0,
+        "token_count": 20
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
       "function": "get_settings",
-      "line": 132,
+      "line": 152,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -236,7 +282,7 @@
     ],
     "purity": "environment",
     "todo_count": 0,
-    "churn_count": 5,
+    "churn_count": 7,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -248,11 +294,11 @@
       "get_settings"
     ],
     "package": null,
-    "change_velocity": 1.5,
+    "change_velocity": 2.5,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T22:48:23-04:00",
-    "recency_score": 1.0,
+    "last_modified": "2026-03-25T20:08:34-04:00",
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -265,11 +311,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.65,
-  "attention_score": 0.47,
-  "centrality_score": 0.71,
+  "attention_score": 0.43,
+  "centrality_score": 1.0,
   "quality_radar": {
-    "understandability": 0.56,
-    "changeability": 0.6,
+    "understandability": 0.53,
+    "changeability": 0.76,
     "correctness": 1.0,
     "security": 0.88,
     "stability": 0.3

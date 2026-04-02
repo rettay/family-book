@@ -2,7 +2,7 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.auth import UserSession, Invite, MagicLinkToken
@@ -15,6 +15,68 @@ SESSION_EXPIRY_DAYS = 30
 MAX_SESSIONS_PER_PERSON = 10
 MAGIC_LINK_EXPIRY_MINUTES = 15
 INVITE_EXPIRY_DAYS = 30
+
+
+def parse_user_agent_short(ua: str | None) -> str:
+    """Extract browser and OS from user-agent string."""
+    if not ua:
+        return "Unknown"
+
+    # Detect browser
+    browser = "Unknown browser"
+    if "Edg/" in ua or "Edge/" in ua:
+        browser = "Edge"
+    elif "OPR/" in ua or "Opera" in ua:
+        browser = "Opera"
+    elif "Chrome/" in ua and "Safari/" in ua:
+        browser = "Chrome"
+    elif "Firefox/" in ua:
+        browser = "Firefox"
+    elif "Safari/" in ua:
+        browser = "Safari"
+
+    # Detect OS
+    os_name = "Unknown OS"
+    if "iPhone" in ua or "iPad" in ua:
+        os_name = "iOS"
+    elif "Android" in ua:
+        os_name = "Android"
+    elif "Macintosh" in ua or "Mac OS" in ua:
+        os_name = "macOS"
+    elif "Windows" in ua:
+        os_name = "Windows"
+    elif "Linux" in ua:
+        os_name = "Linux"
+
+    return f"{browser} on {os_name}"
+
+
+async def get_active_session_counts(db: AsyncSession) -> dict[str, int]:
+    """Return a dict of person_id -> active (non-expired) session count."""
+    now = datetime.now(timezone.utc)
+    result = await db.execute(
+        select(UserSession.person_id, func.count(UserSession.id))
+        .where(UserSession.expires_at > now)
+        .group_by(UserSession.person_id)
+    )
+    return {row[0]: row[1] for row in result.all()}
+
+
+async def delete_all_sessions_for_person(db: AsyncSession, person_id: str) -> int:
+    """Delete all sessions for a person. Returns count deleted."""
+    result = await db.execute(
+        delete(UserSession).where(UserSession.person_id == person_id)
+    )
+    return result.rowcount
+
+
+async def delete_session_by_id(db: AsyncSession, session_id: str) -> bool:
+    """Delete a session by its ID. Returns True if found and deleted."""
+    session = await db.get(UserSession, session_id)
+    if not session:
+        return False
+    await db.delete(session)
+    return True
 
 
 def _hash_token(token: str) -> str:
@@ -136,6 +198,15 @@ async def get_valid_invite(db: AsyncSession, token: str) -> Invite | None:
     return result.scalar_one_or_none()
 
 
+async def get_invite_by_token(db: AsyncSession, token: str) -> Invite | None:
+    """Look up an invite by raw token regardless of status (for error messages)."""
+    token_hash = _hash_token(token)
+    result = await db.execute(
+        select(Invite).where(Invite.token == token_hash)
+    )
+    return result.scalar_one_or_none()
+
+
 async def claim_invite(db: AsyncSession, token: str) -> Person | None:
     """Claim an invite token. Returns the Person if valid, None otherwise."""
     invite = await get_valid_invite(db, token)
@@ -149,6 +220,20 @@ async def claim_invite(db: AsyncSession, token: str) -> Person | None:
     if person:
         person.account_state = AccountState.active.value
     return person
+
+
+def get_invite_rejection_reason(invite: Invite | None) -> str:
+    """Return a specific rejection reason code for an invite that failed validation."""
+    if invite is None:
+        return "not_found"
+    if invite.revoked:
+        return "revoked"
+    if invite.claimed_at is not None:
+        return "claimed"
+    now = datetime.now(timezone.utc)
+    if invite.expires_at <= now:
+        return "expired"
+    return "not_found"
 
 
 async def create_magic_link(db: AsyncSession, person_id: str) -> str:

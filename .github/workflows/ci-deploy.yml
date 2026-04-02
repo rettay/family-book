@@ -17,7 +17,7 @@ concurrency:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Check out code
@@ -31,6 +31,11 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Install dependencies
         run: uv sync --frozen --extra dev
 
@@ -40,13 +45,26 @@ jobs:
       - name: Run focused verification suite
         run: |
           uv run pytest \
+            tests/test_pages.py \
             tests/test_protection_service.py \
             tests/test_revision_service.py \
             tests/test_security_guardrails.py \
             tests/test_schema_models.py \
             tests/test_phase3.py \
             tests/test_auth.py \
+            tests/test_theme.py \
             -q
+
+      - name: Run Playwright release-confidence flow
+        run: make test-ui-playwright
+
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-family-book-flow-${{ github.run_id }}
+          path: output/playwright/family-book-flow
+          if-no-files-found: warn
 
       - name: Build Docker image
         run: docker build -t family-book-ci .

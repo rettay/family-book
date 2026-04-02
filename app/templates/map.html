@@ -29,6 +29,56 @@
     margin-bottom: 0.75rem;
     font-size: 0.9rem;
   }
+  .map-panel__meta {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .map-panel__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(217, 234, 201, 0.35);
+    color: #2d5016;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .map-selected {
+    margin-top: 1rem;
+    padding: 0.9rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(45, 80, 22, 0.12);
+  }
+  .map-selected[hidden] {
+    display: none;
+  }
+  .map-selected__eyebrow {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #6b6054;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .map-selected__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #29403a;
+  }
+  .map-selected__details {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0.75rem 0;
+    color: #40563d;
+    font-size: 0.9rem;
+  }
+  .map-selected__cta {
+    width: 100%;
+  }
   .map-panel input,
   .map-panel select,
   .map-panel button {
@@ -46,6 +96,73 @@
     width: 100%;
     height: 72vh;
   }
+  #google-map {
+    display: block;
+    width: 100%;
+    height: 72vh;
+  }
+  .map-google-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .map-google-marker-button {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.2rem 0.55rem 0.2rem 0.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 6px 18px rgba(41, 64, 58, 0.14);
+    color: #29403a;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    pointer-events: auto;
+    cursor: pointer;
+    transform: translate(-50%, -100%);
+  }
+  .map-google-marker-button:focus-visible {
+    outline: 3px solid rgba(47, 93, 75, 0.35);
+    outline-offset: 2px;
+  }
+  .map-google-marker-dot {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    flex: 0 0 auto;
+  }
+  .map-google-marker-dot--residence {
+    background: #205c9c;
+  }
+  .map-google-marker-dot--burial {
+    background: #b4851c;
+  }
+  .map-google-marker-button[data-relation-scope="self"] {
+    box-shadow: 0 0 0 3px rgba(35, 128, 97, 0.32), 0 6px 18px rgba(41, 64, 58, 0.14);
+  }
+  .map-google-marker-button[data-relation-scope="one_step"] {
+    box-shadow: 0 0 0 3px rgba(54, 126, 66, 0.3), 0 6px 18px rgba(41, 64, 58, 0.14);
+  }
+  .map-google-marker-button[data-relation-scope="two_steps"] {
+    box-shadow: 0 0 0 3px rgba(32, 92, 156, 0.28), 0 6px 18px rgba(41, 64, 58, 0.14);
+  }
+  .map-google-marker-button[data-relation-scope="extended"] {
+    box-shadow: 0 0 0 3px rgba(108, 120, 133, 0.28), 0 6px 18px rgba(41, 64, 58, 0.14);
+  }
+  .map-google-marker-button[data-relation-scope="unlinked"] {
+    box-shadow: 0 0 0 3px rgba(154, 136, 110, 0.25), 0 6px 18px rgba(41, 64, 58, 0.14);
+  }
+  .map-google-marker-button[data-location-source="country_centroid"] {
+    opacity: 0.8;
+  }
+  .map-google-marker-label {
+    white-space: nowrap;
+  }
   .map-legend,
   .map-empty {
     position: absolute;
@@ -57,6 +174,43 @@
     color: #40563d;
     font-size: 0.9rem;
   }
+  .map-legend {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 260px;
+  }
+  .map-legend__row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .map-legend__swatch {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    flex: 0 0 auto;
+  }
+  .map-legend__swatch--residence {
+    background: #205c9c;
+  }
+  .map-legend__swatch--burial {
+    background: #b4851c;
+  }
+  .map-legend__ring {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    flex: 0 0 auto;
+  }
+  .map-legend__ring--exact {
+    border-color: #238061;
+  }
+  .map-legend__ring--fallback {
+    border-color: #9a886e;
+    border-style: dashed;
+  }
   .map-empty[hidden] {
     display: none;
   }
@@ -65,6 +219,7 @@
       grid-template-columns: 1fr;
     }
     #map-svg,
+    #google-map,
     .map-board {
       min-height: 60vh;
       height: 60vh;
@@ -74,10 +229,40 @@
 {% endblock %}
 
 {% block content %}
-<div class="map-page" id="map-root" data-empty-text="{{ t('map.empty') }}">
+<div
+  class="map-page"
+  id="map-root"
+  data-empty-text="{{ t('map.empty') }}"
+  data-map-provider="{% if google_maps_enabled %}google{% else %}svg{% endif %}"
+  data-google-maps-api-key="{{ google_maps_browser_api_key }}"
+  data-google-maps-map-id="{{ google_maps_map_id }}"
+  data-provider-google-label="{{ t('map.provider_google') }}"
+  data-provider-fallback-label="{{ t('map.provider_fallback') }}"
+  data-provider-error-label="{{ t('map.provider_error') }}"
+  data-relation-self-label="{{ t('map.relation_self') }}"
+  data-relation-one-step-label="{{ t('map.relation_one_step') }}"
+  data-relation-two-steps-label="{{ t('map.relation_two_steps') }}"
+  data-relation-extended-label="{{ t('map.relation_extended') }}"
+  data-relation-unlinked-label="{{ t('map.relation_unlinked') }}"
+  data-source-coordinates-label="{{ t('map.source_coordinates') }}"
+  data-source-place-lookup-label="{{ t('map.source_place_lookup') }}"
+  data-source-country-centroid-label="{{ t('map.source_country_centroid') }}"
+  data-kind-residence-label="{{ t('map.kind_residence') }}"
+  data-kind-burial-label="{{ t('map.kind_burial') }}"
+>
   <aside class="map-panel">
     <h1 class="map-panel__title">{{ t('map.title') }}</h1>
     <p>{{ t('map.description') }}</p>
+    <div class="map-panel__meta">
+      <span class="map-panel__badge" id="map-provider-status">
+        {% if google_maps_enabled %}
+        {{ t('map.provider_google') }}
+        {% else %}
+        {{ t('map.provider_fallback') }}
+        {% endif %}
+      </span>
+      <p class="text-sm text-muted">{{ t('map.relation_filter_hint') }}</p>
+    </div>
     <label>
       {{ t('tree.filter_living') }}
       <select id="map-filter-living">
@@ -98,13 +283,39 @@
       {{ t('tree.filter_birth_country') }}
       <input type="text" id="map-filter-birth-country" maxlength="2" placeholder="MX">
     </label>
-    <button class="btn btn--primary" id="apply-map-filters">{{ t('map.apply_filters') }}</button>
+    <label>
+      {{ t('map.relationship_scope') }}
+      <select id="map-filter-relationship-scope">
+        <option value="all">{{ t('map.relationship_scope_all') }}</option>
+        <option value="self">{{ t('map.relation_self') }}</option>
+        <option value="one_step">{{ t('map.relation_one_step') }}</option>
+        <option value="two_steps">{{ t('map.relation_two_steps') }}</option>
+        <option value="extended">{{ t('map.relation_extended') }}</option>
+        <option value="unlinked">{{ t('map.relation_unlinked') }}</option>
+      </select>
+    </label>
+    <div class="tree-panel__actions">
+      <button class="btn btn--primary" type="button" id="apply-map-filters">{{ t('map.apply_filters') }}</button>
+      <button class="btn btn--secondary" type="button" id="reset-map-filters">{{ t('tree.reset_filters') }}</button>
+    </div>
+    <section class="map-selected" id="map-selected-marker" hidden>
+      <span class="map-selected__eyebrow">{{ t('map.selected_marker') }}</span>
+      <h2 class="map-selected__title" id="map-selected-title"></h2>
+      <div class="map-selected__details" id="map-selected-details"></div>
+      <a class="btn btn--secondary map-selected__cta" id="map-selected-link" href="#">{{ t('tree.full_profile') }}</a>
+    </section>
   </aside>
 
   <section class="map-board">
-    <svg id="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" aria-label="{{ t('map.title') }}"></svg>
-    <div class="map-legend">{{ t('map.legend') }}</div>
-    <div class="map-empty" id="map-empty" hidden>{{ t('map.empty') }}</div>
+    <div id="google-map" hidden aria-label="{{ t('map.title') }}"></div>
+    <svg id="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" role="img" aria-label="{{ t('map.title') }}"></svg>
+    <div class="map-legend">
+      <div class="map-legend__row"><span class="map-legend__swatch map-legend__swatch--residence"></span>{{ t('map.legend_residence') }}</div>
+      <div class="map-legend__row"><span class="map-legend__swatch map-legend__swatch--burial"></span>{{ t('map.legend_burial') }}</div>
+      <div class="map-legend__row"><span class="map-legend__ring map-legend__ring--exact"></span>{{ t('map.legend_exact') }}</div>
+      <div class="map-legend__row"><span class="map-legend__ring map-legend__ring--fallback"></span>{{ t('map.legend_fallback') }}</div>
+    </div>
+    <div class="map-empty" id="map-empty" hidden role="status" aria-live="polite">{{ t('map.empty') }}</div>
   </section>
 </div>
 {% endblock %}

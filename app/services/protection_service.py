@@ -101,25 +101,12 @@ async def _protect_revision_rows(session: AsyncSession) -> int:
 
 
 async def _assert_readable_protected_data(session: AsyncSession) -> None:
+    select_cols = ", ".join(PROTECTED_PERSON_FIELDS)
+    where_clauses = " OR ".join(
+        f"{f} LIKE 'enc::%'" for f in PROTECTED_PERSON_FIELDS
+    )
     person_result = await session.execute(
-        text(
-            """
-            SELECT
-                medical_history,
-                contact_whatsapp,
-                contact_telegram,
-                contact_signal,
-                contact_email
-            FROM persons
-            WHERE
-                medical_history LIKE 'enc::%'
-                OR contact_whatsapp LIKE 'enc::%'
-                OR contact_telegram LIKE 'enc::%'
-                OR contact_signal LIKE 'enc::%'
-                OR contact_email LIKE 'enc::%'
-            LIMIT 1
-            """
-        )
+        text(f"SELECT {select_cols} FROM persons WHERE {where_clauses} LIMIT 1")
     )
     person_row = person_result.mappings().first()
     if person_row:

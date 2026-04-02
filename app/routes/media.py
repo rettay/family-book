@@ -7,8 +7,8 @@ from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access_control import can_manage_person, can_view_media, get_person_access
-from app.auth import require_auth
+from app.access_control import can_edit_media, can_manage_person, can_soft_delete_media, can_view_media, get_person_access
+from app.auth import require_admin, require_auth
 from app.config import get_settings
 from app.database import get_db
 from app.models.media import Media
@@ -17,7 +17,14 @@ from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
 from app.services.media_service import (
     ALLOWED_MIME_TYPES,
     delete_media_files,
+    get_variant_path,
     save_media_temp_file,
+)
+from app.services.media_queries import (
+    build_tagged_people_payload,
+    list_gallery_media,
+    list_media_for_person as query_media_for_person,
+    serialize_media_item,
 )
 
 router = APIRouter(prefix="/api/media", tags=["media"])
@@ -36,34 +43,26 @@ def _parse_tagged_person_ids(raw_value: str | None) -> list[str]:
     return [item.strip() for item in raw_value.split(",") if item.strip()]
 
 
-async def _build_tagged_people(db: AsyncSession, tagged_person_ids: list[str]) -> list[dict[str, str | None]]:
-    tagged_people: list[dict[str, str | None]] = []
-    for tagged_person_id in tagged_person_ids:
-        person = await db.get(Person, tagged_person_id)
-        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
-            continue
-        tagged_people.append(
-            {
-                "id": person.id,
-                "display_name": person.display_name,
-                "photo_url": person.photo_url,
-            }
-        )
-    return tagged_people
-
-
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_media(
     file: UploadFile = File(...),
     person_id: str = Form(...),
     caption: str | None = Form(None),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    taken_at: str | None = Form(None),
     tagged_person_ids: str | None = Form(None),
+    purpose: str = Form("memory"),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     """Upload a media file. Deduplicates by SHA-256 hash."""
     if not file.content_type or file.content_type not in ALLOWED_MIME_TYPES:
         raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}")
+
+    valid_purposes = ("memory", "document", "evidence")
+    if purpose not in valid_purposes:
+        raise HTTPException(status_code=422, detail=f"purpose must be one of: {', '.join(valid_purposes)}")
 
     # Verify person exists
     result = await db.execute(select(Person).where(Person.id == person_id))
@@ -99,12 +98,19 @@ async def upload_media(
             person_id=person_id,
             uploaded_by=current_user.id,
             caption=caption,
+            title=title,
+            description=description,
+            taken_date=taken_at,
             tagged_person_ids=parsed_tagged_person_ids,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
+    if purpose != "memory":
+        media.purpose = purpose
+        await db.flush()
+
+    tagged_people = await build_tagged_people_payload(db, media.tagged_person_ids)
     logger.info("Media %s uploaded for person %s by %s", media.id, person_id, current_user.id)
     return {
         "id": media.id,
@@ -115,11 +121,72 @@ async def upload_media(
         "height": media.height,
         "file_size_bytes": media.file_size_bytes,
         "caption": media.caption,
+        "title": media.title,
+        "description": media.description,
+        "taken_date": media.taken_date,
+        "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
         "is_duplicate": is_duplicate,
         "created_at": str(media.created_at),
     }
+
+
+@router.get("/gallery")
+async def list_gallery_media_api(
+    media_type: str | None = Query(None),
+    person_id: str | None = Query(None),
+    uploader_id: str | None = Query(None),
+    date_from: str | None = Query(None),
+    date_to: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(24, ge=1, le=96),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    page_result = await list_gallery_media(
+        db,
+        current_user,
+        media_type=media_type,
+        person_id=person_id,
+        uploader_id=uploader_id,
+        date_from=date_from,
+        date_to=date_to,
+        page=page,
+        page_size=page_size,
+    )
+    items = [await serialize_media_item(db, media) for media in page_result.items]
+    return {
+        "items": items,
+        "page": page_result.page,
+        "page_size": page_result.page_size,
+        "total": page_result.total,
+        "has_more": page_result.has_more,
+        "next_page": page_result.next_page,
+    }
+
+
+@router.get("/moderation/hidden")
+async def list_hidden_media(
+    current_user: Person = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin-only: list hidden (soft-deleted) media for moderation."""
+    result = await db.execute(
+        select(Media).where(Media.visibility == "hidden").order_by(Media.created_at.desc()).limit(100)
+    )
+    items = result.scalars().all()
+    return [
+        {
+            "id": m.id,
+            "person_id": m.person_id,
+            "original_filename": m.original_filename,
+            "media_type": m.media_type,
+            "uploaded_by": m.uploaded_by,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+        }
+        for m in items
+    ]
 
 
 @router.get("/{media_id}")
@@ -137,7 +204,7 @@ async def get_media_metadata(
         raise HTTPException(status_code=403, detail="Not visible")
     logger.debug("Media metadata %s requested by %s", media.id, current_user.id)
 
-    tagged_people = await _build_tagged_people(db, media.tagged_person_ids)
+    tagged_people = await build_tagged_people_payload(db, media.tagged_person_ids)
     body = {
         "id": media.id,
         "person_id": media.person_id,
@@ -148,6 +215,10 @@ async def get_media_metadata(
         "height": media.height,
         "file_size_bytes": media.file_size_bytes,
         "caption": media.caption,
+        "title": media.title,
+        "description": media.description,
+        "taken_date": media.taken_date,
+        "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
         "created_at": str(media.created_at),
@@ -186,6 +257,7 @@ async def serve_media_file(
         path=file_path,
         media_type=media.mime_type,
         filename=media.original_filename,
+        headers={"Cache-Control": "private, max-age=3600"},
     )
 
 
@@ -210,7 +282,40 @@ async def serve_thumbnail(
     if not os.path.isfile(thumb_path):
         raise HTTPException(status_code=404, detail="Thumbnail not available")
 
-    return FileResponse(path=thumb_path, media_type="image/jpeg")
+    return FileResponse(
+        path=thumb_path,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
+
+
+@router.get("/{media_id}/variant/{variant}")
+async def serve_variant(
+    media_id: str,
+    variant: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Serve a media variant (thumb, medium, poster)."""
+    if variant not in ("thumb", "medium", "poster"):
+        raise HTTPException(status_code=400, detail="Invalid variant. Must be thumb, medium, or poster.")
+
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+    if not await can_view_media(db, current_user, media):
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    variant_path = get_variant_path(media.id, variant)
+    if not variant_path:
+        raise HTTPException(status_code=404, detail="Variant not available")
+
+    return FileResponse(
+        path=variant_path,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.get("", response_model=list)
@@ -220,66 +325,166 @@ async def list_media_for_person(
     db: AsyncSession = Depends(get_db),
 ):
     """List all media for a given person."""
-    person_result = await db.execute(select(Person).where(Person.id == person_id))
-    person = person_result.scalar_one_or_none()
-    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+    person, visible_media = await query_media_for_person(db, current_user, person_id)
+    if not person:
         raise HTTPException(status_code=404, detail="Person not found")
     access = await get_person_access(db, current_user, person)
     if not access.can_view:
         raise HTTPException(status_code=403, detail="Not visible")
-
-    result = await db.execute(
-        select(Media).order_by(Media.created_at.desc())
-    )
-    visible_media = []
-    for media in result.scalars().all():
-        if media.person_id != person_id and person_id not in media.tagged_person_ids:
-            continue
-        if not await can_view_media(db, current_user, media):
-            continue
-        visible_media.append(media)
-    response = []
-    for media in visible_media:
-        response.append(
-            {
-                "id": media.id,
-                "person_id": media.person_id,
-                "media_type": media.media_type,
-                "mime_type": media.mime_type,
-                "caption": media.caption,
-                "tagged_person_ids": media.tagged_person_ids,
-                "tagged_people": await _build_tagged_people(db, media.tagged_person_ids),
-                "created_at": str(media.created_at),
-            }
-        )
-    return response
+    return [await serialize_media_item(db, media) for media in visible_media]
 
 
-@router.delete("/{media_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_media(
+@router.patch("/{media_id}")
+async def update_media(
     media_id: str,
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
+    caption: str | None = Form(None),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    taken_at: str | None = Form(None),
+    purpose: str | None = Form(None),
 ):
-    """Delete media owned by the uploader or an admin."""
+    """Update media metadata (caption/title/description/date, purpose)."""
     result = await db.execute(select(Media).where(Media.id == media_id))
     media = result.scalar_one_or_none()
     if not media:
         raise HTTPException(status_code=404, detail="Media not found")
 
-    if not current_user.is_admin and media.uploaded_by != current_user.id:
+    if not can_edit_media(current_user, media):
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    delete_media_files(media)
-    await db.delete(media)
+    if purpose is not None:
+        valid_purposes = ("memory", "document", "evidence")
+        if purpose not in valid_purposes:
+            raise HTTPException(status_code=422, detail=f"purpose must be one of: {', '.join(valid_purposes)}")
+        media.purpose = purpose
+
+    if caption is not None:
+        media.caption = caption
+    if title is not None:
+        media.title = title
+    if description is not None:
+        media.description = description
+    if taken_at is not None:
+        media.taken_date = taken_at
+
     await db.flush()
+    return {
+        "id": media.id,
+        "caption": media.caption,
+        "title": media.title,
+        "description": media.description,
+        "taken_date": media.taken_date,
+        "purpose": media.purpose,
+    }
+
+
+@router.delete("/{media_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_media(
+    media_id: str,
+    permanent: bool = Query(False),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Soft-delete for non-admins (sets visibility=hidden). Admin can permanently delete with ?permanent=true."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    if not can_soft_delete_media(current_user, media):
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    # Protect primary photos of other people
+    if not current_user.is_admin and media.uploaded_by == current_user.id:
+        photo_check = await db.execute(
+            select(Person.id).where(
+                Person.photo_url == media.id,
+                Person.id != current_user.id,
+            )
+        )
+        if photo_check.scalar_one_or_none():
+            raise HTTPException(
+                status_code=409,
+                detail="This media is another person's headshot. Unset their headshot first.",
+            )
+
+    # Clear photo_url on any person using this media as their headshot
+    headshot_persons = await db.execute(
+        select(Person).where(Person.photo_url == media_id)
+    )
+    for person in headshot_persons.scalars().all():
+        person.photo_url = None
+        await db.flush()
+
+    if current_user.is_admin:
+        # Admin delete is permanent by default; use PATCH visibility to soft-delete instead
+        delete_media_files(media)
+        await db.delete(media)
+        await db.flush()
+    else:
+        # Non-admin: soft delete (hide)
+        media.visibility = "hidden"
+        await db.flush()
+
+
+@router.patch("/{media_id}/visibility")
+async def change_media_visibility(
+    media_id: str,
+    visibility: str = Form(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Change media visibility. Uploader can toggle family↔private. Admin can set anything."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    valid = ("family", "private", "hidden")
+    if visibility not in valid:
+        raise HTTPException(status_code=422, detail=f"visibility must be one of: {', '.join(valid)}")
+
+    if current_user.is_admin:
+        media.visibility = visibility
+    elif media.uploaded_by == current_user.id:
+        if visibility == "hidden":
+            raise HTTPException(status_code=403, detail="Use delete to hide media")
+        media.visibility = visibility
+    else:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    await db.flush()
+    return {"id": media.id, "visibility": media.visibility}
+
+
+@router.patch("/{media_id}/untag")
+async def untag_self(
+    media_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove the current user's ID from the tagged person list."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    tags = media.tagged_person_ids
+    if current_user.id not in tags:
+        return {"id": media.id, "tagged_person_ids": tags}
+
+    media.tagged_person_ids = [t for t in tags if t != current_user.id]
+    await db.flush()
+    return {"id": media.id, "tagged_person_ids": media.tagged_person_ids}
 
 
 def _max_upload_size(content_type: str | None) -> int:
     if not content_type:
         return 10 * 1024 * 1024
     if content_type.startswith("video/"):
-        return 100 * 1024 * 1024
+        return 250 * 1024 * 1024
     if content_type.startswith("audio/"):
         return 25 * 1024 * 1024
     return 10 * 1024 * 1024

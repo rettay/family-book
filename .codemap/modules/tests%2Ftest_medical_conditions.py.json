@@ -1,0 +1,341 @@
+{
+  "id": "tests/test_medical_conditions.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "cd3895a7",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 2,
+    "lines": 116,
+    "rating": "green"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [],
+    "tested_by": []
+  },
+  "exports": [],
+  "constructs": [],
+  "function_audits": [
+    {
+      "function": "test_create_person_with_medical_conditions",
+      "line": 8,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 25,
+        "nesting": 0,
+        "token_count": 207
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 29,
+              "line_end": 29
+            },
+            {
+              "line_start": 30,
+              "line_end": 30
+            },
+            {
+              "line_start": 31,
+              "line_end": 31
+            },
+            {
+              "line_start": 11,
+              "line_end": 11
+            },
+            {
+              "line_start": 12,
+              "line_end": 12
+            },
+            {
+              "line_start": 15,
+              "line_end": 15
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_update_person_medical_conditions",
+      "line": 37,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 19,
+        "nesting": 0,
+        "token_count": 194
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 39,
+              "line_end": 42
+            },
+            {
+              "line_start": 49,
+              "line_end": 49
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            },
+            {
+              "line_start": 41,
+              "line_end": 41
+            },
+            {
+              "line_start": 48,
+              "line_end": 48
+            },
+            {
+              "line_start": 55,
+              "line_end": 55
+            },
+            {
+              "line_start": 56,
+              "line_end": 56
+            },
+            {
+              "line_start": 55,
+              "line_end": 55
+            },
+            {
+              "line_start": 56,
+              "line_end": 56
+            },
+            {
+              "line_start": 55,
+              "line_end": 55
+            },
+            {
+              "line_start": 56,
+              "line_end": 56
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_medical_conditions_status_values",
+      "line": 60,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 10,
+        "nesting": 1,
+        "token_count": 114
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 65,
+              "line_end": 65
+            },
+            {
+              "line_start": 66,
+              "line_end": 66
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_root_person_medical_conditions_redacted",
+      "line": 74,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 5,
+        "nesting": 0,
+        "token_count": 42
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_revision_includes_medical_conditions",
+      "line": 83,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 16,
+        "nesting": 0,
+        "token_count": 153
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 86,
+              "line_end": 86
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 88,
+              "line_end": 88
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_medical_conditions_unknown_keys_stripped",
+      "line": 103,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 13,
+        "nesting": 0,
+        "token_count": 124
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 106,
+              "line_end": 106
+            },
+            {
+              "line_start": 107,
+              "line_end": 107
+            },
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 115,
+              "line_end": 115
+            },
+            {
+              "line_start": 116,
+              "line_end": 116
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": true,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "low",
+    "domain": null,
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T12:28:25-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": null,
+  "attention_score": null,
+  "centrality_score": null,
+  "quality_radar": null,
+  "domain_role": "test-support",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

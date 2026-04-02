@@ -1,13 +1,13 @@
 {
   "id": "app/models/__init__.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
-  "source_hash": "1b5c0d19",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "43eb8630",
   "staleness": false,
   "purpose": null,
   "complexity": {
     "cyclomatic": 1,
-    "lines": 47,
+    "lines": 45,
     "rating": "green"
   },
   "dependencies": {
@@ -18,12 +18,12 @@
       "app/models/governance.py",
       "app/models/imports.py",
       "app/models/media.py",
-      "app/models/moments.py",
       "app/models/notifications.py",
       "app/models/person.py",
       "app/models/preferences.py",
       "app/models/relationships.py",
       "app/models/revisions.py",
+      "app/models/saved_record.py",
       "app/models/settings.py"
     ],
     "imported_by": [
@@ -66,27 +66,6 @@
     },
     {
       "name": "Media",
-      "type": "function",
-      "summary": null,
-      "line": null,
-      "signature": null
-    },
-    {
-      "name": "Moment",
-      "type": "function",
-      "summary": null,
-      "line": null,
-      "signature": null
-    },
-    {
-      "name": "MomentReaction",
-      "type": "function",
-      "summary": null,
-      "line": null,
-      "signature": null
-    },
-    {
-      "name": "MomentComment",
       "type": "function",
       "summary": null,
       "line": null,
@@ -177,6 +156,13 @@
       "signature": null
     },
     {
+      "name": "SavedRecord",
+      "type": "function",
+      "summary": null,
+      "line": null,
+      "signature": null
+    },
+    {
       "name": "WhatsappImportBatch",
       "type": "function",
       "summary": null,
@@ -223,7 +209,7 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 4,
+    "churn_count": 5,
     "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [],
@@ -232,10 +218,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 3.0,
+    "change_velocity": 4.0,
     "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T22:41:19-04:00",
+    "last_modified": "2026-03-26T16:47:46-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -247,14 +233,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 1.0,
-  "attention_score": 0.18,
-  "centrality_score": 0.14,
+  "attention_score": 0.14,
+  "centrality_score": 0.04,
   "quality_radar": {
-    "understandability": 0.98,
-    "changeability": 0.93,
+    "understandability": 0.97,
+    "changeability": 0.97,
     "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.3
+    "stability": 0.37
   },
   "domain_role": "utility",
   "detected_patterns": null,

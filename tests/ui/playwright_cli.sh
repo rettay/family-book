@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "Error: npx is required but not found on PATH." >&2
+  exit 1
+fi
+
+PLAYWRIGHT_CLI_VERSION="${PLAYWRIGHT_CLI_VERSION:-0.1.1}"
+
+has_session_flag="false"
+for arg in "$@"; do
+  case "$arg" in
+    --session|--session=*)
+      has_session_flag="true"
+      break
+      ;;
+  esac
+done
+
+cmd=(npx --yes --package "@playwright/cli@${PLAYWRIGHT_CLI_VERSION}" playwright-cli)
+if [[ "${has_session_flag}" != "true" && -n "${PLAYWRIGHT_CLI_SESSION:-}" ]]; then
+  cmd+=(--session "${PLAYWRIGHT_CLI_SESSION}")
+fi
+cmd+=("$@")
+
+tmp_output="$(mktemp "${TMPDIR:-/tmp}/playwright-cli.XXXXXX")"
+trap 'rm -f "${tmp_output}"' EXIT
+
+set +e
+"${cmd[@]}" >"${tmp_output}" 2>&1
+status=$?
+set -e
+
+cat "${tmp_output}"
+
+if [[ ${status} -ne 0 ]]; then
+  exit "${status}"
+fi
+
+if grep -q '^### Error' "${tmp_output}"; then
+  exit 1
+fi

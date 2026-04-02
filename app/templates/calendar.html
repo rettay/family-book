@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+{% block title %}{{ t('calendar.title') }} — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="calendar-page" id="calendar-page">
+  <section class="calendar-hero">
+    <div class="calendar-hero__main">
+      <p class="calendar-hero__eyebrow">{{ t('calendar.hero_eyebrow') }}</p>
+      <h1 class="calendar-page__title">{{ t('calendar.title') }}</h1>
+      <p class="calendar-page__lede">{{ t('calendar.subtitle') }}</p>
+      <div class="calendar-hero__actions">
+        <button class="btn btn--primary" type="button" data-calendar-manager-open>
+          {{ t('calendar.manage_button') }}
+        </button>
+        <button class="btn btn--ghost" type="button" data-calendar-manager-open data-calendar-manager-section="calendar-holidays">
+          {{ t('calendar.add_holidays_button') }}
+        </button>
+      </div>
+    </div>
+    <div class="calendar-hero__stats" aria-label="{{ t('calendar.this_month_title') }}">
+      {% for stat in calendar_stats %}
+      <div class="calendar-stat calendar-stat--{{ stat.type }}">
+        <span class="calendar-stat__value">{{ stat.value }}</span>
+        <span class="calendar-stat__label">{{ stat.label }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if sparse_month %}
+  <section class="calendar-callout" aria-label="{{ t('calendar.empty_setup_title') }}">
+    <div>
+      <h2 class="calendar-callout__title">
+        {% if events %}
+        {{ t('calendar.sparse_setup_title') }}
+        {% else %}
+        {{ t('calendar.empty_setup_title') }}
+        {% endif %}
+      </h2>
+      <p class="calendar-callout__copy">
+        {% if events %}
+        {{ t('calendar.sparse_setup_copy') }}
+        {% else %}
+        {{ t('calendar.empty_setup_copy') }}
+        {% endif %}
+      </p>
+    </div>
+    <div class="calendar-callout__actions">
+      <button class="btn btn--ghost btn--sm" type="button" data-calendar-manager-open>
+        {{ t('calendar.empty_setup_manage') }}
+      </button>
+      <button class="btn btn--ghost btn--sm" type="button" data-calendar-manager-open data-calendar-manager-section="calendar-holidays">
+        {{ t('calendar.empty_setup_holidays') }}
+      </button>
+    </div>
+  </section>
+  {% endif %}
+
+  <div id="calendar-grid-container">
+    {% include "partials/calendar_grid.html" %}
+  </div>
+
+  <aside class="calendar-manager hidden" id="calendar-manager" hidden aria-hidden="true" aria-label="{{ t('calendar.manage_title') }}">
+    <div class="calendar-manager__backdrop" data-calendar-manager-close></div>
+    <div class="calendar-manager__panel" role="dialog" aria-modal="true" aria-labelledby="calendar-manager-title">
+      <div class="calendar-manager__header">
+        <div>
+          <p class="calendar-manager__eyebrow">{{ t('calendar.manage_eyebrow') }}</p>
+          <h2 class="calendar-manager__title" id="calendar-manager-title">{{ t('calendar.manage_title') }}</h2>
+          <p class="calendar-manager__copy">{{ t('calendar.manage_copy') }}</p>
+        </div>
+        <button class="btn btn--ghost btn--sm" type="button" data-calendar-manager-close aria-label="{{ t('common.close') }}">
+          {{ t('common.close') }}
+        </button>
+      </div>
+
+      <label class="calendar-manager__search">
+        <span>{{ t('calendar.manage_search_label') }}</span>
+        <input
+          class="form-input"
+          id="calendar-feed-search"
+          type="search"
+          placeholder="{{ t('calendar.manage_search_placeholder') }}"
+          autocomplete="off"
+        >
+      </label>
+
+      <section class="calendar-manager__section" id="calendar-family-feeds">
+        <div class="calendar-manager__section-header">
+          <h3>{{ t('calendar.subscription_title') }}</h3>
+          <p>{{ t('calendar.subscription_copy_short') }}</p>
+        </div>
+        {% for group in calendar_feed_groups %}
+        <div class="calendar-manager__feed-group">
+          <div class="calendar-manager__feed-group-head">
+            <h4>{{ group.title }}</h4>
+            <p>{{ group.copy }}</p>
+          </div>
+          <div class="calendar-manager__feed-grid">
+            {% for feed in group['items'] %}
+            <article class="calendar-feed-card" data-feed-card data-feed-search="{{ feed.search_text }}">
+              <div class="calendar-feed-card__body">
+                <strong>{{ feed.label }}</strong>
+                <p>{{ feed.description }}</p>
+                <span class="calendar-feed-card__preview">{{ feed.https_url }}</span>
+              </div>
+              <div class="calendar-feed-card__actions">
+                <a class="btn btn--primary btn--sm" href="{{ feed.webcal_url }}">{{ t('calendar.action_subscribe') }}</a>
+                <button class="btn btn--ghost btn--sm" type="button" data-calendar-copy-link="{{ feed.https_url }}">
+                  {{ t('calendar.action_copy') }}
+                </button>
+                <a class="btn btn--ghost btn--sm" href="{{ feed.https_url }}">{{ t('calendar.action_download') }}</a>
+              </div>
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+
+      <section class="calendar-manager__section" id="calendar-holidays">
+        <div class="calendar-manager__section-header">
+          <h3>{{ t('calendar.add_holidays_title') }}</h3>
+          <p>{{ t('calendar.add_holidays_copy') }}</p>
+        </div>
+
+        {% if current_user.is_admin %}
+        <div class="calendar-manager__preset-grid">
+          {% for preset in holiday_presets %}
+          <form class="calendar-preset-card" method="post" action="/calendar/sources">
+            <input type="hidden" name="month" value="{{ current_month }}">
+            <input type="hidden" name="name" value="{{ preset.name }}">
+            <input type="hidden" name="url" value="{{ preset.url }}">
+            <input type="hidden" name="source_type" value="{{ preset.source_type }}">
+            <div class="calendar-preset-card__meta">
+              <span class="calendar-admin__badge">{{ preset.source_type_label }}</span>
+            </div>
+            <strong>{{ preset.label }}</strong>
+            <p>{{ t('calendar.holiday_preset_copy') }}</p>
+            <button class="btn btn--ghost btn--sm" type="submit">{{ t('calendar.add_preset') }}</button>
+          </form>
+          {% endfor %}
+        </div>
+
+        <details class="calendar-admin calendar-admin--inline">
+          <summary>{{ t('calendar.custom_source_title') }}</summary>
+          <p class="calendar-admin__copy">{{ t('calendar.custom_source_copy') }}</p>
+          <form class="calendar-admin__form" method="post" action="/calendar/sources">
+            <input type="hidden" name="month" value="{{ current_month }}">
+            <label>
+              <span>{{ t('calendar.source_name') }}</span>
+              <input class="form-input" type="text" name="name" required placeholder="{{ t('calendar.source_name_placeholder') }}">
+            </label>
+            <label>
+              <span>{{ t('calendar.source_url') }}</span>
+              <input class="form-input" type="url" name="url" required placeholder="https://example.com/calendar.ics">
+            </label>
+            <label>
+              <span>{{ t('calendar.source_type') }}</span>
+              <select class="form-input" name="source_type">
+                <option value="holiday">{{ t('calendar.source_type_holiday') }}</option>
+                <option value="religious">{{ t('calendar.source_type_religious') }}</option>
+                <option value="observance">{{ t('calendar.source_type_observance') }}</option>
+                <option value="family">{{ t('calendar.source_type_family') }}</option>
+                <option value="other">{{ t('calendar.source_type_other') }}</option>
+              </select>
+            </label>
+            <button class="btn btn--primary" type="submit">{{ t('calendar.add_source') }}</button>
+          </form>
+        </details>
+        {% else %}
+        <p class="calendar-manager__hint">{{ t('calendar.holiday_requires_admin') }}</p>
+        {% endif %}
+
+        <div class="calendar-manager__section-header calendar-manager__section-header--tight">
+          <h3>{{ t('calendar.external_sources_title') }}</h3>
+          <p>{{ t('calendar.external_sources_copy_short') }}</p>
+        </div>
+        {% if visible_external_sources %}
+        <div class="calendar-admin__sources">
+          {% for source in visible_external_sources %}
+          <article class="calendar-admin__source">
+            <div class="calendar-admin__source-main">
+              <div class="calendar-admin__source-row">
+                <strong>{{ source.name }}</strong>
+                <span class="calendar-admin__badge">{{ t('calendar.source_type_' + source.source_type) if t('calendar.source_type_' + source.source_type) != 'calendar.source_type_' + source.source_type else source.source_type }}</span>
+                {% if source.enabled %}
+                <span class="calendar-admin__state calendar-admin__state--enabled">{{ t('calendar.source_enabled') }}</span>
+                {% else %}
+                <span class="calendar-admin__state">{{ t('calendar.source_disabled') }}</span>
+                {% endif %}
+              </div>
+              <div class="calendar-admin__source-url">{{ source.url }}</div>
+            </div>
+            {% if current_user.is_admin %}
+            <div class="calendar-admin__actions">
+              <form method="post" action="/calendar/sources/{{ source.id }}/toggle">
+                <input type="hidden" name="month" value="{{ current_month }}">
+                <button class="btn btn--ghost btn--sm" type="submit">
+                  {{ t('calendar.disable_source') if source.enabled else t('calendar.enable_source') }}
+                </button>
+              </form>
+              <form method="post" action="/calendar/sources/{{ source.id }}/delete">
+                <input type="hidden" name="month" value="{{ current_month }}">
+                <button class="btn btn--ghost btn--sm" type="submit">{{ t('calendar.remove_source') }}</button>
+              </form>
+            </div>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="calendar-admin__empty">{{ t('calendar.no_external_sources') }}</p>
+        {% endif %}
+      </section>
+
+      <section class="calendar-manager__section" id="calendar-security">
+        <div class="calendar-manager__section-header">
+          <h3>{{ t('calendar.subscription_security_title') }}</h3>
+          <p>{{ t('calendar.subscription_security_copy') }}</p>
+        </div>
+        <form method="post" action="/calendar/feed-token/rotate">
+          <input type="hidden" name="month" value="{{ current_month }}">
+          <button class="btn btn--ghost btn--sm" type="submit">{{ t('calendar.rotate_feed_token') }}</button>
+        </form>
+      </section>
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  var manager = document.getElementById('calendar-manager');
+  if (!manager) return;
+
+  var searchInput = document.getElementById('calendar-feed-search');
+  var cards = Array.prototype.slice.call(manager.querySelectorAll('[data-feed-card]'));
+  var copiedLabel = {{ t('calendar.copy_success') | tojson }};
+  var copyFailedLabel = {{ t('calendar.copy_failure') | tojson }};
+
+  function openManager(sectionId, trigger) {
+    if (typeof window.openAccessibleOverlay === 'function') {
+      window.openAccessibleOverlay(manager, { returnFocus: trigger || document.activeElement, initialFocus: '#calendar-feed-search' });
+    } else {
+      manager.hidden = false;
+      manager.classList.remove('hidden');
+    }
+    if (sectionId) {
+      window.setTimeout(function() {
+        var section = document.getElementById(sectionId);
+        if (section && typeof section.scrollIntoView === 'function') {
+          section.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        }
+      }, 20);
+    }
+  }
+
+  function closeManager() {
+    if (typeof window.closeAccessibleOverlay === 'function') {
+      window.closeAccessibleOverlay(manager);
+    } else {
+      manager.hidden = true;
+      manager.classList.add('hidden');
+    }
+  }
+
+  document.querySelectorAll('[data-calendar-manager-open]').forEach(function(button) {
+    button.addEventListener('click', function() {
+      openManager(button.getAttribute('data-calendar-manager-section'), button);
+    });
+  });
+
+  manager.querySelectorAll('[data-calendar-manager-close]').forEach(function(button) {
+    button.addEventListener('click', function() {
+      closeManager();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      var query = searchInput.value.trim().toLowerCase();
+      cards.forEach(function(card) {
+        var haystack = card.getAttribute('data-feed-search') || '';
+        card.hidden = !!query && haystack.indexOf(query) === -1;
+      });
+    });
+  }
+
+  manager.querySelectorAll('[data-calendar-copy-link]').forEach(function(button) {
+    button.addEventListener('click', async function() {
+      var url = button.getAttribute('data-calendar-copy-link') || '';
+      if (!url) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          var temp = document.createElement('input');
+          temp.value = url;
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand('copy');
+          temp.remove();
+        }
+        if (typeof window.showToast === 'function') window.showToast(copiedLabel);
+      } catch (error) {
+        if (typeof window.showToast === 'function') window.showToast(copyFailedLabel);
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

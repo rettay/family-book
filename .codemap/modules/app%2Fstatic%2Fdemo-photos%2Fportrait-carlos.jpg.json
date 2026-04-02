@@ -1,7 +1,7 @@
 {
   "id": "app/static/demo-photos/portrait-carlos.jpg",
   "language": "unknown",
-  "analyzed_at": "2026-03-24T02:50:00.245462+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "bb229728",
   "staleness": false,
   "purpose": null,
@@ -52,7 +52,7 @@
   "attention_score": 0.12,
   "centrality_score": 0.0,
   "quality_radar": {
-    "understandability": 0.96,
+    "understandability": 0.94,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 1.0,

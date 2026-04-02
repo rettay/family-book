@@ -1,0 +1,1180 @@
+{
+  "id": "app/importers/gedcom_parser.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "94b8c4fe",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 89,
+    "lines": 337,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [],
+    "imported_by": [
+      "app/routes/imports.py",
+      "app/services/import_service.py",
+      "tests/test_gedcom_parser.py"
+    ],
+    "tested_by": [
+      "tests/test_gedcom_parser.py"
+    ]
+  },
+  "exports": [
+    {
+      "name": "_decode_ansel",
+      "type": "function",
+      "summary": null,
+      "line": 35,
+      "signature": "(raw: bytes) -> str"
+    },
+    {
+      "name": "_detect_encoding",
+      "type": "function",
+      "summary": null,
+      "line": 53,
+      "signature": "(raw: bytes) -> str"
+    },
+    {
+      "name": "_parse_name",
+      "type": "function",
+      "summary": null,
+      "line": 118,
+      "signature": "(raw_name: str) -> tuple[str, str, str]"
+    },
+    {
+      "name": "_parse_date_to_raw_and_iso",
+      "type": "function",
+      "summary": null,
+      "line": 135,
+      "signature": "(date_str: str) -> tuple[str, str | None, str | None]"
+    },
+    {
+      "name": "_gender_map",
+      "type": "function",
+      "summary": null,
+      "line": 178,
+      "signature": "(sex: str) -> str | None"
+    },
+    {
+      "name": "parse_gedcom",
+      "type": "function",
+      "summary": null,
+      "line": 189,
+      "signature": "(content: bytes | str, max_size_bytes: int = 10 * 1024 * 1024) -> GedcomParseResult"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "_decode_ansel",
+      "kind": "function",
+      "line": 35,
+      "signature": "(raw: bytes) -> str",
+      "complexity": 5,
+      "calls": [
+        {
+          "name": "len",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 43,
+          "module_hint": null
+        },
+        {
+          "name": "chr",
+          "line": 44,
+          "module_hint": null
+        },
+        {
+          "name": "result.append",
+          "line": 45,
+          "module_hint": null
+        },
+        {
+          "name": "result.append",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "chr",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "chr",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "\"\".join",
+          "line": 50,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_detect_encoding",
+      "kind": "function",
+      "line": 53,
+      "signature": "(raw: bytes) -> str",
+      "complexity": 9,
+      "calls": [
+        {
+          "name": "head.split",
+          "line": 59,
+          "module_hint": null
+        },
+        {
+          "name": "line.strip",
+          "line": 60,
+          "module_hint": null
+        },
+        {
+          "name": "stripped.upper",
+          "line": 61,
+          "module_hint": null
+        },
+        {
+          "name": "stripped.split(b\" \")[-1].decode(\"ascii\", errors=\"replace\").upper().strip",
+          "line": 62,
+          "module_hint": null
+        },
+        {
+          "name": "stripped.split(b\" \")[-1].decode(\"ascii\", errors=\"replace\").upper",
+          "line": 62,
+          "module_hint": null
+        },
+        {
+          "name": "stripped.split(b\" \")[-1].decode",
+          "line": 62,
+          "module_hint": null
+        },
+        {
+          "name": "stripped.split",
+          "line": 62,
+          "module_hint": null
+        },
+        {
+          "name": "raw.decode",
+          "line": 71,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_parse_name",
+      "kind": "function",
+      "line": 118,
+      "signature": "(raw_name: str) -> tuple[str, str, str]",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "_NAME_RE.match",
+          "line": 120,
+          "module_hint": null
+        },
+        {
+          "name": "m.group(1).strip",
+          "line": 122,
+          "module_hint": null
+        },
+        {
+          "name": "m.group",
+          "line": 122,
+          "module_hint": null
+        },
+        {
+          "name": "m.group(2).strip",
+          "line": 123,
+          "module_hint": null
+        },
+        {
+          "name": "m.group",
+          "line": 123,
+          "module_hint": null
+        },
+        {
+          "name": "m.group(3).strip",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "m.group",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "f\"{first} {suffix}\".strip",
+          "line": 126,
+          "module_hint": null
+        },
+        {
+          "name": "raw_name.strip().split",
+          "line": 129,
+          "module_hint": null
+        },
+        {
+          "name": "raw_name.strip",
+          "line": 129,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 130,
+          "module_hint": null
+        },
+        {
+          "name": "\" \".join",
+          "line": 131,
+          "module_hint": null
+        },
+        {
+          "name": "raw_name.strip",
+          "line": 132,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_parse_date_to_raw_and_iso",
+      "kind": "function",
+      "line": 135,
+      "signature": "(date_str: str) -> tuple[str, str | None, str | None]",
+      "complexity": 18,
+      "calls": [
+        {
+          "name": "date_str.strip",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "raw.upper",
+          "line": 145,
+          "module_hint": null
+        },
+        {
+          "name": "clean.startswith",
+          "line": 148,
+          "module_hint": null
+        },
+        {
+          "name": "clean[len(prefix):].strip",
+          "line": 149,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 149,
+          "module_hint": null
+        },
+        {
+          "name": "clean.split",
+          "line": 159,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 160,
+          "module_hint": null
+        },
+        {
+          "name": "months.get",
+          "line": 162,
+          "module_hint": null
+        },
+        {
+          "name": "year.isdigit",
+          "line": 163,
+          "module_hint": null
+        },
+        {
+          "name": "day.isdigit",
+          "line": 163,
+          "module_hint": null
+        },
+        {
+          "name": "day.zfill",
+          "line": 164,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 166,
+          "module_hint": null
+        },
+        {
+          "name": "months.get",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "year.isdigit",
+          "line": 169,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 172,
+          "module_hint": null
+        },
+        {
+          "name": "parts[0].isdigit",
+          "line": 172,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 172,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_gender_map",
+      "kind": "function",
+      "line": 178,
+      "signature": "(sex: str) -> str | None",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "sex.strip().upper",
+          "line": 179,
+          "module_hint": null
+        },
+        {
+          "name": "sex.strip",
+          "line": 179,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "parse_gedcom",
+      "kind": "function",
+      "line": 189,
+      "signature": "(content: bytes | str, max_size_bytes: int = 10 * 1024 * 1024) -> GedcomParseResult",
+      "complexity": 54,
+      "calls": [
+        {
+          "name": "GedcomParseResult",
+          "line": 199,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 201,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 202,
+          "module_hint": null
+        },
+        {
+          "name": "result.errors.append",
+          "line": 203,
+          "module_hint": null
+        },
+        {
+          "name": "_detect_encoding",
+          "line": 205,
+          "module_hint": null
+        },
+        {
+          "name": "_decode_ansel",
+          "line": 207,
+          "module_hint": null
+        },
+        {
+          "name": "content.decode",
+          "line": 209,
+          "module_hint": null
+        },
+        {
+          "name": "text.replace(\"\\r\\n\", \"\\n\").replace(\"\\r\", \"\\n\").split",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "text.replace(\"\\r\\n\", \"\\n\").replace",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "text.replace",
+          "line": 214,
+          "module_hint": null
+        },
+        {
+          "name": "result.errors.append",
+          "line": 216,
+          "module_hint": null
+        },
+        {
+          "name": "raw_line.strip",
+          "line": 222,
+          "module_hint": null
+        },
+        {
+          "name": "raw_line.split",
+          "line": 225,
+          "module_hint": null
+        },
+        {
+          "name": "parts[0].isdigit",
+          "line": 226,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 228,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 229,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 230,
+          "module_hint": null
+        },
+        {
+          "name": "parsed_lines.append",
+          "line": 231,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 237,
+          "module_hint": null
+        },
+        {
+          "name": "tag.strip",
+          "line": 242,
+          "module_hint": null
+        },
+        {
+          "name": "GedcomIndividual",
+          "line": 243,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 248,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_name",
+          "line": 256,
+          "module_hint": null
+        },
+        {
+          "name": "_gender_map",
+          "line": 262,
+          "module_hint": null
+        },
+        {
+          "name": "GedcomEvent",
+          "line": 264,
+          "module_hint": null
+        },
+        {
+          "name": "GedcomEvent",
+          "line": 267,
+          "module_hint": null
+        },
+        {
+          "name": "GedcomEvent",
+          "line": 270,
+          "module_hint": null
+        },
+        {
+          "name": "indi.fam_spouse.append",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "sv.strip",
+          "line": 275,
+          "module_hint": null
+        },
+        {
+          "name": "indi.fam_child.append",
+          "line": 277,
+          "module_hint": null
+        },
+        {
+          "name": "sv.strip",
+          "line": 277,
+          "module_hint": null
+        },
+        {
+          "name": "tag.strip",
+          "line": 302,
+          "module_hint": null
+        },
+        {
+          "name": "GedcomFamily",
+          "line": 303,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 307,
+          "module_hint": null
+        },
+        {
+          "name": "sv.strip",
+          "line": 313,
+          "module_hint": null
+        },
+        {
+          "name": "sv.strip",
+          "line": 315,
+          "module_hint": null
+        },
+        {
+          "name": "fam.children_xrefs.append",
+          "line": 317,
+          "module_hint": null
+        },
+        {
+          "name": "sv.strip",
+          "line": 317,
+          "module_hint": null
+        },
+        {
+          "name": "GedcomEvent",
+          "line": 319,
+          "module_hint": null
+        },
+        {
+          "name": "list",
+          "line": 335,
+          "module_hint": null
+        },
+        {
+          "name": "individuals.values",
+          "line": 335,
+          "module_hint": null
+        },
+        {
+          "name": "list",
+          "line": 336,
+          "module_hint": null
+        },
+        {
+          "name": "families.values",
+          "line": 336,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "_decode_ansel",
+      "line": 35,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 8,
+        "size": 15,
+        "nesting": 3,
+        "token_count": 108
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 49,
+              "line_end": 49
+            },
+            {
+              "line_start": 46,
+              "line_end": 46
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "_detect_encoding",
+      "line": 53,
+      "metrics": {
+        "cyclomatic": 9,
+        "cognitive": 14,
+        "size": 21,
+        "nesting": 3,
+        "token_count": 175
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 65,
+              "line_end": 66
+            },
+            {
+              "line_start": 67,
+              "line_end": 68
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_parse_name",
+      "line": 118,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 4,
+        "size": 14,
+        "nesting": 2,
+        "token_count": 136
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 122,
+              "line_end": 122
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            },
+            {
+              "line_start": 122,
+              "line_end": 122
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            },
+            {
+              "line_start": 122,
+              "line_end": 122
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 124,
+              "line_end": 124
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_parse_date_to_raw_and_iso",
+      "line": 135,
+      "metrics": {
+        "cyclomatic": 18,
+        "cognitive": 14,
+        "size": 40,
+        "nesting": 3,
+        "token_count": 390
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 154,
+              "line_end": 154
+            },
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 171,
+              "line_end": 171
+            },
+            {
+              "line_start": 162,
+              "line_end": 162
+            },
+            {
+              "line_start": 168,
+              "line_end": 168
+            },
+            {
+              "line_start": 162,
+              "line_end": 162
+            },
+            {
+              "line_start": 168,
+              "line_end": 168
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_gender_map",
+      "line": 178,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 3,
+        "size": 8,
+        "nesting": 1,
+        "token_count": 49
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 180,
+              "line_end": 181
+            },
+            {
+              "line_start": 182,
+              "line_end": 183
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "parse_gedcom",
+      "line": 189,
+      "metrics": {
+        "cyclomatic": 54,
+        "cognitive": 192,
+        "size": 148,
+        "nesting": 8,
+        "token_count": 1007
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 333,
+              "line_end": 333
+            },
+            {
+              "line_start": 328,
+              "line_end": 328
+            },
+            {
+              "line_start": 304,
+              "line_end": 304
+            },
+            {
+              "line_start": 297,
+              "line_end": 297
+            },
+            {
+              "line_start": 295,
+              "line_end": 295
+            },
+            {
+              "line_start": 293,
+              "line_end": 293
+            },
+            {
+              "line_start": 244,
+              "line_end": 244
+            },
+            {
+              "line_start": 297,
+              "line_end": 297
+            },
+            {
+              "line_start": 295,
+              "line_end": 295
+            },
+            {
+              "line_start": 293,
+              "line_end": 293
+            },
+            {
+              "line_start": 328,
+              "line_end": 328
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 335,
+              "line_end": 335
+            },
+            {
+              "line_start": 336,
+              "line_end": 336
+            },
+            {
+              "line_start": 242,
+              "line_end": 242
+            },
+            {
+              "line_start": 302,
+              "line_end": 302
+            },
+            {
+              "line_start": 233,
+              "line_end": 233
+            },
+            {
+              "line_start": 234,
+              "line_end": 234
+            },
+            {
+              "line_start": 242,
+              "line_end": 242
+            },
+            {
+              "line_start": 275,
+              "line_end": 275
+            },
+            {
+              "line_start": 277,
+              "line_end": 277
+            },
+            {
+              "line_start": 264,
+              "line_end": 265
+            },
+            {
+              "line_start": 267,
+              "line_end": 268
+            },
+            {
+              "line_start": 270,
+              "line_end": 271
+            },
+            {
+              "line_start": 275,
+              "line_end": 275
+            },
+            {
+              "line_start": 277,
+              "line_end": 277
+            },
+            {
+              "line_start": 317,
+              "line_end": 317
+            },
+            {
+              "line_start": 274,
+              "line_end": 275
+            },
+            {
+              "line_start": 276,
+              "line_end": 277
+            },
+            {
+              "line_start": 316,
+              "line_end": 317
+            },
+            {
+              "line_start": 335,
+              "line_end": 335
+            },
+            {
+              "line_start": 336,
+              "line_end": 336
+            },
+            {
+              "line_start": 263,
+              "line_end": 265
+            },
+            {
+              "line_start": 266,
+              "line_end": 268
+            },
+            {
+              "line_start": 269,
+              "line_end": 271
+            },
+            {
+              "line_start": 243,
+              "line_end": 243
+            },
+            {
+              "line_start": 303,
+              "line_end": 303
+            },
+            {
+              "line_start": 272,
+              "line_end": 273
+            },
+            {
+              "line_start": 282,
+              "line_end": 283
+            },
+            {
+              "line_start": 325,
+              "line_end": 326
+            },
+            {
+              "line_start": 238,
+              "line_end": 238
+            },
+            {
+              "line_start": 249,
+              "line_end": 249
+            },
+            {
+              "line_start": 308,
+              "line_end": 308
+            },
+            {
+              "line_start": 229,
+              "line_end": 229
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 240,
+              "line_end": 240
+            },
+            {
+              "line_start": 285,
+              "line_end": 285
+            },
+            {
+              "line_start": 291,
+              "line_end": 291
+            },
+            {
+              "line_start": 229,
+              "line_end": 229
+            },
+            {
+              "line_start": 230,
+              "line_end": 230
+            },
+            {
+              "line_start": 280,
+              "line_end": 283
+            },
+            {
+              "line_start": 323,
+              "line_end": 326
+            },
+            {
+              "line_start": 313,
+              "line_end": 313
+            },
+            {
+              "line_start": 315,
+              "line_end": 315
+            },
+            {
+              "line_start": 279,
+              "line_end": 283
+            },
+            {
+              "line_start": 322,
+              "line_end": 326
+            },
+            {
+              "line_start": 248,
+              "line_end": 248
+            },
+            {
+              "line_start": 307,
+              "line_end": 307
+            },
+            {
+              "line_start": 264,
+              "line_end": 264
+            },
+            {
+              "line_start": 267,
+              "line_end": 267
+            },
+            {
+              "line_start": 270,
+              "line_end": 270
+            },
+            {
+              "line_start": 264,
+              "line_end": 264
+            },
+            {
+              "line_start": 267,
+              "line_end": 267
+            },
+            {
+              "line_start": 270,
+              "line_end": 270
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_decode_ansel",
+      "_detect_encoding",
+      "_gender_map",
+      "_parse_date_to_raw_and_iso",
+      "_parse_name",
+      "parse_gedcom"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-25T20:08:34-04:00",
+    "recency_score": 0.99,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.7,
+  "attention_score": 0.14,
+  "centrality_score": 0.11,
+  "quality_radar": {
+    "understandability": 0.3,
+    "changeability": 0.97,
+    "correctness": 1.0,
+    "security": 1.0,
+    "stability": 0.78
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

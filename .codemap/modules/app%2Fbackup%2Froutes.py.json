@@ -1,7 +1,7 @@
 {
   "id": "app/backup/routes.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "522245cc",
   "staleness": false,
   "purpose": null,
@@ -118,8 +118,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 2,
-    "change_risk": "medium",
+    "churn_count": 3,
+    "change_risk": "high",
     "domain": "domain-0",
     "observability_patterns": [
       "logging: logger.info() at line 31",
@@ -137,10 +137,10 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": 1.0,
-    "bus_factor": 2,
+    "change_velocity": 2.0,
+    "bus_factor": 1,
     "author_count": 2,
-    "last_modified": "2026-03-23T19:38:18-04:00",
+    "last_modified": "2026-03-23T21:12:49-04:00",
     "recency_score": 1.0,
     "co_change_partners": [],
     "attack_surface": false,
@@ -152,14 +152,14 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.14,
-  "centrality_score": 0.0,
+  "attention_score": 0.27,
+  "centrality_score": 0.03,
   "quality_radar": {
-    "understandability": 0.97,
-    "changeability": 0.68,
+    "understandability": 0.95,
+    "changeability": 0.69,
     "correctness": 0.5,
     "security": 1.0,
-    "stability": 0.82
+    "stability": 0.4
   },
   "domain_role": "utility",
   "detected_patterns": null,

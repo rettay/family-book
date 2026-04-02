@@ -1,0 +1,176 @@
+<form class="wiki-edit-form"
+      method="post"
+      action="/wiki/{{ person.slug }}/edit/{{ section }}"
+      hx-post="/wiki/{{ person.slug }}/edit/{{ section }}"
+      hx-target="body"
+      hx-swap="innerHTML">
+
+  {% set rich_text_fields = ['bio', 'obituary', 'research_notes'] %}
+  {% set json_array_fields = ['education', 'career', 'organizations'] %}
+
+  {# Load Trix only when editing rich text fields #}
+  {% if fields | select("in", rich_text_fields) | list | length > 0 %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trix@2.1.18/dist/trix.min.css" integrity="sha384-OdKlax565lFPdig7pB3qfqRiYdNqdvvlGVkiIyAf3ZPuanZ6+F4Tm1fz4Pk6NGtr" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/trix@2.1.18/dist/trix.umd.min.js" integrity="sha384-agWUrqjpAzFCVL+ZIZ9+SAZiXKHVUCeRTSy8m7PxlmTGCm2A1w2kqLZ08c++Z9mi" crossorigin="anonymous"></script>
+  {% endif %}
+
+  {% for field in fields %}
+  <div class="wiki-edit-form__field">
+    {% if field in rich_text_fields %}
+    <label class="wiki-edit-form__label" for="wiki-{{ field }}">
+      {{ t('person.' ~ field) }}
+    </label>
+    <input id="wiki-{{ field }}" type="hidden" name="{{ field }}" value="{{ person[field] or '' }}">
+    <trix-editor input="wiki-{{ field }}" class="wiki-edit-form__trix"></trix-editor>
+
+    {% elif field == 'education' %}
+    <label class="wiki-edit-form__label">{{ t('person.education') }}</label>
+    <div class="wiki-array-entries" id="wiki-education-entries">
+      {% set entries = person.education or [] %}
+      {% for entry in entries %}
+      <fieldset class="wiki-array-entry">
+        <legend>Entry {{ loop.index }}</legend>
+        <label>Institution <input class="form-input" name="education[{{ loop.index0 }}].institution" value="{{ entry.institution or entry.get('institution', '') }}"></label>
+        <label>Degree <input class="form-input" name="education[{{ loop.index0 }}].degree" value="{{ entry.degree or entry.get('degree', '') }}"></label>
+        <label>Field of Study <input class="form-input" name="education[{{ loop.index0 }}].field_of_study" value="{{ entry.field_of_study or entry.get('field_of_study', '') }}"></label>
+        <label>Year Start <input class="form-input" name="education[{{ loop.index0 }}].year_start" value="{{ entry.year_start or entry.get('year_start', '') or entry.get('year', '') }}"></label>
+        <label>Year End <input class="form-input" name="education[{{ loop.index0 }}].year_end" value="{{ entry.year_end or entry.get('year_end', '') }}"></label>
+        <label>Notes <input class="form-input" name="education[{{ loop.index0 }}].notes" value="{{ entry.notes or entry.get('notes', '') }}"></label>
+        <button type="button" class="btn btn--sm btn--outline wiki-array-entry__remove" onclick="this.closest('.wiki-array-entry').remove()">Remove</button>
+      </fieldset>
+      {% endfor %}
+    </div>
+    <button type="button" class="btn btn--sm btn--outline" onclick="addWikiArrayEntry('education')">+ Add Entry</button>
+
+    {% elif field == 'career' %}
+    <label class="wiki-edit-form__label">{{ t('person.career') }}</label>
+    <div class="wiki-array-entries" id="wiki-career-entries">
+      {% set entries = person.career or [] %}
+      {% for entry in entries %}
+      <fieldset class="wiki-array-entry">
+        <legend>Entry {{ loop.index }}</legend>
+        <label>Title <input class="form-input" name="career[{{ loop.index0 }}].title" value="{{ entry.title or entry.get('title', '') }}"></label>
+        <label>Employer <input class="form-input" name="career[{{ loop.index0 }}].employer" value="{{ entry.employer or entry.get('employer', '') or entry.get('company', '') }}"></label>
+        <label>Year Start <input class="form-input" name="career[{{ loop.index0 }}].year_start" value="{{ entry.year_start or entry.get('year_start', '') or entry.get('years', '') }}"></label>
+        <label>Year End <input class="form-input" name="career[{{ loop.index0 }}].year_end" value="{{ entry.year_end or entry.get('year_end', '') }}"></label>
+        <label>Location <input class="form-input" name="career[{{ loop.index0 }}].location" value="{{ entry.location or entry.get('location', '') }}"></label>
+        <label>Notes <input class="form-input" name="career[{{ loop.index0 }}].notes" value="{{ entry.notes or entry.get('notes', '') }}"></label>
+        <button type="button" class="btn btn--sm btn--outline wiki-array-entry__remove" onclick="this.closest('.wiki-array-entry').remove()">Remove</button>
+      </fieldset>
+      {% endfor %}
+    </div>
+    <button type="button" class="btn btn--sm btn--outline" onclick="addWikiArrayEntry('career')">+ Add Entry</button>
+
+    {% elif field == 'organizations' %}
+    <label class="wiki-edit-form__label">{{ t('person.organizations') }}</label>
+    <div class="wiki-array-entries" id="wiki-organizations-entries">
+      {% set entries = person.organizations or [] %}
+      {% for entry in entries %}
+      <fieldset class="wiki-array-entry">
+        <legend>Entry {{ loop.index }}</legend>
+        <label>Name <input class="form-input" name="organizations[{{ loop.index0 }}].name" value="{{ entry.name or entry.get('name', '') }}"></label>
+        <label>Role <input class="form-input" name="organizations[{{ loop.index0 }}].role" value="{{ entry.role or entry.get('role', '') }}"></label>
+        <label>Year Joined <input class="form-input" name="organizations[{{ loop.index0 }}].year_joined" value="{{ entry.year_joined or entry.get('year_joined', '') }}"></label>
+        <label>Year Left <input class="form-input" name="organizations[{{ loop.index0 }}].year_left" value="{{ entry.year_left or entry.get('year_left', '') }}"></label>
+        <label>Notes <input class="form-input" name="organizations[{{ loop.index0 }}].notes" value="{{ entry.notes or entry.get('notes', '') }}"></label>
+        <button type="button" class="btn btn--sm btn--outline wiki-array-entry__remove" onclick="this.closest('.wiki-array-entry').remove()">Remove</button>
+      </fieldset>
+      {% endfor %}
+    </div>
+    <button type="button" class="btn btn--sm btn--outline" onclick="addWikiArrayEntry('organizations')">+ Add Entry</button>
+
+    {% elif field == 'confidence' %}
+    <label class="wiki-edit-form__label" for="wiki-{{ field }}">
+      {{ t('person.' ~ field) }}
+    </label>
+    <select class="form-input" id="wiki-{{ field }}" name="{{ field }}">
+      <option value="" {% if not person[field] %}selected{% endif %}>—</option>
+      <option value="confirmed" {% if person[field] == 'confirmed' %}selected{% endif %}>Confirmed</option>
+      <option value="probable" {% if person[field] == 'probable' %}selected{% endif %}>Probable</option>
+      <option value="uncertain" {% if person[field] == 'uncertain' %}selected{% endif %}>Uncertain</option>
+      <option value="unknown" {% if person[field] == 'unknown' %}selected{% endif %}>Unknown</option>
+    </select>
+
+    {% else %}
+    <label class="wiki-edit-form__label" for="wiki-{{ field }}">
+      {{ t('person.' ~ field) }}
+    </label>
+    <input class="form-input"
+           id="wiki-{{ field }}"
+           name="{{ field }}"
+           type="text"
+           value="{{ person[field] or '' }}">
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="wiki-edit-form__actions">
+    <button type="submit" class="btn btn--sm">{{ t('wiki.save') }}</button>
+    <button type="button" class="btn btn--sm btn--outline"
+            onclick="this.closest('.wiki-edit-form').remove()">{{ t('wiki.cancel') }}</button>
+  </div>
+</form>
+
+<style>
+  .wiki-array-entries { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.5rem; }
+  .wiki-array-entry {
+    border: 1px solid rgba(45, 80, 22, 0.12);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .wiki-array-entry legend { font-weight: 600; font-size: 0.85rem; color: #6b6054; }
+  .wiki-array-entry label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+  .wiki-array-entry label input { flex: 1; }
+  .wiki-array-entry__remove { justify-self: end; margin-top: 0.25rem; color: #c44; }
+</style>
+
+<script>
+function addWikiArrayEntry(fieldType) {
+  var container = document.getElementById('wiki-' + fieldType + '-entries');
+  if (!container) return;
+  // Find max existing index to avoid collisions after removals
+  var maxIdx = -1;
+  var re = new RegExp('^' + fieldType + '\\[(\\d+)\\]\\.');
+  container.querySelectorAll('input[name]').forEach(function(input) {
+    var m = input.name.match(re);
+    if (m) { var n = parseInt(m[1], 10); if (n > maxIdx) maxIdx = n; }
+  });
+  var idx = maxIdx + 1;
+  var fields = {
+    education: ['institution', 'degree', 'field_of_study', 'year_start', 'year_end', 'notes'],
+    career: ['title', 'employer', 'year_start', 'year_end', 'location', 'notes'],
+    organizations: ['name', 'role', 'year_joined', 'year_left', 'notes']
+  };
+  var labels = {
+    institution: 'Institution', degree: 'Degree', field_of_study: 'Field of Study',
+    year_start: 'Year Start', year_end: 'Year End', notes: 'Notes',
+    title: 'Title', employer: 'Employer', location: 'Location',
+    name: 'Name', role: 'Role', year_joined: 'Year Joined', year_left: 'Year Left'
+  };
+  var fieldList = fields[fieldType] || [];
+  var fieldset = document.createElement('fieldset');
+  fieldset.className = 'wiki-array-entry';
+  var legend = document.createElement('legend');
+  legend.textContent = 'Entry ' + (idx + 1);
+  fieldset.appendChild(legend);
+  fieldList.forEach(function(f) {
+    var label = document.createElement('label');
+    label.textContent = (labels[f] || f) + ' ';
+    var input = document.createElement('input');
+    input.className = 'form-input';
+    input.name = fieldType + '[' + idx + '].' + f;
+    input.type = 'text';
+    label.appendChild(input);
+    fieldset.appendChild(label);
+  });
+  var removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn btn--sm btn--outline wiki-array-entry__remove';
+  removeBtn.textContent = 'Remove';
+  removeBtn.onclick = function() { fieldset.remove(); };
+  fieldset.appendChild(removeBtn);
+  container.appendChild(fieldset);
+}
+</script>

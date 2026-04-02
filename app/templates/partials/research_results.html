@@ -1,0 +1,41 @@
+{% if error %}
+<div class="research-results__error">
+  <p>{{ error }}</p>
+</div>
+{% elif results and results | length > 0 %}
+<div class="research-results">
+  {% for source_group in results %}
+  <div class="research-results__source">
+    <h3 class="research-results__source-name">{{ source_group.source }}</h3>
+    <p class="research-results__source-count">{{ source_group.results | length }} {{ t('common.search') | lower }} result{{ 's' if source_group.results | length != 1 }}</p>
+    {% if source_group.results %}
+    <ul class="research-results__list">
+      {% for record in source_group.results %}
+      <li class="research-results__item">
+        {% if record.url %}
+        <a href="{{ record.url }}" target="_blank" rel="noopener" class="research-results__title">{{ record.title }}</a>
+        {% else %}
+        <span class="research-results__title">{{ record.title }}</span>
+        {% endif %}
+        {% if record.date or record.location %}
+        <span class="research-results__meta">
+          {% if record.date %}{{ record.date }}{% endif %}
+          {% if record.date and record.location %} &mdash; {% endif %}
+          {% if record.location %}{{ record.location }}{% endif %}
+        </span>
+        {% endif %}
+        {% if record.snippet %}
+        <p class="research-results__snippet">{{ record.snippet }}</p>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="research-results__empty">
+  <p>{{ t('research.no_results') }}</p>
+</div>
+{% endif %}

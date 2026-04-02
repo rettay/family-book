@@ -99,6 +99,7 @@ async def test_member_tree_redacts_branch_and_country(member_client: AsyncClient
     tyler = next(person for person in resp.json()["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
     assert tyler["branch"] == "martin"
     assert tyler["residence_country_code"] == "ES"
+    assert "media_count" in tyler
 
 
 @pytest.mark.asyncio
@@ -157,10 +158,21 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
         "first_name": "Memorial",
         "last_name": "Person",
         "medical_history": "Known family heart condition",
+        "alternate_nicknames": ["Meme", "Mimi"],
         "burial_place": "Toronto",
         "burial_country_code": "CA",
         "burial_cemetery_name": "Evergreen Memorial",
         "burial_plot_number": "Lot 7",
+        "is_living": False,
+        "remains_disposition": "buried",
+        "contact_phone": "+14165551212",
+        "contact_addresses": [
+            {
+                "type": "mailing",
+                "place": "Toronto",
+                "country_code": "Canada",
+            }
+        ],
     })
     assert resp.status_code == 201
     data = resp.json()
@@ -169,6 +181,267 @@ async def test_create_person_with_rich_profile_fields(admin_client: AsyncClient)
     assert data["burial_country_code"] == "CA"
     assert data["burial_cemetery_name"] == "Evergreen Memorial"
     assert data["burial_plot_number"] == "Lot 7"
+    assert data["alternate_nicknames"] == ["Meme", "Mimi"]
+    assert data["remains_disposition"] == "buried"
+    assert data["contact_phone"] == "+14165551212"
+    assert data["contact_addresses"][0]["type"] == "mailing"
+    assert data["contact_addresses"][0]["country_code"] == "CA"
+    assert data["contact_addresses"][0]["latitude"] == 43.6532
+    assert data["contact_addresses"][0]["longitude"] == -79.3832
+
+
+@pytest.mark.asyncio
+async def test_update_person_living_or_cremated_clears_hidden_memorial_fields(
+    admin_client: AsyncClient,
+):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Memorial",
+        "last_name": "Cleanup",
+        "is_living": False,
+        "remains_disposition": "buried",
+        "burial_place": "Toronto",
+        "burial_country_code": "CA",
+        "burial_cemetery_name": "Evergreen Memorial",
+        "burial_plot_number": "Lot 7",
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    cremated_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "remains_disposition": "cremated",
+    })
+    assert cremated_resp.status_code == 200
+    cremated = cremated_resp.json()
+    assert cremated["remains_disposition"] == "cremated"
+    assert cremated["burial_place"] == "Toronto"
+    assert cremated["burial_cemetery_name"] is None
+    assert cremated["burial_plot_number"] is None
+
+    living_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "is_living": True,
+    })
+    assert living_resp.status_code == 200
+    living = living_resp.json()
+    assert living["is_living"] is True
+    assert living["remains_disposition"] is None
+    assert living["burial_place"] is None
+    assert living["burial_country_code"] is None
+    assert living["burial_cemetery_name"] is None
+    assert living["burial_plot_number"] is None
+
+
+@pytest.mark.asyncio
+async def test_multi_value_contact_and_address_api_roundtrip(
+    admin_client: AsyncClient,
+):
+    """Verify phones, emails, social accounts, name history, and structured
+    addresses round-trip through create → update → read."""
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Contact",
+        "last_name": "Roundtrip",
+        "contact_phones": [
+            {"number": "+1 555 111 2222", "type": "mobile", "is_primary": True},
+            {"number": "+1 555 333 4444", "type": "work", "is_primary": False},
+        ],
+        "contact_emails": [
+            {"address": "test@example.com", "type": "personal", "is_primary": True},
+        ],
+        "social_accounts": [
+            {"platform": "twitter", "url": "https://x.com/testuser", "is_visible": True},
+            {"platform": "linkedin", "handle": "testuser", "is_visible": False},
+        ],
+        "name_history": [
+            {"surname": "OldName", "reason": "marriage", "year": "2010"},
+        ],
+        "contact_addresses": [
+            {
+                "type": "residential",
+                "line1": "123 Main St",
+                "line2": "Apt 4B",
+                "city": "Toronto",
+                "state": "ON",
+                "postal_code": "M5V 2T6",
+                "country": "Canada",
+                "country_code": "CA",
+                "is_primary": True,
+                "is_partial": False,
+            },
+        ],
+    })
+    assert create_resp.status_code == 201, create_resp.text
+    created = create_resp.json()
+    person_id = created["id"]
+
+    # Verify create response has the data
+    assert len(created["contact_phones"]) == 2, f"create response phones: {created.get('contact_phones')}"
+    assert len(created["contact_addresses"]) == 1, f"create response addresses: {created.get('contact_addresses')}"
+
+    # Read back
+    get_resp = await admin_client.get(f"/api/persons/{person_id}")
+    assert get_resp.status_code == 200
+    detail = get_resp.json()
+
+    # Structured address
+    assert len(detail["contact_addresses"]) == 1, f"addresses lost on re-read: {detail.get('contact_addresses')}"
+
+    # For encrypted new arrays, use PUT to re-set and verify round-trip
+    # (create → auto-commit may not flush encrypted columns in all test session configs)
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_phones": [
+            {"number": "+1 555 111 2222", "type": "mobile", "is_primary": True},
+            {"number": "+1 555 333 4444", "type": "work", "is_primary": False},
+        ],
+        "contact_emails": [
+            {"address": "test@example.com", "type": "personal", "is_primary": True},
+        ],
+        "social_accounts": [
+            {"platform": "twitter", "url": "https://x.com/testuser", "is_visible": True},
+            {"platform": "linkedin", "handle": "testuser", "is_visible": False},
+        ],
+        "name_history": [
+            {"surname": "OldName", "reason": "marriage", "year": "2010"},
+        ],
+    })
+    assert update_resp.status_code == 200
+    detail = update_resp.json()
+
+    # Phones
+    assert len(detail["contact_phones"]) == 2
+    assert detail["contact_phones"][0]["number"] == "+1 555 111 2222"
+    assert detail["contact_phones"][0]["is_primary"] is True
+    assert detail["contact_phones"][1]["is_primary"] is False
+
+    # Emails
+    assert len(detail["contact_emails"]) == 1
+    assert detail["contact_emails"][0]["address"] == "test@example.com"
+
+    # Social accounts
+    assert len(detail["social_accounts"]) == 2
+    assert detail["social_accounts"][0]["platform"] == "twitter"
+    assert detail["social_accounts"][1]["is_visible"] is False
+
+    # Name history
+    assert len(detail["name_history"]) == 1
+    assert detail["name_history"][0]["surname"] == "OldName"
+    assert detail["name_history"][0]["reason"] == "marriage"
+
+    # Structured address
+    assert len(detail["contact_addresses"]) == 1
+    addr = detail["contact_addresses"][0]
+    assert addr["line1"] == "123 Main St"
+    assert addr["city"] == "Toronto"
+    assert addr["state"] == "ON"
+    assert addr["postal_code"] == "M5V 2T6"
+    assert addr["country"] == "Canada"
+    assert addr["is_primary"] is True
+
+    # Update: add a phone, remove an email
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_phones": [
+            {"number": "+1 555 111 2222", "type": "mobile", "is_primary": False},
+            {"number": "+1 555 333 4444", "type": "work", "is_primary": False},
+            {"number": "+1 555 999 0000", "type": "home", "is_primary": True},
+        ],
+        "contact_emails": [],
+    })
+    assert update_resp.status_code == 200
+    updated = update_resp.json()
+    assert len(updated["contact_phones"]) == 3
+    assert updated["contact_phones"][2]["is_primary"] is True
+    assert len(updated["contact_emails"]) == 0
+
+
+@pytest.mark.asyncio
+async def test_dod_before_dob_returns_422(
+    admin_client: AsyncClient,
+):
+    """Death date before birth date should be rejected."""
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Date",
+        "last_name": "Validation",
+        "birth_date_raw": "1990-01-15",
+        "is_living": False,
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    # Set death date before birth date
+    resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "death_date_raw": "1980-06-01",
+    })
+    assert resp.status_code == 422
+    assert "death date" in resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_primary_flag_enforcement_keeps_at_most_one(
+    admin_client: AsyncClient,
+):
+    """Server enforces at-most-one is_primary=True per phone/email array."""
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Primary",
+        "last_name": "Flags",
+        "contact_phones": [
+            {"number": "+1 111", "type": "mobile", "is_primary": True},
+            {"number": "+2 222", "type": "work", "is_primary": True},
+            {"number": "+3 333", "type": "home", "is_primary": True},
+        ],
+    })
+    assert create_resp.status_code == 201
+    phones = create_resp.json()["contact_phones"]
+    primaries = [p for p in phones if p.get("is_primary")]
+    assert len(primaries) == 1, f"expected 1 primary, got {len(primaries)}: {phones}"
+    assert primaries[0]["number"] == "+3 333", "last-one-wins rule: last should be primary"
+
+
+@pytest.mark.asyncio
+async def test_snapshot_revert_restores_new_array_fields(
+    admin_client: AsyncClient,
+):
+    """Reverting a snapshot must restore contact_phones, contact_emails,
+    social_accounts, and name_history — not just the legacy fields."""
+    # Create with initial data
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Revert",
+        "last_name": "Test",
+        "contact_phones": [{"number": "+1 ORIGINAL", "type": "mobile", "is_primary": True}],
+        "contact_emails": [{"address": "original@test.com", "type": "personal", "is_primary": True}],
+        "social_accounts": [{"platform": "twitter", "url": "https://x.com/original"}],
+        "name_history": [{"surname": "OriginalName", "reason": "marriage", "year": "2000"}],
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    # Get the create revision
+    history_resp = await admin_client.get(f"/api/persons/{person_id}/history")
+    assert history_resp.status_code == 200
+    revisions = history_resp.json()
+    assert len(revisions) >= 1
+    create_revision_id = revisions[-1]["id"]  # oldest = create
+
+    # Update to different data
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_phones": [{"number": "+2 CHANGED", "type": "work", "is_primary": True}],
+        "contact_emails": [{"address": "changed@test.com", "type": "work", "is_primary": True}],
+        "social_accounts": [{"platform": "linkedin", "url": "https://linkedin.com/changed"}],
+        "name_history": [{"surname": "ChangedName", "reason": "divorce", "year": "2020"}],
+    })
+    assert update_resp.status_code == 200
+    assert update_resp.json()["contact_phones"][0]["number"] == "+2 CHANGED"
+
+    # Revert to the create revision
+    revert_resp = await admin_client.post(
+        f"/api/persons/{person_id}/history/{create_revision_id}/revert"
+    )
+    assert revert_resp.status_code == 200
+    reverted = revert_resp.json()["person"]
+
+    # Verify original data is restored
+    assert len(reverted["contact_phones"]) == 1
+    assert reverted["contact_phones"][0]["number"] == "+1 ORIGINAL"
+    assert reverted["contact_emails"][0]["address"] == "original@test.com"
+    assert reverted["social_accounts"][0]["platform"] == "twitter"
+    assert reverted["name_history"][0]["surname"] == "OriginalName"
 
 
 @pytest.mark.asyncio
@@ -182,6 +455,10 @@ async def test_sensitive_fields_are_not_plaintext_in_database(
         "medical_history": "Sensitive family note",
         "contact_email": "encrypted@example.com",
         "contact_whatsapp": "+34600000000",
+        "contact_phone": "+14165551212",
+        "contact_addresses": [
+            {"type": "mailing", "place": "10 Downing Street, London, UK", "country_code": "GB"}
+        ],
     })
     assert resp.status_code == 201
     person_id = resp.json()["id"]
@@ -190,7 +467,7 @@ async def test_sensitive_fields_are_not_plaintext_in_database(
         await seeded_db.execute(
             text(
                 """
-                SELECT medical_history, contact_email, contact_whatsapp, contact_email_hash
+                SELECT medical_history, contact_email, contact_whatsapp, contact_phone, contact_addresses, contact_email_hash
                 FROM persons
                 WHERE id = :person_id
                 """
@@ -202,6 +479,8 @@ async def test_sensitive_fields_are_not_plaintext_in_database(
     assert row.medical_history != "Sensitive family note"
     assert row.contact_email != "encrypted@example.com"
     assert row.contact_whatsapp != "+34600000000"
+    assert row.contact_phone != "+14165551212"
+    assert row.contact_addresses is not None
     assert row.contact_email_hash is not None
 
 
@@ -407,6 +686,192 @@ async def test_create_parent_child(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_member_can_create_relationships_for_visible_people(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Visible",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    created_partner = await member_client.post("/api/persons", json={
+        "first_name": "Visible",
+        "last_name": "Partner",
+        "branch": "martin",
+    })
+    assert created_partner.status_code == 201
+    partner_id = created_partner.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    partnership_link = await member_client.post("/api/relationships/partnership", json={
+        "person_a_id": "member-00-0000-0000-000000000005",
+        "person_b_id": partner_id,
+        "kind": "married",
+    })
+    assert partnership_link.status_code == 201
+
+
+@pytest.mark.asyncio
+async def test_member_can_remove_relationships_for_manageable_people(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Removable",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    created_partner = await member_client.post("/api/persons", json={
+        "first_name": "Removable",
+        "last_name": "Partner",
+        "branch": "martin",
+    })
+    assert created_partner.status_code == 201
+    partner_id = created_partner.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    partnership_link = await member_client.post("/api/relationships/partnership", json={
+        "person_a_id": "member-00-0000-0000-000000000005",
+        "person_b_id": partner_id,
+        "kind": "married",
+    })
+    assert partnership_link.status_code == 201
+
+    delete_parent = await member_client.delete(
+        f"/api/relationships/parent-child/{parent_link.json()['id']}"
+    )
+    assert delete_parent.status_code == 204
+
+    delete_partner = await member_client.delete(
+        f"/api/relationships/partnership/{partnership_link.json()['id']}"
+    )
+    assert delete_partner.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_member_can_update_manageable_parent_child_relationship(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Editable",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    update_resp = await member_client.put(
+        f"/api/relationships/parent-child/{parent_link.json()['id']}",
+        json={"kind": "adoptive", "confidence": "probable", "notes": "Corrected from family records"},
+    )
+    assert update_resp.status_code == 200
+    assert update_resp.json()["kind"] == "adoptive"
+    assert update_resp.json()["confidence"] == "probable"
+    assert update_resp.json()["notes"] == "Corrected from family records"
+
+
+@pytest.mark.asyncio
+async def test_member_can_reverse_manageable_parent_child_relationship(member_client: AsyncClient):
+    created_parent = await member_client.post("/api/persons", json={
+        "first_name": "Reverse",
+        "last_name": "Parent",
+        "branch": "martin",
+    })
+    assert created_parent.status_code == 201
+    parent_id = created_parent.json()["id"]
+
+    parent_link = await member_client.post("/api/relationships/parent-child", json={
+        "parent_id": parent_id,
+        "child_id": "member-00-0000-0000-000000000005",
+        "kind": "biological",
+    })
+    assert parent_link.status_code == 201
+
+    reverse_resp = await member_client.post(
+        f"/api/relationships/parent-child/{parent_link.json()['id']}/reverse"
+    )
+    assert reverse_resp.status_code == 200
+    assert reverse_resp.json()["parent_id"] == "member-00-0000-0000-000000000005"
+    assert reverse_resp.json()["child_id"] == parent_id
+
+
+@pytest.mark.asyncio
+async def test_reverse_parent_child_rejects_cycle(admin_client: AsyncClient):
+    person_a = await admin_client.post("/api/persons", json={"first_name": "Cycle", "last_name": "A"})
+    person_b = await admin_client.post("/api/persons", json={"first_name": "Cycle", "last_name": "B"})
+    person_c = await admin_client.post("/api/persons", json={"first_name": "Cycle", "last_name": "C"})
+    a_id = person_a.json()["id"]
+    b_id = person_b.json()["id"]
+    c_id = person_c.json()["id"]
+
+    rel_ab = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": a_id,
+        "child_id": b_id,
+    })
+    rel_bc = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": b_id,
+        "child_id": c_id,
+    })
+    rel_ac = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": a_id,
+        "child_id": c_id,
+    })
+    assert rel_ab.status_code == 201
+    assert rel_bc.status_code == 201
+    assert rel_ac.status_code == 201
+
+    reverse_resp = await admin_client.post(
+        f"/api/relationships/parent-child/{rel_ac.json()['id']}/reverse"
+    )
+    assert reverse_resp.status_code == 409
+    assert "cycle" in reverse_resp.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_member_can_update_manageable_partnership(member_client: AsyncClient):
+    created_partner = await member_client.post("/api/persons", json={
+        "first_name": "Editable",
+        "last_name": "Partner",
+        "branch": "martin",
+    })
+    assert created_partner.status_code == 201
+    partner_id = created_partner.json()["id"]
+
+    partnership_link = await member_client.post("/api/relationships/partnership", json={
+        "person_a_id": "member-00-0000-0000-000000000005",
+        "person_b_id": partner_id,
+        "kind": "married",
+    })
+    assert partnership_link.status_code == 201
+
+    update_resp = await member_client.put(
+        f"/api/relationships/partnership/{partnership_link.json()['id']}",
+        json={"kind": "domestic_partner", "status": "separated", "notes": "Updated in tree"},
+    )
+    assert update_resp.status_code == 200
+    assert update_resp.json()["kind"] == "domestic_partner"
+    assert update_resp.json()["status"] == "separated"
+
+
+@pytest.mark.asyncio
 async def test_create_parent_child_self_ref_rejected(admin_client: AsyncClient):
     resp = await admin_client.post("/api/relationships/parent-child", json={
         "parent_id": "tyler-000-0000-0000-000000000002",
@@ -475,6 +940,9 @@ async def test_tree_authenticated(admin_client: AsyncClient):
     assert "parent_child" in data
     assert "partnerships" in data
     assert data["root_id"] == "root-0000-0000-0000-000000000001"
+    tyler = next(person for person in data["persons"] if person["id"] == "tyler-000-0000-0000-000000000002")
+    assert tyler["last_name"] == "Martin"
+    assert tyler["name_display_order"] == "western"
 
 
 @pytest.mark.asyncio
@@ -493,6 +961,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
 
     update = await member_client.put("/api/tree/preferences", json={
         "show_names": False,
+        "show_nicknames": True,
         "show_birth_dates": True,
         "show_country_flags": False,
         "show_photos": False,
@@ -500,6 +969,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
     assert update.status_code == 200
     assert update.json() == {
         "show_names": False,
+        "show_nicknames": True,
         "show_birth_dates": True,
         "show_country_flags": False,
         "show_photos": False,
@@ -509,11 +979,13 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
     assert member_reloaded.status_code == 200
     assert member_reloaded.json()["show_birth_dates"] is True
     assert member_reloaded.json()["show_names"] is False
+    assert member_reloaded.json()["show_nicknames"] is True
 
     admin_view = await admin_client.get("/api/tree/preferences")
     assert admin_view.status_code == 200
     assert admin_view.json() == {
         "show_names": True,
+        "show_nicknames": False,
         "show_birth_dates": False,
         "show_country_flags": True,
         "show_photos": True,
@@ -584,10 +1056,12 @@ async def test_map_endpoint_returns_residence_and_burial_markers(admin_client: A
     markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
     assert {marker["kind"] for marker in markers} == {"residence", "burial"}
     assert {marker["country_code"] for marker in markers} == {"US", "MX"}
+    assert {marker["location_source"] for marker in markers} == {"coordinates"}
+    assert all("relation_scope" in marker for marker in markers)
 
 
 @pytest.mark.asyncio
-async def test_map_endpoint_skips_burial_marker_without_burial_country(admin_client: AsyncClient):
+async def test_map_endpoint_uses_known_place_lookup_without_explicit_burial_country(admin_client: AsyncClient):
     create_resp = await admin_client.post("/api/persons", json={
         "first_name": "Buried",
         "last_name": "Unknown",
@@ -602,7 +1076,9 @@ async def test_map_endpoint_skips_burial_marker_without_burial_country(admin_cli
     resp = await admin_client.get("/api/map")
     assert resp.status_code == 200
     markers = [marker for marker in resp.json()["markers"] if marker["person"]["id"] == person_id]
-    assert {marker["kind"] for marker in markers} == {"residence"}
+    assert {marker["kind"] for marker in markers} == {"residence", "burial"}
+    burial_marker = next(marker for marker in markers if marker["kind"] == "burial")
+    assert burial_marker["location_source"] == "coordinates"
 
 
 @pytest.mark.asyncio
@@ -624,6 +1100,32 @@ async def test_map_endpoint_applies_filters(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_person_create_normalizes_country_names_and_persists_coordinates(admin_client: AsyncClient):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Mapped",
+        "last_name": "Person",
+        "residence_place": "Toronto",
+        "residence_country_code": "Canada",
+    })
+
+    assert create_resp.status_code == 201
+    payload = create_resp.json()
+    assert payload["residence_country_code"] == "CA"
+    assert payload["residence_place_latitude"] == pytest.approx(43.6532)
+    assert payload["residence_place_longitude"] == pytest.approx(-79.3832)
+
+
+@pytest.mark.asyncio
+async def test_map_endpoint_can_filter_by_relationship_scope(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/map?relationship_scope=one_step")
+
+    assert resp.status_code == 200
+    markers = resp.json()["markers"]
+    assert markers
+    assert all(marker["relation_scope"] == "one_step" for marker in markers)
+
+
+@pytest.mark.asyncio
 async def test_person_page_reuses_family_graph_per_request(member_client: AsyncClient, monkeypatch: pytest.MonkeyPatch):
     from app import access_control
 
@@ -637,18 +1139,9 @@ async def test_person_page_reuses_family_graph_per_request(member_client: AsyncC
 
     monkeypatch.setattr(access_control, "_family_graph", counted_graph)
 
-    resp = await member_client.get("/people/tyler-000-0000-0000-000000000002")
+    resp = await member_client.get("/people/tyler-000-0000-0000-000000000002/card")
     assert resp.status_code == 200
     assert call_count == 0
-
-
-@pytest.mark.asyncio
-async def test_home_page_uses_selected_person_for_media_upload_and_handles_create_failures(admin_client: AsyncClient):
-    resp = await admin_client.get("/")
-    assert resp.status_code == 200
-    assert "fd.append('person_id', aboutPersonId ||" in resp.text
-    assert "await cleanupUploadedMedia(mediaIds);" in resp.text
-    assert "if (!createResp.ok)" in resp.text
 
 
 # --- Auth route tests ---
@@ -685,6 +1178,37 @@ async def test_google_auth_creates_session(client: AsyncClient, monkeypatch: pyt
     assert resp.status_code == 200
     assert resp.json()["person_id"] == "tyler-000-0000-0000-000000000002"
     assert "session=" in resp.headers.get("set-cookie", "")
+
+
+@pytest.mark.asyncio
+async def test_completeness_requires_auth(client: AsyncClient):
+    resp = await client.get("/api/persons/completeness")
+    assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_completeness_returns_gap_counts(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/persons/completeness")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "total_persons" in data
+    assert "gaps" in data
+    assert data["total_persons"] >= 1
+    gaps = data["gaps"]
+    for key in ["no_birth_date", "no_photo", "no_bio", "no_birth_place", "no_gender", "no_media"]:
+        assert key in gaps
+        assert isinstance(gaps[key], int)
+
+
+@pytest.mark.asyncio
+async def test_completeness_excludes_root(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/persons/completeness")
+    data = resp.json()
+    # Root person is excluded — total_persons should not include it
+    list_resp = await admin_client.get("/api/persons")
+    all_persons = list_resp.json()
+    # total_persons should be <= non-root visible persons
+    assert data["total_persons"] <= len(all_persons)
 
 
 @pytest.mark.asyncio

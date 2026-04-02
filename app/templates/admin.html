@@ -2,18 +2,25 @@
 {% block title %}{{ t('admin.dashboard') }} — {{ brand_display_name }}{% endblock %}
 
 {% block content %}
-<div class="container-wide" style="padding-top: 16px;">
-  <h1 style="font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 16px;">{{ t('admin.dashboard') }}</h1>
+<div
+  class="container-wide"
+  id="admin-page"
+  style="padding-top: 16px;"
+  data-invite-sent="{{ t('admin.invite_sent') }}"
+  data-invite-fallback="{{ t('admin.invite_manual_fallback') }}"
+  data-invite-failed="{{ t('admin.invite_delivery_failed') }}"
+  data-invite-link-copied="{{ t('admin.invite_link_copied') }}"
+>
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">{{ t('admin.dashboard') }}</h1>
+    <p class="page-header__subtitle">{{ t('admin.subtitle') }}</p>
+  </div>
 
   <!-- Stats -->
   <div class="admin-grid mb-24">
     <div class="stat-card">
       <div class="stat-card__label">People</div>
       <div class="stat-card__value">{{ stats.persons }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-card__label">Moments</div>
-      <div class="stat-card__value">{{ stats.moments }}</div>
     </div>
     <div class="stat-card">
       <div class="stat-card__label">Media Files</div>
@@ -29,31 +36,39 @@
   <div class="card mb-16">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Quick Actions</h2>
-      <div class="flex gap-8" style="flex-wrap:wrap;">
-        <a href="/people/new" class="btn btn--primary btn--sm">+ Add Person</a>
-        <button class="btn btn--secondary btn--sm" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
-        <button class="btn btn--secondary btn--sm" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
-        <button class="btn btn--secondary btn--sm" onclick="verifyBackupRestore()">Verify Restore</button>
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap">
+        <a href="/people/new" class="btn btn--primary btn--sm" id="admin-add-person-button">+ Add Person</a>
+        <button class="btn btn--secondary btn--sm" id="admin-backup-button" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
+        <button class="btn btn--secondary btn--sm" id="admin-download-backup-button" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
+        <button class="btn btn--secondary btn--sm" id="admin-verify-restore-button" onclick="verifyBackupRestore()">Verify Restore</button>
       </div>
     </div>
   </div>
 
-  <div class="card mb-16">
+  <div class="card mb-16" id="admin-theme-card">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Protection &amp; Backup Status</h2>
-      <div id="backup-status">
-        <p class="text-sm text-muted">Backups: {% if backup_health.fresh %}fresh{% else %}stale or missing{% endif %}</p>
-        <p class="text-sm text-muted">Latest file: {{ backup_health.latest_file or 'none' }}</p>
-        <p class="text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
-        <p class="text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
-        <p class="text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
+      <div id="backup-status" class="status-list">
+        <p class="status-list__item text-sm text-muted">Backups: {% if backup_health.fresh %}fresh{% else %}stale or missing{% endif %}</p>
+        <p class="status-list__item text-sm text-muted">Latest file: {{ backup_health.latest_file or 'none' }}</p>
+        <p class="status-list__item text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
+        <p class="status-list__item text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
+        <p class="status-list__item text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
+        <p class="status-list__item text-sm text-muted">
+          {{ t('admin.invite_delivery') }}:
+          {% if resend_enabled %}
+          {{ t('admin.invite_delivery_resend_ready') }}
+          {% else %}
+          {{ t('admin.invite_delivery_manual') }}
+          {% endif %}
+        </p>
       </div>
     </div>
   </div>
 
-  <div class="card mb-16">
+  <div class="card mb-16" id="admin-accounts-card">
     <div class="card__body">
-      <div class="flex-between mb-16" style="gap: 16px; flex-wrap: wrap;">
+      <div class="flex-between mb-16 admin-panel-header">
         <div>
           <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 6px;">Theme &amp; Branding</h2>
           <p class="text-sm text-muted">Update the core palette and family-facing brand text without editing code.</p>
@@ -113,7 +128,7 @@
           </div>
         </div>
 
-        <div class="flex gap-8" style="flex-wrap: wrap;">
+        <div class="flex gap-8 admin-action-row admin-action-row--wrap">
           <button type="submit" class="btn btn--primary btn--sm">Save Theme</button>
           <button type="button" class="btn btn--secondary btn--sm" onclick="resetThemeSettings()">Reset Default Theme</button>
           {% if staging_review_url %}
@@ -129,19 +144,36 @@
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Accounts &amp; Invites</h2>
       {% for p in managed_people %}
       <div class="invite-row">
-        <span class="invite-row__name">{{ p.display_name }}{% if p.contact_email %} · {{ p.contact_email }}{% endif %}</span>
-        <span class="invite-row__status {% if p.account_state == 'active' %}invite-row__status--active{% elif p.account_state == 'pending' %}invite-row__status--active{% else %}invite-row__status--expired{% endif %}">
-          {{ p.account_state }}
-        </span>
-        {% if p.contact_email %}
-        <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">Create Invite</button>
-        {% endif %}
-        {% if p.account_state != 'active' %}
-        <button class="btn btn--primary btn--sm" onclick="activatePerson('{{ p.id }}')">Activate</button>
-        {% endif %}
-        {% if p.account_state != 'suspended' %}
-        <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
-        {% endif %}
+        <div class="invite-row__identity">
+          <span class="invite-row__name">{{ p.display_name }}{% if p.contact_email %} · {{ p.contact_email }}{% endif %}</span>
+          <span class="invite-row__status {% if p.account_state == 'active' %}invite-row__status--active{% elif p.account_state == 'pending' %}invite-row__status--active{% else %}invite-row__status--expired{% endif %}">
+            {{ p.account_state }}
+          </span>
+        </div>
+        <div class="invite-row__meta" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+          {% if p.last_login_at %}
+          Last login: {{ p.last_login_at }}
+          {% else %}
+          Last login: Never
+          {% endif %}
+          {% set sc = session_counts.get(p.id, 0) %}
+          &middot; Active sessions: {{ sc }}
+        </div>
+        <div class="invite-row__actions">
+          {% set sc = session_counts.get(p.id, 0) %}
+          {% if sc > 0 %}
+          <button class="btn btn--outline btn--sm" onclick="revokeAllSessions('{{ p.id }}')">Log out all</button>
+          {% endif %}
+          {% if p.contact_email %}
+          <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">{{ t('admin.invite') }}</button>
+          {% endif %}
+          {% if p.account_state != 'active' %}
+          <button class="btn btn--primary btn--sm" onclick="activatePerson('{{ p.id }}')">Activate</button>
+          {% endif %}
+          {% if p.account_state != 'suspended' %}
+          <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -154,16 +186,29 @@
       {% for invite in invites %}
       {% set invited_person = invite_people.get(invite.id) %}
       <div class="invite-row">
-        <span class="invite-row__name">
-          {{ invited_person.display_name if invited_person else invite.person_id }}
-          {% if invited_person and invited_person.contact_email %} · {{ invited_person.contact_email }}{% endif %}
-        </span>
-        <span class="invite-row__status {% if invite.revoked %}invite-row__status--expired{% elif invite.claimed_at %}invite-row__status--claimed{% else %}invite-row__status--active{% endif %}">
-          {% if invite.revoked %}Revoked{% elif invite.claimed_at %}Claimed{% else %}Open{% endif %}
-        </span>
-        {% if not invite.revoked and not invite.claimed_at %}
-        <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
-        {% endif %}
+        <div class="invite-row__identity">
+          <span class="invite-row__name">
+            {{ invited_person.display_name if invited_person else invite.person_id }}
+            {% if invited_person and invited_person.contact_email %} · {{ invited_person.contact_email }}{% endif %}
+          </span>
+          <span class="invite-row__status {% if invite.revoked %}invite-row__status--expired{% elif invite.claimed_at %}invite-row__status--claimed{% else %}invite-row__status--active{% endif %}">
+            {% if invite.revoked %}Revoked{% elif invite.claimed_at %}Claimed{% else %}Open{% endif %}
+          </span>
+          {% if invite.delivery_status == 'sent' %}
+          <span class="invite-row__delivery" style="font-size:0.8rem; color:var(--success, #2d5016);" title="Sent{% if invite.sent_at %} at {{ invite.sent_at }}{% endif %}">Sent &#10003;</span>
+          {% elif invite.delivery_status == 'failed' %}
+          <span class="invite-row__delivery" style="font-size:0.8rem; color:var(--danger);" title="{{ invite.delivery_error or 'Unknown error' }}">Failed &#10007;</span>
+          {% elif invite.delivery_status == 'not_configured' %}
+          <span class="invite-row__delivery" style="font-size:0.8rem; color:var(--text-muted);">Not sent</span>
+          {% endif %}
+        </div>
+        <div class="invite-row__actions">
+          {% if not invite.revoked and not invite.claimed_at %}
+          <button class="btn btn--outline btn--sm" onclick="copyInviteLink('{{ invite.person_id }}')">Copy link</button>
+          <button class="btn btn--secondary btn--sm" onclick="resendInvite('{{ invite.id }}')">Resend</button>
+          <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -177,10 +222,14 @@
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">{{ t('admin.pending_approvals') }}</h2>
       {% for p in pending_persons %}
       <div class="invite-row">
-        <span class="invite-row__name">{{ p.display_name }}</span>
-        <span class="invite-row__status invite-row__status--active">Pending</span>
-        <button class="btn btn--primary btn--sm" onclick="approvePerson('{{ p.id }}')">{{ t('admin.approve') }}</button>
-        <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+        <div class="invite-row__identity">
+          <span class="invite-row__name">{{ p.display_name }}</span>
+          <span class="invite-row__status invite-row__status--active">Pending</span>
+        </div>
+        <div class="invite-row__actions">
+          <button class="btn btn--primary btn--sm" onclick="approvePerson('{{ p.id }}')">{{ t('admin.approve') }}</button>
+          <button class="btn btn--danger btn--sm" onclick="suspendPerson('{{ p.id }}')">{{ t('admin.suspend') }}</button>
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -194,7 +243,9 @@
       <div id="audit-log"
            hx-get="/partials/audit-log"
            hx-trigger="load"
-           hx-swap="innerHTML">
+           hx-swap="innerHTML"
+           aria-live="polite"
+           aria-busy="false">
         <div class="spinner" style="margin: 16px auto;"></div>
       </div>
     </div>
@@ -272,24 +323,82 @@ async function activatePerson(id) {
 }
 
 async function createInvite(id) {
+  const page = document.getElementById('admin-page');
   const resp = await fetch('/api/admin/persons/' + id + '/invite', {method: 'POST'});
   const data = await resp.json().catch(() => ({}));
   if (!resp.ok) {
     showToast(data.detail || 'Invite creation failed');
     return;
   }
+  let feedback = page.dataset.inviteFallback;
+  if (data.delivery_status === 'sent') {
+    feedback = page.dataset.inviteSent.replace('%s', data.contact_email || '');
+  } else if (data.delivery_status === 'failed') {
+    feedback = page.dataset.inviteFailed.replace('%s', data.delivery_error || 'unknown error');
+  }
   try {
     await navigator.clipboard.writeText(data.invite_url);
-    showToast('Invite link copied');
+    showToast(feedback + ' ' + page.dataset.inviteLinkCopied);
   } catch (err) {
-    showToast(data.invite_url);
+    showToast(feedback + ' ' + data.invite_url);
   }
-  window.location.reload();
 }
 
 async function revokeInvite(id) {
   const resp = await fetch('/api/admin/invites/' + id + '/revoke', {method: 'POST'});
   if (resp.ok) window.location.reload();
+}
+
+async function revokeAllSessions(personId) {
+  if (!confirm('Log out all sessions for this person?')) return;
+  const resp = await fetch('/api/admin/persons/' + personId + '/revoke-sessions', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (resp.ok) {
+    showToast('All sessions ended (' + (data.revoked_count || 0) + ')');
+    window.location.reload();
+  } else {
+    showToast(data.detail || 'Failed to revoke sessions');
+  }
+}
+
+async function resendInvite(inviteId) {
+  const page = document.getElementById('admin-page');
+  const resp = await fetch('/api/admin/invites/' + inviteId + '/resend', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Resend failed');
+    return;
+  }
+  let feedback = page.dataset.inviteFallback;
+  if (data.delivery_status === 'sent') {
+    feedback = page.dataset.inviteSent.replace('%s', data.contact_email || '');
+  } else if (data.delivery_status === 'failed') {
+    feedback = page.dataset.inviteFailed.replace('%s', data.delivery_error || 'unknown error');
+  }
+  try {
+    await navigator.clipboard.writeText(data.invite_url);
+    showToast(feedback + ' ' + page.dataset.inviteLinkCopied);
+  } catch (err) {
+    showToast(feedback);
+  }
+  window.location.reload();
+}
+
+async function copyInviteLink(personId) {
+  // Create a fresh invite just to get the URL, then copy it
+  const page = document.getElementById('admin-page');
+  const resp = await fetch('/api/admin/persons/' + personId + '/invite', {method: 'POST'});
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Failed to create invite link');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(data.invite_url);
+    showToast(page.dataset.inviteLinkCopied);
+  } catch (err) {
+    showToast(data.invite_url);
+  }
 }
 </script>
 {% endblock %}

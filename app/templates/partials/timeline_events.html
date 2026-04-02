@@ -1,0 +1,35 @@
+{% if events %}
+<div class="timeline">
+  {% set current_year = namespace(value=0) %}
+  {% for ev in events %}
+    {% if ev.year != current_year.value %}
+      {% set current_year.value = ev.year %}
+      <div class="timeline__year-marker">
+        <span class="timeline__year">{{ ev.year }}</span>
+      </div>
+    {% endif %}
+    <div class="timeline__event timeline__event--{{ ev.type }}">
+      <div class="timeline__dot timeline__dot--{{ ev.type }}"></div>
+      <div class="timeline__content">
+        <span class="timeline__type-badge timeline__type-badge--{{ ev.type }}">{{ ev.type | title }}</span>
+        <h3 class="timeline__label">
+          {% if ev.person_id %}
+          <a href="/tree?focus={{ ev.person_id }}">{{ ev.label }}</a>
+          {% else %}
+          {{ ev.label }}
+          {% endif %}
+        </h3>
+        <span class="timeline__date">{{ ev.date }}</span>
+        {% if ev.detail %}
+        <p class="timeline__detail">{{ ev.detail }}</p>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state__icon">&#128197;</div>
+  <p class="empty-state__text">{{ t('timeline.no_events') }}</p>
+</div>
+{% endif %}

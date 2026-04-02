@@ -1,7 +1,7 @@
 {
   "id": "app/models/revisions.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T22:28:51.946063+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "eee00de2",
   "staleness": false,
   "purpose": null,
@@ -17,9 +17,12 @@
     "imported_by": [
       "app/models/__init__.py",
       "app/routes/pages.py",
-      "app/services/revision_service.py"
+      "app/services/revision_service.py",
+      "tests/test_protection_service.py"
     ],
-    "tested_by": []
+    "tested_by": [
+      "tests/test_protection_service.py"
+    ]
   },
   "exports": [
     {
@@ -140,15 +143,15 @@
     },
     "outlier_identifiers": null
   },
-  "testability_score": 0.7,
-  "attention_score": 0.1,
-  "centrality_score": 0.42,
+  "testability_score": 1.0,
+  "attention_score": 0.0,
+  "centrality_score": 0.17,
   "quality_radar": {
-    "understandability": 0.99,
-    "changeability": 0.65,
-    "correctness": 0.5,
+    "understandability": 0.98,
+    "changeability": 0.94,
+    "correctness": 1.0,
     "security": 1.0,
-    "stability": 0.8
+    "stability": 0.65
   },
   "domain_role": "utility",
   "detected_patterns": null,

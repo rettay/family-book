@@ -30,7 +30,6 @@ from app.routes.persons import router as persons_router
 from app.routes.relationships import router as relationships_router
 from app.routes.tree import router as tree_router
 from app.routes.media import router as media_router
-from app.routes.moments import router as moments_router
 from app.services.auth_service import create_session
 
 
@@ -164,7 +163,6 @@ def phase1_app():
     application.include_router(relationships_router)
     application.include_router(tree_router)
     application.include_router(media_router)
-    application.include_router(moments_router)
     return application
 
 

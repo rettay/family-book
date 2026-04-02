@@ -4,15 +4,60 @@
 <style>
   .page { padding-top: var(--nav-h); padding-bottom: 0; }
   .tree-layout {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
     min-height: calc(100vh - var(--nav-h));
   }
   .tree-panel {
+    position: relative;
     padding: 1rem;
     background: rgba(255, 248, 237, 0.95);
     border-right: 1px solid rgba(45, 80, 22, 0.12);
     overflow-y: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .tree-layout--panel-collapsed .tree-panel {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 340px;
+  }
+  .tree-layout--panel-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tree-panel__collapse {
+    position: absolute; top: 12px; right: 12px; z-index: 2;
+    background: rgba(255, 248, 237, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
+    font-size: 0.9rem; cursor: pointer; color: #6b6054;
+    padding: 6px 10px; border-radius: 999px;
+    transition: all 0.2s ease;
+  }
+  .tree-panel__collapse:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
+  .tree-panel-expand-tab {
+    position: absolute; top: 50%; left: 0; z-index: 19;
+    transform: translateY(-50%);
+    background: rgba(255, 253, 248, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
+    border-left: none; border-radius: 0 14px 14px 0;
+    padding: 10px 12px 10px 10px; cursor: pointer; color: #6b6054;
+    font-size: 0.85rem; box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .tree-panel-expand-tab:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
+  .tree-panel-expand-tab__icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+  .tree-panel-expand-tab__label {
+    font-weight: 600;
+    white-space: nowrap;
   }
   .tree-panel__group {
     margin-bottom: 1rem;
@@ -51,6 +96,7 @@
   }
   .tree-canvas {
     position: relative;
+    min-width: 0;
     min-height: calc(100vh - var(--nav-h));
     background:
       radial-gradient(circle at top, rgba(217, 234, 201, 0.8), transparent 40%),
@@ -58,6 +104,7 @@
   }
   .tree-page {
     position: relative;
+    width: 100%;
     height: calc(100vh - var(--nav-h));
   }
   #tree-svg {
@@ -77,14 +124,87 @@
     font-size: 0.85rem;
     box-shadow: 0 8px 18px rgba(45, 80, 22, 0.08);
   }
+  .tree-graph-prompt {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    background: rgba(255, 248, 237, 0.96);
+    border: 1px solid rgba(45, 80, 22, 0.18);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    font-size: 0.88rem;
+    color: #2d5016;
+  }
+  .tree-graph-prompt[hidden] {
+    display: none;
+  }
   .tree-toggle {
     display: flex;
     align-items: center;
     gap: 0.4rem;
   }
+  .tree-search {
+    position: relative;
+  }
+  .tree-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    max-height: 280px;
+    overflow-y: auto;
+    background: #fffdf8;
+    border: 1px solid rgba(45, 80, 22, 0.15);
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 8px 20px rgba(45, 80, 22, 0.1);
+  }
+  .tree-search-result {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(45, 80, 22, 0.06);
+  }
+  .tree-search-result:hover,
+  .tree-search-result[aria-selected="true"] {
+    background: rgba(217, 234, 201, 0.5);
+  }
+  .tree-search-result__name {
+    font-weight: 600;
+    color: #2d5016;
+  }
+  .tree-search-result__meta {
+    font-size: 0.82rem;
+    color: #6b6054;
+  }
+  .tree-search-empty {
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6b6054;
+  }
   @media (max-width: 900px) {
     .tree-layout {
       grid-template-columns: 1fr;
+    }
+    .tree-layout--panel-collapsed { grid-template-columns: 1fr; }
+    .tree-layout--panel-collapsed .tree-panel {
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+      position: static;
+      width: auto;
     }
     .tree-panel {
       border-right: 0;
@@ -95,6 +215,8 @@
       min-height: 70vh;
       height: 70vh;
     }
+    .tree-panel__collapse { display: none; }
+    .tree-panel-expand-tab { display: none; }
   }
 </style>
 {% endblock %}
@@ -106,11 +228,124 @@
   data-load-error="{{ t('tree.load_error') }}"
   data-empty-text="{{ t('tree.empty') }}"
   data-status-template="{{ t('tree.status') }}"
+  data-save-label="{{ t('common.save') }}"
+  data-saving-label="{{ t('common.loading') }}"
+  data-saved-message="{{ t('tree.saved_message') }}"
+  data-relationship-message="{{ t('tree.relationship_saved') }}"
+  data-created-message="{{ t('tree.relative_created') }}"
+  data-update-error="{{ t('tree.update_error') }}"
+  data-relationship-error="{{ t('tree.relationship_error') }}"
+  data-media-error="{{ t('tree.media_load_error') }}"
+  data-empty-media="{{ t('tree.empty_media') }}"
+  data-add-first-photo="{{ t('tree.add_first_photo') }}"
+  data-picker-empty="{{ t('tree.no_search_matches') }}"
+  data-tree-media-uploaded="{{ t('tree.media_uploaded') }}"
+  data-tree-relationship-removed="{{ t('tree.relationship_removed') }}"
+  data-tree-relationship-replaced="{{ t('tree.relationship_replaced') }}"
+  data-tree-relationship-updated="{{ t('tree.relationship_updated') }}"
+  data-tree-relationship-reversed="{{ t('tree.relationship_reversed') }}"
+  data-upload-label="{{ t('tree.upload_media') }}"
+  data-view-profile-label="{{ t('tree.full_profile') }}"
+  data-people-link-label="{{ t('tree.full_profile') }}"
+  data-open-in-tree-label="{{ t('tree.open_in_tree') }}"
+  data-open-media-label="{{ t('tree.open_media_item') }}"
+  data-media-file-pending="{{ t('tree.media_file_pending') }}"
+  data-tree-multi-picker-remove="{{ t('common.cancel') }}"
+  data-tree-parent-singular="{{ t('tree.parent_singular') }}"
+  data-tree-child-singular="{{ t('tree.child_singular') }}"
+  data-tree-partner-singular="{{ t('tree.partner_singular') }}"
+  data-tree-graph-prompt-link="{{ t('tree.graph_prompt_link') }}"
+  data-tree-graph-prompt-replace="{{ t('tree.graph_prompt_replace') }}"
+  data-tree-graph-confirm-link="{{ t('tree.graph_confirm_link') }}"
+  data-tree-graph-confirm-replace="{{ t('tree.graph_confirm_replace') }}"
+  data-tree-graph-select-other="{{ t('tree.graph_select_other') }}"
+  data-tree-graph-cancelled="{{ t('tree.graph_cancelled') }}"
+  data-tree-graph-pick-on-tree="{{ t('tree.pick_on_tree') }}"
+  data-tree-open-search-link="{{ t('tree.search_and_link') }}"
+  data-tree-open-create-link="{{ t('tree.create_in_tree') }}"
+  data-tree-replace-on-tree="{{ t('tree.replace_on_tree') }}"
+  data-tree-edit-relationship="{{ t('tree.edit_relationship') }}"
+  data-tree-remove-confirm="{{ t('tree.remove_relationship_confirm') }}"
+  data-tree-reverse-confirm="{{ t('tree.reverse_relationship_confirm') }}"
+  data-tree-search-no-results="{{ t('tree.search_no_results') }}"
+  data-tree-search-hint="{{ t('tree.search_hint') }}"
+  data-tree-add-new-person="{{ t('tree.add_new_person') }}"
+  data-tree-create-person="{{ t('tree.create_person') }}"
+  data-tree-add-first-person="{{ t('tree.add_first_person') }}"
+  data-tree-first-name-label="{{ t('person.first_name') }}"
+  data-tree-last-name-label="{{ t('person.last_name') }}"
+  data-tree-branch-label="{{ t('person.branch') }}"
+  data-tree-focus-label="{{ t('tree.current_focus') }}"
+  data-tree-root-label="{{ t('tree.family_root') }}"
+  data-tree-focus-none="{{ t('tree.no_focus_selected') }}"
+  data-tree-focus-current-template="{{ t('tree.focus_current_template') }}"
+  data-tree-generation-template="{{ t('tree.generation_label') }}"
+  data-tree-detached-component-template="{{ t('tree.detached_component') }}"
+  data-tree-detached-line-template="{{ t('tree.detached_line') }}"
+  data-tree-relcalc-step-one="{{ t('tree.relationship_calc_step_one') }}"
+  data-tree-relcalc-step-two="{{ t('tree.relationship_calc_step_two') }}"
+  data-tree-relcalc-computing="{{ t('tree.relationship_calc_computing') }}"
+  data-tree-relcalc-error="{{ t('tree.relationship_calc_error') }}"
+  data-set-headshot-label="{{ t('media.set_headshot') }}"
+  data-headshot-updated-label="{{ t('media.headshot_updated') }}"
+  data-delete-media-label="{{ t('media.delete') }}"
+  data-google-maps-api-key="{{ google_maps_browser_api_key }}"
+  data-google-places-enabled="{{ 'true' if google_places_enabled else 'false' }}"
+  data-place-manual-hint="{{ t('map.place_manual_hint') }}"
+  data-place-lookup-hint="{{ t('map.place_lookup_hint') }}"
+  data-place-verified-hint="{{ t('map.place_verified_hint') }}"
+  data-place-lookup-failed-hint="{{ t('map.place_lookup_failed_hint') }}"
+  data-place-suggestions-label="{{ t('map.place_suggestions_label') }}"
+  data-auto-saving-label="{{ t('tree.auto_saving') }}"
+  data-auto-saved-label="{{ t('tree.auto_saved') }}"
+  data-auto-save-error-label="{{ t('tree.auto_save_error') }}"
+  data-ancestor-banner-label="{{ t('tree.ancestor_banner') }}"
+  data-branch-hint-label="{{ t('tree.branch_hint') }}"
+  data-view-branch-of-label="{{ t('tree.view_branch_of') }}"
+  data-ctx-view-branch="{{ t('tree.ctx_view_branch') }}"
+  data-ctx-add-parent="{{ t('tree.ctx_add_parent') }}"
+  data-ctx-add-child="{{ t('tree.ctx_add_child') }}"
+  data-ctx-add-partner="{{ t('tree.ctx_add_partner') }}"
+  data-ctx-upload-photo="{{ t('tree.ctx_upload_photo') }}"
+  data-ctx-edit-details="{{ t('tree.ctx_edit_details') }}"
+  data-ctx-view-profile="{{ t('tree.ctx_view_profile') }}"
 >
-  <aside class="tree-panel">
-    <section class="tree-panel__group">
+  <aside class="tree-panel" id="tree-panel-content">
+    <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
+            aria-label="{{ t('tree.hide_settings') }}" title="{{ t('tree.hide_settings') }}"
+            onclick="toggleTreePanel()">&#x276E; {{ t('tree.hide_settings') }}</button>
+
+    <section class="tree-panel__group" data-tree-panel-group="navigate">
+      <div class="tree-search" id="tree-search">
+        <input
+          type="search"
+          class="form-input"
+          id="tree-search-input"
+          placeholder="{{ t('tree.search_people_placeholder') }}"
+          autocomplete="off"
+          aria-label="{{ t('tree.search_tree') }}"
+          aria-controls="tree-search-results"
+          aria-expanded="false"
+          role="combobox"
+          aria-autocomplete="list"
+        >
+        <div class="tree-search-results" id="tree-search-results" role="listbox" hidden></div>
+      </div>
+    </section>
+
+    <section class="tree-panel__group" data-tree-panel-group="branch" id="tree-branch-controls">
+      <h2 class="tree-panel__title">{{ t('tree.view_branch') }}</h2>
+      <p class="tree-panel__hint" style="margin-top:0" id="tree-branch-hint">{{ t('tree.branch_hint') }}</p>
+      <div class="tree-panel__actions" id="tree-branch-actions">
+        <button class="btn btn--primary" type="button" id="tree-branch-apply" onclick="window.applyBranchFromPanel()" disabled>{{ t('tree.view_branch') }}</button>
+        <button class="btn btn--ghost" type="button" id="tree-branch-clear" onclick="clearAncestorView()" hidden>{{ t('tree.show_full_tree') }}</button>
+      </div>
+    </section>
+
+    <section class="tree-panel__group" data-tree-panel-group="view">
       <h2 class="tree-panel__title">{{ t('tree.display_preferences') }}</h2>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-names"> {{ t('tree.show_names') }}</label>
+      <label class="tree-toggle"><input type="checkbox" id="pref-show-nicknames"> {{ t('tree.show_nicknames') }}</label>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-birth-dates"> {{ t('tree.show_birth_dates') }}</label>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-country-flags"> {{ t('tree.show_country_flags') }}</label>
       <label class="tree-toggle"><input type="checkbox" id="pref-show-photos"> {{ t('tree.show_photos') }}</label>
@@ -119,50 +354,51 @@
       </div>
       <p class="tree-panel__hint">{{ t('tree.preferences_hint') }}</p>
     </section>
-
-    <section class="tree-panel__group">
-      <h2 class="tree-panel__title">{{ t('tree.filters') }}</h2>
-      <label>
-        {{ t('tree.filter_living') }}
-        <select id="tree-filter-living">
-          <option value="all">{{ t('tree.filter_all') }}</option>
-          <option value="living">{{ t('tree.filter_living_only') }}</option>
-          <option value="deceased">{{ t('tree.filter_deceased_only') }}</option>
-        </select>
-      </label>
-      <label>
-        {{ t('tree.filter_branch') }}
-        <input type="text" id="tree-filter-branch" placeholder="{{ t('tree.filter_branch_placeholder') }}">
-      </label>
-      <label>
-        {{ t('tree.filter_residence_country') }}
-        <input type="text" id="tree-filter-residence-country" maxlength="2" placeholder="US">
-      </label>
-      <label>
-        {{ t('tree.filter_birth_country') }}
-        <input type="text" id="tree-filter-birth-country" maxlength="2" placeholder="MX">
-      </label>
-      <div class="tree-panel__actions">
-        <button class="btn btn--primary" id="apply-tree-filters">{{ t('tree.apply_filters') }}</button>
-        <button class="btn btn--secondary" id="reset-tree-filters">{{ t('tree.reset_filters') }}</button>
-      </div>
-    </section>
   </aside>
 
   <div class="tree-canvas">
     <div class="tree-page" id="tree-page">
+      <div class="tree-context-menu" id="tree-context-menu" hidden role="menu" aria-label="Node actions"></div>
       <div class="tree-controls">
-        <button onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}">+</button>
-        <button onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}">&minus;</button>
-        <button onclick="treeReset()" title="{{ t('tree.reset_view') }}">&#8634;</button>
+        <button type="button" onclick="treeZoomIn()" title="{{ t('tree.zoom_in') }}" aria-label="{{ t('tree.zoom_in') }}">+</button>
+        <button type="button" onclick="treeZoomOut()" title="{{ t('tree.zoom_out') }}" aria-label="{{ t('tree.zoom_out') }}">&minus;</button>
+        <button type="button" onclick="treeFitView()" title="{{ t('tree.fit_tree') }}" aria-label="{{ t('tree.fit_tree') }}">&#9635;</button>
+        <button type="button" onclick="treeCenterRoot()" title="{{ t('tree.center_root') }}" aria-label="{{ t('tree.center_root') }}">&#8962;</button>
+        <button type="button" onclick="treeReturnToFocus()" title="{{ t('tree.return_to_focus') }}" aria-label="{{ t('tree.return_to_focus') }}">&#9673;</button>
+        <button type="button" onclick="treeReset()" title="{{ t('tree.reset_view') }}" aria-label="{{ t('tree.reset_view') }}">&#8634;</button>
+        <button type="button" onclick="window.openAddPersonPanel()" title="{{ t('person.add') }}" aria-label="{{ t('person.add') }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></button>
       </div>
 
-      <svg id="tree-svg"></svg>
-      <div class="tree-status" id="tree-status">{{ t('common.loading') }}</div>
+      <div class="tree-relcalc-banner" id="tree-relcalc-banner" hidden aria-live="polite"></div>
+      <div class="tree-graph-prompt" id="tree-graph-prompt" hidden aria-live="polite">
+        <span id="tree-graph-prompt-text"></span>
+        <button type="button" class="btn btn--ghost btn--sm" onclick="cancelTreeGraphMode()">{{ t('common.cancel') }}</button>
+      </div>
 
-      <div class="person-sidebar" id="person-sidebar">
-        <button class="person-sidebar__close" onclick="closeSidebar()">&times;</button>
-        <div id="sidebar-content"></div>
+      <svg id="tree-svg" aria-label="{{ t('tree.title') }}"></svg>
+      <div class="tree-status" id="tree-status" role="status" aria-live="polite">{{ t('common.loading') }}</div>
+
+      <div class="tree-relcalc-result" id="tree-relcalc-result" hidden aria-live="polite">
+        <div class="tree-relcalc-result__header">
+          <strong class="tree-relcalc-result__label"></strong>
+          <button class="btn btn--sm" onclick="cancelRelationshipCalc()" aria-label="Close">&times;</button>
+        </div>
+        <div class="tree-relcalc-result__details"></div>
+      </div>
+
+      <button class="tree-panel-expand-tab" id="tree-panel-expand-tab" type="button"
+              aria-label="{{ t('tree.expand_settings') }}" title="{{ t('tree.expand_settings') }}"
+              onclick="toggleTreePanel()" hidden>
+        <span class="tree-panel-expand-tab__icon">&#x276F;</span>
+        <span class="tree-panel-expand-tab__label">{{ t('tree.expand_settings') }}</span>
+      </button>
+      <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
+      <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
+        <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">
+          <button class="person-sidebar__collapse" type="button" aria-label="Collapse sidebar" onclick="collapseSidebar()" title="Collapse sidebar">&#x276F;</button>
+          <button class="person-sidebar__close" type="button" aria-label="{{ t('common.cancel') }}" onclick="closeSidebar()">&times;</button>
+          <div id="sidebar-content" aria-live="polite" aria-busy="false"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -170,6 +406,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/location_fields.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="/static/js/tree.js"></script>
 {% endblock %}

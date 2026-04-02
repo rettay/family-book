@@ -1,7 +1,7 @@
 import enum
 import json
 
-from sqlalchemy import Boolean, ForeignKey, String, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, generate_uuid, utcnow
@@ -79,6 +79,29 @@ class MessengerImportBatch(Base):
     @sender_mappings.setter
     def sender_mappings(self, value: dict) -> None:
         self._sender_mappings = json.dumps(value)
+
+
+class GedcomImportBatch(Base):
+    __tablename__ = "gedcom_import_batches"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    filename: Mapped[str] = mapped_column(String(300))
+    status: Mapped[str] = mapped_column(String(20), default=ImportStatus.pending.value)
+    persons_created: Mapped[int] = mapped_column(Integer, default=0)
+    relationships_created: Mapped[int] = mapped_column(Integer, default=0)
+    duplicates_skipped: Mapped[int] = mapped_column(Integer, default=0)
+    _stats: Mapped[str | None] = mapped_column("stats", Text, default="{}")
+    imported_by: Mapped[str] = mapped_column(String(36))
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(default=None)
+
+    @property
+    def stats(self) -> dict:
+        return json.loads(self._stats) if self._stats else {}
+
+    @stats.setter
+    def stats(self, value: dict) -> None:
+        self._stats = json.dumps(value)
 
 
 class AgentApiKey(Base):

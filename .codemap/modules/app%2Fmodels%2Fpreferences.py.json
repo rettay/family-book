@@ -1,7 +1,7 @@
 {
   "id": "app/models/preferences.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "e9c64d52",
   "staleness": false,
   "purpose": null,
@@ -107,7 +107,7 @@
     "bus_factor": 1,
     "author_count": 1,
     "last_modified": "2026-03-23T11:44:52-04:00",
-    "recency_score": 1.0,
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,
@@ -119,11 +119,11 @@
     "outlier_identifiers": null
   },
   "testability_score": 0.7,
-  "attention_score": 0.15,
-  "centrality_score": 0.1,
+  "attention_score": 0.14,
+  "centrality_score": 0.09,
   "quality_radar": {
-    "understandability": 0.95,
-    "changeability": 0.66,
+    "understandability": 0.97,
+    "changeability": 0.67,
     "correctness": 0.5,
     "security": 1.0,
     "stability": 0.65

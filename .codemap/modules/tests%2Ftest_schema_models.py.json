@@ -1,18 +1,17 @@
 {
   "id": "tests/test_schema_models.py",
   "language": "python",
-  "analyzed_at": "2026-03-24T00:14:31.320933+00:00",
-  "source_hash": "627a1739",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "e2643c85",
   "staleness": false,
   "purpose": null,
   "complexity": {
-    "cyclomatic": 1,
-    "lines": 54,
+    "cyclomatic": 2,
+    "lines": 130,
     "rating": "green"
   },
   "dependencies": {
     "imports": [
-      "app/models/moments.py",
       "app/models/person.py",
       "app/schemas.py"
     ],
@@ -24,21 +23,42 @@
       "name": "test_person_schema_helpers_preserve_expected_fields",
       "type": "function",
       "summary": null,
-      "line": 6,
+      "line": 19,
       "signature": "()"
     },
     {
       "name": "test_root_person_detail_redacts_name_fields",
       "type": "function",
       "summary": null,
-      "line": 29,
+      "line": 44,
       "signature": "()"
     },
     {
-      "name": "test_moment_model_list_properties_round_trip",
+      "name": "test_schema_models_do_not_share_default_language_list",
       "type": "function",
       "summary": null,
-      "line": 48,
+      "line": 63,
+      "signature": "()"
+    },
+    {
+      "name": "test_person_update_can_clear_fields_without_setting_unrelated_defaults",
+      "type": "function",
+      "summary": null,
+      "line": 72,
+      "signature": "()"
+    },
+    {
+      "name": "test_person_summary_helper_preserves_datetime_fields_for_detail",
+      "type": "function",
+      "summary": null,
+      "line": 80,
+      "signature": "()"
+    },
+    {
+      "name": "test_relationship_schemas_validate_integration_shapes",
+      "type": "function",
+      "summary": null,
+      "line": 102,
       "signature": "()"
     }
   ],
@@ -46,23 +66,23 @@
     {
       "name": "test_person_schema_helpers_preserve_expected_fields",
       "kind": "function",
-      "line": 6,
+      "line": 19,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 7,
+          "line": 22,
           "module_hint": "app.models.person"
         },
         {
           "name": "person_to_summary",
-          "line": 21,
+          "line": 36,
           "module_hint": "app.schemas"
         },
         {
           "name": "person_to_detail",
-          "line": 22,
+          "line": 37,
           "module_hint": "app.schemas"
         }
       ]
@@ -70,33 +90,120 @@
     {
       "name": "test_root_person_detail_redacts_name_fields",
       "kind": "function",
-      "line": 29,
+      "line": 44,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
           "name": "Person",
-          "line": 30,
+          "line": 45,
           "module_hint": "app.models.person"
         },
         {
           "name": "person_to_detail",
-          "line": 41,
+          "line": 56,
           "module_hint": "app.schemas"
         }
       ]
     },
     {
-      "name": "test_moment_model_list_properties_round_trip",
+      "name": "test_schema_models_do_not_share_default_language_list",
       "kind": "function",
-      "line": 48,
+      "line": 63,
       "signature": "()",
       "complexity": 1,
       "calls": [
         {
-          "name": "Moment",
-          "line": 49,
-          "module_hint": "app.models.moments"
+          "name": "PersonCreate",
+          "line": 64,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "PersonCreate",
+          "line": 65,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "first.languages.append",
+          "line": 67,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "test_person_update_can_clear_fields_without_setting_unrelated_defaults",
+      "kind": "function",
+      "line": 72,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "PersonUpdate",
+          "line": 73,
+          "module_hint": "app.schemas"
+        }
+      ]
+    },
+    {
+      "name": "test_person_summary_helper_preserves_datetime_fields_for_detail",
+      "kind": "function",
+      "line": 80,
+      "signature": "()",
+      "complexity": 1,
+      "calls": [
+        {
+          "name": "datetime",
+          "line": 81,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "Person",
+          "line": 82,
+          "module_hint": "app.models.person"
+        },
+        {
+          "name": "person_to_detail",
+          "line": 95,
+          "module_hint": "app.schemas"
+        }
+      ]
+    },
+    {
+      "name": "test_relationship_schemas_validate_integration_shapes",
+      "kind": "function",
+      "line": 102,
+      "signature": "()",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "ParentChildCreate",
+          "line": 103,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "ParentChildResponse",
+          "line": 107,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "PartnershipResponse",
+          "line": 115,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "PartnershipUpdate",
+          "line": 123,
+          "module_hint": "app.schemas"
+        },
+        {
+          "name": "pytest.raises",
+          "line": 125,
+          "module_hint": "pytest"
+        },
+        {
+          "name": "schemas.PersonCreate",
+          "line": 126,
+          "module_hint": "app.schemas"
         }
       ]
     }
@@ -104,13 +211,13 @@
   "function_audits": [
     {
       "function": "test_person_schema_helpers_preserve_expected_fields",
-      "line": 6,
+      "line": 19,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
-        "size": 20,
+        "size": 22,
         "nesting": 0,
-        "token_count": 105
+        "token_count": 118
       },
       "findings": [
         {
@@ -118,16 +225,16 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 24,
-              "line_end": 24
+              "line_start": 39,
+              "line_end": 39
             },
             {
-              "line_start": 25,
-              "line_end": 25
+              "line_start": 40,
+              "line_end": 40
             },
             {
-              "line_start": 26,
-              "line_end": 26
+              "line_start": 41,
+              "line_end": 41
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -146,7 +253,7 @@
     },
     {
       "function": "test_root_person_detail_redacts_name_fields",
-      "line": 29,
+      "line": 44,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
@@ -166,14 +273,14 @@
       "review_priority": 0.0
     },
     {
-      "function": "test_moment_model_list_properties_round_trip",
-      "line": 48,
+      "function": "test_schema_models_do_not_share_default_language_list",
+      "line": 63,
       "metrics": {
         "cyclomatic": 1,
         "cognitive": 0,
         "size": 6,
         "nesting": 0,
-        "token_count": 82
+        "token_count": 55
       },
       "findings": [
         {
@@ -181,32 +288,160 @@
           "category": "duplication",
           "evidence_spans": [
             {
-              "line_start": 50,
-              "line_end": 50
+              "line_start": 64,
+              "line_end": 64
             },
             {
-              "line_start": 51,
-              "line_end": 51
+              "line_start": 65,
+              "line_end": 65
             },
             {
-              "line_start": 50,
-              "line_end": 50
+              "line_start": 64,
+              "line_end": 64
             },
             {
-              "line_start": 51,
-              "line_end": 51
+              "line_start": 65,
+              "line_end": 65
             },
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 64,
+              "line_end": 64
             },
             {
-              "line_start": 53,
-              "line_end": 53
+              "line_start": 65,
+              "line_end": 65
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "test_person_update_can_clear_fields_without_setting_unrelated_defaults",
+      "line": 72,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 5,
+        "nesting": 0,
+        "token_count": 40
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_person_summary_helper_preserves_datetime_fields_for_detail",
+      "line": 80,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 19,
+        "nesting": 0,
+        "token_count": 97
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "test_relationship_schemas_validate_integration_shapes",
+      "line": 102,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 28,
+        "nesting": 0,
+        "token_count": 187
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 107,
+              "line_end": 114
             },
             {
-              "line_start": 54,
-              "line_end": 54
+              "line_start": 115,
+              "line_end": 122
+            },
+            {
+              "line_start": 107,
+              "line_end": 114
+            },
+            {
+              "line_start": 115,
+              "line_end": 122
+            },
+            {
+              "line_start": 103,
+              "line_end": 106
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 103,
+              "line_end": 106
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 103,
+              "line_end": 106
+            },
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 127,
+              "line_end": 127
+            },
+            {
+              "line_start": 128,
+              "line_end": 128
+            },
+            {
+              "line_start": 129,
+              "line_end": 129
+            },
+            {
+              "line_start": 107,
+              "line_end": 114
+            },
+            {
+              "line_start": 115,
+              "line_end": 122
             }
           ],
           "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
@@ -233,8 +468,8 @@
     "side_effects": [],
     "purity": "pure",
     "todo_count": 0,
-    "churn_count": 0,
-    "change_risk": "low",
+    "churn_count": 3,
+    "change_risk": "medium",
     "domain": "domain-0",
     "observability_patterns": [],
     "endpoints": [],
@@ -242,11 +477,11 @@
     "services": [],
     "unused_exports": [],
     "package": null,
-    "change_velocity": null,
-    "bus_factor": null,
-    "author_count": null,
-    "last_modified": null,
-    "recency_score": null,
+    "change_velocity": 0.5,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-24T18:42:19-04:00",
+    "recency_score": 0.99,
     "co_change_partners": [],
     "attack_surface": false,
     "convention_compliance": 1.0,

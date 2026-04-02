@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.models.media import Media
-from app.models.moments import Moment, MomentLifecycleState
 from app.models.person import AccountState, Person, PersonLifecycleState, Visibility
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import PersonDetail, PersonSummary
@@ -116,6 +115,16 @@ async def can_view_media(
     current_user: Person,
     media: Media,
 ) -> bool:
+    # Admin can see everything including hidden
+    if current_user.is_admin:
+        return True
+    # Hidden media only visible to admins
+    if getattr(media, "visibility", "family") == "hidden":
+        return False
+    # Private media only visible to uploader
+    if getattr(media, "visibility", "family") == "private":
+        return media.uploaded_by == current_user.id
+    # Family visibility — check person-level access
     result = await db.execute(select(Person).where(Person.id == media.person_id))
     person = result.scalar_one_or_none()
     if not person:
@@ -123,92 +132,25 @@ async def can_view_media(
     return (await get_person_access(db, current_user, person)).can_view
 
 
-async def can_view_moment(
-    db: AsyncSession,
-    current_user: Person,
-    moment: Moment,
-) -> bool:
-    if moment.lifecycle_state == MomentLifecycleState.deleted.value:
-        logger.debug("Deleted moment %s hidden from user %s", moment.id, current_user.id)
-        return False
-    if moment.lifecycle_state == MomentLifecycleState.moderated.value and not current_user.is_admin:
-        logger.debug("Moderated moment %s denied to non-admin %s", moment.id, current_user.id)
-        return False
-    if not current_user.is_admin:
-        if moment.visibility in {"hidden", "admins"}:
-            logger.debug("Moment %s visibility %s denied to %s", moment.id, moment.visibility, current_user.id)
-            return False
-
-    result = await db.execute(select(Person).where(Person.id == moment.person_id))
-    person = result.scalar_one_or_none()
-    if not person:
-        return False
-
-    return (await get_person_access(db, current_user, person)).can_view
+def can_edit_media(current_user: Person, media: Media) -> bool:
+    """Uploader or admin can edit media metadata."""
+    if current_user.is_admin:
+        return True
+    return media.uploaded_by == current_user.id
 
 
-def can_manage_moment(current_user: Person, moment: Moment) -> bool:
-    if moment.lifecycle_state != MomentLifecycleState.active.value:
-        return current_user.is_admin and moment.lifecycle_state == MomentLifecycleState.moderated.value
-    return current_user.is_admin or moment.posted_by == current_user.id
-
-
-def can_create_moment_for_person(current_user: Person, person: Person) -> bool:
-    return can_manage_person(current_user, person)
+def can_soft_delete_media(current_user: Person, media: Media) -> bool:
+    """Uploader or admin can soft-delete."""
+    if current_user.is_admin:
+        return True
+    return media.uploaded_by == current_user.id
 
 
 def redact_person_detail(person: Person, access: PersonAccess) -> PersonDetail:
-    if person.is_root:
-        first_name = None
-        last_name = None
-        nickname = None
-    else:
-        first_name = person.first_name
-        last_name = person.last_name
-        nickname = person.nickname
-
-    show_profile = access.can_view_profile
-    show_contacts = access.can_view_contacts
-
-    return PersonDetail(
-        id=person.id,
-        display_name=person.display_name,
-        nickname=nickname,
-        photo_url=person.photo_url,
-        residence_country_code=person.residence_country_code if show_profile else None,
-        branch=person.branch if show_profile else None,
-        is_living=person.is_living,
-        visibility=person.visibility,
-        first_name=first_name,
-        last_name=last_name,
-        patronymic=person.patronymic if show_profile and not person.is_root else None,
-        birth_last_name=person.birth_last_name if show_profile and not person.is_root else None,
-        gender=person.gender if show_profile and not person.is_root else None,
-        birth_date_raw=person.birth_date_raw if show_profile else None,
-        birth_date=person.birth_date if show_profile else None,
-        birth_date_precision=person.birth_date_precision if show_profile else None,
-        death_date_raw=person.death_date_raw if show_profile else None,
-        death_date=person.death_date if show_profile else None,
-        death_date_precision=person.death_date_precision if show_profile else None,
-        birth_place=person.birth_place if show_profile else None,
-        birth_country_code=person.birth_country_code if show_profile else None,
-        residence_place=person.residence_place if show_profile else None,
-        burial_place=person.burial_place if show_profile else None,
-        burial_country_code=person.burial_country_code if show_profile else None,
-        burial_cemetery_name=person.burial_cemetery_name if show_profile else None,
-        burial_plot_number=person.burial_plot_number if show_profile else None,
-        languages=person.languages if show_profile else [],
-        bio=person.bio if show_profile else None,
-        medical_history=person.medical_history if show_profile else None,
-        contact_whatsapp=person.contact_whatsapp if show_contacts else None,
-        contact_telegram=person.contact_telegram if show_contacts else None,
-        contact_signal=person.contact_signal if show_contacts else None,
-        contact_email=person.contact_email if show_contacts else None,
-        is_admin=person.is_admin if access.can_manage else False,
-        is_root=person.is_root,
-        source=person.source if access.can_manage else "manual",
-        created_at=person.created_at if access.can_manage else None,
-    )
+    payload = _detail_identity_payload(person, access)
+    payload.update(_detail_profile_payload(person, access))
+    payload.update(_detail_contact_payload(person, access))
+    return PersonDetail(**payload)
 
 
 def redact_person_summary(person: Person, access: PersonAccess) -> PersonSummary:
@@ -216,13 +158,134 @@ def redact_person_summary(person: Person, access: PersonAccess) -> PersonSummary
         id=person.id,
         display_name=person.display_name,
         nickname=person.nickname if not person.is_root else None,
+        last_name=_profile_name_value(person.last_name, person, access),
+        patronymic=_profile_name_value(person.patronymic, person, access),
+        name_display_order=person.name_display_order if access.can_view_profile and not person.is_root else None,
         photo_url=person.photo_url,
         birth_date_raw=person.birth_date_raw if access.can_view_profile else None,
         residence_country_code=person.residence_country_code if access.can_view_profile else None,
         branch=person.branch if access.can_view_profile else None,
         is_living=person.is_living,
         visibility=person.visibility,
+        slug=person.slug,
+        media_count=getattr(person, "media_count", 0) or 0,
     )
+
+
+def _root_redacted_name(value: str | None, person: Person) -> str | None:
+    return None if person.is_root else value
+
+
+def _detail_identity_payload(person: Person, access: PersonAccess) -> dict[str, object]:
+    return {
+        "id": person.id,
+        "display_name": person.display_name,
+        "nickname": _detail_nickname(person),
+        "photo_url": person.photo_url,
+        "residence_country_code": _profile_value(person.residence_country_code, access),
+        "branch": _profile_value(person.branch, access),
+        "is_living": person.is_living,
+        "visibility": person.visibility,
+        "first_name": _root_redacted_name(person.first_name, person),
+        "last_name": _root_redacted_name(person.last_name, person),
+        "is_admin": person.is_admin if access.can_manage else False,
+        "slug": person.slug,
+        "is_root": person.is_root,
+        "source": person.source if access.can_manage else "manual",
+        "created_at": person.created_at if access.can_manage else None,
+    }
+
+
+def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, object]:
+    return {
+        "patronymic": _profile_name_value(person.patronymic, person, access),
+        "birth_last_name": _profile_name_value(person.birth_last_name, person, access),
+        "alternate_nicknames": _profile_list(person.alternate_nicknames, access),
+        "gender": _profile_name_value(person.gender, person, access),
+        "birth_date_raw": _profile_value(person.birth_date_raw, access),
+        "birth_date": _profile_value(person.birth_date, access),
+        "birth_date_precision": _profile_value(person.birth_date_precision, access),
+        "death_date_raw": _profile_value(person.death_date_raw, access),
+        "death_date": _profile_value(person.death_date, access),
+        "death_date_precision": _profile_value(person.death_date_precision, access),
+        "birth_place": _profile_value(person.birth_place, access),
+        "birth_country_code": _profile_value(person.birth_country_code, access),
+        "birth_place_latitude": _profile_value(person.birth_place_latitude, access),
+        "birth_place_longitude": _profile_value(person.birth_place_longitude, access),
+        "residence_place": _profile_value(person.residence_place, access),
+        "residence_place_latitude": _profile_value(person.residence_place_latitude, access),
+        "residence_place_longitude": _profile_value(person.residence_place_longitude, access),
+        "burial_place": _profile_value(person.burial_place, access),
+        "burial_country_code": _profile_value(person.burial_country_code, access),
+        "burial_place_latitude": _profile_value(person.burial_place_latitude, access),
+        "burial_place_longitude": _profile_value(person.burial_place_longitude, access),
+        "burial_cemetery_name": _profile_value(person.burial_cemetery_name, access),
+        "burial_plot_number": _profile_value(person.burial_plot_number, access),
+        "remains_disposition": _profile_value(person.remains_disposition, access),
+        "languages": _profile_list(person.languages, access),
+        "bio": _profile_value(person.bio, access),
+        "research_notes": _profile_value(person.research_notes, access),
+        "medical_history": _profile_value(person.medical_history, access),
+        "obituary": _profile_value(person.obituary, access),
+        "obituary_source": _profile_value(person.obituary_source, access),
+        "obituary_url": _profile_value(person.obituary_url, access),
+        "name_history": _profile_list(person.name_history, access),
+        "social_accounts": _profile_list(person.social_accounts, access),
+        "education": _profile_list(person.education, access),
+        "career": _profile_list(person.career, access),
+        "organizations": _profile_list(person.organizations, access),
+        "height": _profile_value(person.height, access),
+        "weight": _profile_value(person.weight, access),
+        "eye_color": _profile_value(person.eye_color, access),
+        "hair_color": _profile_value(person.hair_color, access),
+        "blood_type": _profile_value(person.blood_type, access),
+        "maternal_haplogroup": _profile_value(person.maternal_haplogroup, access),
+        "paternal_haplogroup": _profile_value(person.paternal_haplogroup, access),
+        "dna_test_provider": _profile_value(person.dna_test_provider, access),
+        "admixture": _profile_list(person.admixture, access),
+        "medical_conditions": _profile_list(person.medical_conditions, access),
+        "source_detail": _profile_value(person.source_detail, access),
+        "confidence": _profile_value(person.confidence, access),
+    }
+
+
+def _detail_contact_payload(person: Person, access: PersonAccess) -> dict[str, object]:
+    return {
+        "contact_whatsapp": _contact_value(person.contact_whatsapp, access),
+        "contact_telegram": _contact_value(person.contact_telegram, access),
+        "contact_signal": _contact_value(person.contact_signal, access),
+        "contact_phone": _contact_value(person.contact_phone, access),
+        "contact_email": _contact_value(person.contact_email, access),
+        "contact_addresses": _contact_list(person.contact_addresses, access),
+        "contact_phones": _contact_list(person.contact_phones, access),
+        "contact_emails": _contact_list(person.contact_emails, access),
+    }
+
+
+def _detail_nickname(person: Person) -> str | None:
+    return None if person.is_root else person.nickname
+
+
+def _profile_value(value, access: PersonAccess):
+    return value if access.can_view_profile else None
+
+
+def _profile_list(value: list[str], access: PersonAccess) -> list[str]:
+    return value if access.can_view_profile else []
+
+
+def _profile_name_value(value: str | None, person: Person, access: PersonAccess) -> str | None:
+    if person.is_root:
+        return None
+    return _profile_value(value, access)
+
+
+def _contact_value(value: str | None, access: PersonAccess) -> str | None:
+    return value if access.can_view_contacts else None
+
+
+def _contact_list(value: list[dict], access: PersonAccess) -> list[dict]:
+    return value if access.can_view_contacts else []
 
 
 async def _graph_distances(
@@ -253,6 +316,14 @@ async def _graph_distances(
 
     distance_cache[cache_key] = distances
     return distances
+
+
+async def get_family_graph_distances(
+    db: AsyncSession,
+    origin_id: str,
+    max_distance: int,
+) -> dict[str, int]:
+    return await _graph_distances(db, origin_id, max_distance)
 
 
 async def _family_graph(db: AsyncSession) -> dict[str, set[str]]:

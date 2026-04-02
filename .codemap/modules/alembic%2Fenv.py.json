@@ -1,7 +1,7 @@
 {
   "id": "alembic/env.py",
   "language": "python",
-  "analyzed_at": "2026-03-23T17:03:40.134937+00:00",
+  "analyzed_at": "2026-03-24T18:24:35.503270+00:00",
   "source_hash": "cb2e6f42",
   "staleness": false,
   "purpose": null,
@@ -186,7 +186,7 @@
   "attention_score": null,
   "centrality_score": null,
   "quality_radar": {
-    "understandability": 0.8,
+    "understandability": 0.84,
     "changeability": 0.7,
     "correctness": 0.5,
     "security": 0.88,

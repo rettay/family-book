@@ -1,0 +1,1686 @@
+{
+  "id": "app/services/wiki_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "a8dcde1e",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 79,
+    "lines": 348,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/models/person.py",
+      "app/models/relationships.py"
+    ],
+    "imported_by": [
+      "app/routes/persons.py",
+      "app/routes/wiki.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "generate_slug",
+      "type": "function",
+      "summary": null,
+      "line": 7,
+      "signature": "(first_name: str | None, last_name: str | None, person_id: str) -> str"
+    },
+    {
+      "name": "_section",
+      "type": "function",
+      "summary": null,
+      "line": 24,
+      "signature": "(section_id: str, title: str, content_lines: list[str], edit_fields: list[str] | None = None) -> dict | None"
+    },
+    {
+      "name": "_empty_section",
+      "type": "function",
+      "summary": null,
+      "line": 37,
+      "signature": "(section_id: str, title: str, edit_fields: list[str] | None = None) -> dict"
+    },
+    {
+      "name": "build_summary_section",
+      "type": "function",
+      "summary": null,
+      "line": 47,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "build_early_life_section",
+      "type": "function",
+      "summary": null,
+      "line": 72,
+      "signature": "(person, parents: list) -> dict | None"
+    },
+    {
+      "name": "build_education_section",
+      "type": "function",
+      "summary": null,
+      "line": 96,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "build_career_section",
+      "type": "function",
+      "summary": null,
+      "line": 115,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "build_personal_life_section",
+      "type": "function",
+      "summary": null,
+      "line": 134,
+      "signature": "(person, partnerships: list, children: list) -> dict | None"
+    },
+    {
+      "name": "build_organizations_section",
+      "type": "function",
+      "summary": null,
+      "line": 157,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "build_later_life_section",
+      "type": "function",
+      "summary": null,
+      "line": 174,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "build_death_section",
+      "type": "function",
+      "summary": null,
+      "line": 195,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "build_research_section",
+      "type": "function",
+      "summary": null,
+      "line": 214,
+      "signature": "(person) -> dict | None"
+    },
+    {
+      "name": "get_parents",
+      "type": "function",
+      "summary": null,
+      "line": 222,
+      "signature": "(db, person_id: str)"
+    },
+    {
+      "name": "get_children",
+      "type": "function",
+      "summary": null,
+      "line": 246,
+      "signature": "(db, person_id: str)"
+    },
+    {
+      "name": "get_partnerships",
+      "type": "function",
+      "summary": null,
+      "line": 270,
+      "signature": "(db, person_id: str)"
+    },
+    {
+      "name": "assemble_wiki_sections",
+      "type": "function",
+      "summary": null,
+      "line": 301,
+      "signature": "(db, person, current_user) -> list[dict]"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "generate_slug",
+      "kind": "function",
+      "line": 7,
+      "signature": "(first_name: str | None, last_name: str | None, person_id: str) -> str",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "unicodedata.normalize(\"NFKD\", text).encode(\"ascii\", \"ignore\").decode",
+          "line": 10,
+          "module_hint": null
+        },
+        {
+          "name": "unicodedata.normalize(\"NFKD\", text).encode",
+          "line": 10,
+          "module_hint": null
+        },
+        {
+          "name": "unicodedata.normalize",
+          "line": 10,
+          "module_hint": "unicodedata"
+        },
+        {
+          "name": "re.sub",
+          "line": 11,
+          "module_hint": "re"
+        },
+        {
+          "name": "text.lower",
+          "line": 11,
+          "module_hint": null
+        },
+        {
+          "name": "re.sub(r\"[-\\s]+\", \"-\", text).strip",
+          "line": 12,
+          "module_hint": null
+        },
+        {
+          "name": "re.sub",
+          "line": 12,
+          "module_hint": "re"
+        },
+        {
+          "name": "parts.append",
+          "line": 17,
+          "module_hint": null
+        },
+        {
+          "name": "_slugify",
+          "line": 17,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 19,
+          "module_hint": null
+        },
+        {
+          "name": "_slugify",
+          "line": 19,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 20,
+          "module_hint": null
+        },
+        {
+          "name": "\"-\".join",
+          "line": 21,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_section",
+      "kind": "function",
+      "line": 24,
+      "signature": "(section_id: str, title: str, content_lines: list[str], edit_fields: list[str] | None = None) -> dict | None",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "\"\\n\".join",
+          "line": 26,
+          "module_hint": null
+        },
+        {
+          "name": "text.strip",
+          "line": 27,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_empty_section",
+      "kind": "function",
+      "line": 37,
+      "signature": "(section_id: str, title: str, edit_fields: list[str] | None = None) -> dict",
+      "complexity": 2,
+      "calls": []
+    },
+    {
+      "name": "build_summary_section",
+      "kind": "function",
+      "line": 47,
+      "signature": "(person) -> dict | None",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "parts.append",
+          "line": 53,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 55,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 64,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 67,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 69,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_early_life_section",
+      "kind": "function",
+      "line": 72,
+      "signature": "(person, parents: list) -> dict | None",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "person.birth_country_code.upper",
+          "line": 78,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 79,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 82,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 83,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 84,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 85,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 87,
+          "module_hint": null
+        },
+        {
+          "name": "', '.join",
+          "line": 87,
+          "module_hint": null
+        },
+        {
+          "name": "_empty_section",
+          "line": 90,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 92,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_education_section",
+      "kind": "function",
+      "line": 96,
+      "signature": "(person) -> dict | None",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "isinstance",
+          "line": 103,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 104,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 105,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 106,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 107,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 108,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 109,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 111,
+          "module_hint": null
+        },
+        {
+          "name": "\" \".join",
+          "line": 111,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 112,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_career_section",
+      "kind": "function",
+      "line": 115,
+      "signature": "(person) -> dict | None",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "isinstance",
+          "line": 122,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 123,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 124,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 125,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 126,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 127,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 128,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 130,
+          "module_hint": null
+        },
+        {
+          "name": "\" \".join",
+          "line": 130,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 131,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_personal_life_section",
+      "kind": "function",
+      "line": 134,
+      "signature": "(person, partnerships: list, children: list) -> dict | None",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "p.get",
+          "line": 138,
+          "module_hint": null
+        },
+        {
+          "name": "p.get",
+          "line": 140,
+          "module_hint": null
+        },
+        {
+          "name": "p.get",
+          "line": 142,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 144,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 147,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 148,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "', '.join",
+          "line": 150,
+          "module_hint": null
+        },
+        {
+          "name": "_empty_section",
+          "line": 153,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 154,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_organizations_section",
+      "kind": "function",
+      "line": 157,
+      "signature": "(person) -> dict | None",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "isinstance",
+          "line": 164,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 165,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 166,
+          "module_hint": null
+        },
+        {
+          "name": "entry.get",
+          "line": 167,
+          "module_hint": null
+        },
+        {
+          "name": "parts.append",
+          "line": 168,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 170,
+          "module_hint": null
+        },
+        {
+          "name": "\" \".join",
+          "line": 170,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 171,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_later_life_section",
+      "kind": "function",
+      "line": 174,
+      "signature": "(person) -> dict | None",
+      "complexity": 8,
+      "calls": [
+        {
+          "name": "getattr",
+          "line": 179,
+          "module_hint": null
+        },
+        {
+          "name": "person.residence_country_code.upper",
+          "line": 180,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 181,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 183,
+          "module_hint": null
+        },
+        {
+          "name": "c.get",
+          "line": 185,
+          "module_hint": null
+        },
+        {
+          "name": "isinstance",
+          "line": 185,
+          "module_hint": null
+        },
+        {
+          "name": "c.get",
+          "line": 185,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 187,
+          "module_hint": null
+        },
+        {
+          "name": "', '.join",
+          "line": 187,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 191,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_death_section",
+      "kind": "function",
+      "line": 195,
+      "signature": "(person) -> dict | None",
+      "complexity": 6,
+      "calls": [
+        {
+          "name": "lines.append",
+          "line": 199,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 202,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 204,
+          "module_hint": null
+        },
+        {
+          "name": "lines.append",
+          "line": 206,
+          "module_hint": null
+        },
+        {
+          "name": "_section",
+          "line": 210,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "build_research_section",
+      "kind": "function",
+      "line": 214,
+      "signature": "(person) -> dict | None",
+      "complexity": 2,
+      "calls": [
+        {
+          "name": "_section",
+          "line": 218,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_parents",
+      "kind": "function",
+      "line": 222,
+      "signature": "(db, person_id: str)",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 228,
+          "module_hint": null
+        },
+        {
+          "name": "select(ParentChild).where",
+          "line": 229,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 229,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 231,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 231,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 234,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 235,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 235,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 240,
+          "module_hint": null
+        },
+        {
+          "name": "parents.append",
+          "line": 242,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_children",
+      "kind": "function",
+      "line": 246,
+      "signature": "(db, person_id: str)",
+      "complexity": 3,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 252,
+          "module_hint": null
+        },
+        {
+          "name": "select(ParentChild).where",
+          "line": 253,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 253,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 255,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 255,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 258,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 259,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 264,
+          "module_hint": null
+        },
+        {
+          "name": "children.append",
+          "line": 266,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "get_partnerships",
+      "kind": "function",
+      "line": 270,
+      "signature": "(db, person_id: str)",
+      "complexity": 4,
+      "calls": [
+        {
+          "name": "db.execute",
+          "line": 276,
+          "module_hint": null
+        },
+        {
+          "name": "select(Partnership).where",
+          "line": 277,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 277,
+          "module_hint": null
+        },
+        {
+          "name": "or_",
+          "line": 278,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 281,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 281,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 285,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 286,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 286,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalar_one_or_none",
+          "line": 291,
+          "module_hint": null
+        },
+        {
+          "name": "results.append",
+          "line": 293,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 295,
+          "module_hint": null
+        },
+        {
+          "name": "getattr",
+          "line": 296,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "assemble_wiki_sections",
+      "kind": "function",
+      "line": 301,
+      "signature": "(db, person, current_user) -> list[dict]",
+      "complexity": 14,
+      "calls": [
+        {
+          "name": "build_summary_section",
+          "line": 305,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 307,
+          "module_hint": null
+        },
+        {
+          "name": "get_parents",
+          "line": 309,
+          "module_hint": null
+        },
+        {
+          "name": "build_early_life_section",
+          "line": 310,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 312,
+          "module_hint": null
+        },
+        {
+          "name": "build_education_section",
+          "line": 315,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 317,
+          "module_hint": null
+        },
+        {
+          "name": "build_career_section",
+          "line": 320,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 322,
+          "module_hint": null
+        },
+        {
+          "name": "get_partnerships",
+          "line": 324,
+          "module_hint": null
+        },
+        {
+          "name": "get_children",
+          "line": 325,
+          "module_hint": null
+        },
+        {
+          "name": "build_personal_life_section",
+          "line": 326,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 328,
+          "module_hint": null
+        },
+        {
+          "name": "build_organizations_section",
+          "line": 331,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 333,
+          "module_hint": null
+        },
+        {
+          "name": "build_later_life_section",
+          "line": 335,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 337,
+          "module_hint": null
+        },
+        {
+          "name": "build_death_section",
+          "line": 340,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 342,
+          "module_hint": null
+        },
+        {
+          "name": "build_research_section",
+          "line": 344,
+          "module_hint": null
+        },
+        {
+          "name": "sections.append",
+          "line": 346,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "generate_slug",
+      "line": 7,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 2,
+        "size": 14,
+        "nesting": 1,
+        "token_count": 151
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 17,
+              "line_end": 17
+            },
+            {
+              "line_start": 19,
+              "line_end": 19
+            },
+            {
+              "line_start": 16,
+              "line_end": 17
+            },
+            {
+              "line_start": 18,
+              "line_end": 19
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_slugify",
+      "line": 9,
+      "metrics": {
+        "cyclomatic": 1,
+        "cognitive": 0,
+        "size": 3,
+        "nesting": 0,
+        "token_count": 77
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_section",
+      "line": 24,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 1,
+        "size": 10,
+        "nesting": 1,
+        "token_count": 62
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "_empty_section",
+      "line": 37,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 0,
+        "size": 7,
+        "nesting": 0,
+        "token_count": 36
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "build_summary_section",
+      "line": 47,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 12,
+        "size": 22,
+        "nesting": 3,
+        "token_count": 167
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 60,
+              "line_end": 61
+            },
+            {
+              "line_start": 62,
+              "line_end": 63
+            },
+            {
+              "line_start": 61,
+              "line_end": 61
+            },
+            {
+              "line_start": 63,
+              "line_end": 63
+            },
+            {
+              "line_start": 61,
+              "line_end": 61
+            },
+            {
+              "line_start": 63,
+              "line_end": 63
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_early_life_section",
+      "line": 72,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 10,
+        "size": 21,
+        "nesting": 3,
+        "token_count": 205
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            },
+            {
+              "line_start": 91,
+              "line_end": 91
+            },
+            {
+              "line_start": 93,
+              "line_end": 93
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_education_section",
+      "line": 96,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 15,
+        "size": 16,
+        "nesting": 3,
+        "token_count": 153
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 104,
+              "line_end": 104
+            },
+            {
+              "line_start": 106,
+              "line_end": 106
+            },
+            {
+              "line_start": 108,
+              "line_end": 108
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_career_section",
+      "line": 115,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 15,
+        "size": 16,
+        "nesting": 3,
+        "token_count": 153
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 123,
+              "line_end": 123
+            },
+            {
+              "line_start": 125,
+              "line_end": 125
+            },
+            {
+              "line_start": 127,
+              "line_end": 127
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_personal_life_section",
+      "line": 134,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 13,
+        "size": 20,
+        "nesting": 3,
+        "token_count": 206
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 143,
+              "line_end": 143
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 138,
+              "line_end": 138
+            },
+            {
+              "line_start": 140,
+              "line_end": 140
+            },
+            {
+              "line_start": 142,
+              "line_end": 142
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "build_organizations_section",
+      "line": 157,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 12,
+        "size": 14,
+        "nesting": 3,
+        "token_count": 125
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 165,
+              "line_end": 165
+            },
+            {
+              "line_start": 167,
+              "line_end": 167
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_later_life_section",
+      "line": 174,
+      "metrics": {
+        "cyclomatic": 8,
+        "cognitive": 7,
+        "size": 18,
+        "nesting": 2,
+        "token_count": 171
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 179,
+              "line_end": 179
+            },
+            {
+              "line_start": 183,
+              "line_end": 183
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_death_section",
+      "line": 195,
+      "metrics": {
+        "cyclomatic": 6,
+        "cognitive": 6,
+        "size": 16,
+        "nesting": 2,
+        "token_count": 129
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 199,
+              "line_end": 199
+            },
+            {
+              "line_start": 203,
+              "line_end": 203
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "build_research_section",
+      "line": 214,
+      "metrics": {
+        "cyclomatic": 2,
+        "cognitive": 1,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 37
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_parents",
+      "line": 222,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 21,
+        "nesting": 2,
+        "token_count": 122
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_children",
+      "line": 246,
+      "metrics": {
+        "cyclomatic": 3,
+        "cognitive": 3,
+        "size": 21,
+        "nesting": 2,
+        "token_count": 122
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "get_partnerships",
+      "line": 270,
+      "metrics": {
+        "cyclomatic": 4,
+        "cognitive": 5,
+        "size": 28,
+        "nesting": 2,
+        "token_count": 182
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    },
+    {
+      "function": "assemble_wiki_sections",
+      "line": 301,
+      "metrics": {
+        "cyclomatic": 14,
+        "cognitive": 17,
+        "size": 47,
+        "nesting": 2,
+        "token_count": 222
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 314,
+              "line_end": 317
+            },
+            {
+              "line_start": 319,
+              "line_end": 322
+            },
+            {
+              "line_start": 330,
+              "line_end": 333
+            },
+            {
+              "line_start": 306,
+              "line_end": 307
+            },
+            {
+              "line_start": 311,
+              "line_end": 312
+            },
+            {
+              "line_start": 316,
+              "line_end": 317
+            },
+            {
+              "line_start": 315,
+              "line_end": 317
+            },
+            {
+              "line_start": 320,
+              "line_end": 322
+            },
+            {
+              "line_start": 331,
+              "line_end": 333
+            },
+            {
+              "line_start": 309,
+              "line_end": 309
+            },
+            {
+              "line_start": 324,
+              "line_end": 324
+            },
+            {
+              "line_start": 325,
+              "line_end": 325
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 1,
+    "change_risk": "medium",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_empty_section",
+      "_section",
+      "assemble_wiki_sections",
+      "build_career_section",
+      "build_death_section",
+      "build_early_life_section",
+      "build_education_section",
+      "build_later_life_section",
+      "build_organizations_section",
+      "build_personal_life_section",
+      "build_research_section",
+      "build_summary_section",
+      "generate_slug",
+      "get_children",
+      "get_parents",
+      "get_partnerships"
+    ],
+    "package": null,
+    "change_velocity": null,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T14:55:57-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": false,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.29,
+  "centrality_score": 0.11,
+  "quality_radar": {
+    "understandability": 0.3,
+    "changeability": 0.68,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.78
+  },
+  "domain_role": "utility",
+  "detected_patterns": [
+    {
+      "pattern_name": "factory",
+      "confidence": "high",
+      "tier": 1,
+      "evidence": [
+        "build_summary_section() at line 47",
+        "build_early_life_section() at line 72",
+        "build_education_section() at line 96",
+        "build_career_section() at line 115",
+        "build_personal_life_section() at line 134",
+        "build_organizations_section() at line 157",
+        "build_later_life_section() at line 174",
+        "build_death_section() at line 195",
+        "build_research_section() at line 214"
+      ],
+      "notes": ""
+    }
+  ],
+  "detected_anti_patterns": null,
+  "agent_briefing": null
+}

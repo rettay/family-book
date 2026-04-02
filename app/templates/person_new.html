@@ -3,35 +3,36 @@
 
 {% block content %}
 <div class="container" style="padding-top: 20px;">
-  <div class="flex-between mb-16">
-    <div class="page-header">
+  <div class="page-header page-header--split mb-16">
+    <div>
       <h1 class="page-header__title">{{ t('person.add') }}</h1>
-      <p class="page-header__subtitle">Add a new family member</p>
+      <p class="page-header__subtitle">{{ t('person.add_subtitle') }}</p>
     </div>
-    <a href="/people" class="btn btn--ghost btn--sm">{{ t('common.cancel') }}</a>
+    <a href="/tree" class="btn btn--ghost btn--sm page-header__actions">{{ t('common.cancel') }}</a>
   </div>
 
-  <form class="card" onsubmit="createPerson(event)">
+  <form class="card" id="create-person-form" onsubmit="createPerson(event)">
     <div class="card__body">
+      <div id="create-person-error" class="form-error hidden" role="status" aria-live="polite"></div>
       <div class="form-row">
         <div class="form-group">
-          <label>{{ t('person.first_name') }} *</label>
-          <input type="text" class="form-input" name="first_name" required>
+          <label for="person-first-name">{{ t('person.first_name') }} *</label>
+          <input type="text" class="form-input" id="person-first-name" name="first_name" required>
         </div>
         <div class="form-group">
-          <label>{{ t('person.last_name') }} *</label>
-          <input type="text" class="form-input" name="last_name" required>
+          <label for="person-last-name">{{ t('person.last_name') }} *</label>
+          <input type="text" class="form-input" id="person-last-name" name="last_name" required>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>{{ t('person.nickname') }}</label>
-          <input type="text" class="form-input" name="nickname">
+          <label for="person-nickname">{{ t('person.nickname') }}</label>
+          <input type="text" class="form-input" id="person-nickname" name="nickname">
         </div>
         <div class="form-group">
-          <label>{{ t('person.gender') }}</label>
-          <select class="form-select" name="gender">
+          <label for="person-gender">{{ t('person.gender') }}</label>
+          <select class="form-select" id="person-gender" name="gender">
             <option value="">—</option>
             <option value="male">{{ t('person.male') }}</option>
             <option value="female">{{ t('person.female') }}</option>
@@ -42,66 +43,70 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label>{{ t('person.birth_date') }}</label>
-          <input type="text" class="form-input" name="birth_date_raw" placeholder="e.g. March 1985, ~1960">
+          <label for="person-birth-date-raw">{{ t('person.birth_date') }}</label>
+          <input type="text" class="form-input" id="person-birth-date-raw" name="birth_date_raw" placeholder="e.g. March 1985, ~1960">
         </div>
         <div class="form-group">
-          <label>Branch</label>
-          <input type="text" class="form-input" name="branch" placeholder="rivera, santos, maternal...">
+          <label for="person-branch">Branch</label>
+          <input type="text" class="form-input" id="person-branch" name="branch" placeholder="rivera, santos, maternal...">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" data-place-field>
+          <label for="person-birth-place">{{ t('person.birth_place') }}</label>
+          <input type="text" class="form-input" id="person-birth-place" name="birth_place" data-place-input>
+          <label for="person-birth-country">{{ t('person.birth_country') }}</label>
+          <input type="text" class="form-input" id="person-birth-country" name="birth_country_code" placeholder="Italy or IT" data-country-input>
+          <input type="hidden" name="birth_place_latitude" data-place-latitude>
+          <input type="hidden" name="birth_place_longitude" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
+        </div>
+        <div class="form-group" data-place-field>
+          <label for="person-residence-place">{{ t('person.residence') }}</label>
+          <input type="text" class="form-input" id="person-residence-place" name="residence_place" data-place-input>
+          <label for="person-residence-country">{{ t('person.residence_country') }}</label>
+          <input type="text" class="form-input" id="person-residence-country" name="residence_country_code" placeholder="Canada or CA" data-country-input>
+          <input type="hidden" name="residence_place_latitude" data-place-latitude>
+          <input type="hidden" name="residence_place_longitude" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" data-place-field>
+          <label for="person-burial-place">Burial Place</label>
+          <input type="text" class="form-input" id="person-burial-place" name="burial_place" data-place-input>
+          <label for="person-burial-country">{{ t('person.burial_country') }}</label>
+          <input type="text" class="form-input" id="person-burial-country" name="burial_country_code" placeholder="United States or US" data-country-input>
+          <input type="hidden" name="burial_place_latitude" data-place-latitude>
+          <input type="hidden" name="burial_place_longitude" data-place-longitude>
+          <p class="text-sm text-muted" data-place-status></p>
+        </div>
+        <div class="form-group">
+          <label for="person-burial-cemetery">Cemetery Name</label>
+          <input type="text" class="form-input" id="person-burial-cemetery" name="burial_cemetery_name">
+        </div>
+        <div class="form-group">
+          <label for="person-burial-plot">Plot Number</label>
+          <input type="text" class="form-input" id="person-burial-plot" name="burial_plot_number">
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label>{{ t('person.birth_place') }}</label>
-          <input type="text" class="form-input" name="birth_place">
-        </div>
-        <div class="form-group">
-          <label>{{ t('person.residence') }}</label>
-          <input type="text" class="form-input" name="residence_place">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Residence Country</label>
-          <input type="text" class="form-input" name="residence_country_code" maxlength="2" placeholder="CA">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Burial Place</label>
-          <input type="text" class="form-input" name="burial_place">
-        </div>
-        <div class="form-group">
-          <label>Cemetery Name</label>
-          <input type="text" class="form-input" name="burial_cemetery_name">
-        </div>
-        <div class="form-group">
-          <label>Plot Number</label>
-          <input type="text" class="form-input" name="burial_plot_number">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Burial Country</label>
-          <input type="text" class="form-input" name="burial_country_code" maxlength="2" placeholder="US">
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" class="form-input" name="contact_email">
+          <label for="person-contact-email">Email</label>
+          <input type="email" class="form-input" id="person-contact-email" name="contact_email">
         </div>
       </div>
       <div class="form-group">
-        <label>Medical History</label>
-        <textarea class="form-textarea" name="medical_history" rows="3" placeholder="Shared family medical notes"></textarea>
+        <label for="person-medical-history">Medical History</label>
+        <textarea class="form-textarea" id="person-medical-history" name="medical_history" rows="3" placeholder="Shared family medical notes"></textarea>
       </div>
     </div>
 
-    <div class="card__footer" style="justify-content:flex-end;">
-      <a href="/people" class="btn btn--secondary">{{ t('common.cancel') }}</a>
+    <div class="card__footer card__footer--actions">
+      <a href="/tree" class="btn btn--secondary">{{ t('common.cancel') }}</a>
       <button type="submit" class="btn btn--primary" id="create-btn">{{ t('person.add') }}</button>
     </div>
   </form>
@@ -109,10 +114,24 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/js/location_fields.js"></script>
 <script>
+window.familyBookLocations.init(document, {
+  apiKey: {{ google_maps_browser_api_key|tojson }},
+  hasGoogle: {{ google_places_enabled|tojson }},
+  manualHint: {{ t('map.place_manual_hint')|tojson }},
+  configuredHint: {{ t('map.place_lookup_hint')|tojson }},
+  verifiedHint: {{ t('map.place_verified_hint')|tojson }},
+  failedHint: {{ t('map.place_lookup_failed_hint')|tojson }},
+  suggestionsLabel: {{ t('map.place_suggestions_label')|tojson }}
+});
+
 async function createPerson(e) {
   e.preventDefault();
   const btn = document.getElementById('create-btn');
+  const errorBox = document.getElementById('create-person-error');
+  errorBox.textContent = '';
+  errorBox.classList.add('hidden');
   btn.disabled = true;
   const fd = new FormData(e.target);
   const data = {};
@@ -127,13 +146,16 @@ async function createPerson(e) {
     });
     if (resp.ok) {
       const person = await resp.json();
-      window.location.href = '/people/' + person.id;
+      window.location.href = '/tree?focus=' + person.id;
     } else {
       const err = await resp.json();
-      showToast(err.detail || '{{ t("common.error") }}');
+      errorBox.textContent = err.detail || '{{ t("common.error") }}';
+      errorBox.classList.remove('hidden');
       btn.disabled = false;
     }
   } catch {
+    errorBox.textContent = '{{ t("common.error") }}';
+    errorBox.classList.remove('hidden');
     btn.disabled = false;
   }
 }

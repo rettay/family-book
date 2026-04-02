@@ -15,12 +15,10 @@
   <nav class="nav" id="main-nav">
     <a href="/demo" class="nav__brand">{{ t('app.name') }} <span class="nav__brand-demo">Demo</span></a>
     <div class="nav__links" id="nav-links">
-      <a href="/demo" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
       <a href="/demo/tree" class="nav__link {% if active_page == 'tree' %}nav__link--active{% endif %}">{{ t('nav.tree') }}</a>
-      <a href="/demo/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>
       <a href="/login" class="nav__link">{{ t('nav.login') }}</a>
     </div>
-    <button class="nav__hamburger" onclick="toggleNav()" aria-label="Menu">&#9776;</button>
+    <button class="nav__hamburger" type="button" onclick="toggleNav()" aria-label="Menu" aria-controls="nav-links" aria-expanded="false">&#9776;</button>
   </nav>
 
   {# Demo banner — warm amber, subtle #}
@@ -31,19 +29,22 @@
   </div>
   {% elif current_user %}
   <nav class="nav" id="main-nav">
-    <a href="/" class="nav__brand">{{ brand_display_name }}</a>
+    <a href="/tree" class="nav__brand">{{ brand_display_name }}</a>
     <div class="nav__links" id="nav-links">
-      <a href="/" class="nav__link {% if active_page == 'home' %}nav__link--active{% endif %}">{{ t('nav.moments') }}</a>
       <a href="/tree" class="nav__link {% if active_page == 'tree' %}nav__link--active{% endif %}">{{ t('nav.tree') }}</a>
       <a href="/map" class="nav__link {% if active_page == 'map' %}nav__link--active{% endif %}">{{ t('nav.map') }}</a>
-      <a href="/people" class="nav__link {% if active_page == 'people' %}nav__link--active{% endif %}">{{ t('nav.people') }}</a>
+      <a href="/calendar" class="nav__link {% if active_page == 'calendar' %}nav__link--active{% endif %}">{{ t('nav.calendar') }}</a>
+      <a href="/timeline" class="nav__link {% if active_page == 'timeline' %}nav__link--active{% endif %}">{{ t('nav.timeline') }}</a>
+      <a href="/gallery" class="nav__link {% if active_page == 'gallery' %}nav__link--active{% endif %}">{{ t('nav.gallery') }}</a>
+      <a href="/wiki" class="nav__link {% if active_page == 'wiki' %}nav__link--active{% endif %}">{{ t('nav.wiki') }}</a>
+      <a href="/research" class="nav__link {% if active_page == 'research' %}nav__link--active{% endif %}">{{ t('nav.research') }}</a>
       {% if current_user.is_admin %}
       <a href="/admin" class="nav__link {% if active_page == 'admin' %}nav__link--active{% endif %}">{{ t('nav.admin') }}</a>
       {% endif %}
       <a href="/settings" class="nav__link {% if active_page == 'settings' %}nav__link--active{% endif %}">{{ t('nav.settings') }}</a>
-      <a href="#" class="nav__link" onclick="logout(); return false;">{{ t('nav.logout') }}</a>
+      <button type="button" class="nav__link nav__link--button" onclick="logout()">{{ t('nav.logout') }}</button>
     </div>
-    <button class="nav__hamburger" onclick="toggleNav()" aria-label="Menu">&#9776;</button>
+    <button class="nav__hamburger" type="button" onclick="toggleNav()" aria-label="Menu" aria-controls="nav-links" aria-expanded="false">&#9776;</button>
   </nav>
   {% endif %}
 
@@ -51,9 +52,39 @@
     {% block content %}{% endblock %}
   </main>
 
-  <div class="toast-container" id="toast-container"></div>
+  <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <script>
+    window.familyBookLabels = {{ {
+      "common.cancel": t('common.cancel'),
+      "common.error": t('common.error'),
+      "upload.title": t('upload.title'),
+      "upload.profile_title": t('upload.profile_title'),
+      "upload.subtitle": t('upload.subtitle'),
+      "upload.close": t('upload.close'),
+      "upload.cancel_upload": t('upload.cancel_upload'),
+      "upload.uploading": t('upload.uploading'),
+      "upload.submit": t('upload.submit'),
+      "upload.shared_metadata": t('upload.shared_metadata'),
+      "upload.shared_title": t('upload.shared_title'),
+      "upload.shared_description": t('upload.shared_description'),
+      "upload.file_title": t('upload.file_title'),
+      "upload.file_description": t('upload.file_description'),
+      "upload.taken_at": t('upload.taken_at'),
+      "upload.tag_people": t('upload.tag_people'),
+      "upload.tag_search_placeholder": t('upload.tag_search_placeholder'),
+      "upload.waiting": t('upload.waiting'),
+      "upload.progress_starting": t('upload.progress_starting'),
+      "upload.progress_percent": t('upload.progress_percent'),
+      "upload.progress_done": t('upload.progress_done'),
+      "upload.select_file": t('upload.select_file'),
+      "upload.unsupported_file": t('upload.unsupported_file'),
+      "upload.upload_complete": t('upload.upload_complete'),
+      "media.confirm_delete": t('media.confirm_delete'),
+      "media.deleted": t('media.deleted')
+    } | tojson }};
+  </script>
   <script src="/static/js/main.js"></script>
   {% block scripts %}{% endblock %}
 

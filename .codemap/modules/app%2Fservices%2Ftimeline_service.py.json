@@ -1,0 +1,685 @@
+{
+  "id": "app/services/timeline_service.py",
+  "language": "python",
+  "analyzed_at": "2026-03-27T01:07:13.330579+00:00",
+  "source_hash": "7dcf28ad",
+  "staleness": false,
+  "purpose": null,
+  "complexity": {
+    "cyclomatic": 41,
+    "lines": 164,
+    "rating": "red"
+  },
+  "dependencies": {
+    "imports": [
+      "app/access_control.py",
+      "app/models/person.py",
+      "app/models/relationships.py",
+      "app/services/date_intelligence_service.py"
+    ],
+    "imported_by": [
+      "app/routes/timeline.py"
+    ],
+    "tested_by": []
+  },
+  "exports": [
+    {
+      "name": "get_timeline_events",
+      "type": "function",
+      "summary": null,
+      "line": 13,
+      "signature": "( db: AsyncSession, current_user: Person, *, event_type: str | None = None, year_from: int | None = None, year_to: int | None = None, branch: str | None = None, lineage_person_ids: set[str] | None = None, limit: int = 100, offset: int = 0, ) -> tuple[list[dict], int]"
+    },
+    {
+      "name": "_in_year_range",
+      "type": "function",
+      "summary": null,
+      "line": 143,
+      "signature": "(year: int, year_from: int | None, year_to: int | None) -> bool"
+    },
+    {
+      "name": "_parse_date",
+      "type": "function",
+      "summary": null,
+      "line": 151,
+      "signature": "(date_str: str) -> date | None"
+    }
+  ],
+  "constructs": [
+    {
+      "name": "get_timeline_events",
+      "kind": "function",
+      "line": 13,
+      "signature": "( db: AsyncSession, current_user: Person, *, event_type: str | None = None, year_from: int | None = None, year_to: int | None = None, branch: str | None = None, lineage_person_ids: set[str] | None = None, limit: int = 100, offset: int = 0, ) -> tuple[list[dict], int]",
+      "complexity": 31,
+      "calls": [
+        {
+          "name": "get_accessible_person_ids",
+          "line": 32,
+          "module_hint": "app.access_control"
+        },
+        {
+          "name": "db.execute",
+          "line": 38,
+          "module_hint": null
+        },
+        {
+          "name": "select(Person).where",
+          "line": 39,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 39,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Person.id.in_",
+          "line": 40,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 45,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 45,
+          "module_hint": null
+        },
+        {
+          "name": "p.branch.lower",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "branch.lower",
+          "line": 48,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date",
+          "line": 61,
+          "module_hint": null
+        },
+        {
+          "name": "_in_year_range",
+          "line": 62,
+          "module_hint": null
+        },
+        {
+          "name": "compute_current_age",
+          "line": 65,
+          "module_hint": null
+        },
+        {
+          "name": "compute_current_age",
+          "line": 69,
+          "module_hint": null
+        },
+        {
+          "name": "events.append",
+          "line": 72,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date",
+          "line": 86,
+          "module_hint": null
+        },
+        {
+          "name": "_in_year_range",
+          "line": 87,
+          "module_hint": null
+        },
+        {
+          "name": "compute_age_at_death",
+          "line": 89,
+          "module_hint": null
+        },
+        {
+          "name": "events.append",
+          "line": 95,
+          "module_hint": null
+        },
+        {
+          "name": "db.execute",
+          "line": 107,
+          "module_hint": null
+        },
+        {
+          "name": "select(Partnership).where",
+          "line": 108,
+          "module_hint": null
+        },
+        {
+          "name": "select",
+          "line": 108,
+          "module_hint": "sqlalchemy"
+        },
+        {
+          "name": "Partnership.person_a_id.in_",
+          "line": 109,
+          "module_hint": null
+        },
+        {
+          "name": "Partnership.person_b_id.in_",
+          "line": 110,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars().all",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "result.scalars",
+          "line": 113,
+          "module_hint": null
+        },
+        {
+          "name": "_parse_date",
+          "line": 117,
+          "module_hint": null
+        },
+        {
+          "name": "_in_year_range",
+          "line": 118,
+          "module_hint": null
+        },
+        {
+          "name": "events.append",
+          "line": 125,
+          "module_hint": null
+        },
+        {
+          "name": "events.sort",
+          "line": 136,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 139,
+          "module_hint": null
+        }
+      ]
+    },
+    {
+      "name": "_in_year_range",
+      "kind": "function",
+      "line": 143,
+      "signature": "(year: int, year_from: int | None, year_to: int | None) -> bool",
+      "complexity": 5,
+      "calls": []
+    },
+    {
+      "name": "_parse_date",
+      "kind": "function",
+      "line": 151,
+      "signature": "(date_str: str) -> date | None",
+      "complexity": 7,
+      "calls": [
+        {
+          "name": "date_str.split",
+          "line": 154,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 156,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 157,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 157,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 158,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 159,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 159,
+          "module_hint": null
+        },
+        {
+          "name": "int",
+          "line": 159,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 160,
+          "module_hint": null
+        },
+        {
+          "name": "len",
+          "line": 160,
+          "module_hint": null
+        },
+        {
+          "name": "date",
+          "line": 161,
+          "module_hint": "datetime"
+        },
+        {
+          "name": "int",
+          "line": 161,
+          "module_hint": null
+        }
+      ]
+    }
+  ],
+  "function_audits": [
+    {
+      "function": "get_timeline_events",
+      "line": 13,
+      "metrics": {
+        "cyclomatic": 31,
+        "cognitive": 56,
+        "size": 116,
+        "nesting": 6,
+        "token_count": 729
+      },
+      "findings": [
+        {
+          "rule_id": "perf.string_concat_in_loop",
+          "category": "allocation_pressure",
+          "evidence_spans": [
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            }
+          ],
+          "estimated_effect": "Repeated string concatenation in loops may cause quadratic allocation/copy costs",
+          "confidence": 0.79
+        },
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 129,
+              "line_end": 129
+            },
+            {
+              "line_start": 131,
+              "line_end": 131
+            },
+            {
+              "line_start": 61,
+              "line_end": 61
+            },
+            {
+              "line_start": 86,
+              "line_end": 86
+            },
+            {
+              "line_start": 117,
+              "line_end": 117
+            },
+            {
+              "line_start": 75,
+              "line_end": 75
+            },
+            {
+              "line_start": 98,
+              "line_end": 98
+            },
+            {
+              "line_start": 128,
+              "line_end": 128
+            },
+            {
+              "line_start": 63,
+              "line_end": 63
+            },
+            {
+              "line_start": 88,
+              "line_end": 88
+            },
+            {
+              "line_start": 65,
+              "line_end": 65
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 65,
+              "line_end": 65
+            },
+            {
+              "line_start": 69,
+              "line_end": 69
+            },
+            {
+              "line_start": 40,
+              "line_end": 40
+            },
+            {
+              "line_start": 109,
+              "line_end": 109
+            },
+            {
+              "line_start": 110,
+              "line_end": 110
+            },
+            {
+              "line_start": 58,
+              "line_end": 80
+            },
+            {
+              "line_start": 83,
+              "line_end": 103
+            },
+            {
+              "line_start": 65,
+              "line_end": 67
+            },
+            {
+              "line_start": 69,
+              "line_end": 71
+            },
+            {
+              "line_start": 45,
+              "line_end": 45
+            },
+            {
+              "line_start": 113,
+              "line_end": 113
+            },
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 118,
+              "line_end": 118
+            },
+            {
+              "line_start": 72,
+              "line_end": 80
+            },
+            {
+              "line_start": 95,
+              "line_end": 103
+            },
+            {
+              "line_start": 63,
+              "line_end": 63
+            },
+            {
+              "line_start": 88,
+              "line_end": 88
+            },
+            {
+              "line_start": 79,
+              "line_end": 79
+            },
+            {
+              "line_start": 102,
+              "line_end": 102
+            },
+            {
+              "line_start": 132,
+              "line_end": 132
+            },
+            {
+              "line_start": 73,
+              "line_end": 73
+            },
+            {
+              "line_start": 74,
+              "line_end": 74
+            },
+            {
+              "line_start": 77,
+              "line_end": 77
+            },
+            {
+              "line_start": 45,
+              "line_end": 45
+            },
+            {
+              "line_start": 113,
+              "line_end": 113
+            },
+            {
+              "line_start": 58,
+              "line_end": 58
+            },
+            {
+              "line_start": 83,
+              "line_end": 83
+            },
+            {
+              "line_start": 106,
+              "line_end": 106
+            },
+            {
+              "line_start": 41,
+              "line_end": 41
+            },
+            {
+              "line_start": 42,
+              "line_end": 42
+            },
+            {
+              "line_start": 67,
+              "line_end": 67
+            },
+            {
+              "line_start": 71,
+              "line_end": 71
+            },
+            {
+              "line_start": 94,
+              "line_end": 94
+            },
+            {
+              "line_start": 129,
+              "line_end": 129
+            },
+            {
+              "line_start": 131,
+              "line_end": 131
+            },
+            {
+              "line_start": 66,
+              "line_end": 67
+            },
+            {
+              "line_start": 70,
+              "line_end": 71
+            },
+            {
+              "line_start": 93,
+              "line_end": 94
+            },
+            {
+              "line_start": 62,
+              "line_end": 62
+            },
+            {
+              "line_start": 87,
+              "line_end": 87
+            },
+            {
+              "line_start": 72,
+              "line_end": 80
+            },
+            {
+              "line_start": 95,
+              "line_end": 103
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(n)",
+        "space": "O(n)"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.59
+    },
+    {
+      "function": "_in_year_range",
+      "line": 143,
+      "metrics": {
+        "cyclomatic": 5,
+        "cognitive": 2,
+        "size": 5,
+        "nesting": 1,
+        "token_count": 21
+      },
+      "findings": [
+        {
+          "rule_id": "maint.duplicate_structural_block",
+          "category": "duplication",
+          "evidence_spans": [
+            {
+              "line_start": 144,
+              "line_end": 145
+            },
+            {
+              "line_start": 146,
+              "line_end": 147
+            }
+          ],
+          "estimated_effect": "Duplicate structural blocks increase maintenance cost and bug-fix divergence risk",
+          "confidence": 0.72
+        }
+      ],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.47
+    },
+    {
+      "function": "_parse_date",
+      "line": 151,
+      "metrics": {
+        "cyclomatic": 7,
+        "cognitive": 7,
+        "size": 13,
+        "nesting": 2,
+        "token_count": 114
+      },
+      "findings": [],
+      "estimated_complexity": {
+        "time": "O(1)",
+        "space": "unknown"
+      },
+      "contract_status": {
+        "status": "unknown",
+        "mismatch": "No performance contract annotation available for this function"
+      },
+      "review_priority": 0.0
+    }
+  ],
+  "spec_linkages": [],
+  "flags": {
+    "dead_code": false,
+    "in_cycle": false,
+    "is_test_file": false,
+    "security_issues": [],
+    "side_effects": [],
+    "purity": "pure",
+    "todo_count": 0,
+    "churn_count": 3,
+    "change_risk": "high",
+    "domain": "domain-0",
+    "observability_patterns": [],
+    "endpoints": [],
+    "databases": [],
+    "services": [],
+    "unused_exports": [
+      "_in_year_range",
+      "_parse_date",
+      "get_timeline_events"
+    ],
+    "package": null,
+    "change_velocity": 2.0,
+    "bus_factor": 1,
+    "author_count": 1,
+    "last_modified": "2026-03-26T13:33:21-04:00",
+    "recency_score": 1.0,
+    "co_change_partners": [],
+    "attack_surface": true,
+    "convention_compliance": 1.0,
+    "convention_consistency": 1.0,
+    "dominant_conventions": {
+      "module": "snake_case",
+      "function": "snake_case",
+      "parameter": "snake_case"
+    },
+    "outlier_identifiers": null
+  },
+  "testability_score": 0.4,
+  "attention_score": 0.4,
+  "centrality_score": 0.07,
+  "quality_radar": {
+    "understandability": 0.39,
+    "changeability": 0.69,
+    "correctness": 0.5,
+    "security": 1.0,
+    "stability": 0.5
+  },
+  "domain_role": "utility",
+  "detected_patterns": null,
+  "detected_anti_patterns": [
+    {
+      "name": "primitive_obsession",
+      "evidence": "get_timeline_events() has 9 params (line 13)",
+      "severity": "medium"
+    }
+  ],
+  "agent_briefing": null
+}

@@ -1,35 +1,85 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import require_admin
+from app.access_control import can_manage_person
+from app.auth import require_auth
 from app.database import get_db
 from app.models.person import Person, PersonLifecycleState
 from app.models.relationships import ParentChild, Partnership
 from app.schemas import (
     ParentChildCreate,
     ParentChildResponse,
+    ParentChildUpdate,
     PartnershipCreate,
     PartnershipResponse,
     PartnershipUpdate,
 )
 from app.services.audit_service import log_audit
+from app.services.relationship_calculator import find_relationship
 
 router = APIRouter(prefix="/api/relationships", tags=["relationships"])
 logger = logging.getLogger(__name__)
+
+
+# ── Relationship Calculator ──────────────────────────────────────────
+
+
+class PathEdge(BaseModel):
+    from_id: str
+    from_name: str
+    to_id: str
+    to_name: str
+    edge_type: str
+    edge_kind: str
+
+
+class RelationshipPathResponse(BaseModel):
+    found: bool
+    relationship_label: str
+    path: list[str]
+    path_details: list[PathEdge]
+
+
+@router.get("/path", response_model=RelationshipPathResponse)
+async def get_relationship_path(
+    from_id: str = Query(..., alias="from"),
+    to_id: str = Query(..., alias="to"),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Find and label the shortest relationship path between two persons."""
+    # Validate both persons exist
+    for pid in (from_id, to_id):
+        result = await db.execute(select(Person.id).where(Person.id == pid))
+        if not result.scalar_one_or_none():
+            raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+
+    calc_result = await find_relationship(db, from_id, to_id)
+    return RelationshipPathResponse(
+        found=calc_result.found,
+        relationship_label=calc_result.relationship_label,
+        path=calc_result.path,
+        path_details=[PathEdge(**d) for d in calc_result.path_details],
+    )
 
 
 async def _would_create_ancestry_cycle(
     db: AsyncSession,
     parent_id: str,
     child_id: str,
+    *,
+    exclude_rel_id: str | None = None,
 ) -> bool:
-    result = await db.execute(select(ParentChild.parent_id, ParentChild.child_id))
+    result = await db.execute(select(ParentChild.parent_id, ParentChild.child_id, ParentChild.id))
     descendants_by_parent: dict[str, set[str]] = {}
-    for existing_parent_id, existing_child_id in result.all():
+    for existing_parent_id, existing_child_id, existing_rel_id in result.all():
+        if exclude_rel_id and existing_rel_id == exclude_rel_id:
+            continue
         descendants_by_parent.setdefault(existing_parent_id, set()).add(existing_child_id)
 
     stack = [child_id]
@@ -67,23 +117,33 @@ async def _partnership_exists(
     return result.scalar_one_or_none() is not None
 
 
+async def _require_manageable_person(
+    db: AsyncSession,
+    current_user: Person,
+    person_id: str,
+) -> Person:
+    result = await db.execute(select(Person).where(Person.id == person_id))
+    person = result.scalar_one_or_none()
+    if not person or person.lifecycle_state != PersonLifecycleState.active.value:
+        raise HTTPException(status_code=404, detail=f"Person {person_id} not found")
+    if not can_manage_person(current_user, person):
+        raise HTTPException(status_code=403, detail="Not authorized to relate this person")
+    return person
+
+
 # --- ParentChild ---
 
 @router.post("/parent-child", response_model=ParentChildResponse, status_code=status.HTTP_201_CREATED)
 async def create_parent_child(
     body: ParentChildCreate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     if body.parent_id == body.child_id:
         raise HTTPException(status_code=400, detail="Parent and child cannot be the same person")
 
-    # Verify both persons exist
     for pid in (body.parent_id, body.child_id):
-        result = await db.execute(select(Person).where(Person.id == pid))
-        person = result.scalar_one_or_none()
-        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
-            raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+        await _require_manageable_person(db, current_user, pid)
 
     if await _would_create_ancestry_cycle(db, body.parent_id, body.child_id):
         raise HTTPException(
@@ -112,7 +172,7 @@ async def create_parent_child(
 
     await log_audit(db, current_user.id, "create", "parent_child", pc.id,
                     new_value={"parent_id": pc.parent_id, "child_id": pc.child_id, "kind": pc.kind})
-    logger.info("Parent-child relationship %s created by admin %s", pc.id, current_user.id)
+    logger.info("Parent-child relationship %s created by %s", pc.id, current_user.id)
 
     return ParentChildResponse.model_validate(pc)
 
@@ -120,7 +180,7 @@ async def create_parent_child(
 @router.delete("/parent-child/{rel_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_parent_child(
     rel_id: str,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(ParentChild).where(ParentChild.id == rel_id))
@@ -128,12 +188,139 @@ async def delete_parent_child(
     if not pc:
         raise HTTPException(status_code=404, detail="Relationship not found")
 
+    await _require_manageable_person(db, current_user, pc.parent_id)
+    await _require_manageable_person(db, current_user, pc.child_id)
+
     await log_audit(db, current_user.id, "delete", "parent_child", pc.id,
                     old_value={"parent_id": pc.parent_id, "child_id": pc.child_id})
-    logger.info("Parent-child relationship %s deleted by admin %s", pc.id, current_user.id)
+    logger.info("Parent-child relationship %s deleted by %s", pc.id, current_user.id)
 
     await db.delete(pc)
     await db.flush()
+
+
+@router.put("/parent-child/{rel_id}", response_model=ParentChildResponse)
+async def update_parent_child(
+    rel_id: str,
+    body: ParentChildUpdate,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(ParentChild).where(ParentChild.id == rel_id))
+    pc = result.scalar_one_or_none()
+    if not pc:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+
+    update_data = body.model_dump(exclude_unset=True)
+    target_parent_id = update_data.get("parent_id", pc.parent_id)
+    target_child_id = update_data.get("child_id", pc.child_id)
+
+    if target_parent_id == target_child_id:
+        raise HTTPException(status_code=400, detail="Parent and child cannot be the same person")
+
+    await _require_manageable_person(db, current_user, pc.parent_id)
+    await _require_manageable_person(db, current_user, pc.child_id)
+    for pid in {target_parent_id, target_child_id}:
+        await _require_manageable_person(db, current_user, pid)
+
+    if await _would_create_ancestry_cycle(
+        db,
+        target_parent_id,
+        target_child_id,
+        exclude_rel_id=pc.id,
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="This parent-child relationship would create an ancestry cycle",
+        )
+
+    old_data = {
+        "parent_id": pc.parent_id,
+        "child_id": pc.child_id,
+        "kind": pc.kind,
+        "confidence": pc.confidence,
+        "source": pc.source,
+        "source_detail": pc.source_detail,
+        "notes": pc.notes,
+        "start_date": pc.start_date,
+        "end_date": pc.end_date,
+    }
+    for field, value in update_data.items():
+        setattr(pc, field, value)
+
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="This parent-child relationship already exists")
+
+    await log_audit(
+        db,
+        current_user.id,
+        "update",
+        "parent_child",
+        pc.id,
+        old_value=old_data,
+        new_value=update_data,
+    )
+    logger.info("Parent-child relationship %s updated by %s", pc.id, current_user.id)
+
+    return ParentChildResponse.model_validate(pc)
+
+
+@router.post("/parent-child/{rel_id}/reverse", response_model=ParentChildResponse)
+async def reverse_parent_child(
+    rel_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(ParentChild).where(ParentChild.id == rel_id))
+    pc = result.scalar_one_or_none()
+    if not pc:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+
+    await _require_manageable_person(db, current_user, pc.parent_id)
+    await _require_manageable_person(db, current_user, pc.child_id)
+
+    reversed_parent_id = pc.child_id
+    reversed_child_id = pc.parent_id
+    if await _would_create_ancestry_cycle(
+        db,
+        reversed_parent_id,
+        reversed_child_id,
+        exclude_rel_id=pc.id,
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail="Reversing this relationship would create an ancestry cycle",
+        )
+
+    old_data = {
+        "parent_id": pc.parent_id,
+        "child_id": pc.child_id,
+        "kind": pc.kind,
+    }
+    pc.parent_id = reversed_parent_id
+    pc.child_id = reversed_child_id
+
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="This parent-child relationship already exists")
+
+    await log_audit(
+        db,
+        current_user.id,
+        "reverse",
+        "parent_child",
+        pc.id,
+        old_value=old_data,
+        new_value={"parent_id": pc.parent_id, "child_id": pc.child_id, "kind": pc.kind},
+    )
+    logger.info("Parent-child relationship %s reversed by %s", pc.id, current_user.id)
+
+    return ParentChildResponse.model_validate(pc)
 
 
 # --- Partnership ---
@@ -141,7 +328,7 @@ async def delete_parent_child(
 @router.post("/partnership", response_model=PartnershipResponse, status_code=status.HTTP_201_CREATED)
 async def create_partnership(
     body: PartnershipCreate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     if body.person_a_id == body.person_b_id:
@@ -150,12 +337,8 @@ async def create_partnership(
     # Enforce canonical ordering
     a_id, b_id = sorted([body.person_a_id, body.person_b_id])
 
-    # Verify both persons exist
     for pid in (a_id, b_id):
-        result = await db.execute(select(Person).where(Person.id == pid))
-        person = result.scalar_one_or_none()
-        if not person or person.lifecycle_state != PersonLifecycleState.active.value:
-            raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+        await _require_manageable_person(db, current_user, pid)
 
     if await _partnership_exists(db, a_id, b_id, body.kind, body.start_date):
         raise HTTPException(status_code=409, detail="This partnership already exists")
@@ -182,7 +365,7 @@ async def create_partnership(
 
     await log_audit(db, current_user.id, "create", "partnership", partnership.id,
                     new_value={"person_a_id": a_id, "person_b_id": b_id, "kind": body.kind})
-    logger.info("Partnership %s created by admin %s", partnership.id, current_user.id)
+    logger.info("Partnership %s created by %s", partnership.id, current_user.id)
 
     return PartnershipResponse.model_validate(partnership)
 
@@ -191,7 +374,7 @@ async def create_partnership(
 async def update_partnership(
     rel_id: str,
     body: PartnershipUpdate,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Partnership).where(Partnership.id == rel_id))
@@ -199,16 +382,32 @@ async def update_partnership(
     if not partnership:
         raise HTTPException(status_code=404, detail="Partnership not found")
 
-    old_data = {"status": partnership.status}
+    await _require_manageable_person(db, current_user, partnership.person_a_id)
+    await _require_manageable_person(db, current_user, partnership.person_b_id)
+
+    old_data = {
+        "kind": partnership.kind,
+        "status": partnership.status,
+        "start_date": partnership.start_date,
+        "start_date_precision": partnership.start_date_precision,
+        "end_date": partnership.end_date,
+        "end_date_precision": partnership.end_date_precision,
+        "source": partnership.source,
+        "notes": partnership.notes,
+    }
     update_data = body.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(partnership, field, value)
 
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="This partnership already exists")
     await log_audit(db, current_user.id, "update", "partnership", partnership.id,
                     old_value=old_data,
                     new_value=update_data)
-    logger.info("Partnership %s updated by admin %s", partnership.id, current_user.id)
+    logger.info("Partnership %s updated by %s", partnership.id, current_user.id)
 
     return PartnershipResponse.model_validate(partnership)
 
@@ -216,7 +415,7 @@ async def update_partnership(
 @router.delete("/partnership/{rel_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_partnership(
     rel_id: str,
-    current_user: Person = Depends(require_admin),
+    current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Partnership).where(Partnership.id == rel_id))
@@ -224,10 +423,13 @@ async def delete_partnership(
     if not partnership:
         raise HTTPException(status_code=404, detail="Partnership not found")
 
+    await _require_manageable_person(db, current_user, partnership.person_a_id)
+    await _require_manageable_person(db, current_user, partnership.person_b_id)
+
     await log_audit(db, current_user.id, "delete", "partnership", partnership.id,
                     old_value={"person_a_id": partnership.person_a_id,
                                "person_b_id": partnership.person_b_id})
-    logger.info("Partnership %s deleted by admin %s", partnership.id, current_user.id)
+    logger.info("Partnership %s deleted by %s", partnership.id, current_user.id)
 
     await db.delete(partnership)
     await db.flush()

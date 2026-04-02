@@ -63,11 +63,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Content Security Policy
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://unpkg.com https://d3js.org https://accounts.google.com; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: blob:; "
-            "connect-src 'self' https://accounts.google.com; "
-            "font-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://unpkg.com https://d3js.org https://accounts.google.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "img-src 'self' data: blob: https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com; "
+            "connect-src 'self' https://accounts.google.com https://maps.googleapis.com https://maps.gstatic.com https://places.googleapis.com https://*.googleapis.com https://*.gstatic.com; "
+            "font-src 'self' https://fonts.gstatic.com https://maps.gstatic.com https://*.gstatic.com; "
             "frame-src https://accounts.google.com; "
             "frame-ancestors 'none'; "
             "base-uri 'self'; "
