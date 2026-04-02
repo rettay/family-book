@@ -412,20 +412,22 @@
   }
 
   function syncPreferenceInputs() {
-    document.getElementById('pref-show-names').checked = !!preferences.show_names;
-    document.getElementById('pref-show-nicknames').checked = !!preferences.show_nicknames;
-    document.getElementById('pref-show-birth-dates').checked = !!preferences.show_birth_dates;
-    document.getElementById('pref-show-country-flags').checked = !!preferences.show_country_flags;
-    document.getElementById('pref-show-photos').checked = !!preferences.show_photos;
+    var _set = function(id, val) { var e = document.getElementById(id); if (e) e.checked = !!val; };
+    _set('pref-show-names', preferences.show_names);
+    _set('pref-show-nicknames', preferences.show_nicknames);
+    _set('pref-show-birth-dates', preferences.show_birth_dates);
+    _set('pref-show-country-flags', preferences.show_country_flags);
+    _set('pref-show-photos', preferences.show_photos);
   }
 
   function readPreferenceInputs() {
+    var _el = function(id) { var e = document.getElementById(id); return e ? e.checked : preferences[id.replace('pref-', '').replace(/-/g, '_')]; };
     preferences = {
-      show_names: document.getElementById('pref-show-names').checked,
-      show_nicknames: document.getElementById('pref-show-nicknames').checked,
-      show_birth_dates: document.getElementById('pref-show-birth-dates').checked,
-      show_country_flags: document.getElementById('pref-show-country-flags').checked,
-      show_photos: document.getElementById('pref-show-photos').checked
+      show_names: _el('pref-show-names'),
+      show_nicknames: _el('pref-show-nicknames'),
+      show_birth_dates: _el('pref-show-birth-dates'),
+      show_country_flags: _el('pref-show-country-flags'),
+      show_photos: _el('pref-show-photos')
     };
   }
 
@@ -4961,7 +4963,8 @@
   window.startRelationshipCalc = startRelationshipCalc;
   window.cancelRelationshipCalc = cancelRelationshipCalc;
 
-  document.getElementById('save-tree-preferences').addEventListener('click', savePreferences);
+  var _prefBtn = document.getElementById('save-tree-preferences');
+  if (_prefBtn) _prefBtn.addEventListener('click', savePreferences);
   // Filter UI removed in FB-077 — filter event listeners no longer needed
 
   document.addEventListener('keydown', function(event) {
