@@ -4,18 +4,19 @@ set -eu
 mkdir -p /data/media /data/backups
 chown -R appuser:appuser /data
 
-# Export env vars so they survive the su switch
-export LOAD_DEMO_DATA="${LOAD_DEMO_DATA:-false}"
-export PORT="${PORT:-8000}"
-
-exec su -s /bin/sh -p appuser -c '
+# Run migrations and optional seeding as root (before switching to appuser)
 uv run alembic upgrade head
-if [ "${LOAD_DEMO_DATA}" = "true" ]; then
+
+DEMO_MODE="${LOAD_DEMO_DATA:-false}"
+if [ "$DEMO_MODE" = "true" ]; then
   echo "Loading basic demo data..."
   uv run python -m app.seed
-elif [ "${LOAD_DEMO_DATA}" = "comprehensive" ]; then
+elif [ "$DEMO_MODE" = "comprehensive" ]; then
   echo "Loading comprehensive demo data..."
   uv run python -m app.seed_comprehensive
+else
+  echo "LOAD_DEMO_DATA=${DEMO_MODE} — skipping seed."
 fi
-exec uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT}
-'
+
+# Start the app as non-root user
+exec su -s /bin/sh appuser -c "exec uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
