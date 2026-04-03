@@ -10,12 +10,7 @@ None.
 
 ## In Review
 
-| ID | Title | Priority | Packet |
-|---|---|---:|---|
-| FB-088 | Story Data Model and API | P0 | `task_packets/FB-088_story_data_model_and_api.md` |
-| FB-089 | Story Authoring UI on Wiki Page | P0 | `task_packets/FB-089_story_authoring_ui_on_wiki_page.md` |
-| FB-090 | Story Count in Tree Sidebar | P1 | `task_packets/FB-090_story_count_in_tree_sidebar.md` |
-| FB-091 | Fix Flaky "Adoptive Kind" Playwright Test | P2 | `task_packets/FB-091_fix_flaky_adoptive_kind_playwright_test.md` |
+None.
 
 ## Done
 
@@ -48,6 +43,10 @@ None.
 | FB-085 | Staging Acceptance Checklist | P1 | `task_packets/FB-085_staging_acceptance_checklist.md` |
 | FB-086 | Comprehensive Demo Seed Data | P1 | `task_packets/FB-086_comprehensive_demo_seed.md` |
 | FB-087 | Developer Workflow Documentation | P2 | `task_packets/FB-087_developer_workflow_docs.md` |
+| FB-088 | Story Data Model and API | P0 | `task_packets/FB-088_story_data_model_and_api.md` |
+| FB-089 | Story Authoring UI on Wiki Page | P0 | `task_packets/FB-089_story_authoring_ui_on_wiki_page.md` |
+| FB-090 | Story Count in Tree Sidebar | P1 | `task_packets/FB-090_story_count_in_tree_sidebar.md` |
+| FB-091 | Fix Flaky "Adoptive Kind" Playwright Test | P2 | `task_packets/FB-091_fix_flaky_adoptive_kind_playwright_test.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|

@@ -2,48 +2,32 @@
 
 ## Current Sprint
 
+None. Planning next sprint.
+
+---
+
+## Closed Sprint
+
 ### `S42 - Person Stories`
 
-Status: In Progress
+Status: Closed
 
 ### Sprint Goal
 
 Any family member can write titled, wiki-style stories attributed to any person. Stories live on the Family Bio page as a full read experience. The tree sidebar shows a count that links back to the stories section.
 
-### Why This Sprint Next
-
-The UAT/staging pipeline is in place (S41). Stories are the primary deferred contribution feature — the highest-impact thing we can add to improve CFLSR by giving family members a meaningful, attributed way to contribute narrative content.
-
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 88 | FB-088 | Story Data Model and API | P0 | todo |
-| 89 | FB-089 | Story Authoring UI on Wiki Page | P0 | todo |
-| 90 | FB-090 | Story Count in Tree Sidebar | P1 | todo |
-| 91 | FB-091 | Fix Flaky "Adoptive Kind" Playwright Test | P2 | todo |
+| 88 | FB-088 | Story Data Model and API | P0 | done |
+| 89 | FB-089 | Story Authoring UI on Wiki Page | P0 | done |
+| 90 | FB-090 | Story Count in Tree Sidebar | P1 | done |
+| 91 | FB-091 | Fix Flaky "Adoptive Kind" Playwright Test | P2 | done |
 
-### Planned Slices
+### Outcome
 
-| Slice | Title | Status |
-|---|---|---|
-| S42-1 | Story model, migration, CRUD API, audit logging, i18n keys | todo |
-| S42-2 | Wiki page stories section — list view, empty state, author attribution | todo |
-| S42-3 | Trix editor for add/edit, HTMX inline flow, delete with confirm | todo |
-| S42-4 | Story count badge in tree sidebar, link to wiki #stories | todo |
-| S42-5 | Fix flaky adoptive-kind Playwright test + test coverage for stories | todo |
-
-### Sprint Exit Criteria
-
-- Any authenticated member can create a story on any person's wiki page
-- Stories render on the wiki page with title, rich body, author name, and date
-- Edit and delete work inline via HTMX (no full page reload)
-- Delete is restricted to author or admin
-- Tree sidebar shows story count for persons with stories; no line for zero
-- Story count links to `/wiki/{slug}#stories`
-- Flaky "adoptive kind" Playwright test passes 3 consecutive runs
-- `uv run pytest tests/` passes with story test coverage
-- i18n parity maintained across all 5 locales
+All 4 packets shipped. 27 story tests pass (17 builder + 10 adversarial probes). i18n parity maintained across 5 locales. Flaky Playwright test fixed with targeted `waitForFunction`. Merged to `codex/staging` 2026-04-02, audited and closed 2026-04-03.
 
 ---
 
