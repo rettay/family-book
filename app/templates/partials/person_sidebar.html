@@ -5,6 +5,7 @@
   data-tree-sidebar-is-root="{{ 'true' if person.is_root else 'false' }}"
   data-tree-sidebar-default-tab="overview"
   data-tree-sidebar-media-count="{{ person_metrics.media_count }}"
+  data-tree-sidebar-story-count="{{ person_metrics.story_count }}"
   data-tree-sidebar-parent-count="{{ parent_people|length }}"
   data-tree-sidebar-child-count="{{ child_people|length }}"
   data-tree-sidebar-partner-count="{{ partner_people|length }}"
@@ -144,6 +145,21 @@
             {% endif %}
           </span>
         </button>
+        {% if person_metrics.story_count > 0 and person.slug %}
+        <a class="tree-sidebar-metric tree-sidebar-metric--link"
+           href="/wiki/{{ person.slug }}#stories"
+           data-tree-metric="stories">
+          <span class="tree-sidebar-metric__label">{{ t('stories.section_title') }}</span>
+          <strong class="tree-sidebar-metric__value">{{ person_metrics.story_count }}</strong>
+          <span class="tree-sidebar-metric__hint">
+            {% if person_metrics.story_count == 1 %}
+            {{ t('stories.count_one') }}
+            {% else %}
+            {{ t('stories.count_many').replace('{n}', person_metrics.story_count | string) }}
+            {% endif %}
+          </span>
+        </a>
+        {% endif %}
       </div>
     </div>
 
