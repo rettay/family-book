@@ -18,6 +18,7 @@ from app.models.imports import (
     ExternalIdentity,
     MemorialPlan,
 )
+from app.models.story import Story
 
 __all__ = [
     "Base",
@@ -44,4 +45,5 @@ __all__ = [
     "AgentApiKey",
     "ExternalIdentity",
     "MemorialPlan",
+    "Story",
 ]

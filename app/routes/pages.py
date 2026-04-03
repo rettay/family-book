@@ -26,6 +26,7 @@ from app.database import get_db
 from app.i18n import translate
 from app.models.media import Media
 from app.models.person import Person, AccountState, PersonLifecycleState
+from app.models.story import Story
 from app.models.revisions import EntityRevision
 from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
@@ -341,8 +342,10 @@ async def person_card(
         for option in option_result.scalars().all()
     ]
 
+    story_count_query = select(func.count(Story.id)).where(Story.person_id == person_id)
     metrics = {
         "media_count": (await db.execute(media_count_query)).scalar() or 0,
+        "story_count": (await db.execute(story_count_query)).scalar() or 0,
     }
 
     visible_parents = []

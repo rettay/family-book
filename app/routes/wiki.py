@@ -4,18 +4,21 @@ import json
 import logging
 import os
 import re
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.exceptions import HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from fastapi import Form
 from app.auth import require_auth
 from app.database import get_db
+from app.models.audit import AuditLog
 from app.models.person import Person, PersonLifecycleState, Visibility
+from app.models.story import Story
 from app.access_control import get_person_access, can_manage_person
 from app.services.wiki_service import assemble_wiki_sections
 from app.services.revision_service import serialize_person_snapshot, record_revision
@@ -118,6 +121,7 @@ async def wiki_person(
     sections = await assemble_wiki_sections(db, person, current_user)
     can_edit = access.can_manage
     _, media_list = await list_media_for_person(db, current_user, person.id)
+    stories = await _load_stories(db, person.id)
 
     return templates.TemplateResponse("wiki_person.html", _ctx(
         request,
@@ -130,6 +134,7 @@ async def wiki_person(
         person_id=person.id,
         can_upload=can_upload_media_for_person(current_user, person),
         person_photo_url=person.photo_url,
+        stories=stories,
     ))
 
 
@@ -336,6 +341,7 @@ async def wiki_save_section(
     sections = await assemble_wiki_sections(db, person, current_user)
     can_edit = True  # Already verified above
 
+    stories = await _load_stories(db, person.id)
     return templates.TemplateResponse("wiki_person.html", _ctx(
         request,
         current_user,
@@ -343,4 +349,320 @@ async def wiki_save_section(
         person=person,
         sections=sections,
         can_edit=can_edit,
+        stories=stories,
     ))
+
+
+# ── Stories ───────────────────────────────────────────────────────────
+
+
+async def _load_stories(db: AsyncSession, person_id: str) -> list[dict]:
+    """Load stories for a person, joined with author display name."""
+    result = await db.execute(
+        select(Story, Person)
+        .join(Person, Story.author_person_id == Person.id)
+        .where(Story.person_id == person_id)
+        .order_by(Story.created_at.desc())
+    )
+    rows = result.all()
+    stories = []
+    for story, author in rows:
+        stories.append({
+            "id": story.id,
+            "title": story.title,
+            "body": story.body,
+            "author_name": author.display_name,
+            "author_person_id": story.author_person_id,
+            "created_at": story.created_at,
+            "updated_at": story.updated_at,
+        })
+    return stories
+
+
+async def _get_person_by_slug(slug: str, db: AsyncSession) -> Person:
+    result = await db.execute(
+        select(Person).where(
+            Person.slug == slug,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+    )
+    person = result.scalar_one_or_none()
+    if not person:
+        raise HTTPException(status_code=404, detail="Person not found")
+    return person
+
+
+def _audit_story(db_session, actor_id: str, action: str, story: Story) -> None:
+    entry = AuditLog(
+        actor_id=actor_id,
+        action=action,
+        entity_type="story",
+        entity_id=story.id,
+    )
+    entry.new_value = {"title": story.title, "person_id": story.person_id}
+    db_session.add(entry)
+
+
+@router.get("/api/wiki/{slug}/stories/new-form", response_class=HTMLResponse)
+async def get_story_new_form(
+    slug: str,
+    request: Request,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the add-story form partial."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+    return templates.TemplateResponse("partials/wiki_story_form.html", _ctx(
+        request,
+        current_user,
+        story=None,
+        person=person,
+        slug=slug,
+        edit_mode=False,
+    ))
+
+
+@router.get("/api/wiki/{slug}/stories")
+async def list_stories(
+    slug: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all stories for a person (any authenticated member)."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+    return await _load_stories(db, person.id)
+
+
+@router.post("/api/wiki/{slug}/stories", status_code=201)
+async def create_story(
+    slug: str,
+    request: Request,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a story (any authenticated member)."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    form = await request.form()
+    title = (form.get("title") or "").strip()
+    body = sanitize_html((form.get("body") or "").strip())
+
+    if not title:
+        raise HTTPException(status_code=422, detail="Title is required")
+
+    story = Story(
+        person_id=person.id,
+        title=title,
+        body=body,
+        author_person_id=current_user.id,
+        source=f"user:{current_user.id}",
+    )
+    db.add(story)
+    await db.flush()
+    _audit_story(db, current_user.id, "create", story)
+
+    # Return HTMX partial — the new story card
+    stories = await _load_stories(db, person.id)
+    new_story = next(s for s in stories if s["id"] == story.id)
+    return templates.TemplateResponse("partials/wiki_story_card.html", _ctx(
+        request,
+        current_user,
+        story=new_story,
+        person=person,
+        slug=slug,
+    ), status_code=201)
+
+
+@router.get("/api/wiki/{slug}/stories/{story_id}", response_class=HTMLResponse)
+async def get_story_edit_form(
+    slug: str,
+    story_id: str,
+    request: Request,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return the edit form partial for a story (any authenticated member)."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    result = await db.execute(select(Story).where(Story.id == story_id, Story.person_id == person.id))
+    story_row = result.scalar_one_or_none()
+    if not story_row:
+        raise HTTPException(status_code=404, detail="Story not found")
+
+    return templates.TemplateResponse("partials/wiki_story_form.html", _ctx(
+        request,
+        current_user,
+        story={"id": story_row.id, "title": story_row.title, "body": story_row.body,
+               "author_person_id": story_row.author_person_id},
+        person=person,
+        slug=slug,
+        edit_mode=True,
+    ))
+
+
+@router.put("/api/wiki/{slug}/stories/{story_id}", response_class=HTMLResponse)
+async def update_story(
+    slug: str,
+    story_id: str,
+    request: Request,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update a story — wiki-style: any authenticated member may edit."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    result = await db.execute(select(Story).where(Story.id == story_id, Story.person_id == person.id))
+    story = result.scalar_one_or_none()
+    if not story:
+        raise HTTPException(status_code=404, detail="Story not found")
+
+    form = await request.form()
+    title = (form.get("title") or "").strip()
+    body = sanitize_html((form.get("body") or "").strip())
+
+    if not title:
+        raise HTTPException(status_code=422, detail="Title is required")
+
+    story.title = title
+    story.body = body
+    story.updated_at = datetime.now(timezone.utc)
+    await db.flush()
+    _audit_story(db, current_user.id, "update", story)
+
+    # Return updated card partial
+    author_result = await db.execute(select(Person).where(Person.id == story.author_person_id))
+    author = author_result.scalar_one()
+    story_data = {
+        "id": story.id,
+        "title": story.title,
+        "body": story.body,
+        "author_name": author.display_name,
+        "author_person_id": story.author_person_id,
+        "created_at": story.created_at,
+        "updated_at": story.updated_at,
+    }
+    return templates.TemplateResponse("partials/wiki_story_card.html", _ctx(
+        request,
+        current_user,
+        story=story_data,
+        person=person,
+        slug=slug,
+    ))
+
+
+@router.get("/api/wiki/{slug}/stories/{story_id}/card", response_class=HTMLResponse)
+async def get_story_card(
+    slug: str,
+    story_id: str,
+    request: Request,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return a story card partial (used for cancel-edit restore)."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    result = await db.execute(select(Story).where(Story.id == story_id, Story.person_id == person.id))
+    story_row = result.scalar_one_or_none()
+    if not story_row:
+        raise HTTPException(status_code=404, detail="Story not found")
+
+    author_result = await db.execute(select(Person).where(Person.id == story_row.author_person_id))
+    author = author_result.scalar_one()
+    story_data = {
+        "id": story_row.id,
+        "title": story_row.title,
+        "body": story_row.body,
+        "author_name": author.display_name,
+        "author_person_id": story_row.author_person_id,
+        "created_at": story_row.created_at,
+        "updated_at": story_row.updated_at,
+    }
+    return templates.TemplateResponse("partials/wiki_story_card.html", _ctx(
+        request,
+        current_user,
+        story=story_data,
+        person=person,
+        slug=slug,
+    ))
+
+
+@router.get("/api/wiki/{slug}/stories/{story_id}/confirm-delete", response_class=HTMLResponse)
+async def confirm_delete_story(
+    slug: str,
+    story_id: str,
+    request: Request,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return inline confirm/cancel buttons for deleting a story."""
+    person = await _get_person_by_slug(slug, db)
+    result = await db.execute(select(Story).where(Story.id == story_id, Story.person_id == person.id))
+    story = result.scalar_one_or_none()
+    if not story:
+        raise HTTPException(status_code=404, detail="Story not found")
+    if story.author_person_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    html = f"""
+<span id="story-{story_id}-delete-wrap" style="display:inline-flex;gap:.5rem;align-items:center;">
+  <span style="font-size:.875rem">{_t(request, 'stories.delete_confirm')}</span>
+  <button class="btn btn--sm btn--danger"
+          hx-delete="/api/wiki/{slug}/stories/{story_id}"
+          hx-target="#story-{story_id}"
+          hx-swap="outerHTML swap:300ms">{_t(request, 'stories.delete_story')}</button>
+  <button class="btn btn--sm btn--outline"
+          hx-get="/api/wiki/{slug}/stories/{story_id}/card"
+          hx-target="#story-{story_id}-delete-wrap"
+          hx-swap="outerHTML">{_t(request, 'stories.cancel')}</button>
+</span>"""
+    return HTMLResponse(html)
+
+
+def _t(request: Request, key: str) -> str:
+    locale = request.cookies.get("locale", "en")
+    return translate(key, locale)
+
+
+@router.delete("/api/wiki/{slug}/stories/{story_id}")
+async def delete_story(
+    slug: str,
+    story_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a story — only original author or admin."""
+    person = await _get_person_by_slug(slug, db)
+    access = await get_person_access(db, current_user, person)
+    if not access.can_view:
+        raise HTTPException(status_code=403, detail="Not visible")
+
+    result = await db.execute(select(Story).where(Story.id == story_id, Story.person_id == person.id))
+    story = result.scalar_one_or_none()
+    if not story:
+        raise HTTPException(status_code=404, detail="Story not found")
+
+    if story.author_person_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this story")
+
+    _audit_story(db, current_user.id, "delete", story)
+    await db.delete(story)
+    from fastapi.responses import Response
+    return Response(status_code=204)

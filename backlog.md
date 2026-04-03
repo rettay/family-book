@@ -1,7 +1,6 @@
 # Family Book Backlog
 
-Sprint: `S41 - UAT/Staging Pipeline`
-Status: Done
+Sprint: none active
 
 ## Current Sprint `S41 - UAT/Staging Pipeline`
 

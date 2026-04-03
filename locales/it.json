@@ -806,5 +806,20 @@
     "researching": "Ricerca in corso",
     "no_results": "Nessun risultato trovato per questa ricerca.",
     "searching": "Ricerca nelle fonti esterne in corso..."
+  },
+  "stories": {
+    "section_title": "Storie",
+    "add_story": "Aggiungi storia",
+    "edit_story": "Modifica storia",
+    "delete_story": "Elimina storia",
+    "story_title_label": "Titolo",
+    "story_body_label": "Storia",
+    "story_by": "di {name}",
+    "story_empty": "Nessuna storia ancora. Sii il primo ad aggiungerne una.",
+    "save": "Salva storia",
+    "cancel": "Annulla",
+    "delete_confirm": "Eliminare questa storia?",
+    "count_one": "1 storia",
+    "count_many": "{n} storie"
   }
 }

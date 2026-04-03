@@ -1,0 +1,32 @@
+{# Single story card — used both in the full list and as HTMX swap target after create/update #}
+<div class="wiki-story-card" id="story-{{ story.id }}" data-story-id="{{ story.id }}">
+  <div class="wiki-story-card__header">
+    <h3 class="wiki-story-card__title">{{ story.title }}</h3>
+    <div class="wiki-story-card__meta">
+      {{ t('stories.story_by').replace('{name}', story.author_name) }}
+      {% if story.created_at %}
+      &middot;
+      <time datetime="{{ story.created_at.isoformat() }}">
+        {{ story.created_at.strftime('%B %d, %Y') }}
+      </time>
+      {% endif %}
+    </div>
+  </div>
+  <div class="wiki-story-card__body trix-content">{{ story.body | safe }}</div>
+  <div class="wiki-story-card__actions">
+    {# Any member can edit (wiki-style) #}
+    <button class="btn btn--sm btn--outline"
+            hx-get="/api/wiki/{{ slug }}/stories/{{ story.id }}"
+            hx-target="#story-{{ story.id }}"
+            hx-swap="outerHTML">{{ t('stories.edit_story') }}</button>
+    {# Delete: only shown to original author or admin #}
+    {% if current_user.id == story.author_person_id or current_user.is_admin %}
+    <span id="story-{{ story.id }}-delete-wrap">
+      <button class="btn btn--sm btn--danger-outline"
+              hx-get="/api/wiki/{{ slug }}/stories/{{ story.id }}/confirm-delete"
+              hx-target="#story-{{ story.id }}-delete-wrap"
+              hx-swap="outerHTML">{{ t('stories.delete_story') }}</button>
+    </span>
+    {% endif %}
+  </div>
+</div>

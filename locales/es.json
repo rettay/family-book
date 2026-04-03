@@ -806,5 +806,20 @@
     "researching": "Investigando",
     "no_results": "No se encontraron resultados para esta búsqueda.",
     "searching": "Buscando en fuentes externas..."
+  },
+  "stories": {
+    "section_title": "Historias",
+    "add_story": "Agregar historia",
+    "edit_story": "Editar historia",
+    "delete_story": "Eliminar historia",
+    "story_title_label": "Título",
+    "story_body_label": "Historia",
+    "story_by": "por {name}",
+    "story_empty": "Aún no hay historias. Sé el primero en agregar una.",
+    "save": "Guardar historia",
+    "cancel": "Cancelar",
+    "delete_confirm": "¿Eliminar esta historia?",
+    "count_one": "1 historia",
+    "count_many": "{n} historias"
   }
 }
