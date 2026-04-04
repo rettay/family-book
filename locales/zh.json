@@ -806,5 +806,20 @@
     "researching": "正在研究",
     "no_results": "此搜索未找到结果。",
     "searching": "正在搜索外部数据源..."
+  },
+  "stories": {
+    "section_title": "故事",
+    "add_story": "添加故事",
+    "edit_story": "编辑故事",
+    "delete_story": "删除故事",
+    "story_title_label": "标题",
+    "story_body_label": "故事",
+    "story_by": "作者：{name}",
+    "story_empty": "暂无故事。成为第一个添加故事的人。",
+    "save": "保存故事",
+    "cancel": "取消",
+    "delete_confirm": "删除此故事？",
+    "count_one": "1 个故事",
+    "count_many": "{n} 个故事"
   }
 }

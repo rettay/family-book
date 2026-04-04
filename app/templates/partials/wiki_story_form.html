@@ -1,0 +1,63 @@
+{# Story add/edit form — rendered inline via HTMX #}
+{% if edit_mode %}
+{# Edit: PUT to update existing story #}
+<form id="story-{{ story.id }}-form"
+      hx-put="/api/wiki/{{ slug }}/stories/{{ story.id }}"
+      hx-target="#story-{{ story.id }}"
+      hx-swap="outerHTML"
+      hx-encoding="multipart/form-data"
+      class="wiki-story-form">
+{% else %}
+{# Create: POST for new story; target replaces the add-form placeholder #}
+<form id="story-new-form"
+      hx-post="/api/wiki/{{ slug }}/stories"
+      hx-target="#wiki-stories-new-form"
+      hx-swap="outerHTML"
+      hx-encoding="multipart/form-data"
+      class="wiki-story-form">
+{% endif %}
+  <div class="wiki-story-form__field">
+    <label class="wiki-story-form__label" for="story-title-input">{{ t('stories.story_title_label') }}</label>
+    <input id="story-title-input"
+           class="wiki-story-form__title-input"
+           type="text"
+           name="title"
+           value="{{ story.title if story else '' }}"
+           placeholder="{{ t('stories.story_title_label') }}"
+           required>
+  </div>
+  <div class="wiki-story-form__field">
+    <label class="wiki-story-form__label">{{ t('stories.story_body_label') }}</label>
+    <input id="story-body-trix-{{ story.id if story else 'new' }}"
+           type="hidden"
+           name="body"
+           value="{{ story.body | e if story else '' }}">
+    <trix-editor input="story-body-trix-{{ story.id if story else 'new' }}"
+                 class="wiki-story-form__trix"></trix-editor>
+  </div>
+  <div class="wiki-story-form__actions">
+    <button type="submit" class="btn btn--primary">{{ t('stories.save') }}</button>
+    {% if edit_mode %}
+    <button type="button" class="btn btn--outline"
+            hx-get="/api/wiki/{{ slug }}/stories/{{ story.id }}/card"
+            hx-target="#story-{{ story.id }}"
+            hx-swap="outerHTML">{{ t('stories.cancel') }}</button>
+    {% else %}
+    <button type="button" class="btn btn--outline"
+            onclick="document.getElementById('wiki-stories-new-form').outerHTML = ''">{{ t('stories.cancel') }}</button>
+    {% endif %}
+  </div>
+</form>
+<script>
+  // Re-initialize Trix after HTMX swap injects this form into the DOM
+  (function() {
+    var input = document.getElementById('story-body-trix-{{ story.id if story else "new" }}');
+    var editor = document.querySelector('trix-editor[input="story-body-trix-{{ story.id if story else "new" }}"]');
+    if (editor && input && typeof Trix !== 'undefined') {
+      // Trix auto-initializes on connect; if already connected, set content manually
+      if (editor.editor && input.value) {
+        editor.editor.loadHTML(input.value);
+      }
+    }
+  })();
+</script>

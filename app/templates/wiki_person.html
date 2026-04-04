@@ -107,6 +107,30 @@
       </div>
     </div>
     {% endif %}
+
+    {# ── Stories ── #}
+    <div class="wiki-section" id="stories">
+      <div class="wiki-section__header-row">
+        <h2 class="wiki-section__title">{{ t('stories.section_title') }}</h2>
+        <button class="btn btn--sm btn--outline wiki-stories__add-btn"
+                hx-get="/api/wiki/{{ person.slug }}/stories/new-form"
+                hx-target="#wiki-stories-new-form"
+                hx-swap="outerHTML">{{ t('stories.add_story') }}</button>
+      </div>
+
+      {# Placeholder that the add-form swaps into #}
+      <div id="wiki-stories-new-form"></div>
+
+      <div id="wiki-stories-list" data-story-count="{{ stories | length }}">
+        {% if stories %}
+          {% for story in stories %}
+            {% include "partials/wiki_story_card.html" %}
+          {% endfor %}
+        {% else %}
+        <p class="wiki-stories__empty" data-wiki-stories-empty="true">{{ t('stories.story_empty') }}</p>
+        {% endif %}
+      </div>
+    </div>
   </article>
 </div>
 {% endblock %}
