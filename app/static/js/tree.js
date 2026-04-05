@@ -5084,7 +5084,7 @@
     saveBtn.disabled = true;
     try {
       var resp = await fetch('/api/persons/' + personId, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first_name: firstName, last_name: lastName })
       });
