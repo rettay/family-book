@@ -42,6 +42,12 @@
                 aria-label="{{ t('media.set_headshot') if t else 'Set as headshot' }}">
           &#9733;
         </button>
+        <button type="button" class="media-gallery__edit-btn"
+                onclick="openGalleryPhotoCrop('{{ m.id }}', this)"
+                title="{{ t('media.edit_photo') if t else 'Edit photo' }}"
+                aria-label="{{ t('media.edit_photo') if t else 'Edit photo' }}">
+          &#9999;
+        </button>
         <button type="button" class="media-gallery__delete-btn"
                 onclick="deleteMedia('{{ m.id }}', { onDelete: function() { location.reload(); } })"
                 title="{{ t('media.delete') if t else 'Delete' }}"

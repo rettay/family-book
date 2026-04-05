@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ brand_display_name }}{% endblock %}</title>
   <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/cropper.min.css">
   {% include "partials/theme_head.html" %}
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
   {% block head %}{% endblock %}
@@ -82,11 +83,42 @@
       "upload.unsupported_file": t('upload.unsupported_file'),
       "upload.upload_complete": t('upload.upload_complete'),
       "media.confirm_delete": t('media.confirm_delete'),
-      "media.deleted": t('media.deleted')
+      "media.deleted": t('media.deleted'),
+      "media.edit_photo": t('media.edit_photo'),
+      "media.edit_photo_title": t('media.edit_photo_title'),
+      "media.edit_photo_confirm": t('media.edit_photo_confirm'),
+      "media.edit_photo_cancel": t('media.edit_photo_cancel'),
+      "media.edit_photo_rotate_left": t('media.edit_photo_rotate_left'),
+      "media.edit_photo_rotate_right": t('media.edit_photo_rotate_right'),
+      "media.edit_photo_saved": t('media.edit_photo_saved'),
+      "media.edit_before_upload": t('media.edit_before_upload')
     } | tojson }};
   </script>
   <script src="/static/js/main.js"></script>
+  <script src="/static/js/vendor/cropper.min.js"></script>
+  <script src="/static/js/photo-crop.js"></script>
   {% block scripts %}{% endblock %}
+
+  {# Photo crop modal — shared across all pages #}
+  <div id="photo-crop-modal" class="photo-crop-modal hidden" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="photo-crop-modal-title">
+    <div class="photo-crop-modal__panel">
+      <div class="photo-crop-modal__header">
+        <h2 id="photo-crop-modal-title" class="photo-crop-modal__title">{{ t('media.edit_photo_title') }}</h2>
+        <button type="button" class="photo-crop-modal__close" id="photo-crop-close" aria-label="{{ t('media.edit_photo_cancel') }}">&times;</button>
+      </div>
+      <div class="photo-crop-modal__canvas-wrap">
+        <img id="photo-crop-img" src="" alt="" style="max-width:100%;">
+      </div>
+      <div class="photo-crop-modal__toolbar">
+        <button type="button" class="btn btn--ghost btn--sm" id="photo-crop-rotate-left" title="{{ t('media.edit_photo_rotate_left') }}">&#8634;</button>
+        <button type="button" class="btn btn--ghost btn--sm" id="photo-crop-rotate-right" title="{{ t('media.edit_photo_rotate_right') }}">&#8635;</button>
+      </div>
+      <div class="photo-crop-modal__footer">
+        <button type="button" class="btn btn--ghost" id="photo-crop-cancel">{{ t('media.edit_photo_cancel') }}</button>
+        <button type="button" class="btn btn--primary" id="photo-crop-confirm">{{ t('media.edit_photo_confirm') }}</button>
+      </div>
+    </div>
+  </div>
 
   {% if 'serviceWorker' in '' or true %}
   <script>
