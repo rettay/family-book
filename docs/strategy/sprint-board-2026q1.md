@@ -4,7 +4,7 @@
 
 ### `S43 - Tree Interaction Polish + Media Editing`
 
-Status: Planning
+Status: In Progress
 
 ### Sprint Goal
 
@@ -18,6 +18,7 @@ S42 closed the stories contribution loop. S43 deepens the tree as a workspace (U
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
+| 97 | FB-097 | Fix Tree Panel Toggle Label | P0 | done |
 | 92 | FB-092 | Inline Tree Node Name Edit | P0 | todo |
 | 93 | FB-093 | Relationship Edit from Tree | P1 | todo |
 | 94 | FB-094 | Sidebar Popup, Resize, and Dock | P1 | todo |
@@ -26,6 +27,7 @@ S42 closed the stories contribution loop. S43 deepens the tree as a workspace (U
 
 ### Sprint Exit Criteria
 
+- Tree panel toggle tab correctly shows "Hide…" when open and "Expand…" when closed (done)
 - Double-click a tree node → inline name edit overlay; save updates label in place
 - Right-click a node → "Edit relationships" → change kind or remove with inline confirm
 - Tree sidebar can be popped out as a floating panel, dragged, resized, and re-docked

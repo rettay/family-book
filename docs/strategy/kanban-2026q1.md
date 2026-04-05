@@ -2,6 +2,10 @@
 
 ## Ready
 
+None.
+
+## In Progress
+
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
 | FB-092 | Inline Tree Node Name Edit | P0 | `task_packets/FB-092_inline_tree_node_name_edit.md` |
@@ -53,6 +57,7 @@ None.
 | FB-089 | Story Authoring UI on Wiki Page | P0 | `task_packets/FB-089_story_authoring_ui_on_wiki_page.md` |
 | FB-090 | Story Count in Tree Sidebar | P1 | `task_packets/FB-090_story_count_in_tree_sidebar.md` |
 | FB-091 | Fix Flaky "Adoptive Kind" Playwright Test | P2 | `task_packets/FB-091_fix_flaky_adoptive_kind_playwright_test.md` |
+| FB-097 | Fix Tree Panel Toggle Label | P0 | `task_packets/FB-097_fix_tree_panel_toggle_label.md` |
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
