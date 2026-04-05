@@ -5406,6 +5406,7 @@
       localStorage.setItem(SIDEBAR_FLOAT_KEY, '1');
     } catch(e) {}
     _initSidebarDrag(sidebar);
+    _initSidebarResize(sidebar);
     if (treeData) render();
   };
 
@@ -5457,6 +5458,36 @@
       try {
         localStorage.setItem(SIDEBAR_X_KEY, parseInt(sidebar.style.left) || 0);
         localStorage.setItem(SIDEBAR_Y_KEY, parseInt(sidebar.style.top) || 0);
+        localStorage.setItem(SIDEBAR_W_KEY, sidebar.offsetWidth);
+        localStorage.setItem(SIDEBAR_H_KEY, sidebar.offsetHeight);
+      } catch(e) {}
+    });
+  }
+
+  function _initSidebarResize(sidebar) {
+    var handle = sidebar.querySelector('.person-sidebar__resize-handle');
+    if (!handle || handle._resizeInit) return;
+    handle._resizeInit = true;
+    var startX, startY, startW, startH;
+    handle.addEventListener('pointerdown', function(e) {
+      e.preventDefault();
+      startX = e.clientX;
+      startY = e.clientY;
+      startW = sidebar.offsetWidth;
+      startH = sidebar.offsetHeight;
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener('pointermove', function(e) {
+      if (!handle.hasPointerCapture(e.pointerId)) return;
+      var newW = Math.min(Math.max(startW + (e.clientX - startX), 280), Math.round(window.innerWidth * 0.9));
+      var newH = Math.min(Math.max(startH + (e.clientY - startY), 400), Math.round(window.innerHeight * 0.9));
+      sidebar.style.width = newW + 'px';
+      sidebar.style.height = newH + 'px';
+    });
+    handle.addEventListener('pointerup', function(e) {
+      if (!handle.hasPointerCapture(e.pointerId)) return;
+      handle.releasePointerCapture(e.pointerId);
+      try {
         localStorage.setItem(SIDEBAR_W_KEY, sidebar.offsetWidth);
         localStorage.setItem(SIDEBAR_H_KEY, sidebar.offsetHeight);
       } catch(e) {}

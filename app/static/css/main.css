@@ -3185,6 +3185,18 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
   border-top: 1px solid var(--border, #e5e7eb);
 }
 
+/* Sidebar resize handle — visible only when floating */
+.person-sidebar__resize-handle {
+  display: none;
+  position: absolute; bottom: 0; right: 0;
+  width: 18px; height: 18px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 50%, var(--border, #e0d6c8) 50%);
+  border-radius: 0 0 6px 0;
+  z-index: 1;
+}
+.person-sidebar--floating .person-sidebar__resize-handle { display: block; }
+
 /* Edit-photo button on gallery items */
 .media-gallery__edit-btn {
   position: absolute; top: 4px; right: 28px;

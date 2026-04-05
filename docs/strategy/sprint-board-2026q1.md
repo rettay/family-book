@@ -4,7 +4,7 @@
 
 ### `S43 - Tree Interaction Polish + Media Editing`
 
-Status: In Progress
+Status: Closed
 
 ### Sprint Goal
 
@@ -19,11 +19,11 @@ S42 closed the stories contribution loop. S43 deepens the tree as a workspace (U
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
 | 97 | FB-097 | Fix Tree Panel Toggle Label | P0 | done |
-| 92 | FB-092 | Inline Tree Node Name Edit | P0 | todo |
-| 93 | FB-093 | Relationship Edit from Tree | P1 | todo |
-| 94 | FB-094 | Sidebar Popup, Resize, and Dock | P1 | todo |
-| 95 | FB-095 | Photo Editing — Crop, Rotate, Resize | P1 | todo |
-| 96 | FB-096 | Audio Upload, Playback, and TTS | P2 | todo |
+| 92 | FB-092 | Inline Tree Node Name Edit | P0 | done |
+| 93 | FB-093 | Relationship Edit from Tree | P1 | done |
+| 94 | FB-094 | Sidebar Popup, Resize, and Dock | P1 | done |
+| 95 | FB-095 | Photo Editing — Crop, Rotate, Resize | P1 | done |
+| 96 | FB-096 | Audio Upload, Playback, and TTS | P2 | done |
 
 ### Sprint Exit Criteria
 
@@ -36,6 +36,10 @@ S42 closed the stories contribution loop. S43 deepens the tree as a workspace (U
 - TTS "Listen" button on story cards (Web Speech API, hidden if unsupported)
 - `uv run pytest tests/` passes with coverage for new endpoints
 - i18n parity maintained
+
+### Outcome
+
+All 6 packets shipped. 23 new tests pass (18 builder + 5 new tree i18n parity). Sidebar resize handle added to address auditor P1. TTS button hidden on unsupported browsers. `edit-image` now updates `file_hash` on replacement. Merged to `codex/staging` 2026-04-05, audited and closed 2026-04-05.
 
 ---
 

@@ -215,6 +215,14 @@ class TestS43I18nKeys:
         "stop_listening",
     ]
 
+    S43_TREE_KEYS = [
+        "edit_name_title",
+        "ctx_edit_relationships",
+        "sidebar_popout",
+        "sidebar_dock",
+        "remove_relationship_confirm",
+    ]
+
     def _load_locale(self, locale: str) -> dict:
         import json
         import os
@@ -237,3 +245,10 @@ class TestS43I18nKeys:
         stories = data.get("stories", {})
         for key in self.S43_STORY_AUDIO_KEYS:
             assert key in stories, f"Missing stories.{key} in {locale}.json"
+
+    @pytest.mark.parametrize("locale", ["en", "es", "ru", "it", "zh"])
+    def test_tree_interaction_keys_present(self, locale: str):
+        data = self._load_locale(locale)
+        tree = data.get("tree", {})
+        for key in self.S43_TREE_KEYS:
+            assert key in tree, f"Missing tree.{key} in {locale}.json"

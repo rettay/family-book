@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import json
 import os
@@ -474,8 +475,9 @@ async def edit_image(
     # Regenerate thumb and medium variants
     generate_image_variants(data, file.content_type, media_dir, media_id)
 
-    # Update file size
+    # Update file size and hash
     media.file_size_bytes = len(data)
+    media.file_hash = hashlib.sha256(data).hexdigest()
     await db.flush()
 
     return {

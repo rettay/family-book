@@ -1001,6 +1001,17 @@ window.handleStoryAudioSelect = handleStoryAudioSelect;
 // Gracefully no-ops in browsers that lack speechSynthesis.
 var _ttsActiveBtn = null;
 
+// Hide TTS buttons in browsers that don't support the Web Speech API.
+// Runs on initial load and after every HTMX swap so dynamically-added cards are covered.
+(function _hideTtsBtnsIfUnsupported() {
+  if ('speechSynthesis' in window) return;
+  function _hide() {
+    document.querySelectorAll('.wiki-story-tts-btn').forEach(function(btn) { btn.hidden = true; });
+  }
+  document.addEventListener('DOMContentLoaded', _hide);
+  document.addEventListener('htmx:afterSettle', _hide);
+})();
+
 function toggleStoryTTS(btn) {
   if (!('speechSynthesis' in window)) return;
   // Stop any in-progress speech first
