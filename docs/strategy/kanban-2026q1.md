@@ -2,7 +2,13 @@
 
 ## Ready
 
-None.
+| ID | Title | Priority | Packet |
+|---|---|---:|---|
+| FB-092 | Inline Tree Node Name Edit | P0 | `task_packets/FB-092_inline_tree_node_name_edit.md` |
+| FB-093 | Relationship Edit from Tree | P1 | `task_packets/FB-093_relationship_edit_from_tree.md` |
+| FB-094 | Sidebar Popup, Resize, and Dock | P1 | `task_packets/FB-094_sidebar_popup_resizable_dockable.md` |
+| FB-095 | Photo Editing — Crop, Rotate, Resize | P1 | `task_packets/FB-095_photo_editing_crop_rotate_resize.md` |
+| FB-096 | Audio Upload, Playback, and TTS | P2 | `task_packets/FB-096_audio_upload_playback_tts.md` |
 
 ## In Progress
 
