@@ -30,15 +30,7 @@
   .tree-layout--panel-collapsed {
     grid-template-columns: minmax(0, 1fr);
   }
-  .tree-panel__collapse {
-    position: absolute; top: 12px; right: 12px; z-index: 2;
-    background: rgba(255, 248, 237, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
-    font-size: 0.9rem; cursor: pointer; color: #6b6054;
-    padding: 6px 10px; border-radius: 999px;
-    transition: all 0.2s ease;
-  }
-  .tree-panel__collapse:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
-  .tree-panel-expand-tab {
+.tree-panel-expand-tab {
     position: absolute; top: 50%; left: 0; z-index: 19;
     transform: translateY(-50%);
     background: rgba(255, 253, 248, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
@@ -215,7 +207,6 @@
       min-height: 70vh;
       height: 70vh;
     }
-    .tree-panel__collapse { display: none; }
     .tree-panel-expand-tab { display: none; }
   }
 </style>
@@ -309,11 +300,10 @@
   data-ctx-upload-photo="{{ t('tree.ctx_upload_photo') }}"
   data-ctx-edit-details="{{ t('tree.ctx_edit_details') }}"
   data-ctx-view-profile="{{ t('tree.ctx_view_profile') }}"
+  data-tree-expand-settings="{{ t('tree.expand_settings') }}"
+  data-tree-hide-settings="{{ t('tree.hide_settings') }}"
 >
   <aside class="tree-panel" id="tree-panel-content">
-    <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
-            aria-label="{{ t('tree.hide_settings') }}" title="{{ t('tree.hide_settings') }}"
-            onclick="toggleTreePanel()">&#x276E; {{ t('tree.hide_settings') }}</button>
 
     <section class="tree-panel__group" data-tree-panel-group="navigate">
       <div class="tree-search" id="tree-search">
@@ -387,10 +377,10 @@
       </div>
 
       <button class="tree-panel-expand-tab" id="tree-panel-expand-tab" type="button"
-              aria-label="{{ t('tree.expand_settings') }}" title="{{ t('tree.expand_settings') }}"
-              onclick="toggleTreePanel()" hidden>
-        <span class="tree-panel-expand-tab__icon">&#x276F;</span>
-        <span class="tree-panel-expand-tab__label">{{ t('tree.expand_settings') }}</span>
+              aria-label="{{ t('tree.hide_settings') }}" title="{{ t('tree.hide_settings') }}"
+              onclick="toggleTreePanel()">
+        <span class="tree-panel-expand-tab__icon">&#x276E;</span>
+        <span class="tree-panel-expand-tab__label">{{ t('tree.hide_settings') }}</span>
       </button>
       <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">

@@ -3977,8 +3977,27 @@
   var PANEL_COLLAPSED_KEY = 'treePanelCollapsed';
 
   function _updatePanelToggleUI(collapsed) {
+    // Fix FB-097: update label and caret direction rather than hiding the tab.
+    // The tab is always visible; its text reflects the current state.
+    // Previously used expandTab.hidden which was overridden by display:flex in CSS.
     var expandTab = document.getElementById('tree-panel-expand-tab');
-    if (expandTab) expandTab.hidden = !collapsed;
+    if (!expandTab) return;
+    var icon = expandTab.querySelector('.tree-panel-expand-tab__icon');
+    var label = expandTab.querySelector('.tree-panel-expand-tab__label');
+    var dataRoot = document.getElementById('tree-root') || document.body;
+    var expandText = dataRoot.dataset.treeExpandSettings || 'Expand Family Tree Settings';
+    var hideText = dataRoot.dataset.treeHideSettings || 'Hide Family Tree Settings';
+    if (collapsed) {
+      if (icon) icon.textContent = '\u276F';
+      if (label) label.textContent = expandText;
+      expandTab.setAttribute('aria-label', expandText);
+      expandTab.setAttribute('title', expandText);
+    } else {
+      if (icon) icon.textContent = '\u276E';
+      if (label) label.textContent = hideText;
+      expandTab.setAttribute('aria-label', hideText);
+      expandTab.setAttribute('title', hideText);
+    }
   }
 
   function _rerenderAfterPanelTransition() {
@@ -3997,8 +4016,13 @@
     try {
       if (localStorage.getItem(PANEL_COLLAPSED_KEY) === '1') {
         collapseTreePanelSilent();
+      } else {
+        // Panel is expanded by default — sync the toggle tab label to "Hide"
+        _updatePanelToggleUI(false);
       }
-    } catch (e) { /* localStorage unavailable */ }
+    } catch (e) {
+      _updatePanelToggleUI(false);
+    }
   }
 
   window.toggleTreePanel = function() {
