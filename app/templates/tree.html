@@ -30,15 +30,7 @@
   .tree-layout--panel-collapsed {
     grid-template-columns: minmax(0, 1fr);
   }
-  .tree-panel__collapse {
-    position: absolute; top: 12px; right: 12px; z-index: 2;
-    background: rgba(255, 248, 237, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
-    font-size: 0.9rem; cursor: pointer; color: #6b6054;
-    padding: 6px 10px; border-radius: 999px;
-    transition: all 0.2s ease;
-  }
-  .tree-panel__collapse:hover { background: rgba(217, 234, 201, 0.5); color: #2d5016; }
-  .tree-panel-expand-tab {
+.tree-panel-expand-tab {
     position: absolute; top: 50%; left: 0; z-index: 19;
     transform: translateY(-50%);
     background: rgba(255, 253, 248, 0.95); border: 1px solid rgba(45, 80, 22, 0.12);
@@ -215,9 +207,63 @@
       min-height: 70vh;
       height: 70vh;
     }
-    .tree-panel__collapse { display: none; }
     .tree-panel-expand-tab { display: none; }
   }
+
+  /* FB-092: inline name edit overlay */
+  .tree-name-edit-overlay {
+    position: fixed; z-index: 700;
+    background: #fffaf1; border: 1px solid rgba(45,80,22,0.18);
+    border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    padding: 0; min-width: 220px;
+  }
+  .tree-name-edit-overlay[hidden] { display: none; }
+  .tree-name-edit-overlay__inner { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+  .tree-name-edit-overlay__title { font-size: 0.85rem; font-weight: 700; color: #2d5016; }
+  .tree-name-edit-overlay__input { font-size: 0.9rem; }
+  .tree-name-edit-overlay__error { font-size: 0.8rem; color: #c0392b; }
+  .tree-name-edit-overlay__error[hidden] { display: none; }
+  .tree-name-edit-overlay__actions { display: flex; gap: 8px; }
+
+  /* FB-093: relationship edit popover */
+  .tree-rel-edit-popover {
+    position: fixed; z-index: 700;
+    background: #fffaf1; border: 1px solid rgba(45,80,22,0.18);
+    border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    min-width: 260px; max-width: 340px;
+  }
+  .tree-rel-edit-popover[hidden] { display: none; }
+  .tree-rel-edit-popover__inner { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+  .tree-rel-edit-popover__title { font-size: 0.85rem; font-weight: 700; color: #2d5016; }
+  .tree-rel-edit-popover__close { align-self: flex-end; }
+  .tree-rel-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(45,80,22,0.08); font-size: 0.85rem; }
+  .tree-rel-row:last-child { border-bottom: 0; }
+  .tree-rel-row__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tree-rel-row__kind { font-size: 0.8rem; border: 1px solid rgba(45,80,22,0.2); border-radius: 6px; padding: 2px 4px; background: transparent; cursor: pointer; }
+  .tree-rel-confirm { display: flex; gap: 6px; align-items: center; font-size: 0.8rem; color: #c0392b; flex-wrap: wrap; padding: 4px 0; }
+
+  /* FB-094: floating sidebar */
+  .person-sidebar--floating {
+    position: fixed !important; z-index: 500; top: 80px; right: 20px;
+    width: 360px; height: 520px;
+    border: 1px solid rgba(45,80,22,0.18); border-radius: 12px;
+    box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+    display: flex; flex-direction: column;
+    overflow: hidden; resize: both;
+    min-width: 280px; min-height: 400px;
+    max-width: 90vw; max-height: 90vh;
+  }
+  .person-sidebar--floating #person-sidebar-dialog { height: 100%; display: flex; flex-direction: column; }
+  .person-sidebar--floating #sidebar-content { flex: 1; overflow-y: auto; }
+  .person-sidebar__header { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid rgba(45,80,22,0.08); flex-shrink: 0; background: rgba(255,253,248,0.98); cursor: default; }
+  .person-sidebar__popout { font-size: 0.75rem; padding: 3px 8px; border: 1px solid rgba(45,80,22,0.2); border-radius: 999px; background: transparent; cursor: pointer; color: #6b6054; white-space: nowrap; }
+  .person-sidebar__popout:hover { background: rgba(217,234,201,0.4); }
+  .person-sidebar__dock { font-size: 0.75rem; padding: 3px 8px; border: 1px solid rgba(45,80,22,0.2); border-radius: 999px; background: transparent; cursor: pointer; color: #2d5016; white-space: nowrap; }
+  .person-sidebar__dock[hidden] { display: none; }
+  .person-sidebar__popout[hidden] { display: none; }
+  .person-sidebar--floating .person-sidebar__header { cursor: grab; }
+  .person-sidebar--floating .person-sidebar__header:active { cursor: grabbing; }
+  .tree-layout--sidebar-floating .tree-canvas { width: 100%; }
 </style>
 {% endblock %}
 
@@ -309,11 +355,18 @@
   data-ctx-upload-photo="{{ t('tree.ctx_upload_photo') }}"
   data-ctx-edit-details="{{ t('tree.ctx_edit_details') }}"
   data-ctx-view-profile="{{ t('tree.ctx_view_profile') }}"
+  data-tree-expand-settings="{{ t('tree.expand_settings') }}"
+  data-tree-hide-settings="{{ t('tree.hide_settings') }}"
+  data-tree-edit-name-title="{{ t('tree.edit_name_title') }}"
+  data-tree-edit-name-save="{{ t('tree.edit_name_save') }}"
+  data-tree-ctx-edit-relationships="{{ t('tree.ctx_edit_relationships') }}"
+  data-tree-relationship-kind-label="{{ t('tree.relationship_kind_label') }}"
+  data-tree-remove-rel-action="{{ t('tree.remove_relationship_action') }}"
+  data-tree-remove-rel-confirm="{{ t('tree.remove_confirm') }}"
+  data-tree-remove-rel-yes="{{ t('tree.remove_confirm_yes') }}"
+  data-tree-remove-rel-no="{{ t('tree.remove_confirm_no') }}"
 >
   <aside class="tree-panel" id="tree-panel-content">
-    <button class="tree-panel__collapse" type="button" id="tree-panel-collapse-btn"
-            aria-label="{{ t('tree.hide_settings') }}" title="{{ t('tree.hide_settings') }}"
-            onclick="toggleTreePanel()">&#x276E; {{ t('tree.hide_settings') }}</button>
 
     <section class="tree-panel__group" data-tree-panel-group="navigate">
       <div class="tree-search" id="tree-search">
@@ -386,18 +439,51 @@
         <div class="tree-relcalc-result__details"></div>
       </div>
 
+      <!-- FB-092: inline name edit overlay -->
+      <div class="tree-name-edit-overlay" id="tree-name-edit-overlay" hidden role="dialog" aria-modal="true" aria-label="{{ t('tree.edit_name_title') }}">
+        <div class="tree-name-edit-overlay__inner">
+          <strong class="tree-name-edit-overlay__title">{{ t('tree.edit_name_title') }}</strong>
+          <input class="form-input tree-name-edit-overlay__input" type="text" id="tree-name-edit-first" name="first_name" autocomplete="off" placeholder="{{ t('person.first_name') }}">
+          <input class="form-input tree-name-edit-overlay__input" type="text" id="tree-name-edit-last" name="last_name" autocomplete="off" placeholder="{{ t('person.last_name') }}">
+          <span class="tree-name-edit-overlay__error" id="tree-name-edit-error" hidden></span>
+          <div class="tree-name-edit-overlay__actions">
+            <button class="btn btn--primary btn--sm" type="button" id="tree-name-edit-save">{{ t('tree.edit_name_save') }}</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="tree-name-edit-cancel">{{ t('common.cancel') }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FB-093: relationship edit popover -->
+      <div class="tree-rel-edit-popover" id="tree-rel-edit-popover" hidden role="dialog" aria-modal="true" aria-label="{{ t('tree.ctx_edit_relationships') }}">
+        <div class="tree-rel-edit-popover__inner">
+          <strong class="tree-rel-edit-popover__title">{{ t('tree.ctx_edit_relationships') }}</strong>
+          <div id="tree-rel-edit-list"></div>
+          <button class="btn btn--ghost btn--sm tree-rel-edit-popover__close" type="button" id="tree-rel-edit-close">{{ t('common.cancel') }}</button>
+        </div>
+      </div>
+
       <button class="tree-panel-expand-tab" id="tree-panel-expand-tab" type="button"
-              aria-label="{{ t('tree.expand_settings') }}" title="{{ t('tree.expand_settings') }}"
-              onclick="toggleTreePanel()" hidden>
-        <span class="tree-panel-expand-tab__icon">&#x276F;</span>
-        <span class="tree-panel-expand-tab__label">{{ t('tree.expand_settings') }}</span>
+              aria-label="{{ t('tree.hide_settings') }}" title="{{ t('tree.hide_settings') }}"
+              onclick="toggleTreePanel()">
+        <span class="tree-panel-expand-tab__icon">&#x276E;</span>
+        <span class="tree-panel-expand-tab__label">{{ t('tree.hide_settings') }}</span>
       </button>
       <button class="sidebar-expand-tab" id="sidebar-expand-tab" type="button" aria-label="Expand sidebar" onclick="expandSidebar()" hidden>&#x276E;</button>
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
         <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">
-          <button class="person-sidebar__collapse" type="button" aria-label="Collapse sidebar" onclick="collapseSidebar()" title="Collapse sidebar">&#x276F;</button>
-          <button class="person-sidebar__close" type="button" aria-label="{{ t('common.cancel') }}" onclick="closeSidebar()">&times;</button>
+          <div class="person-sidebar__header">
+            <button class="person-sidebar__collapse" type="button" aria-label="Collapse sidebar" onclick="collapseSidebar()" title="Collapse sidebar">&#x276F;</button>
+            <!-- FB-094: pop-out / dock controls -->
+            <button class="person-sidebar__popout" type="button" id="sidebar-popout-btn"
+                    aria-label="{{ t('tree.sidebar_popout') }}" title="{{ t('tree.sidebar_popout') }}"
+                    onclick="popOutSidebar()" data-sidebar-popout-btn>&#x2B1C; {{ t('tree.sidebar_popout') }}</button>
+            <button class="person-sidebar__dock" type="button" id="sidebar-dock-btn"
+                    aria-label="{{ t('tree.sidebar_dock') }}" title="{{ t('tree.sidebar_dock') }}"
+                    onclick="dockSidebar()" data-sidebar-dock-btn hidden>&#x2B1B; {{ t('tree.sidebar_dock') }}</button>
+            <button class="person-sidebar__close" type="button" aria-label="{{ t('common.cancel') }}" onclick="closeSidebar()">&times;</button>
+          </div>
           <div id="sidebar-content" aria-live="polite" aria-busy="false"></div>
+          <div class="person-sidebar__resize-handle" id="sidebar-resize-handle" aria-hidden="true"></div>
         </div>
       </div>
     </div>

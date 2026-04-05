@@ -285,7 +285,15 @@
     "delete": "Удалить",
     "confirm_delete": "Удалить этот файл? Это действие нельзя отменить.",
     "deleted": "Файл удалён",
-    "upload_headshot": "Загрузить фото"
+    "upload_headshot": "Загрузить фото",
+    "edit_photo": "Редактировать фото",
+    "edit_photo_title": "Редактировать фото",
+    "edit_photo_confirm": "Применить",
+    "edit_photo_cancel": "Отмена",
+    "edit_photo_rotate_left": "Повернуть влево",
+    "edit_photo_rotate_right": "Повернуть вправо",
+    "edit_photo_saved": "Фото обновлено",
+    "edit_before_upload": "Редактировать перед загрузкой"
   },
   "gallery": {
     "title": "Семейная галерея",
@@ -589,7 +597,17 @@
     "ctx_add_partner": "Добавить партнёра",
     "ctx_upload_photo": "Загрузить фото",
     "ctx_edit_details": "Редактировать",
-    "ctx_view_profile": "Открыть профиль"
+    "ctx_view_profile": "Открыть профиль",
+    "edit_name_title": "Редактировать имя",
+    "edit_name_save": "Сохранить",
+    "ctx_edit_relationships": "Редактировать связи",
+    "relationship_kind_label": "Тип связи",
+    "remove_relationship_action": "Удалить",
+    "remove_confirm": "Удалить эту связь?",
+    "remove_confirm_yes": "Да, удалить",
+    "remove_confirm_no": "Отмена",
+    "sidebar_popout": "Открепить",
+    "sidebar_dock": "Закрепить панель"
   },
   "calendar": {
     "title": "Семейный Календарь",
@@ -820,6 +838,10 @@
     "cancel": "Отмена",
     "delete_confirm": "Удалить эту историю?",
     "count_one": "1 история",
-    "count_many": "{n} историй"
+    "count_many": "{n} историй",
+    "attach_audio": "Прикрепить аудио",
+    "audio_player_label": "Голосовая запись",
+    "listen": "Слушать",
+    "stop_listening": "Остановить"
   }
 }

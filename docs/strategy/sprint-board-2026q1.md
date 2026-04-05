@@ -2,7 +2,44 @@
 
 ## Current Sprint
 
-None. Planning next sprint.
+### `S43 - Tree Interaction Polish + Media Editing`
+
+Status: Closed
+
+### Sprint Goal
+
+Make the tree a first-class editing surface for names and relationships. Give users flexible sidebar layout. Enable basic photo editing and audio/voice playback in the family record.
+
+### Why This Sprint Next
+
+S42 closed the stories contribution loop. S43 deepens the tree as a workspace (UX North Star) and lowers the barrier for non-technical family members to contribute and curate media.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 97 | FB-097 | Fix Tree Panel Toggle Label | P0 | done |
+| 92 | FB-092 | Inline Tree Node Name Edit | P0 | done |
+| 93 | FB-093 | Relationship Edit from Tree | P1 | done |
+| 94 | FB-094 | Sidebar Popup, Resize, and Dock | P1 | done |
+| 95 | FB-095 | Photo Editing — Crop, Rotate, Resize | P1 | done |
+| 96 | FB-096 | Audio Upload, Playback, and TTS | P2 | done |
+
+### Sprint Exit Criteria
+
+- Tree panel toggle tab correctly shows "Hide…" when open and "Expand…" when closed (done)
+- Double-click a tree node → inline name edit overlay; save updates label in place
+- Right-click a node → "Edit relationships" → change kind or remove with inline confirm
+- Tree sidebar can be popped out as a floating panel, dragged, resized, and re-docked
+- Photo edit (crop/rotate/resize) available on upload and on existing gallery photos
+- Audio files accepted as media; play back on story cards and in the gallery
+- TTS "Listen" button on story cards (Web Speech API, hidden if unsupported)
+- `uv run pytest tests/` passes with coverage for new endpoints
+- i18n parity maintained
+
+### Outcome
+
+All 6 packets shipped. 23 new tests pass (18 builder + 5 new tree i18n parity). Sidebar resize handle added to address auditor P1. TTS button hidden on unsupported browsers. `edit-image` now updates `file_hash` on replacement. Merged to `codex/staging` 2026-04-05, audited and closed 2026-04-05.
 
 ---
 

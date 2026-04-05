@@ -285,7 +285,15 @@
     "delete": "删除",
     "confirm_delete": "删除此媒体？此操作无法撤消。",
     "deleted": "媒体已删除",
-    "upload_headshot": "上传照片"
+    "upload_headshot": "上传照片",
+    "edit_photo": "编辑照片",
+    "edit_photo_title": "编辑照片",
+    "edit_photo_confirm": "应用",
+    "edit_photo_cancel": "取消",
+    "edit_photo_rotate_left": "向左旋转",
+    "edit_photo_rotate_right": "向右旋转",
+    "edit_photo_saved": "照片已更新",
+    "edit_before_upload": "上传前编辑"
   },
   "gallery": {
     "title": "家族图库",
@@ -589,7 +597,17 @@
     "ctx_add_partner": "添加伴侣",
     "ctx_upload_photo": "上传照片",
     "ctx_edit_details": "编辑详情",
-    "ctx_view_profile": "查看资料"
+    "ctx_view_profile": "查看资料",
+    "edit_name_title": "编辑姓名",
+    "edit_name_save": "保存",
+    "ctx_edit_relationships": "编辑关系",
+    "relationship_kind_label": "关系类型",
+    "remove_relationship_action": "删除",
+    "remove_confirm": "删除此关系？",
+    "remove_confirm_yes": "确认删除",
+    "remove_confirm_no": "取消",
+    "sidebar_popout": "弹出",
+    "sidebar_dock": "停靠面板"
   },
   "calendar": {
     "title": "家庭日历",
@@ -820,6 +838,10 @@
     "cancel": "取消",
     "delete_confirm": "删除此故事？",
     "count_one": "1 个故事",
-    "count_many": "{n} 个故事"
+    "count_many": "{n} 个故事",
+    "attach_audio": "附加音频",
+    "audio_player_label": "语音录音",
+    "listen": "收听",
+    "stop_listening": "停止"
   }
 }

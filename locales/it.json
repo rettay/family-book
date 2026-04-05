@@ -285,7 +285,15 @@
     "delete": "Elimina",
     "confirm_delete": "Eliminare questo file? Questa azione non può essere annullata.",
     "deleted": "File eliminato",
-    "upload_headshot": "Carica foto"
+    "upload_headshot": "Carica foto",
+    "edit_photo": "Modifica foto",
+    "edit_photo_title": "Modifica foto",
+    "edit_photo_confirm": "Applica",
+    "edit_photo_cancel": "Annulla",
+    "edit_photo_rotate_left": "Ruota a sinistra",
+    "edit_photo_rotate_right": "Ruota a destra",
+    "edit_photo_saved": "Foto aggiornata",
+    "edit_before_upload": "Modifica prima di caricare"
   },
   "gallery": {
     "title": "Galleria di famiglia",
@@ -589,7 +597,17 @@
     "ctx_add_partner": "Aggiungi partner",
     "ctx_upload_photo": "Carica foto",
     "ctx_edit_details": "Modifica dettagli",
-    "ctx_view_profile": "Vedi profilo"
+    "ctx_view_profile": "Vedi profilo",
+    "edit_name_title": "Modifica nome",
+    "edit_name_save": "Salva",
+    "ctx_edit_relationships": "Modifica relazioni",
+    "relationship_kind_label": "Tipo di relazione",
+    "remove_relationship_action": "Rimuovi",
+    "remove_confirm": "Rimuovere questa relazione?",
+    "remove_confirm_yes": "Sì, rimuovi",
+    "remove_confirm_no": "Annulla",
+    "sidebar_popout": "Stacca",
+    "sidebar_dock": "Aggancia pannello"
   },
   "calendar": {
     "title": "Calendario familiare",
@@ -820,6 +838,10 @@
     "cancel": "Annulla",
     "delete_confirm": "Eliminare questa storia?",
     "count_one": "1 storia",
-    "count_many": "{n} storie"
+    "count_many": "{n} storie",
+    "attach_audio": "Allega audio",
+    "audio_player_label": "Registrazione vocale",
+    "listen": "Ascolta",
+    "stop_listening": "Ferma"
   }
 }

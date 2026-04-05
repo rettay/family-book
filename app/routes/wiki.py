@@ -373,6 +373,7 @@ async def _load_stories(db: AsyncSession, person_id: str) -> list[dict]:
             "body": story.body,
             "author_name": author.display_name,
             "author_person_id": story.author_person_id,
+            "audio_media_id": story.audio_media_id,
             "created_at": story.created_at,
             "updated_at": story.updated_at,
         })
@@ -455,6 +456,7 @@ async def create_story(
     form = await request.form()
     title = (form.get("title") or "").strip()
     body = sanitize_html((form.get("body") or "").strip())
+    audio_media_id = (form.get("audio_media_id") or "").strip() or None
 
     if not title:
         raise HTTPException(status_code=422, detail="Title is required")
@@ -464,6 +466,7 @@ async def create_story(
         title=title,
         body=body,
         author_person_id=current_user.id,
+        audio_media_id=audio_media_id,
         source=f"user:{current_user.id}",
     )
     db.add(story)
@@ -505,7 +508,8 @@ async def get_story_edit_form(
         request,
         current_user,
         story={"id": story_row.id, "title": story_row.title, "body": story_row.body,
-               "author_person_id": story_row.author_person_id},
+               "author_person_id": story_row.author_person_id,
+               "audio_media_id": story_row.audio_media_id},
         person=person,
         slug=slug,
         edit_mode=True,
@@ -534,12 +538,14 @@ async def update_story(
     form = await request.form()
     title = (form.get("title") or "").strip()
     body = sanitize_html((form.get("body") or "").strip())
+    audio_media_id = (form.get("audio_media_id") or "").strip() or None
 
     if not title:
         raise HTTPException(status_code=422, detail="Title is required")
 
     story.title = title
     story.body = body
+    story.audio_media_id = audio_media_id
     story.updated_at = datetime.now(timezone.utc)
     await db.flush()
     _audit_story(db, current_user.id, "update", story)
@@ -553,6 +559,7 @@ async def update_story(
         "body": story.body,
         "author_name": author.display_name,
         "author_person_id": story.author_person_id,
+        "audio_media_id": story.audio_media_id,
         "created_at": story.created_at,
         "updated_at": story.updated_at,
     }
@@ -592,6 +599,7 @@ async def get_story_card(
         "body": story_row.body,
         "author_name": author.display_name,
         "author_person_id": story_row.author_person_id,
+        "audio_media_id": story_row.audio_media_id,
         "created_at": story_row.created_at,
         "updated_at": story_row.updated_at,
     }

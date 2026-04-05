@@ -201,7 +201,8 @@
       { icon: '\ud83d\udc91', label: root.dataset.ctxAddPartner || 'Add partner', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('relationships'); openTreeRelationshipCreate('partner'); }); } },
       { separator: true },
       { icon: '\ud83d\udcf7', label: root.dataset.ctxUploadPhoto || 'Upload photo', action: function() { triggerTreePhotoUpload(personId); } },
-      { icon: '\u270f\ufe0f', label: root.dataset.ctxEditDetails || 'Edit details', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('details'); }); } }
+      { icon: '\u270f\ufe0f', label: root.dataset.ctxEditDetails || 'Edit details', action: function() { openPersonSidebar(personId).then(function() { switchTreeSidebarTab('details'); }); } },
+      { icon: '\ud83d\udd17', label: root.dataset.treeCtxEditRelationships || 'Edit relationships', action: function() { showRelationshipEditPopover(personId, event.clientX, event.clientY); } }
     ];
     // Only add "View profile" if person has a slug
     if (slug) {
@@ -2603,7 +2604,8 @@
         event.preventDefault();
         return;
       }
-      window.location.href = '/people/' + person.id + '/edit';
+      event.preventDefault();
+      showNameEditOverlay(person.id, this);
     });
 
     nodeGroup.on('keydown', function(event) {
@@ -2702,6 +2704,7 @@
         .attr('class', 'parent-child-line parent-child-line--' + kind)
         .attr('data-from', parentChild.parent_id)
         .attr('data-to', parentChild.child_id)
+        .attr('data-rel-id', parentChild.id)
         .attr('marker-end', 'url(#tree-parent-arrow)')
         .attr('d', lineGen([[parentPos.x, parentPos.y + NODE_RADIUS], [childPos.x, childPos.y - NODE_RADIUS]]));
     });
@@ -3977,8 +3980,27 @@
   var PANEL_COLLAPSED_KEY = 'treePanelCollapsed';
 
   function _updatePanelToggleUI(collapsed) {
+    // Fix FB-097: update label and caret direction rather than hiding the tab.
+    // The tab is always visible; its text reflects the current state.
+    // Previously used expandTab.hidden which was overridden by display:flex in CSS.
     var expandTab = document.getElementById('tree-panel-expand-tab');
-    if (expandTab) expandTab.hidden = !collapsed;
+    if (!expandTab) return;
+    var icon = expandTab.querySelector('.tree-panel-expand-tab__icon');
+    var label = expandTab.querySelector('.tree-panel-expand-tab__label');
+    var dataRoot = document.getElementById('tree-root') || document.body;
+    var expandText = dataRoot.dataset.treeExpandSettings || 'Expand Family Tree Settings';
+    var hideText = dataRoot.dataset.treeHideSettings || 'Hide Family Tree Settings';
+    if (collapsed) {
+      if (icon) icon.textContent = '\u276F';
+      if (label) label.textContent = expandText;
+      expandTab.setAttribute('aria-label', expandText);
+      expandTab.setAttribute('title', expandText);
+    } else {
+      if (icon) icon.textContent = '\u276E';
+      if (label) label.textContent = hideText;
+      expandTab.setAttribute('aria-label', hideText);
+      expandTab.setAttribute('title', hideText);
+    }
   }
 
   function _rerenderAfterPanelTransition() {
@@ -3997,8 +4019,13 @@
     try {
       if (localStorage.getItem(PANEL_COLLAPSED_KEY) === '1') {
         collapseTreePanelSilent();
+      } else {
+        // Panel is expanded by default — sync the toggle tab label to "Hide"
+        _updatePanelToggleUI(false);
       }
-    } catch (e) { /* localStorage unavailable */ }
+    } catch (e) {
+      _updatePanelToggleUI(false);
+    }
   }
 
   window.toggleTreePanel = function() {
@@ -5002,4 +5029,481 @@
   });
 
   init();
+
+  // ── FB-092: Inline node name edit ────────────────────────────────────
+
+  var _nameEditPersonId = null;
+
+  function showNameEditOverlay(personId, anchorEl) {
+    var person = lookupPerson(personId);
+    if (!person) return;
+    _nameEditPersonId = personId;
+    var overlay = document.getElementById('tree-name-edit-overlay');
+    var firstInput = document.getElementById('tree-name-edit-first');
+    var lastInput = document.getElementById('tree-name-edit-last');
+    var errEl = document.getElementById('tree-name-edit-error');
+    firstInput.value = person.first_name || '';
+    lastInput.value = person.last_name || '';
+    errEl.hidden = true;
+    errEl.textContent = '';
+
+    // Position near anchor element
+    var svgRect = document.getElementById('tree-svg').getBoundingClientRect();
+    var nodeRect = anchorEl ? anchorEl.getBoundingClientRect() : svgRect;
+    var overlayX = Math.min(nodeRect.right + 8, window.innerWidth - 250);
+    var overlayY = Math.max(nodeRect.top - 20, 8);
+    if (overlayX < 8) overlayX = 8;
+    overlay.style.left = overlayX + 'px';
+    overlay.style.top = overlayY + 'px';
+    overlay.hidden = false;
+    firstInput.focus();
+    firstInput.select();
+  }
+
+  function hideNameEditOverlay() {
+    var overlay = document.getElementById('tree-name-edit-overlay');
+    overlay.hidden = true;
+    _nameEditPersonId = null;
+  }
+
+  async function saveNameEdit() {
+    var personId = _nameEditPersonId;
+    if (!personId) return;
+    var firstInput = document.getElementById('tree-name-edit-first');
+    var lastInput = document.getElementById('tree-name-edit-last');
+    var errEl = document.getElementById('tree-name-edit-error');
+    var firstName = firstInput.value.trim();
+    var lastName = lastInput.value.trim();
+    if (!firstName) {
+      errEl.textContent = 'First name is required.';
+      errEl.hidden = false;
+      firstInput.focus();
+      return;
+    }
+    var saveBtn = document.getElementById('tree-name-edit-save');
+    saveBtn.disabled = true;
+    try {
+      var resp = await fetch('/api/persons/' + personId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first_name: firstName, last_name: lastName })
+      });
+      if (!resp.ok) {
+        var data = await resp.json().catch(function() { return {}; });
+        errEl.textContent = (data.detail) || 'Save failed.';
+        errEl.hidden = false;
+        return;
+      }
+      var updated = await resp.json();
+      // Sync treeData.persons in memory
+      if (treeData && treeData.persons) {
+        var idx = treeData.persons.findIndex(function(p) { return p.id === personId; });
+        if (idx !== -1) {
+          treeData.persons[idx].first_name = updated.first_name || firstName;
+          treeData.persons[idx].last_name = updated.last_name || lastName;
+          treeData.persons[idx].display_name = updated.display_name || [firstName, lastName].filter(Boolean).join(' ');
+        }
+      }
+      // Partial node label update — avoid full render() to preserve pan/zoom
+      var nodeEl = d3.select('[data-id="' + personId + '"]');
+      if (!nodeEl.empty()) {
+        var person = lookupPerson(personId);
+        var newLabel = treeNodeLabel(person);
+        nodeEl.attr('data-render-label', newLabel);
+        nodeEl.selectAll('.name-label').remove();
+        var nextTextY = NODE_RADIUS + 16;
+        if (preferences && preferences.show_names) {
+          var lineBreakIndex = newLabel.length > 14 ? newLabel.lastIndexOf(' ') : -1;
+          if (lineBreakIndex > 2 && lineBreakIndex < newLabel.length - 2) {
+            var nameText = nodeEl.append('text')
+              .attr('class', 'name-label')
+              .attr('text-anchor', 'middle')
+              .attr('dy', nextTextY - 4);
+            nameText.append('tspan').attr('x', 0).text(newLabel.slice(0, lineBreakIndex));
+            nameText.append('tspan').attr('x', 0).attr('dy', '1.1em').text(newLabel.slice(lineBreakIndex + 1));
+          } else {
+            nodeEl.append('text')
+              .attr('class', 'name-label')
+              .attr('dy', nextTextY)
+              .text(newLabel);
+          }
+        }
+      }
+      hideNameEditOverlay();
+    } catch (e) {
+      errEl.textContent = 'Save failed.';
+      errEl.hidden = false;
+    } finally {
+      saveBtn.disabled = false;
+    }
+  }
+
+  (function _initNameEditOverlay() {
+    var saveBtn = document.getElementById('tree-name-edit-save');
+    var cancelBtn = document.getElementById('tree-name-edit-cancel');
+    if (saveBtn) saveBtn.addEventListener('click', saveNameEdit);
+    if (cancelBtn) cancelBtn.addEventListener('click', hideNameEditOverlay);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && _nameEditPersonId) hideNameEditOverlay();
+    });
+    var overlay = document.getElementById('tree-name-edit-overlay');
+    if (overlay) {
+      overlay.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') saveNameEdit();
+      });
+    }
+    // Close when clicking outside
+    document.addEventListener('pointerdown', function(e) {
+      var overlay = document.getElementById('tree-name-edit-overlay');
+      if (overlay && !overlay.hidden && !overlay.contains(e.target)) hideNameEditOverlay();
+    }, true);
+  })();
+
+  // ── FB-093: Relationship edit from tree ──────────────────────────────
+
+  var _relEditPersonId = null;
+
+  function showRelationshipEditPopover(personId, x, y) {
+    _relEditPersonId = personId;
+    var popover = document.getElementById('tree-rel-edit-popover');
+    var list = document.getElementById('tree-rel-edit-list');
+    var root = document.getElementById('tree-root') || document.body;
+    var kindLabel = root.dataset.treeRelationshipKindLabel || 'Relationship kind';
+    var removeLabel = root.dataset.treeRemoveRelAction || 'Remove';
+    var confirmText = root.dataset.treeRemoveRelConfirm || 'Remove this relationship?';
+    var confirmYes = root.dataset.treeRemoveRelYes || 'Yes, remove';
+    var confirmNo = root.dataset.treeRemoveRelNo || 'Cancel';
+
+    list.innerHTML = '';
+
+    var KINDS = ['biological', 'adoptive', 'step', 'foster', 'guardian', 'unknown'];
+    var personPcs = (treeData.parent_child || []).filter(function(pc) {
+      return pc.parent_id === personId || pc.child_id === personId;
+    });
+    var personPships = (treeData.partnerships || []).filter(function(p) {
+      return p.person_a_id === personId || p.person_b_id === personId;
+    });
+
+    if (personPcs.length === 0 && personPships.length === 0) {
+      var empty = document.createElement('p');
+      empty.style.fontSize = '0.85rem';
+      empty.style.color = '#6b6054';
+      empty.textContent = 'No relationships found.';
+      list.appendChild(empty);
+    }
+
+    personPcs.forEach(function(pc) {
+      var other = lookupPerson(pc.parent_id === personId ? pc.child_id : pc.parent_id);
+      var otherName = other ? other.display_name : '—';
+      var role = pc.parent_id === personId ? 'Parent of' : 'Child of';
+
+      var row = document.createElement('div');
+      row.className = 'tree-rel-row';
+      row.dataset.relId = pc.id;
+      row.dataset.relType = 'parent-child';
+
+      var labelEl = document.createElement('span');
+      labelEl.className = 'tree-rel-row__label';
+      labelEl.title = role + ' ' + otherName;
+      labelEl.textContent = role + ' ' + otherName;
+
+      var kindSel = document.createElement('select');
+      kindSel.className = 'tree-rel-row__kind';
+      kindSel.setAttribute('aria-label', kindLabel);
+      KINDS.forEach(function(k) {
+        var opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = k.charAt(0).toUpperCase() + k.slice(1);
+        if (k === pc.kind) opt.selected = true;
+        kindSel.appendChild(opt);
+      });
+      kindSel.addEventListener('change', function() {
+        _updateRelKind(pc.id, kindSel.value, row);
+      });
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'btn btn--sm btn--ghost';
+      removeBtn.textContent = removeLabel;
+      removeBtn.addEventListener('click', function() {
+        _showRelRemoveConfirm(row, pc.id, 'parent-child', confirmText, confirmYes, confirmNo);
+      });
+
+      row.appendChild(labelEl);
+      row.appendChild(kindSel);
+      row.appendChild(removeBtn);
+      list.appendChild(row);
+    });
+
+    personPships.forEach(function(ps) {
+      var other = lookupPerson(ps.person_a_id === personId ? ps.person_b_id : ps.person_a_id);
+      var otherName = other ? other.display_name : '—';
+
+      var row = document.createElement('div');
+      row.className = 'tree-rel-row';
+      row.dataset.relId = ps.id;
+      row.dataset.relType = 'partnership';
+
+      var labelEl = document.createElement('span');
+      labelEl.className = 'tree-rel-row__label';
+      labelEl.title = 'Partner of ' + otherName;
+      labelEl.textContent = 'Partner of ' + otherName;
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'btn btn--sm btn--ghost';
+      removeBtn.textContent = removeLabel;
+      removeBtn.addEventListener('click', function() {
+        _showRelRemoveConfirm(row, ps.id, 'partnership', confirmText, confirmYes, confirmNo);
+      });
+
+      row.appendChild(labelEl);
+      row.appendChild(removeBtn);
+      list.appendChild(row);
+    });
+
+    // Position and show
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var pw = 340, ph = 300;
+    var px = Math.min(x + 8, vw - pw - 8);
+    var py = Math.min(y, vh - ph - 8);
+    if (px < 8) px = 8;
+    if (py < 8) py = 8;
+    popover.style.left = px + 'px';
+    popover.style.top = py + 'px';
+    popover.hidden = false;
+  }
+
+  async function _updateRelKind(relId, newKind, rowEl) {
+    try {
+      var resp = await fetch('/api/relationships/parent-child/' + relId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kind: newKind })
+      });
+      if (!resp.ok) return;
+      // Update treeData and SVG edge class
+      if (treeData && treeData.parent_child) {
+        var pc = treeData.parent_child.find(function(p) { return p.id === relId; });
+        if (pc) pc.kind = newKind;
+      }
+      var edgeEl = document.querySelector('.parent-child-line[data-rel-id="' + relId + '"]');
+      if (edgeEl) {
+        edgeEl.className.baseVal = edgeEl.className.baseVal.replace(/parent-child-line--\S+/, 'parent-child-line--' + newKind);
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  function _showRelRemoveConfirm(rowEl, relId, relType, confirmText, confirmYes, confirmNo) {
+    // Replace row content with inline confirm
+    var existing = rowEl.querySelector('.tree-rel-confirm');
+    if (existing) { existing.remove(); return; }
+    var confirmEl = document.createElement('div');
+    confirmEl.className = 'tree-rel-confirm';
+    confirmEl.innerHTML = '<span>' + confirmText + '</span>';
+    var yesBtn = document.createElement('button');
+    yesBtn.type = 'button';
+    yesBtn.className = 'btn btn--sm btn--danger';
+    yesBtn.textContent = confirmYes;
+    yesBtn.addEventListener('click', function() { _removeRel(relId, relType, rowEl); });
+    var noBtn = document.createElement('button');
+    noBtn.type = 'button';
+    noBtn.className = 'btn btn--sm btn--ghost';
+    noBtn.textContent = confirmNo;
+    noBtn.addEventListener('click', function() { confirmEl.remove(); });
+    confirmEl.appendChild(yesBtn);
+    confirmEl.appendChild(noBtn);
+    rowEl.appendChild(confirmEl);
+  }
+
+  async function _removeRel(relId, relType, rowEl) {
+    var endpoint = relType === 'partnership'
+      ? '/api/relationships/partnership/' + relId
+      : '/api/relationships/parent-child/' + relId;
+    try {
+      var resp = await fetch(endpoint, { method: 'DELETE' });
+      if (!resp.ok && resp.status !== 204) return;
+      // Remove from treeData
+      if (relType === 'parent-child' && treeData && treeData.parent_child) {
+        treeData.parent_child = treeData.parent_child.filter(function(p) { return p.id !== relId; });
+      } else if (relType === 'partnership' && treeData && treeData.partnerships) {
+        treeData.partnerships = treeData.partnerships.filter(function(p) { return p.id !== relId; });
+      }
+      // Remove SVG edge
+      var edgeEl = document.querySelector('[data-rel-id="' + relId + '"]');
+      if (edgeEl) edgeEl.remove();
+      // Remove row
+      rowEl.remove();
+    } catch (e) { /* silent */ }
+  }
+
+  function hideRelEditPopover() {
+    var popover = document.getElementById('tree-rel-edit-popover');
+    if (popover) popover.hidden = true;
+    _relEditPersonId = null;
+  }
+
+  (function _initRelEditPopover() {
+    var closeBtn = document.getElementById('tree-rel-edit-close');
+    if (closeBtn) closeBtn.addEventListener('click', hideRelEditPopover);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && _relEditPersonId) hideRelEditPopover();
+    });
+    document.addEventListener('pointerdown', function(e) {
+      var pop = document.getElementById('tree-rel-edit-popover');
+      if (pop && !pop.hidden && !pop.contains(e.target) &&
+          !e.target.closest('#tree-context-menu')) hideRelEditPopover();
+    }, true);
+  })();
+
+  // ── FB-094: Sidebar pop-out / dock ───────────────────────────────────
+
+  var SIDEBAR_FLOAT_KEY = 'treeSidebarFloating';
+  var SIDEBAR_X_KEY = 'treeSidebarX';
+  var SIDEBAR_Y_KEY = 'treeSidebarY';
+  var SIDEBAR_W_KEY = 'treeSidebarW';
+  var SIDEBAR_H_KEY = 'treeSidebarH';
+
+  function _clampToViewport(x, y, w, h) {
+    var vw = window.innerWidth, vh = window.innerHeight;
+    x = Math.min(Math.max(x, 0), vw - w);
+    y = Math.min(Math.max(y, 0), vh - h);
+    return { x: x, y: y };
+  }
+
+  window.popOutSidebar = function() {
+    var sidebar = document.getElementById('person-sidebar');
+    if (!sidebar) return;
+    sidebar.classList.add('person-sidebar--floating');
+    var layout = document.getElementById('tree-layout') || document.querySelector('.tree-layout');
+    if (layout) layout.classList.add('tree-layout--sidebar-floating');
+    var popBtn = document.getElementById('sidebar-popout-btn');
+    var dockBtn = document.getElementById('sidebar-dock-btn');
+    if (popBtn) popBtn.hidden = true;
+    if (dockBtn) dockBtn.hidden = false;
+    // Restore or default position
+    try {
+      var stored = localStorage.getItem(SIDEBAR_FLOAT_KEY);
+      if (stored === '1') {
+        var sx = parseInt(localStorage.getItem(SIDEBAR_X_KEY)) || 20;
+        var sy = parseInt(localStorage.getItem(SIDEBAR_Y_KEY)) || 80;
+        var sw = parseInt(localStorage.getItem(SIDEBAR_W_KEY)) || 360;
+        var sh = parseInt(localStorage.getItem(SIDEBAR_H_KEY)) || 520;
+        sw = Math.min(Math.max(sw, 280), Math.round(window.innerWidth * 0.9));
+        sh = Math.min(Math.max(sh, 400), Math.round(window.innerHeight * 0.9));
+        var pos = _clampToViewport(sx, sy, sw, sh);
+        sidebar.style.left = pos.x + 'px';
+        sidebar.style.top = pos.y + 'px';
+        sidebar.style.width = sw + 'px';
+        sidebar.style.height = sh + 'px';
+      } else {
+        var defaultPos = _clampToViewport(window.innerWidth - 380, 80, 360, 520);
+        sidebar.style.left = defaultPos.x + 'px';
+        sidebar.style.top = defaultPos.y + 'px';
+        sidebar.style.width = '360px';
+        sidebar.style.height = '520px';
+      }
+      localStorage.setItem(SIDEBAR_FLOAT_KEY, '1');
+    } catch(e) {}
+    _initSidebarDrag(sidebar);
+    _initSidebarResize(sidebar);
+    if (treeData) render();
+  };
+
+  window.dockSidebar = function() {
+    var sidebar = document.getElementById('person-sidebar');
+    if (!sidebar) return;
+    sidebar.classList.remove('person-sidebar--floating');
+    sidebar.style.left = '';
+    sidebar.style.top = '';
+    sidebar.style.width = '';
+    sidebar.style.height = '';
+    var layout = document.getElementById('tree-layout') || document.querySelector('.tree-layout');
+    if (layout) layout.classList.remove('tree-layout--sidebar-floating');
+    var popBtn = document.getElementById('sidebar-popout-btn');
+    var dockBtn = document.getElementById('sidebar-dock-btn');
+    if (popBtn) popBtn.hidden = false;
+    if (dockBtn) dockBtn.hidden = true;
+    try {
+      localStorage.setItem(SIDEBAR_FLOAT_KEY, '0');
+    } catch(e) {}
+    if (treeData) render();
+  };
+
+  function _initSidebarDrag(sidebar) {
+    var header = sidebar.querySelector('.person-sidebar__header');
+    if (!header || header._dragInit) return;
+    header._dragInit = true;
+    var startX, startY, startLeft, startTop;
+    header.addEventListener('pointerdown', function(e) {
+      if (e.target.tagName === 'BUTTON') return; // don't drag when clicking buttons
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = parseInt(sidebar.style.left) || 0;
+      startTop = parseInt(sidebar.style.top) || 0;
+      header.setPointerCapture(e.pointerId);
+    });
+    header.addEventListener('pointermove', function(e) {
+      if (!header.hasPointerCapture(e.pointerId)) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      var w = sidebar.offsetWidth, h = sidebar.offsetHeight;
+      var pos = _clampToViewport(startLeft + dx, startTop + dy, w, h);
+      sidebar.style.left = pos.x + 'px';
+      sidebar.style.top = pos.y + 'px';
+    });
+    header.addEventListener('pointerup', function(e) {
+      if (!header.hasPointerCapture(e.pointerId)) return;
+      header.releasePointerCapture(e.pointerId);
+      try {
+        localStorage.setItem(SIDEBAR_X_KEY, parseInt(sidebar.style.left) || 0);
+        localStorage.setItem(SIDEBAR_Y_KEY, parseInt(sidebar.style.top) || 0);
+        localStorage.setItem(SIDEBAR_W_KEY, sidebar.offsetWidth);
+        localStorage.setItem(SIDEBAR_H_KEY, sidebar.offsetHeight);
+      } catch(e) {}
+    });
+  }
+
+  function _initSidebarResize(sidebar) {
+    var handle = sidebar.querySelector('.person-sidebar__resize-handle');
+    if (!handle || handle._resizeInit) return;
+    handle._resizeInit = true;
+    var startX, startY, startW, startH;
+    handle.addEventListener('pointerdown', function(e) {
+      e.preventDefault();
+      startX = e.clientX;
+      startY = e.clientY;
+      startW = sidebar.offsetWidth;
+      startH = sidebar.offsetHeight;
+      handle.setPointerCapture(e.pointerId);
+    });
+    handle.addEventListener('pointermove', function(e) {
+      if (!handle.hasPointerCapture(e.pointerId)) return;
+      var newW = Math.min(Math.max(startW + (e.clientX - startX), 280), Math.round(window.innerWidth * 0.9));
+      var newH = Math.min(Math.max(startH + (e.clientY - startY), 400), Math.round(window.innerHeight * 0.9));
+      sidebar.style.width = newW + 'px';
+      sidebar.style.height = newH + 'px';
+    });
+    handle.addEventListener('pointerup', function(e) {
+      if (!handle.hasPointerCapture(e.pointerId)) return;
+      handle.releasePointerCapture(e.pointerId);
+      try {
+        localStorage.setItem(SIDEBAR_W_KEY, sidebar.offsetWidth);
+        localStorage.setItem(SIDEBAR_H_KEY, sidebar.offsetHeight);
+      } catch(e) {}
+    });
+  }
+
+  (function _restoreSidebarFloat() {
+    try {
+      if (localStorage.getItem(SIDEBAR_FLOAT_KEY) === '1') {
+        // Re-pop if sidebar is already visible
+        var sidebar = document.getElementById('person-sidebar');
+        if (sidebar && !sidebar.hidden) {
+          window.popOutSidebar();
+        }
+      }
+    } catch(e) {}
+  })();
+
 })();

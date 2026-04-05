@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import json
 import os
@@ -16,7 +17,9 @@ from app.models.person import Person, PersonLifecycleState
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
 from app.services.media_service import (
     ALLOWED_MIME_TYPES,
+    IMAGE_MIME_TYPES,
     delete_media_files,
+    generate_image_variants,
     get_variant_path,
     save_media_temp_file,
 )
@@ -427,6 +430,64 @@ async def delete_media(
         # Non-admin: soft delete (hide)
         media.visibility = "hidden"
         await db.flush()
+
+
+@router.post("/{media_id}/edit-image")
+async def edit_image(
+    media_id: str,
+    file: UploadFile = File(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Replace an existing image with an edited version (cropped/rotated/resized).
+    The stored file and its thumb/medium variants are regenerated in place.
+    Only the media owner or an admin may call this endpoint."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    if media.mime_type not in IMAGE_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Only image media can be edited")
+
+    if not (current_user.is_admin or media.uploaded_by == current_user.id):
+        raise HTTPException(status_code=403, detail="Not authorized to edit this media")
+
+    if not file.content_type or file.content_type not in IMAGE_MIME_TYPES:
+        raise HTTPException(status_code=400, detail=f"Unsupported image type: {file.content_type}")
+
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+
+    settings = get_settings()
+    data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
+    media_dir = os.path.join(data_dir, "media")
+
+    if not media.file_path:
+        raise HTTPException(status_code=409, detail="Media has no stored file to replace")
+
+    dest_path = os.path.join(media_dir, media.file_path)
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    with open(dest_path, "wb") as f:
+        f.write(data)
+
+    # Regenerate thumb and medium variants
+    generate_image_variants(data, file.content_type, media_dir, media_id)
+
+    # Update file size and hash
+    media.file_size_bytes = len(data)
+    media.file_hash = hashlib.sha256(data).hexdigest()
+    await db.flush()
+
+    return {
+        "id": media.id,
+        "media_type": media.media_type,
+        "mime_type": media.mime_type,
+        "file_size_bytes": media.file_size_bytes,
+        "caption": media.caption,
+        "title": media.title,
+    }
 
 
 @router.patch("/{media_id}/visibility")

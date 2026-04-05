@@ -285,7 +285,15 @@
     "delete": "Delete",
     "confirm_delete": "Remove this media? This cannot be undone.",
     "deleted": "Media removed",
-    "upload_headshot": "Upload photo"
+    "upload_headshot": "Upload photo",
+    "edit_photo": "Edit photo",
+    "edit_photo_title": "Edit photo",
+    "edit_photo_confirm": "Apply",
+    "edit_photo_cancel": "Cancel",
+    "edit_photo_rotate_left": "Rotate left",
+    "edit_photo_rotate_right": "Rotate right",
+    "edit_photo_saved": "Photo updated",
+    "edit_before_upload": "Edit before upload"
   },
   "gallery": {
     "title": "Family Gallery",
@@ -589,7 +597,17 @@
     "ctx_add_partner": "Add partner",
     "ctx_upload_photo": "Upload photo",
     "ctx_edit_details": "Edit details",
-    "ctx_view_profile": "View profile"
+    "ctx_view_profile": "View profile",
+    "edit_name_title": "Edit Name",
+    "edit_name_save": "Save",
+    "ctx_edit_relationships": "Edit relationships",
+    "relationship_kind_label": "Relationship kind",
+    "remove_relationship_action": "Remove",
+    "remove_confirm": "Remove this relationship?",
+    "remove_confirm_yes": "Yes, remove",
+    "remove_confirm_no": "Cancel",
+    "sidebar_popout": "Pop out",
+    "sidebar_dock": "Dock sidebar"
   },
   "calendar": {
     "title": "Family Calendar",
@@ -820,6 +838,10 @@
     "cancel": "Cancel",
     "delete_confirm": "Delete this story?",
     "count_one": "1 story",
-    "count_many": "{n} stories"
+    "count_many": "{n} stories",
+    "attach_audio": "Attach audio",
+    "audio_player_label": "Voice recording",
+    "listen": "Listen",
+    "stop_listening": "Stop"
   }
 }
