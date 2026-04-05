@@ -403,8 +403,14 @@ function _renderMediaUploadModal() {
     '</section>' +
     '<section class="media-upload-items">' +
       state.items.map(function(item, index) {
+        var isImage = item.file.type.indexOf('image/') === 0;
+        var editBtn = isImage
+          ? '<button type="button" class="btn btn--ghost btn--sm media-upload-item__edit-btn" data-upload-edit-index="' + index + '">' +
+              familyBookLabel('media.edit_before_upload', 'Edit before upload') +
+            '</button>'
+          : '';
         return '<article class="media-upload-item" data-upload-item-index="' + index + '">' +
-          '<div class="media-upload-item__preview">' + _mediaPreviewMarkup(item) + '</div>' +
+          '<div class="media-upload-item__preview">' + _mediaPreviewMarkup(item) + editBtn + '</div>' +
           '<div class="media-upload-item__content">' +
             '<div class="media-upload-item__header">' +
               '<strong>' + escapeHtml(item.file.name) + '</strong>' +
@@ -424,6 +430,16 @@ function _renderMediaUploadModal() {
       }).join('') +
     '</section>';
 
+  Array.prototype.forEach.call(body.querySelectorAll('[data-upload-edit-index]'), function(button) {
+    button.addEventListener('click', function() {
+      var itemIndex = Number(button.getAttribute('data-upload-edit-index'));
+      var item = state.items[itemIndex];
+      if (!item || !item.previewUrl) return;
+      if (typeof window.openUploadPhotoCrop === 'function') {
+        window.openUploadPhotoCrop(itemIndex, item.previewUrl, item.file.type);
+      }
+    });
+  });
   Array.prototype.forEach.call(body.querySelectorAll('[data-shared-field]'), function(input) {
     input.addEventListener('input', function() {
       state.shared[input.getAttribute('data-shared-field')] = input.value;
@@ -926,3 +942,96 @@ document.body.addEventListener('htmx:responseError', function(event) {
   }
   showToast('Could not load content');
 });
+
+// ── Story audio inline upload ───────────────────────────────────────────
+// Uploads a selected audio file and wires the result to the hidden story
+// audio_media_id input so it gets submitted with the story form.
+async function handleStoryAudioSelect(fileInput, storySlot) {
+  var file = fileInput.files && fileInput.files[0];
+  if (!file) return;
+  var uploadRow = document.getElementById('story-audio-upload-' + storySlot);
+  var personId = uploadRow ? uploadRow.getAttribute('data-person-id') : '';
+  var hiddenInput = document.getElementById('story-audio-id-' + storySlot);
+  if (!hiddenInput) return;
+
+  // Disable the file input during upload
+  fileInput.disabled = true;
+  var label = uploadRow ? uploadRow.querySelector('span') : null;
+  if (label) label.textContent = '…';
+
+  try {
+    var result = await new Promise(function (resolve, reject) {
+      var fd = new FormData();
+      fd.append('file', file);
+      if (personId) fd.append('person_id', personId);
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/media');
+      xhr.responseType = 'json';
+      xhr.onload = function () {
+        if (xhr.status < 400) resolve(xhr.response);
+        else reject(new Error((xhr.response && xhr.response.detail) || 'Upload failed'));
+      };
+      xhr.onerror = function () { reject(new Error('Network error')); };
+      xhr.send(fd);
+    });
+    hiddenInput.value = result.id || '';
+    // Show a simple audio player as confirmation
+    if (uploadRow) {
+      var player = document.createElement('audio');
+      player.controls = true;
+      player.style.width = '100%';
+      player.style.marginBottom = '4px';
+      var src = document.createElement('source');
+      src.src = '/api/media/' + result.id + '/file';
+      player.appendChild(src);
+      uploadRow.insertBefore(player, fileInput);
+      fileInput.style.display = 'none';
+      if (label) label.textContent = file.name;
+    }
+  } catch (err) {
+    fileInput.disabled = false;
+    if (label) label.textContent = err.message || 'Upload failed';
+    if (typeof showToast === 'function') showToast(err.message || 'Upload failed');
+  }
+}
+window.handleStoryAudioSelect = handleStoryAudioSelect;
+
+// ── TTS for story cards ─────────────────────────────────────────────────
+// Reads the story body text aloud using the Web Speech API.
+// Gracefully no-ops in browsers that lack speechSynthesis.
+var _ttsActiveBtn = null;
+
+function toggleStoryTTS(btn) {
+  if (!('speechSynthesis' in window)) return;
+  // Stop any in-progress speech first
+  if (_ttsActiveBtn && _ttsActiveBtn !== btn) {
+    window.speechSynthesis.cancel();
+    _ttsActiveBtn.textContent = _ttsActiveBtn.getAttribute('data-tts-listen') || 'Listen';
+    _ttsActiveBtn = null;
+  }
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    btn.textContent = btn.getAttribute('data-tts-listen') || 'Listen';
+    _ttsActiveBtn = null;
+    return;
+  }
+  var storyId = btn.getAttribute('data-story-id');
+  var card = storyId ? document.getElementById('story-' + storyId) : btn.closest('.wiki-story-card');
+  if (!card) return;
+  var bodyEl = card.querySelector('.wiki-story-card__body');
+  if (!bodyEl) return;
+  var text = bodyEl.textContent || bodyEl.innerText || '';
+  if (!text.trim()) return;
+  var utter = new window.SpeechSynthesisUtterance(text.trim());
+  utter.onend = function () {
+    btn.textContent = btn.getAttribute('data-tts-listen') || 'Listen';
+    _ttsActiveBtn = null;
+  };
+  utter.onerror = function () {
+    btn.textContent = btn.getAttribute('data-tts-listen') || 'Listen';
+    _ttsActiveBtn = null;
+  };
+  btn.textContent = btn.getAttribute('data-tts-stop') || 'Stop';
+  _ttsActiveBtn = btn;
+  window.speechSynthesis.speak(utter);
+}

@@ -35,6 +35,30 @@
     <trix-editor input="story-body-trix-{{ story.id if story else 'new' }}"
                  class="wiki-story-form__trix"></trix-editor>
   </div>
+  <div class="wiki-story-form__field">
+    <label class="wiki-story-form__label">{{ t('stories.attach_audio') }}</label>
+    <div class="wiki-story-form__audio-row" id="story-audio-row-{{ story.id if story else 'new' }}">
+      {% if story and story.get('audio_media_id') %}
+      <audio controls preload="metadata" style="max-width:100%;margin-bottom:4px;">
+        <source src="/api/media/{{ story.audio_media_id }}/file">
+      </audio>
+      <input type="hidden" name="audio_media_id" value="{{ story.audio_media_id }}"
+             id="story-audio-id-{{ story.id if story else 'new' }}">
+      <button type="button" class="btn btn--ghost btn--sm"
+              onclick="(function(btn){ var row=btn.closest('.wiki-story-form__audio-row'); row.querySelector('audio').remove(); row.querySelector('input[name=audio_media_id]').value=''; btn.remove(); })(this)">&#10005; {{ t('stories.attach_audio') }}</button>
+      {% else %}
+      <input type="hidden" name="audio_media_id" value=""
+             id="story-audio-id-{{ story.id if story else 'new' }}">
+      <div class="wiki-story-form__audio-upload" id="story-audio-upload-{{ story.id if story else 'new' }}"
+           data-person-id="{{ person.id }}">
+        <input type="file" accept="audio/*" style="font-size:0.85rem;"
+               id="story-audio-file-{{ story.id if story else 'new' }}"
+               onchange="handleStoryAudioSelect(this, '{{ story.id if story else 'new' }}')">
+        <span class="text-muted" style="font-size:0.8rem;">{{ t('stories.audio_player_label') }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
   <div class="wiki-story-form__actions">
     <button type="submit" class="btn btn--primary">{{ t('stories.save') }}</button>
     {% if edit_mode %}

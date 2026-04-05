@@ -13,7 +13,21 @@
     </div>
   </div>
   <div class="wiki-story-card__body trix-content">{{ story.body | safe }}</div>
+  {% if story.audio_media_id %}
+  <div class="wiki-story-card__audio">
+    <span class="wiki-story-card__audio-label">{{ t('stories.audio_player_label') }}</span>
+    <audio controls preload="metadata" style="width:100%;">
+      <source src="/api/media/{{ story.audio_media_id }}/file">
+    </audio>
+  </div>
+  {% endif %}
   <div class="wiki-story-card__actions">
+    {# TTS listen button — uses Web Speech API, zero server cost #}
+    <button type="button" class="btn btn--sm btn--ghost wiki-story-tts-btn"
+            data-story-id="{{ story.id }}"
+            data-tts-listen="{{ t('stories.listen') }}"
+            data-tts-stop="{{ t('stories.stop_listening') }}"
+            onclick="toggleStoryTTS(this)">{{ t('stories.listen') }}</button>
     {# Any member can edit (wiki-style) #}
     <button class="btn btn--sm btn--outline"
             hx-get="/api/wiki/{{ slug }}/stories/{{ story.id }}"

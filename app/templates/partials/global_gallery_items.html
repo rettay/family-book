@@ -20,6 +20,9 @@
       {% endif %}
       {% if m.taken_date or m.created_at %}<span>{{ m.taken_date or m.created_at[:10] }}</span>{% endif %}
       {% if current_user.is_admin or m.uploaded_by == current_user.id %}
+      <button type="button" class="btn btn--ghost btn--sm"
+              onclick="openGalleryPhotoCrop('{{ m.id }}', this)"
+              title="{{ t('media.edit_photo') }}">&#9999;</button>
       <button type="button" class="media-gallery__delete-btn media-gallery__delete-btn--inline"
               onclick="deleteMedia('{{ m.id }}', { onDelete: function() { this.closest('article').remove(); }.bind(this) })"
               title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">&#128465;</button>
