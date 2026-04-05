@@ -220,6 +220,7 @@ class TestS43I18nKeys:
         "ctx_edit_relationships",
         "sidebar_popout",
         "sidebar_dock",
+        "remove_relationship_action",
         "remove_relationship_confirm",
     ]
 

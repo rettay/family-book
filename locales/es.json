@@ -602,7 +602,7 @@
     "edit_name_save": "Guardar",
     "ctx_edit_relationships": "Editar relaciones",
     "relationship_kind_label": "Tipo de relación",
-    "remove_relationship": "Eliminar",
+    "remove_relationship_action": "Eliminar",
     "remove_confirm": "¿Eliminar esta relación?",
     "remove_confirm_yes": "Sí, eliminar",
     "remove_confirm_no": "Cancelar",

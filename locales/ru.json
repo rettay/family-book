@@ -602,7 +602,7 @@
     "edit_name_save": "Сохранить",
     "ctx_edit_relationships": "Редактировать связи",
     "relationship_kind_label": "Тип связи",
-    "remove_relationship": "Удалить",
+    "remove_relationship_action": "Удалить",
     "remove_confirm": "Удалить эту связь?",
     "remove_confirm_yes": "Да, удалить",
     "remove_confirm_no": "Отмена",

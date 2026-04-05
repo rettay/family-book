@@ -5169,7 +5169,7 @@
     var list = document.getElementById('tree-rel-edit-list');
     var root = document.getElementById('tree-root') || document.body;
     var kindLabel = root.dataset.treeRelationshipKindLabel || 'Relationship kind';
-    var removeLabel = root.dataset.treeRemoveRelationship || 'Remove';
+    var removeLabel = root.dataset.treeRemoveRelAction || 'Remove';
     var confirmText = root.dataset.treeRemoveRelConfirm || 'Remove this relationship?';
     var confirmYes = root.dataset.treeRemoveRelYes || 'Yes, remove';
     var confirmNo = root.dataset.treeRemoveRelNo || 'Cancel';

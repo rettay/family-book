@@ -602,7 +602,7 @@
     "edit_name_save": "保存",
     "ctx_edit_relationships": "编辑关系",
     "relationship_kind_label": "关系类型",
-    "remove_relationship": "删除",
+    "remove_relationship_action": "删除",
     "remove_confirm": "删除此关系？",
     "remove_confirm_yes": "确认删除",
     "remove_confirm_no": "取消",
