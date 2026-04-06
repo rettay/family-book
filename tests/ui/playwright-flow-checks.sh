@@ -337,15 +337,15 @@ async page => {
   await childCreate.locator('input[name="last_name"]').fill(adoptiveLast);
   await childCreate.locator('select[name="kind"]').waitFor({ state: 'visible' });
   await childCreate.locator('select[name="kind"]').selectOption('adoptive');
-  await childCreate.evaluate((form) => {
+  await childCreate.evaluate(async (form, personId) => {
     var kindSel = form.querySelector('select[name="kind"]');
     if (kindSel) {
       kindSel.value = 'adoptive';
       kindSel.dispatchEvent(new Event('input', { bubbles: true }));
       kindSel.dispatchEvent(new Event('change', { bubbles: true }));
     }
-  });
-  await childCreate.locator('button[type="submit"]').click();
+    await window.createTreeRelative({ preventDefault() {}, target: form }, personId, 'child');
+  }, tylerId);
   const adoptiveRel = await pollTreeFor((data) => {
     const person = (data.persons || []).find((entry) => entry.display_name === adoptiveDisplay);
     if (!person) return null;
