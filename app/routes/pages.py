@@ -757,7 +757,7 @@ async def partial_media_edit_save(
         media.taken_date = taken_date
     if taken_location is not None:
         media.taken_location = taken_location
-    if person_id is not None:
+    if person_id:  # Excludes None and empty string (blank dropdown selection = no change)
         person_check = await db.get(Person, person_id)
         if person_check and person_check.lifecycle_state == PersonLifecycleState.active.value:
             media.person_id = person_id

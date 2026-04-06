@@ -516,6 +516,18 @@
     return !!(card && card.dataset.treeSidebarCanManage === 'true');
   }
 
+  function getCurrentUserId() {
+    return root.dataset.currentUserId || '';
+  }
+
+  function getIsAdmin() {
+    return root.dataset.currentUserIsAdmin === 'true';
+  }
+
+  function canEditMedia(media) {
+    return getIsAdmin() || (media.uploaded_by && media.uploaded_by === getCurrentUserId());
+  }
+
   function getSidebarPersonName() {
     var titleNode = sidebarContent.querySelector('.tree-sidebar-card__title');
     return titleNode ? titleNode.textContent.trim() : '';
@@ -864,7 +876,7 @@
       actions.appendChild(headBtn);
     }
     // Edit details button (admin/owner, images only)
-    if ((mType === 'image' || mType === 'gif') && getSidebarCanManage()) {
+    if ((mType === 'image' || mType === 'gif') && canEditMedia(media)) {
       var editBtn = document.createElement('button');
       editBtn.type = 'button';
       editBtn.className = 'tree-sidebar-mini-action';
@@ -877,7 +889,7 @@
       actions.appendChild(editBtn);
     }
     // Delete button
-    if (getSidebarCanManage()) {
+    if (canEditMedia(media)) {
       var delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'tree-sidebar-mini-action tree-sidebar-mini-action--danger';

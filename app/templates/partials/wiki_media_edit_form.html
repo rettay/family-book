@@ -18,14 +18,14 @@
         type="text"
         name="title"
         value="{{ media.title or '' }}"
-        placeholder="{{ t('media.edit_details') }}"
+        placeholder="{{ t('upload.file_title') }}"
         maxlength="300"
         data-media-title-input
       >
       <textarea
         class="form-input form-input--sm media-edit-form__desc"
         name="description"
-        placeholder="{{ t('media.edit_details') }}"
+        placeholder="{{ t('upload.file_description') }}"
         maxlength="2000"
         rows="2"
       >{{ media.description or '' }}</textarea>
