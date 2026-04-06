@@ -26,6 +26,9 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-103 | Tree Sidebar Media Edit Controls | P1 | `task_packets/FB-103_tree_sidebar_media_edit.md` |
+| FB-102 | Multi-Person Photo Tagging | P1 | `task_packets/FB-102_multi_person_photo_tagging.md` |
+| FB-101 | In-Gallery Metadata Editor | P0 | `task_packets/FB-101_gallery_metadata_editor.md` |
 | FB-061 | Tree Headshot Rendering and Gallery Access | P0 | `task_packets/FB-061_tree_headshot_rendering_and_gallery_access.md` |
 | FB-062 | Upload Metadata Panel and Progress Bars | P1 | `task_packets/FB-062_upload_metadata_and_progress.md` |
 | FB-063 | Global Family Gallery and Variant Backfill | P1 | `task_packets/FB-063_global_gallery_and_variant_backfill.md` |
