@@ -293,7 +293,17 @@
     "edit_photo_rotate_left": "Ruota a sinistra",
     "edit_photo_rotate_right": "Ruota a destra",
     "edit_photo_saved": "Foto aggiornata",
-    "edit_before_upload": "Modifica prima di caricare"
+    "edit_before_upload": "Modifica prima di caricare",
+    "edit_details": "Modifica dettagli",
+    "taken_date_label": "Data scattata",
+    "taken_location_label": "Luogo",
+    "person_label": "Persona",
+    "save_details": "Salva",
+    "details_saved": "Salvato",
+    "tag_people": "Tagga persone",
+    "tagged_in": "Anche in questa foto",
+    "add_tag": "Aggiungi persona",
+    "remove_tag": "Rimuovi"
   },
   "gallery": {
     "title": "Galleria di famiglia",

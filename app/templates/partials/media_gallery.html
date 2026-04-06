@@ -28,7 +28,7 @@
   </summary>
   <div class="media-gallery media-gallery--grid">
     {% for m in photos %}
-    <div class="media-gallery__item">
+    <div class="media-gallery__item" id="wiki-media-item-{{ m.id }}">
       <button type="button" class="media-gallery__thumb-btn"
               onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or m.description or "Photo")|tojson }})'>
         <img src="/api/media/{{ m.id }}/variant/thumb" alt="{{ m.caption or m.description or 'Photo' }}" loading="lazy"
@@ -41,6 +41,14 @@
                 title="{{ t('media.set_headshot') if t else 'Set as headshot' }}"
                 aria-label="{{ t('media.set_headshot') if t else 'Set as headshot' }}">
           &#9733;
+        </button>
+        <button type="button" class="media-gallery__edit-details-btn" data-edit-details-btn
+                hx-get="/partials/media-edit-form/{{ m.id }}?context=wiki"
+                hx-target="#wiki-media-item-{{ m.id }}"
+                hx-swap="outerHTML"
+                title="{{ t('media.edit_details') if t else 'Edit details' }}"
+                aria-label="{{ t('media.edit_details') if t else 'Edit details' }}">
+          &#9998;
         </button>
         <button type="button" class="media-gallery__edit-btn"
                 onclick="openGalleryPhotoCrop('{{ m.id }}', this)"

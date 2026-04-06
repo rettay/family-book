@@ -1,0 +1,32 @@
+{# Single wiki media gallery item — used for post-edit HTMX swaps in the wiki bio page gallery. #}
+{# Expects: m (serialized media dict), current_user #}
+{% if m.media_type in ('image', 'gif') %}
+<div class="media-gallery__item" id="wiki-media-item-{{ m.id }}">
+  <button type="button" class="media-gallery__thumb-btn"
+          onclick='openLightbox({{ ("/api/media/" ~ m.id ~ "/file")|tojson }}, {{ (m.caption or m.description or "Photo")|tojson }})'>
+    <img src="/api/media/{{ m.id }}/variant/thumb" alt="{{ m.caption or m.description or 'Photo' }}" loading="lazy"
+         onerror="this.src='/api/media/{{ m.id }}/thumbnail'">
+  </button>
+  {% if current_user.is_admin or m.uploaded_by == current_user.id %}
+  <div class="media-gallery__item-actions">
+    <button type="button" class="media-gallery__edit-details-btn" data-edit-details-btn
+            hx-get="/partials/media-edit-form/{{ m.id }}?context=wiki"
+            hx-target="#wiki-media-item-{{ m.id }}"
+            hx-swap="outerHTML"
+            title="{{ t('media.edit_details') }}">
+      &#9998;
+    </button>
+    <button type="button" class="media-gallery__edit-btn"
+            onclick="openGalleryPhotoCrop('{{ m.id }}', this)"
+            title="{{ t('media.edit_photo') }}">
+      &#9999;
+    </button>
+    <button type="button" class="media-gallery__delete-btn"
+            onclick="deleteMedia('{{ m.id }}', { onDelete: function() { location.reload(); } })"
+            title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">
+      &#128465;
+    </button>
+  </div>
+  {% endif %}
+</div>
+{% endif %}

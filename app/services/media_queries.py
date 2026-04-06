@@ -64,6 +64,7 @@ async def serialize_media_item(
         "title": media.title,
         "description": media.description,
         "taken_date": media.taken_date,
+        "taken_location": media.taken_location,
         "original_filename": media.original_filename,
         "purpose": media.purpose,
         "tagged_person_ids": media.tagged_person_ids,

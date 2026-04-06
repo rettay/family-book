@@ -1,6 +1,74 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Backlog
+
+None pending.
+
+---
+
 ## Current Sprint
+
+### `S44 - Occupation History`
+
+Status: In Progress
+
+### Sprint Goal
+
+Give every family member a discrete, history-preserving record of each person's occupation. Capture the full career timeline (SCD Type 2) so that "farmer 1920–1945, then factory worker 1946–1962" is queryable, not buried in prose. Surface the current role on the tree as an optional display label.
+
+### Why This Sprint Next
+
+S43 completed the tree interaction and media editing surface. The family record is now a rich multimedia canvas with inline editing. Occupation history is the next high-signal genealogical field: it contextualises a person's life and era in a way that birth and death dates alone cannot. It is also the first structured timeline feature that is explicitly SCD Type 2 — the pattern will apply to residence history and other life events in future sprints.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 98 | FB-098 | Occupation Data Model and API | P0 | todo |
+| 99 | FB-099 | Occupation UI on Family Bio | P0 | todo |
+| 100 | FB-100 | Occupation on Tree Nodes | P1 | todo |
+
+### Sprint Exit Criteria
+
+- `person_occupations` table exists; migration runs cleanly up and down
+- Any authenticated member can add, edit occupation roles for any person on the Family Bio page
+- SCD Type 2 invariant enforced: adding a new current role automatically closes the previous one
+- Occupation history renders as a timeline on the Family Bio page; current role shown prominently; past roles listed with date ranges
+- `t('occupation.present')` used when end_date is null (e.g. "2010 – Present")
+- "Currently in this role" checkbox hides the End date field and submits correctly
+- Admin-only Remove with inline confirm step
+- `show_occupation` preference in tree panel; when enabled, current occupation appears as a sub-label on tree nodes (truncated to 22 chars)
+- Preference persisted to localStorage
+- All 15 occupation i18n keys + 1 tree key present in all 5 locales; `test_i18n.py` passes
+- `uv run pytest tests/` passes with new coverage for API and UI
+
+---
+
+## Closed Sprint
+
+### `S45 - Gallery Management`
+
+Status: Closed
+
+### Sprint Goal
+
+Give family members complete control over their photos from inside the gallery and the tree sidebar: edit metadata (title, description, date taken, location, person), tag multiple people in a single photo, and manage photos without leaving the tree.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 101 | FB-101 | In-Gallery Metadata Editor | P0 | done |
+| 102 | FB-102 | Multi-Person Photo Tagging | P1 | done |
+| 103 | FB-103 | Tree Sidebar Media Edit Controls | P1 | done |
+
+### Outcome
+
+All 3 packets shipped. 20 new tests pass (15 API tests + 5 i18n parity). Auditor raised 1 P1 (sidebar buttons visible to all members — fixed by exposing `data-current-user-id`/`data-current-user-is-admin` to tree.js and gating on `canEditMedia(media)`) and 2 P2s (placeholder text, empty person_id handling — both fixed). Re-audit: PASS. Merged to `codex/staging` 2026-04-06, audited and closed 2026-04-06.
+
+---
+
+## Closed Sprint
 
 ### `S43 - Tree Interaction Polish + Media Editing`
 
