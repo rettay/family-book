@@ -394,7 +394,8 @@ async page => {
     const shell = document.getElementById('tree-relationship-editor-shell');
     return shell && !shell.classList.contains('hidden');
   }, null, { timeout: 30000 });
-  const childEditor = panel.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
+  const childEditor = page.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
+  await childEditor.waitFor({ state: 'visible', timeout: 30000 });
   await childEditor.locator('select[name="confidence"]').selectOption('probable');
   await childEditor.locator('input[name="source_detail"]').fill('Corrected from tree test');
   await childEditor.locator('textarea[name="notes"]').fill('Initial direction captured for later correction');
@@ -408,7 +409,8 @@ async page => {
   }
 
   await adoptiveCard.getByRole('button', { name: 'Edit relationship' }).click();
-  const reverseEditor = panel.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
+  const reverseEditor = page.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
+  await reverseEditor.waitFor({ state: 'visible', timeout: 30000 });
   await reverseEditor.evaluate((form) => {
     window.confirm = () => true;
     return window.reverseTreeRelationshipEdit(form);
@@ -477,7 +479,8 @@ async page => {
   const partnerRelCard = panel.locator('.tree-related-card', { hasText: partnerDisplay }).first();
   await partnerRelCard.waitFor({ timeout: 30000 });
   await partnerRelCard.getByRole('button', { name: 'Edit relationship' }).click();
-  const partnerEditor = panel.locator('[data-tree-relationship-edit-form="partner"]:not(.hidden)').first();
+  const partnerEditor = page.locator('[data-tree-relationship-edit-form="partner"]:not(.hidden)').first();
+  await partnerEditor.waitFor({ state: 'visible', timeout: 30000 });
   await partnerEditor.locator('select[name="kind"]').selectOption('co_parent');
   await partnerEditor.locator('select[name="status"]').selectOption('dissolved');
   await partnerEditor.locator('textarea[name="notes"]').fill('Updated through relationship editor');
