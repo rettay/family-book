@@ -7,13 +7,14 @@ All data fetching happens server-side. Templates use HTMX for dynamic interactio
 import logging
 import os
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import (
+    can_edit_media,
     can_manage_person,
     can_view_media,
     get_accessible_person_ids,
@@ -666,4 +667,106 @@ async def partial_person_history(
             person_id=person_id,
             can_revert=current_user.is_admin,
         ),
+    )
+
+
+@router.get("/partials/media-card/{media_id}", response_class=HTMLResponse)
+async def partial_media_card(
+    media_id: str,
+    request: Request,
+    context: str = Query("gallery"),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """HTMX partial: single gallery card (used to cancel an edit or post-save swap)."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        return HTMLResponse("", status_code=404)
+    if not await can_view_media(db, current_user, media):
+        return HTMLResponse("", status_code=403)
+    serialized = await serialize_media_item(db, media)
+    template = "partials/global_gallery_card.html" if context == "gallery" else "partials/wiki_media_card.html"
+    return templates.TemplateResponse(template, _ctx(request, current_user, m=serialized))
+
+
+@router.get("/partials/media-edit-form/{media_id}", response_class=HTMLResponse)
+async def partial_media_edit_form(
+    media_id: str,
+    request: Request,
+    context: str = Query("gallery"),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """HTMX partial: inline metadata edit form for a gallery/wiki media item."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        return HTMLResponse("", status_code=404)
+    if not await can_view_media(db, current_user, media):
+        return HTMLResponse("", status_code=403)
+    if not can_edit_media(current_user, media):
+        return HTMLResponse("", status_code=403)
+
+    persons_result = await db.execute(
+        select(Person)
+        .where(Person.lifecycle_state == PersonLifecycleState.active.value)
+        .order_by(Person.last_name, Person.first_name)
+    )
+    persons = persons_result.scalars().all()
+
+    serialized = await serialize_media_item(db, media)
+    return templates.TemplateResponse(
+        "partials/wiki_media_edit_form.html",
+        _ctx(
+            request,
+            current_user,
+            media=serialized,
+            persons=persons,
+            context=context,
+        ),
+    )
+
+
+@router.patch("/partials/media-edit-form/{media_id}", response_class=HTMLResponse)
+async def partial_media_edit_save(
+    media_id: str,
+    request: Request,
+    context: str = Query("gallery"),
+    title: str | None = Form(None),
+    description: str | None = Form(None),
+    taken_date: str | None = Form(None),
+    taken_location: str | None = Form(None),
+    person_id: str | None = Form(None),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Save media metadata from the inline edit form; returns the updated gallery card HTML."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        return HTMLResponse("", status_code=404)
+    if not can_edit_media(current_user, media):
+        return HTMLResponse("", status_code=403)
+
+    if title is not None:
+        media.title = title
+    if description is not None:
+        media.description = description
+    if taken_date is not None:
+        media.taken_date = taken_date
+    if taken_location is not None:
+        media.taken_location = taken_location
+    if person_id is not None:
+        person_check = await db.get(Person, person_id)
+        if person_check and person_check.lifecycle_state == PersonLifecycleState.active.value:
+            media.person_id = person_id
+
+    await db.flush()
+
+    serialized = await serialize_media_item(db, media)
+    template = "partials/global_gallery_card.html" if context == "gallery" else "partials/wiki_media_card.html"
+    return templates.TemplateResponse(
+        template,
+        _ctx(request, current_user, m=serialized),
     )

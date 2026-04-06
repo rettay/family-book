@@ -1,0 +1,93 @@
+{# Inline metadata edit form — rendered inside a gallery card or sidebar item. #}
+{# Expects: media (serialized dict), persons (list of Person ORM objects), context ("gallery"|"wiki"|"sidebar") #}
+{% set _item_id = "gallery-card-" ~ media.id if context == "gallery" else "wiki-media-item-" ~ media.id %}
+<article class="media-gallery__item media-gallery__item--rich media-gallery__item--editing" id="{{ _item_id }}" data-media-id="{{ media.id }}">
+  <form
+    hx-patch="/partials/media-edit-form/{{ media.id }}?context={{ context or 'gallery' }}"
+    hx-target="#{{ _item_id }}"
+    hx-swap="outerHTML"
+    hx-encoding="application/x-www-form-urlencoded"
+    class="media-edit-form"
+  >
+    <div class="media-edit-form__fields">
+      <label class="media-edit-form__label">
+        {{ t('media.edit_details') }}
+      </label>
+      <input
+        class="form-input form-input--sm"
+        type="text"
+        name="title"
+        value="{{ media.title or '' }}"
+        placeholder="{{ t('media.edit_details') }}"
+        maxlength="300"
+        data-media-title-input
+      >
+      <textarea
+        class="form-input form-input--sm media-edit-form__desc"
+        name="description"
+        placeholder="{{ t('media.edit_details') }}"
+        maxlength="2000"
+        rows="2"
+      >{{ media.description or '' }}</textarea>
+      <input
+        class="form-input form-input--sm"
+        type="text"
+        name="taken_date"
+        value="{{ media.taken_date or '' }}"
+        placeholder="{{ t('media.taken_date_label') }}"
+        maxlength="100"
+      >
+      <input
+        class="form-input form-input--sm"
+        type="text"
+        name="taken_location"
+        value="{{ media.taken_location or '' }}"
+        placeholder="{{ t('media.taken_location_label') }}"
+        maxlength="500"
+      >
+      <select class="form-input form-input--sm" name="person_id">
+        <option value="">{{ t('media.person_label') }}</option>
+        {% for p in persons %}
+        <option value="{{ p.id }}"{% if p.id == media.person_id %} selected{% endif %}>{{ p.display_name }}</option>
+        {% endfor %}
+      </select>
+
+      {# Tag picker — removable pills + add dropdown (FB-102) #}
+      <div class="media-tag-picker" id="tag-picker-{{ media.id }}">
+        <div class="media-tag-picker__label">{{ t('media.tag_people') }}</div>
+        <div class="media-tag-picker__pills" id="tag-pills-{{ media.id }}">
+          {% for tp in media.tagged_people %}
+          <span class="media-tag-pill">
+            {{ tp.display_name }}
+            <button type="button" class="media-tag-pill__remove"
+                    onclick="removeMediaTag('{{ media.id }}', '{{ tp.id }}', this)"
+                    aria-label="{{ t('media.remove_tag') }}">&#10005;</button>
+          </span>
+          {% endfor %}
+        </div>
+        <div class="media-tag-picker__add-row">
+          <select class="form-input form-input--sm" id="tag-add-select-{{ media.id }}">
+            <option value="">{{ t('media.add_tag') }}</option>
+            {% for p in persons %}
+            {% if p.id != media.person_id and p.id not in media.tagged_person_ids %}
+            <option value="{{ p.id }}" data-name="{{ p.display_name }}">{{ p.display_name }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+          <button type="button" class="btn btn--ghost btn--sm"
+                  onclick="addMediaTag('{{ media.id }}', document.getElementById('tag-add-select-{{ media.id }}'))">
+            {{ t('media.add_tag') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="media-edit-form__actions">
+      <button type="submit" class="btn btn--primary btn--sm">{{ t('media.save_details') }}</button>
+      <button type="button" class="btn btn--ghost btn--sm"
+              hx-get="/partials/media-card/{{ media.id }}?context={{ context or 'gallery' }}"
+              hx-target="#{{ _item_id }}"
+              hx-swap="outerHTML">{{ t('common.cancel') }}</button>
+    </div>
+  </form>
+</article>

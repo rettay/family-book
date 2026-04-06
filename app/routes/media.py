@@ -346,9 +346,11 @@ async def update_media(
     title: str | None = Form(None),
     description: str | None = Form(None),
     taken_at: str | None = Form(None),
+    taken_location: str | None = Form(None),
+    person_id: str | None = Form(None),
     purpose: str | None = Form(None),
 ):
-    """Update media metadata (caption/title/description/date, purpose)."""
+    """Update media metadata (caption/title/description/date/location/person, purpose)."""
     result = await db.execute(select(Media).where(Media.id == media_id))
     media = result.scalar_one_or_none()
     if not media:
@@ -371,6 +373,13 @@ async def update_media(
         media.description = description
     if taken_at is not None:
         media.taken_date = taken_at
+    if taken_location is not None:
+        media.taken_location = taken_location
+    if person_id is not None:
+        person_check = await db.get(Person, person_id)
+        if not person_check or person_check.lifecycle_state != PersonLifecycleState.active.value:
+            raise HTTPException(status_code=400, detail="Person not found")
+        media.person_id = person_id
 
     await db.flush()
     return {
@@ -379,8 +388,77 @@ async def update_media(
         "title": media.title,
         "description": media.description,
         "taken_date": media.taken_date,
+        "taken_location": media.taken_location,
+        "person_id": media.person_id,
         "purpose": media.purpose,
     }
+
+
+@router.get("/{media_id}/tags")
+async def get_media_tags(
+    media_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """List all persons tagged in a media item."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+    if not await can_view_media(db, current_user, media):
+        raise HTTPException(status_code=403, detail="Not visible")
+    from app.services.media_queries import build_tagged_people_payload
+    tagged_people = await build_tagged_people_payload(db, media.tagged_person_ids)
+    return tagged_people
+
+
+@router.post("/{media_id}/tags", status_code=status.HTTP_200_OK)
+async def add_media_tag(
+    media_id: str,
+    person_id: str = Form(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Add a person tag to a media item. Idempotent."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+    if not can_edit_media(current_user, media):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    tagged_person = await db.get(Person, person_id)
+    if not tagged_person or tagged_person.lifecycle_state != PersonLifecycleState.active.value:
+        raise HTTPException(status_code=400, detail="Person not found")
+    tags = media.tagged_person_ids
+    if person_id not in tags:
+        tags.append(person_id)
+        media.tagged_person_ids = tags
+        await db.flush()
+    from app.services.media_queries import build_tagged_people_payload
+    return await build_tagged_people_payload(db, media.tagged_person_ids)
+
+
+@router.delete("/{media_id}/tags/{person_id}", status_code=status.HTTP_200_OK)
+async def remove_media_tag(
+    media_id: str,
+    person_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    """Remove a person tag from a media item."""
+    result = await db.execute(select(Media).where(Media.id == media_id))
+    media = result.scalar_one_or_none()
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
+    if not can_edit_media(current_user, media):
+        raise HTTPException(status_code=403, detail="Not authorized")
+    tags = media.tagged_person_ids
+    if person_id not in tags:
+        raise HTTPException(status_code=404, detail="Tag not found")
+    media.tagged_person_ids = [t for t in tags if t != person_id]
+    await db.flush()
+    from app.services.media_queries import build_tagged_people_payload
+    return await build_tagged_people_payload(db, media.tagged_person_ids)
 
 
 @router.delete("/{media_id}", status_code=status.HTTP_204_NO_CONTENT)

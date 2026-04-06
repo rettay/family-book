@@ -863,11 +863,25 @@
       });
       actions.appendChild(headBtn);
     }
+    // Edit details button (admin/owner, images only)
+    if ((mType === 'image' || mType === 'gif') && getSidebarCanManage()) {
+      var editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'tree-sidebar-mini-action';
+      editBtn.setAttribute('data-edit-details-btn', '');
+      editBtn.textContent = '\u270E ' + (root.dataset.editDetailsLabel || 'Edit details');
+      editBtn.title = root.dataset.editDetailsLabel || 'Edit details';
+      editBtn.addEventListener('click', function() {
+        _toggleSidebarMediaEditForm(item, media, editBtn);
+      });
+      actions.appendChild(editBtn);
+    }
     // Delete button
     if (getSidebarCanManage()) {
       var delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'tree-sidebar-mini-action tree-sidebar-mini-action--danger';
+      delBtn.setAttribute('data-delete-media-btn', '');
       delBtn.textContent = '\u{1F5D1}';
       delBtn.title = root.dataset.deleteMediaLabel || 'Delete';
       delBtn.addEventListener('click', function() {
@@ -884,6 +898,55 @@
     }
     item.appendChild(actions);
     return item;
+  }
+
+  function _toggleSidebarMediaEditForm(item, media, toggleBtn) {
+    var existing = item.querySelector('.sidebar-media-edit-form');
+    if (existing) {
+      existing.remove();
+      return;
+    }
+    var form = document.createElement('div');
+    form.className = 'sidebar-media-edit-form';
+    form.innerHTML =
+      '<input class="form-input form-input--sm" data-field="title" type="text" placeholder="' + (root.dataset.editTitleLabel || 'Title') + '" value="' + _escAttr(media.title || '') + '" maxlength="300">' +
+      '<textarea class="form-input form-input--sm sidebar-media-edit-form__desc" data-field="description" placeholder="Description" rows="2" maxlength="2000">' + _escHtml(media.description || '') + '</textarea>' +
+      '<input class="form-input form-input--sm" data-field="taken_date" type="text" placeholder="' + (root.dataset.takenDateLabel || 'Date taken') + '" value="' + _escAttr(media.taken_date || '') + '" maxlength="100">' +
+      '<input class="form-input form-input--sm" data-field="taken_location" type="text" placeholder="' + (root.dataset.takenLocationLabel || 'Location') + '" value="' + _escAttr(media.taken_location || '') + '" maxlength="500">' +
+      '<div class="sidebar-media-edit-form__actions">' +
+        '<button type="button" class="btn btn--primary btn--sm sidebar-media-edit-form__save">' + (root.dataset.saveDetailsLabel || 'Save') + '</button>' +
+        '<button type="button" class="btn btn--ghost btn--sm sidebar-media-edit-form__cancel">' + (root.dataset.cancelLabel || 'Cancel') + '</button>' +
+      '</div>';
+    form.querySelector('.sidebar-media-edit-form__cancel').addEventListener('click', function() {
+      form.remove();
+    });
+    form.querySelector('.sidebar-media-edit-form__save').addEventListener('click', function() {
+      var fd = new FormData();
+      var title = form.querySelector('[data-field="title"]').value;
+      var desc = form.querySelector('[data-field="description"]').value;
+      var takenDate = form.querySelector('[data-field="taken_date"]').value;
+      var takenLocation = form.querySelector('[data-field="taken_location"]').value;
+      if (title !== null) fd.append('title', title);
+      if (desc !== null) fd.append('description', desc);
+      if (takenDate !== null) fd.append('taken_at', takenDate);
+      if (takenLocation !== null) fd.append('taken_location', takenLocation);
+      fetch('/api/media/' + media.id, { method: 'PATCH', body: fd })
+        .then(function(resp) {
+          if (!resp.ok) return;
+          form.remove();
+          var pid = getSidebarPersonId();
+          if (pid) loadTreeSidebarMedia(pid);
+        });
+    });
+    item.appendChild(form);
+  }
+
+  function _escAttr(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function _escHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function renderTreeMedia(mediaItems) {
