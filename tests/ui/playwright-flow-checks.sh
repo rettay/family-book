@@ -324,7 +324,7 @@ async page => {
   await page.locator('#tree-svg').waitFor();
   await page.waitForTimeout(1200);
   await page.locator('#tree-svg [data-id="' + tylerId + '"]').first().click();
-  await page.waitForFunction((id) => document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === id, tylerId);
+  await page.waitForFunction((id) => document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === id, tylerId, { timeout: 30000 });
   await page.locator('button[data-tree-sidebar-tab="relationships"]').click();
   const panel = page.locator('[data-tree-sidebar-panel="relationships"]:not([hidden])');
   await panel.waitFor();
@@ -378,7 +378,7 @@ async page => {
   await page.locator('#tree-svg').waitFor();
   await page.waitForTimeout(1200);
   await page.locator('#tree-svg [data-id="' + tylerId + '"]').first().click();
-  await page.waitForFunction((id) => document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === id, tylerId);
+  await page.waitForFunction((id) => document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === id, tylerId, { timeout: 30000 });
   await page.locator('button[data-tree-sidebar-tab="relationships"]').click();
   await panel.waitFor();
 
@@ -388,11 +388,12 @@ async page => {
   }, adoptiveDisplay, { timeout: 30000 });
 
   const adoptiveCard = panel.locator('.tree-related-card', { hasText: adoptiveDisplay }).first();
+  await adoptiveCard.waitFor({ timeout: 30000 });
   await adoptiveCard.getByRole('button', { name: 'Edit relationship' }).click();
   await page.waitForFunction(() => {
     const shell = document.getElementById('tree-relationship-editor-shell');
     return shell && !shell.classList.contains('hidden');
-  });
+  }, null, { timeout: 30000 });
   const childEditor = panel.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
   await childEditor.locator('select[name="confidence"]').selectOption('probable');
   await childEditor.locator('input[name="source_detail"]').fill('Corrected from tree test');
@@ -465,7 +466,7 @@ async page => {
       (entry.person_b_id === sourceId && entry.person_a_id === person.id)
     ) && entry.kind === 'domestic_partner' && entry.status === 'separated');
     return rel ? { relId: rel.id, personId: person.id } : null;
-  }, { sourceId: tylerId, displayName: partnerDisplay }).then((handle) => handle.jsonValue());
+  }, { sourceId: tylerId, displayName: partnerDisplay }, { timeout: 30000 }).then((handle) => handle.jsonValue());
   if (!partnerRel || !partnerRel.relId) throw new Error('tree partner create form did not persist partnership status');
 
   await page.waitForFunction((displayName) => {
@@ -474,6 +475,7 @@ async page => {
   }, partnerDisplay, { timeout: 30000 });
 
   const partnerRelCard = panel.locator('.tree-related-card', { hasText: partnerDisplay }).first();
+  await partnerRelCard.waitFor({ timeout: 30000 });
   await partnerRelCard.getByRole('button', { name: 'Edit relationship' }).click();
   const partnerEditor = panel.locator('[data-tree-relationship-edit-form="partner"]:not(.hidden)').first();
   await partnerEditor.locator('select[name="kind"]').selectOption('co_parent');
@@ -485,7 +487,7 @@ async page => {
     const data = await resp.json();
     const rel = (data.partnerships || []).find((entry) => entry.id === relId);
     return rel && rel.kind === 'co_parent' && rel.status === 'dissolved' && rel.notes === 'Updated through relationship editor';
-  }, partnerRel.relId);
+  }, partnerRel.relId, { timeout: 30000 });
 
   const partnerDelete = await page.evaluate(async (relId) => {
     const resp = await fetch('/api/relationships/partnership/' + relId, { method: 'DELETE' });
