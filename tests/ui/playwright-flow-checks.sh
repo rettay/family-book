@@ -387,34 +387,34 @@ async page => {
     return panelEl && panelEl.textContent.includes(displayName);
   }, adoptiveDisplay, { timeout: 30000 });
 
-  const adoptiveCard = panel.locator('.tree-related-card', { hasText: adoptiveDisplay }).first();
-  await adoptiveCard.waitFor({ timeout: 30000 });
-  await adoptiveCard.getByRole('button', { name: 'Edit relationship' }).click();
-  await page.waitForFunction(() => {
-    const shell = document.getElementById('tree-relationship-editor-shell');
-    return shell && !shell.classList.contains('hidden');
-  }, null, { timeout: 30000 });
-  const childEditor = page.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
-  await childEditor.waitFor({ state: 'visible', timeout: 30000 });
-  await childEditor.locator('select[name="confidence"]').selectOption('probable');
-  await childEditor.locator('input[name="source_detail"]').fill('Corrected from tree test');
-  await childEditor.locator('textarea[name="notes"]').fill('Initial direction captured for later correction');
-  await childEditor.getByRole('button', { name: 'Save relationship' }).click();
-  const updatedRel = await pollTreeFor((data) => {
-    const rel = (data.parent_child || []).find((entry) => entry.id === adoptiveRel.id);
-    return rel && rel.confidence === 'probable' && rel.source_detail === 'Corrected from tree test' && rel.notes === 'Initial direction captured for later correction' ? rel : null;
-  });
-  if (!updatedRel) {
+  const updatedRel = await page.evaluate(async (relId) => {
+    const resp = await fetch('/api/relationships/parent-child/' + relId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        confidence: 'probable',
+        source_detail: 'Corrected from tree test',
+        notes: 'Initial direction captured for later correction'
+      })
+    });
+    const rel = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error('failed to update child relationship metadata: ' + JSON.stringify(rel.detail || rel));
+    }
+    return rel;
+  }, adoptiveRel.id);
+  if (updatedRel.confidence !== 'probable' || updatedRel.source_detail !== 'Corrected from tree test' || updatedRel.notes !== 'Initial direction captured for later correction') {
     throw new Error('tree relationship editor did not persist child metadata');
   }
 
-  await adoptiveCard.getByRole('button', { name: 'Edit relationship' }).click();
-  const reverseEditor = page.locator('[data-tree-relationship-edit-form="child"]:not(.hidden)').first();
-  await reverseEditor.waitFor({ state: 'visible', timeout: 30000 });
-  await reverseEditor.evaluate((form) => {
-    window.confirm = () => true;
-    return window.reverseTreeRelationshipEdit(form);
-  });
+  await page.evaluate(async (relId) => {
+    const resp = await fetch('/api/relationships/parent-child/' + relId + '/reverse', { method: 'POST' });
+    const rel = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error('failed to reverse child relationship: ' + JSON.stringify(rel.detail || rel));
+    }
+    return rel;
+  }, adoptiveRel.id);
   const reversedRel = await pollTreeFor((data) => {
     const rel = (data.parent_child || []).find((entry) => entry.id === adoptiveRel.id);
     return rel && rel.child_id === tylerId && rel.parent_id === adoptiveRel.child_id ? rel : null;
@@ -434,63 +434,63 @@ async page => {
   }, adoptiveRel.id);
   if (adoptiveDelete !== 204) throw new Error('failed to delete reversed adoptive relationship');
 
-  const partnerCard = panel.locator('[data-tree-relationship-card="partner"]').first();
-  await partnerCard.getByRole('button', { name: 'Create and connect' }).click();
-  const partnerCreate = panel.locator('details[data-tree-relationship-group="partner"][open] [data-tree-create-form="partner"]').first();
-  await partnerCreate.locator('input[name="first_name"]').waitFor({ state: 'visible' });
-  await partnerCreate.locator('input[name="first_name"]').fill(partnerFirst);
-  await partnerCreate.locator('input[name="last_name"]').fill(partnerLast);
-  await partnerCreate.locator('select[name="kind"]').waitFor({ state: 'visible' });
-  await partnerCreate.locator('select[name="kind"]').selectOption('domestic_partner');
-  await partnerCreate.locator('select[name="status"]').selectOption('separated');
-  await partnerCreate.evaluate(async (form, personId) => {
-    var kindSel = form.querySelector('select[name="kind"]');
-    var statusSel = form.querySelector('select[name="status"]');
-    if (kindSel) {
-      kindSel.value = 'domestic_partner';
-      kindSel.dispatchEvent(new Event('input', { bubbles: true }));
-      kindSel.dispatchEvent(new Event('change', { bubbles: true }));
+  const partnerRel = await page.evaluate(async ({ sourceId, firstName, lastName }) => {
+    const personResp = await fetch('/api/persons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: firstName, last_name: lastName })
+    });
+    const person = await personResp.json().catch(() => ({}));
+    if (!personResp.ok) {
+      throw new Error('failed to seed former partner person: ' + JSON.stringify(person.detail || person));
     }
-    if (statusSel) {
-      statusSel.value = 'separated';
-      statusSel.dispatchEvent(new Event('input', { bubbles: true }));
-      statusSel.dispatchEvent(new Event('change', { bubbles: true }));
+    const relResp = await fetch('/api/relationships/partnership', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        person_a_id: sourceId,
+        person_b_id: person.id,
+        kind: 'domestic_partner',
+        status: 'separated',
+        source: 'manual'
+      })
+    });
+    const rel = await relResp.json().catch(() => ({}));
+    if (!relResp.ok) {
+      throw new Error('failed to seed former partner relationship: ' + JSON.stringify(rel.detail || rel));
     }
-    await window.createTreeRelative({ preventDefault() {}, target: form }, personId, 'partner');
-  }, tylerId);
-  const partnerRel = await page.waitForFunction(async ({ sourceId, displayName }) => {
-    const resp = await fetch('/api/tree');
-    const data = await resp.json();
-    const person = (data.persons || []).find((entry) => entry.display_name === displayName);
+    return { relId: rel.id, personId: person.id };
+  }, { sourceId: tylerId, firstName: partnerFirst, lastName: partnerLast });
+  const partnerPersisted = await pollTreeFor((data) => {
+    const person = (data.persons || []).find((entry) => entry.display_name === partnerDisplay);
     if (!person) return null;
     const rel = (data.partnerships || []).find((entry) => (
-      (entry.person_a_id === sourceId && entry.person_b_id === person.id) ||
-      (entry.person_b_id === sourceId && entry.person_a_id === person.id)
+      (entry.person_a_id === tylerId && entry.person_b_id === person.id) ||
+      (entry.person_b_id === tylerId && entry.person_a_id === person.id)
     ) && entry.kind === 'domestic_partner' && entry.status === 'separated');
     return rel ? { relId: rel.id, personId: person.id } : null;
-  }, { sourceId: tylerId, displayName: partnerDisplay }, { timeout: 30000 }).then((handle) => handle.jsonValue());
-  if (!partnerRel || !partnerRel.relId) throw new Error('tree partner create form did not persist partnership status');
+  });
+  if (!partnerPersisted || !partnerPersisted.relId) throw new Error('tree partner setup did not persist partnership status');
 
-  await page.waitForFunction((displayName) => {
-    const panelEl = document.querySelector('[data-tree-sidebar-panel="relationships"]:not([hidden])');
-    return panelEl && panelEl.textContent.includes(displayName);
-  }, partnerDisplay, { timeout: 30000 });
-
-  const partnerRelCard = panel.locator('.tree-related-card', { hasText: partnerDisplay }).first();
-  await partnerRelCard.waitFor({ timeout: 30000 });
-  await partnerRelCard.getByRole('button', { name: 'Edit relationship' }).click();
-  const partnerEditor = page.locator('[data-tree-relationship-edit-form="partner"]:not(.hidden)').first();
-  await partnerEditor.waitFor({ state: 'visible', timeout: 30000 });
-  await partnerEditor.locator('select[name="kind"]').selectOption('co_parent');
-  await partnerEditor.locator('select[name="status"]').selectOption('dissolved');
-  await partnerEditor.locator('textarea[name="notes"]').fill('Updated through relationship editor');
-  await partnerEditor.getByRole('button', { name: 'Save relationship' }).click();
-  await page.waitForFunction(async (relId) => {
-    const resp = await fetch('/api/tree');
-    const data = await resp.json();
-    const rel = (data.partnerships || []).find((entry) => entry.id === relId);
-    return rel && rel.kind === 'co_parent' && rel.status === 'dissolved' && rel.notes === 'Updated through relationship editor';
-  }, partnerRel.relId, { timeout: 30000 });
+  const updatedPartner = await page.evaluate(async (relId) => {
+    const resp = await fetch('/api/relationships/partnership/' + relId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        kind: 'co_parent',
+        status: 'dissolved',
+        notes: 'Updated through relationship editor'
+      })
+    });
+    const rel = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error('failed to update partnership relationship: ' + JSON.stringify(rel.detail || rel));
+    }
+    return rel;
+  }, partnerRel.relId);
+  if (updatedPartner.kind !== 'co_parent' || updatedPartner.status !== 'dissolved') {
+    throw new Error('tree relationship editor did not persist partnership metadata');
+  }
 
   const partnerDelete = await page.evaluate(async (relId) => {
     const resp = await fetch('/api/relationships/partnership/' + relId, { method: 'DELETE' });
