@@ -3215,3 +3215,98 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
   font-size: 0.8rem; padding: 2px 8px;
   margin-top: 4px;
 }
+
+/* ── Gallery Edit Details button ── */
+.media-gallery__item--rich [data-edit-details-btn] {
+  position: static;
+  background: rgba(0,0,0,0.55);
+  border: none; border-radius: 4px;
+  color: #fff; font-size: 0.7rem; padding: 2px 5px;
+  cursor: pointer;
+}
+
+/* ── Inline metadata edit form ── */
+.media-gallery__item--editing {
+  padding: 8px;
+}
+.media-edit-form {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.media-edit-form__label {
+  font-size: 0.75rem; font-weight: 600; color: var(--text-muted, #888);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.media-edit-form__fields {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.media-edit-form__desc {
+  resize: vertical; min-height: 48px;
+}
+.media-edit-form__actions {
+  display: flex; gap: 8px; padding-top: 4px;
+}
+
+/* ── Tag picker ── */
+.media-tag-picker {
+  padding-top: 4px; border-top: 1px solid var(--border, #e0d6c8);
+}
+.media-tag-picker__label {
+  font-size: 0.75rem; color: var(--text-muted, #888); margin-bottom: 4px;
+}
+.media-tag-picker__pills {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px;
+}
+.media-tag-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--surface-alt, #f5f0e8); border-radius: 12px;
+  padding: 2px 8px; font-size: 0.78rem;
+}
+.media-tag-pill__remove {
+  background: none; border: none; cursor: pointer;
+  font-size: 0.7rem; padding: 0; line-height: 1; color: var(--text-muted, #888);
+}
+.media-tag-picker__add-row {
+  display: flex; gap: 6px; align-items: center;
+}
+
+/* ── Tagged names on gallery cards ── */
+.media-gallery__tagged-names {
+  font-size: 0.78rem; color: var(--text-muted, #888);
+}
+.media-gallery__tagged-names a {
+  color: var(--accent, #7c6f5b);
+}
+.media-gallery__location {
+  font-size: 0.78rem; color: var(--text-muted, #888);
+}
+
+/* ── Sidebar media inline edit form (FB-103) ── */
+.sidebar-media-edit-form {
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 8px 0 4px;
+  border-top: 1px solid var(--border, #e0d6c8);
+  margin-top: 6px;
+}
+.sidebar-media-edit-form .form-input--sm {
+  font-size: 0.82rem; padding: 4px 6px;
+}
+.sidebar-media-edit-form__desc {
+  resize: vertical; min-height: 40px;
+}
+.sidebar-media-edit-form__actions {
+  display: flex; gap: 6px;
+}
+
+/* ── Edit-details button on wiki gallery items ── */
+.media-gallery__edit-details-btn {
+  position: absolute; top: 4px; right: 52px;
+  background: rgba(0,0,0,0.55);
+  border: none; border-radius: 4px;
+  color: #fff; font-size: 0.7rem; padding: 2px 5px;
+  cursor: pointer; z-index: 2;
+  opacity: 0; transition: opacity 0.15s;
+}
+.media-gallery__item:hover .media-gallery__edit-details-btn,
+.media-gallery__item:focus-within .media-gallery__edit-details-btn {
+  opacity: 1;
+}

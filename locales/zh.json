@@ -293,7 +293,17 @@
     "edit_photo_rotate_left": "向左旋转",
     "edit_photo_rotate_right": "向右旋转",
     "edit_photo_saved": "照片已更新",
-    "edit_before_upload": "上传前编辑"
+    "edit_before_upload": "上传前编辑",
+    "edit_details": "编辑详情",
+    "taken_date_label": "拍摄日期",
+    "taken_location_label": "地点",
+    "person_label": "人物",
+    "save_details": "保存",
+    "details_saved": "已保存",
+    "tag_people": "标记人物",
+    "tagged_in": "也在此照片中",
+    "add_tag": "添加人物",
+    "remove_tag": "移除"
   },
   "gallery": {
     "title": "家族图库",

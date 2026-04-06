@@ -293,7 +293,17 @@
     "edit_photo_rotate_left": "Rotate left",
     "edit_photo_rotate_right": "Rotate right",
     "edit_photo_saved": "Photo updated",
-    "edit_before_upload": "Edit before upload"
+    "edit_before_upload": "Edit before upload",
+    "edit_details": "Edit details",
+    "taken_date_label": "Date taken",
+    "taken_location_label": "Location",
+    "person_label": "Person",
+    "save_details": "Save",
+    "details_saved": "Saved",
+    "tag_people": "Tag people",
+    "tagged_in": "Also in this photo",
+    "add_tag": "Add person",
+    "remove_tag": "Remove"
   },
   "gallery": {
     "title": "Family Gallery",

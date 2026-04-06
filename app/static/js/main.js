@@ -1046,3 +1046,36 @@ function toggleStoryTTS(btn) {
   _ttsActiveBtn = btn;
   window.speechSynthesis.speak(utter);
 }
+
+// ── Media tag management (FB-102) ────────────────────────────────────────────
+
+function addMediaTag(mediaId, selectEl) {
+  if (!selectEl || !selectEl.value) return;
+  var personId = selectEl.value;
+  var personName = selectEl.options[selectEl.selectedIndex].getAttribute('data-name') || selectEl.options[selectEl.selectedIndex].text;
+  var fd = new FormData();
+  fd.append('person_id', personId);
+  fetch('/api/media/' + mediaId + '/tags', { method: 'POST', body: fd })
+    .then(function(resp) {
+      if (!resp.ok) return;
+      var pillsEl = document.getElementById('tag-pills-' + mediaId);
+      if (!pillsEl) return;
+      var pill = document.createElement('span');
+      pill.className = 'media-tag-pill';
+      pill.innerHTML = personName +
+        '<button type="button" class="media-tag-pill__remove" onclick="removeMediaTag(\'' + mediaId + '\', \'' + personId + '\', this)" aria-label="Remove">\u2715</button>';
+      pillsEl.appendChild(pill);
+      // Remove option from select
+      selectEl.remove(selectEl.selectedIndex);
+      selectEl.value = '';
+    });
+}
+
+function removeMediaTag(mediaId, personId, btn) {
+  fetch('/api/media/' + mediaId + '/tags/' + personId, { method: 'DELETE' })
+    .then(function(resp) {
+      if (!resp.ok) return;
+      var pill = btn.closest('.media-tag-pill');
+      if (pill) pill.remove();
+    });
+}

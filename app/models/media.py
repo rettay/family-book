@@ -54,6 +54,7 @@ class Media(Base):
     title: Mapped[str | None] = mapped_column(String(300), default=None)
     description: Mapped[str | None] = mapped_column(Text, default=None)
     taken_date: Mapped[str | None] = mapped_column(String(10), default=None)
+    taken_location: Mapped[str | None] = mapped_column(String(500), default=None)
     _tagged_person_ids: Mapped[str | None] = mapped_column("tagged_person_ids", Text, default="[]")
     source: Mapped[str] = mapped_column(String(30), default=MediaSource.manual.value)
     purpose: Mapped[str | None] = mapped_column(String(20), default="memory")

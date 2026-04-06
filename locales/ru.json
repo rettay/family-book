@@ -293,7 +293,17 @@
     "edit_photo_rotate_left": "Повернуть влево",
     "edit_photo_rotate_right": "Повернуть вправо",
     "edit_photo_saved": "Фото обновлено",
-    "edit_before_upload": "Редактировать перед загрузкой"
+    "edit_before_upload": "Редактировать перед загрузкой",
+    "edit_details": "Изменить данные",
+    "taken_date_label": "Дата съёмки",
+    "taken_location_label": "Место",
+    "person_label": "Человек",
+    "save_details": "Сохранить",
+    "details_saved": "Сохранено",
+    "tag_people": "Отметить людей",
+    "tagged_in": "Тоже на этом фото",
+    "add_tag": "Добавить человека",
+    "remove_tag": "Убрать"
   },
   "gallery": {
     "title": "Семейная галерея",
