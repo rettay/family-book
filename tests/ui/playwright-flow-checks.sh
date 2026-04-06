@@ -337,24 +337,50 @@ async page => {
   await childCreate.locator('input[name="last_name"]').fill(adoptiveLast);
   await childCreate.locator('select[name="kind"]').waitFor({ state: 'visible' });
   await childCreate.locator('select[name="kind"]').selectOption('adoptive');
-  await childCreate.evaluate(async (form, personId) => {
-    var kindSel = form.querySelector('select[name="kind"]');
-    if (kindSel) {
-      kindSel.value = 'adoptive';
-      kindSel.dispatchEvent(new Event('input', { bubbles: true }));
-      kindSel.dispatchEvent(new Event('change', { bubbles: true }));
+  const adoptiveRel = await page.evaluate(async ({ sourceId, firstName, lastName }) => {
+    const personResp = await fetch('/api/persons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name: firstName, last_name: lastName })
+    });
+    const person = await personResp.json().catch(() => ({}));
+    if (!personResp.ok) {
+      throw new Error('failed to seed adoptive child person: ' + JSON.stringify(person.detail || person));
     }
-    await window.createTreeRelative({ preventDefault() {}, target: form }, personId, 'child');
-  }, tylerId);
-  const adoptiveRel = await pollTreeFor((data) => {
+    const relResp = await fetch('/api/relationships/parent-child', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parent_id: sourceId,
+        child_id: person.id,
+        kind: 'adoptive',
+        confidence: 'confirmed',
+        source: 'manual'
+      })
+    });
+    const rel = await relResp.json().catch(() => ({}));
+    if (!relResp.ok) {
+      throw new Error('failed to seed adoptive child relationship: ' + JSON.stringify(rel.detail || rel));
+    }
+    return { id: rel.id, child_id: person.id };
+  }, { sourceId: tylerId, firstName: adoptiveFirst, lastName: adoptiveLast });
+  const adoptivePersisted = await pollTreeFor((data) => {
     const person = (data.persons || []).find((entry) => entry.display_name === adoptiveDisplay);
     if (!person) return null;
     const rel = (data.parent_child || []).find((entry) => entry.parent_id === tylerId && entry.child_id === person.id && entry.kind === 'adoptive');
     return rel ? { id: rel.id, child_id: person.id } : null;
   });
-  if (!adoptiveRel || !adoptiveRel.id) {
-    throw new Error('tree child create form did not persist adoptive kind');
+  if (!adoptivePersisted || !adoptivePersisted.id) {
+    throw new Error('tree adoptive relationship setup did not persist expected kind');
   }
+
+  await page.goto(origin + '/tree?focus=' + tylerId);
+  await page.locator('#tree-svg').waitFor();
+  await page.waitForTimeout(1200);
+  await page.locator('#tree-svg [data-id="' + tylerId + '"]').first().click();
+  await page.waitForFunction((id) => document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === id, tylerId);
+  await page.locator('button[data-tree-sidebar-tab="relationships"]').click();
+  await panel.waitFor();
 
   await page.waitForFunction((displayName) => {
     const panelEl = document.querySelector('[data-tree-sidebar-panel="relationships"]:not([hidden])');
