@@ -1,5 +1,39 @@
 # Family Book Sprint Board - 2026 Q1
 
+## Backlog
+
+### `S45 - Gallery Management`
+
+Status: Planned
+
+### Sprint Goal
+
+Give family members complete control over their photos from inside the gallery and the tree sidebar: edit metadata (title, description, date taken, location, person), tag multiple people in a single photo, and manage photos without leaving the tree.
+
+### Why This Sprint Next
+
+S43 shipped crop/rotate/delete but the gallery card-meta was invisible due to a CSS aspect-ratio cascade bug (fixed as a hotfix). Even with that fixed, metadata editing after upload, location, multi-person tagging, and tree sidebar edit controls are all absent. This sprint completes the media management surface.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 101 | FB-101 | In-Gallery Metadata Editor | P0 | todo |
+| 102 | FB-102 | Multi-Person Photo Tagging | P1 | todo |
+| 103 | FB-103 | Tree Sidebar Media Edit Controls | P1 | todo |
+
+### Sprint Exit Criteria
+
+- Any member can edit title, description, date taken, location, and person tag on any media item from the gallery page — inline, no page reload
+- `taken_location` field exists on Media model and is editable and displayed
+- A single photo can be tagged with multiple people; tagged people see the photo on their bio pages
+- Backfill migration preserves all existing `person_id` attributions as tags
+- Tree sidebar media tab shows Edit details and Delete for owner/admin; form loads inline
+- All new i18n keys present in all 5 locales; `test_i18n.py` passes
+- `uv run pytest tests/` passes with coverage for new endpoints
+
+---
+
 ## Current Sprint
 
 ### `S44 - Occupation History`
