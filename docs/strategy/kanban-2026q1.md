@@ -32,6 +32,9 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-100 | Occupation on Tree Nodes | P1 | `task_packets/FB-100_occupation_on_tree_nodes.md` |
+| FB-099 | Occupation UI on Family Bio | P0 | `task_packets/FB-099_occupation_ui_on_family_bio.md` |
+| FB-098 | Occupation Data Model and API | P0 | `task_packets/FB-098_occupation_data_model_and_api.md` |
 | FB-103 | Tree Sidebar Media Edit Controls | P1 | `task_packets/FB-103_tree_sidebar_media_edit.md` |
 | FB-102 | Multi-Person Photo Tagging | P1 | `task_packets/FB-102_multi_person_photo_tagging.md` |
 | FB-101 | In-Gallery Metadata Editor | P0 | `task_packets/FB-101_gallery_metadata_editor.md` |

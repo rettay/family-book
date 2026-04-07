@@ -39,40 +39,35 @@ Replace Resend-specific invite delivery with MXroute SMTP and make Family Book l
 
 ## Current Sprint
 
+### `S46 - Passwordless Auth and MXroute Email`
+
+Status: Planned
+
+See Planned Sprint above.
+
+---
+
+## Closed Sprint
+
 ### `S44 - Occupation History`
 
-Status: In Progress
+Status: Closed
 
 ### Sprint Goal
 
 Give every family member a discrete, history-preserving record of each person's occupation. Capture the full career timeline (SCD Type 2) so that "farmer 1920–1945, then factory worker 1946–1962" is queryable, not buried in prose. Surface the current role on the tree as an optional display label.
 
-### Why This Sprint Next
-
-S43 completed the tree interaction and media editing surface. The family record is now a rich multimedia canvas with inline editing. Occupation history is the next high-signal genealogical field: it contextualises a person's life and era in a way that birth and death dates alone cannot. It is also the first structured timeline feature that is explicitly SCD Type 2 — the pattern will apply to residence history and other life events in future sprints.
-
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 98 | FB-098 | Occupation Data Model and API | P0 | todo |
-| 99 | FB-099 | Occupation UI on Family Bio | P0 | todo |
-| 100 | FB-100 | Occupation on Tree Nodes | P1 | todo |
+| 98 | FB-098 | Occupation Data Model and API | P0 | done |
+| 99 | FB-099 | Occupation UI on Family Bio | P0 | done |
+| 100 | FB-100 | Occupation on Tree Nodes | P1 | done |
 
-### Sprint Exit Criteria
+### Outcome
 
-- `person_occupations` table exists; migration runs cleanly up and down
-- Any authenticated member can add, edit occupation roles for any person on the Family Bio page
-- Dates are free text (fuzzy) — no validation; accepts "circa 1920", "early 1960s", etc.
-- Adding a new current role when one already exists warns the user rather than auto-closing the previous role; both roles are saved; user resolves the conflict manually
-- Occupation history renders as a timeline on the Family Bio page; current role shown prominently; past roles listed with date ranges
-- `t('occupation.present')` used when end_date is null (e.g. "2010 – Present")
-- "Currently in this role" checkbox hides the End date field and submits correctly
-- Remove allowed for the adder or admin (same pattern as stories); inline confirm step
-- `show_occupation` preference in tree panel; when enabled, current occupation appears as a sub-label on tree nodes (truncated to 22 chars)
-- Preference persisted to localStorage
-- All 15 occupation i18n keys + 1 tree key present in all 5 locales; `test_i18n.py` passes
-- `uv run pytest tests/` passes with new coverage for API and UI
+All 3 packets shipped. 39 new tests pass. Key design decisions: fuzzy free-text dates (same as birth/death dates), warn-not-auto-close on duplicate current roles, adder-or-admin delete auth (same pattern as stories). Auditor raised 2 P2s (missing adder-can-delete positive test, missing CASCADE FK test) — both fixed and re-audited PASS. Merged to main 2026-04-06.
 
 ---
 
