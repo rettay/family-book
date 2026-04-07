@@ -24,7 +24,8 @@
     show_nicknames: false,
     show_birth_dates: false,
     show_country_flags: true,
-    show_photos: true
+    show_photos: true,
+    show_occupation: false
   };
   var NODE_RADIUS = 30;
   var NODE_SPACING_X = 100;
@@ -419,6 +420,7 @@
     _set('pref-show-birth-dates', preferences.show_birth_dates);
     _set('pref-show-country-flags', preferences.show_country_flags);
     _set('pref-show-photos', preferences.show_photos);
+    _set('pref-show-occupation', preferences.show_occupation);
   }
 
   function readPreferenceInputs() {
@@ -428,7 +430,8 @@
       show_nicknames: _el('pref-show-nicknames'),
       show_birth_dates: _el('pref-show-birth-dates'),
       show_country_flags: _el('pref-show-country-flags'),
-      show_photos: _el('pref-show-photos')
+      show_photos: _el('pref-show-photos'),
+      show_occupation: _el('pref-show-occupation')
     };
   }
 
@@ -2657,6 +2660,16 @@
         .attr('class', 'rel-label')
         .attr('dy', nextTextY)
         .text(countryFlag(person.residence_country_code));
+      nextTextY += 14;
+    }
+
+    if (preferences.show_occupation && person.current_occupation) {
+      var occTitle = person.current_occupation;
+      if (occTitle.length > 22) occTitle = occTitle.slice(0, 21) + '\u2026';
+      nodeGroup.append('text')
+        .attr('class', 'rel-label')
+        .attr('dy', nextTextY)
+        .text(occTitle);
       nextTextY += 14;
     }
 

@@ -20,6 +20,7 @@ from app.models.audit import AuditLog
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.story import Story
 from app.access_control import get_person_access, can_manage_person
+from app.routes.occupations import load_occupations
 from app.services.wiki_service import assemble_wiki_sections
 from app.services.revision_service import serialize_person_snapshot, record_revision
 from app.services.sanitization import RICH_TEXT_FIELDS as _RICH_TEXT_FIELDS, sanitize_html
@@ -122,6 +123,7 @@ async def wiki_person(
     can_edit = access.can_manage
     _, media_list = await list_media_for_person(db, current_user, person.id)
     stories = await _load_stories(db, person.id)
+    occupations = await load_occupations(db, person.id)
 
     return templates.TemplateResponse("wiki_person.html", _ctx(
         request,
@@ -135,6 +137,7 @@ async def wiki_person(
         can_upload=can_upload_media_for_person(current_user, person),
         person_photo_url=person.photo_url,
         stories=stories,
+        occupations=occupations,
     ))
 
 

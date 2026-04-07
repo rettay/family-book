@@ -18,8 +18,9 @@ Create the `PersonOccupation` model, Alembic migration, and CRUD API for occupat
   - `person_id` (FK → `persons.id`, non-null, cascade delete)
   - `title` (Text, non-null — e.g. "Teacher", "Postal Worker", "Farmer")
   - `employer` (Text, nullable — org or institution name)
-  - `start_date` (Text, nullable — ISO date or year string, e.g. "1985" or "1985-06")
-  - `end_date` (Text, nullable — **null means currently in this role**)
+  - `start_date` (Text, nullable — free text; accepts "1985", "circa 1920", "early 1960s", "June 1985", etc. No parsing or validation.)
+  - `end_date` (Text, nullable — **null means currently in this role**; free text same as start_date)
+  - `added_by_person_id` (FK → `persons.id`, nullable, SET NULL on delete — the Person record of the user who created this row; used for delete authorization)
   - `source` (Text, nullable — `"user:{person_id}"` on create)
   - `created_at`, `updated_at` (TimestampMixin)
   - Index on `person_id`
@@ -27,9 +28,9 @@ Create the `PersonOccupation` model, Alembic migration, and CRUD API for occupat
 - Alembic migration: `person_occupations` table
 - API endpoints in a new `app/routes/occupations.py`, mounted at `/api/persons/{person_id}/occupations`:
   - `GET  /api/persons/{person_id}/occupations` — list all roles for person. Current role (end_date IS NULL) first; remaining ordered by start_date DESC. Each entry: `id`, `title`, `employer`, `start_date`, `end_date`. Auth: any authenticated member.
-  - `POST /api/persons/{person_id}/occupations` — create a new role. If `end_date` is null (marking as current), automatically set `end_date = today` on any existing role where `end_date IS NULL` before inserting the new row. Auth: any authenticated member.
-  - `PUT  /api/persons/{person_id}/occupations/{occ_id}` — update any field. Same auto-close logic applies if `end_date` is set to null on an update. Auth: any authenticated member.
-  - `DELETE /api/persons/{person_id}/occupations/{occ_id}` — hard delete. Auth: admin only.
+  - `POST /api/persons/{person_id}/occupations` — create a new role. Set `added_by_person_id = current_user.person_id`. If `end_date` is null (marking as current) and another role already has `end_date IS NULL`, do **not** auto-close it — include a `"conflict": true` field and `"conflict_message"` in the 201 response JSON so the UI can display a warning. Auth: any authenticated member.
+  - `PUT  /api/persons/{person_id}/occupations/{occ_id}` — update any field except `added_by_person_id`. Same conflict-detection logic on null end_date. Auth: any authenticated member.
+  - `DELETE /api/persons/{person_id}/occupations/{occ_id}` — hard delete. Auth: the adder (`added_by_person_id == current_user.person_id`) or admin. Non-qualifying member gets 403. Returns 204.
 - Expose `current_occupation` on existing person payloads used by the tree:
   - In the `/api/tree` (or equivalent) person serialization, add `current_occupation: str | None` — the `title` of the row where `end_date IS NULL` for that person. Empty string or null if none.
   - This is a read-only computed field; it is NOT added to the person edit form.
@@ -102,9 +103,9 @@ uv run pytest tests/test_i18n.py -v
 
 - [ ] `person_occupations` table created by migration with correct columns, FK to persons (cascade delete), and index on `person_id`.
 - [ ] `GET /api/persons/{person_id}/occupations` returns a JSON array ordered: current role (end_date IS NULL) first, then by start_date descending. Returns `[]` if none. Requires auth; returns 401 if unauthenticated.
-- [ ] `POST /api/persons/{person_id}/occupations` creates a row. If `end_date` is null, closes any existing current role by setting its `end_date` to today's date before inserting. Returns 201 with the created row.
-- [ ] `PUT /api/persons/{person_id}/occupations/{occ_id}` updates the row. Same auto-close logic for null end_date. Returns 200 with updated row; 404 if id not found.
-- [ ] `DELETE /api/persons/{person_id}/occupations/{occ_id}` removes the row. Admin only; non-admin gets 403. Returns 204.
+- [ ] `POST /api/persons/{person_id}/occupations` creates a row. Sets `added_by_person_id`. If `end_date` is null and another current role exists, returns 201 with `"conflict": true` and `"conflict_message"` — does NOT auto-close the other role.
+- [ ] `PUT /api/persons/{person_id}/occupations/{occ_id}` updates the row. Same conflict-detection; does not auto-close. Returns 200 with updated row; 404 if id not found.
+- [ ] `DELETE /api/persons/{person_id}/occupations/{occ_id}` removes the row. Allowed for adder (`added_by_person_id`) or admin; anyone else gets 403. Returns 204.
 - [ ] Tree person payload includes `current_occupation: str | None` (title of current role, or null).
 - [ ] All 15 i18n keys present in all 5 locales.
 - [ ] `uv run pytest tests/test_i18n.py` passes with no new missing-key failures.
@@ -112,8 +113,8 @@ uv run pytest tests/test_i18n.py -v
 
 ## Risk and Verification Notes
 
-- **Auto-close on create:** The SCD Type 2 invariant (at most one current role per person) must be enforced server-side, not relied upon in the UI. When `end_date` is null on POST or PUT, check for existing null-end_date rows and close them before committing. Use today's date (`datetime.date.today().isoformat()`) as the close date.
-- **Multiple current roles:** If data somehow has multiple rows with `end_date IS NULL` (e.g. seeded data), the GET endpoint should still return them all — do not silently drop rows. Only the auto-close write path enforces the invariant going forward.
+- **Warn, don't auto-close:** When `end_date` is null on POST or PUT and another row already has `end_date IS NULL`, the server creates/updates the row as requested but returns `"conflict": true` and a `"conflict_message"` string (e.g. `"Another role is already marked as current. Update it with an end date."`) in the response JSON. Never auto-set `end_date` on another row — date data is the user's responsibility.
+- **Multiple current roles:** Multiple rows with `end_date IS NULL` are a valid (if imprecise) state — e.g. someone who truly held two concurrent roles. The GET endpoint returns all of them. The UI surfaces the conflict warning so the user can resolve it, but does not block adding the record.
 - **`current_occupation` on tree payload:** This requires a JOIN or subquery in the tree person serialization. Prefer a single LEFT JOIN rather than N separate queries. If the tree serializer issues per-person queries today, do not introduce a new one per person for occupation — batch it.
 - **`career[]` coexistence:** The existing `career[]` JSON array on `Person` is prose-based career notes. Do not modify it. Both fields can be populated independently. FB-099 will display both on the bio page.
 - **Cascade delete:** Use `ondelete="CASCADE"` on the FK so that deleting a `Person` row also removes their occupation records. Verify this in the migration.
@@ -124,10 +125,11 @@ uv run pytest tests/test_i18n.py -v
 | Task | Verifier | Oracle | Expected Evidence | Failure Mode |
 |---|---|---|---|---|
 | Table created | sqlite3 schema | Alembic migration | `person_occupations` with correct columns | Migration skipped, column missing |
-| Create role | POST (end_date null) | DB rows | 201 + previous current role closed | Previous role not closed |
-| Create role (past) | POST (end_date set) | DB rows | 201 + no other roles touched | Auto-close fires incorrectly on past roles |
+| Create role (current) | POST (end_date null, existing current role) | Response JSON | 201 + `conflict: true` + existing role untouched | Auto-close fires, or conflict flag missing |
+| Create role (past) | POST (end_date set) | DB rows | 201 + no other roles touched + no conflict flag | Conflict fires incorrectly on past roles |
 | List ordering | GET after 2+ roles | Response JSON | Current role first | Wrong order |
-| Delete non-admin | DELETE as member | 403 response | No row deleted | Missing auth check |
+| Delete as non-adder non-admin | DELETE as unrelated member | 403 response | No row deleted | Missing auth check |
+| Delete as adder | DELETE as the member who added it | 204 response | Row deleted | Adder blocked, only admin allowed |
 | Tree payload | GET /api/tree | JSON person objects | `current_occupation` field present | Field absent or null for persons with roles |
 | i18n parity | test_i18n.py | All locale files | Zero missing-key failures | Key absent in one locale |
 | Cascade delete | Delete person | person_occupations table | Occupation rows gone | Orphan rows remain |

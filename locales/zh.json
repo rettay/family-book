@@ -564,6 +564,7 @@
     "show_birth_dates": "显示出生日期",
     "show_country_flags": "显示国旗",
     "show_photos": "显示照片",
+    "show_occupation": "显示职业",
     "show_controls": "显示树形工具",
     "save_preferences": "保存显示设置",
     "preferences_hint": "这些设置保存到您的账号中，不影响其他家庭成员。",
@@ -853,5 +854,23 @@
     "audio_player_label": "语音录音",
     "listen": "收听",
     "stop_listening": "停止"
+  },
+  "occupation": {
+    "section_title": "职业历史",
+    "current_role": "当前职位",
+    "add_occupation": "添加职位",
+    "edit_occupation": "编辑职位",
+    "delete_occupation": "删除",
+    "title_label": "职位名称",
+    "employer_label": "雇主/组织",
+    "start_date_label": "开始",
+    "end_date_label": "结束",
+    "currently_in_role": "目前担任此职位",
+    "save": "保存",
+    "cancel": "取消",
+    "delete_confirm": "删除此职位？",
+    "empty": "暂无职业历史记录。",
+    "present": "至今",
+    "conflict_warning": "另一个职位已标记为当前职位——请为其添加结束日期。"
   }
 }

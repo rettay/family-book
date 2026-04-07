@@ -99,6 +99,27 @@
     </div>
     {% endfor %}
 
+    {# ── Occupation History ── #}
+    <div class="wiki-section" id="wiki-occupation-section">
+      <div class="wiki-section__header-row">
+        <h2 class="wiki-section__title">{{ t('occupation.section_title') }}</h2>
+        <button class="btn btn--sm btn--outline"
+                hx-get="/api/wiki/{{ person.slug }}/occupations/new-form"
+                hx-target="#wiki-occupation-add-slot"
+                hx-swap="outerHTML">{{ t('occupation.add_occupation') }}</button>
+      </div>
+      <div id="wiki-occupation-add-slot"></div>
+      <div id="wiki-occupation-list">
+        {% if occupations %}
+          {% for occ in occupations %}
+            {% include "partials/wiki_occupation_card.html" %}
+          {% endfor %}
+        {% else %}
+        <p class="wiki-occupation__empty" data-wiki-occupation-empty="true">{{ t('occupation.empty') }}</p>
+        {% endif %}
+      </div>
+    </div>
+
     {% if media_list %}
     <div class="wiki-section" id="person-media-gallery">
       <h2 class="wiki-section__title">{{ t('gallery.person_gallery') }}</h2>

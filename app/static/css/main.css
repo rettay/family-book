@@ -3310,3 +3310,80 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
 .media-gallery__item:focus-within .media-gallery__edit-details-btn {
   opacity: 1;
 }
+
+/* ── Occupation History (wiki person page) ── */
+.wiki-occupation__empty {
+  font-style: italic;
+  color: var(--text-light);
+  margin: 12px 0;
+}
+.wiki-occupation-card {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  background: var(--bg);
+}
+.wiki-occupation-card--current {
+  border-left: 3px solid var(--accent, #5a7fcb);
+}
+.wiki-occupation-card__title {
+  font-weight: 600;
+  font-size: 0.97rem;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.wiki-occupation-card__employer {
+  font-size: 0.88rem;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+.wiki-occupation-card__dates {
+  font-size: 0.83rem;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+.wiki-occupation-card__conflict {
+  font-size: 0.82rem;
+  color: #b45309;
+  background: #fef3c7;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+}
+.wiki-occupation-card__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+.wiki-occupation-form {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: var(--bg-subtle, var(--bg));
+}
+.wiki-occupation-form__row {
+  margin-bottom: 10px;
+}
+.wiki-occupation-form__label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-bottom: 3px;
+}
+.wiki-occupation-form__check-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--text);
+  cursor: pointer;
+}
+.wiki-occupation-form__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}

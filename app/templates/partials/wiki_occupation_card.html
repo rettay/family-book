@@ -1,0 +1,40 @@
+{# Single occupation role card — HTMX swap target after create/update/cancel. #}
+{# Expects: occ (dict), slug, current_user, conflict (bool), t #}
+{% set _is_current = occ.end_date is none %}
+{% set _can_remove = current_user.id == occ.added_by_person_id or current_user.is_admin %}
+<div class="wiki-occupation-card{% if _is_current %} wiki-occupation-card--current{% endif %}"
+     id="occupation-{{ occ.id }}" data-occupation-id="{{ occ.id }}">
+  <div class="wiki-occupation-card__title">{{ occ.title }}</div>
+  {% if occ.employer %}
+  <div class="wiki-occupation-card__employer">{{ occ.employer }}</div>
+  {% endif %}
+  {% set _sd = occ.start_date or '' %}
+  {% if _sd or not _is_current %}
+  <div class="wiki-occupation-card__dates">
+    {% if _sd and not _is_current %}{{ _sd }} – {{ occ.end_date }}
+    {% elif _sd %}{{ _sd }} – {{ t('occupation.present') }}
+    {% elif not _is_current %}{{ occ.end_date }}
+    {% else %}{{ t('occupation.present') }}
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if conflict %}
+  <div class="wiki-occupation-card__conflict">
+    {{ t('occupation.conflict_warning') }}
+  </div>
+  {% endif %}
+  <div class="wiki-occupation-card__actions">
+    <button class="btn btn--sm btn--outline"
+            hx-get="/api/wiki/{{ slug }}/occupations/{{ occ.id }}/edit"
+            hx-target="#occupation-{{ occ.id }}"
+            hx-swap="outerHTML">{{ t('occupation.edit_occupation') }}</button>
+    {% if _can_remove %}
+    <span id="occupation-{{ occ.id }}-delete-wrap">
+      <button class="btn btn--sm btn--danger-outline"
+              hx-get="/api/wiki/{{ slug }}/occupations/{{ occ.id }}/confirm-delete"
+              hx-target="#occupation-{{ occ.id }}-delete-wrap"
+              hx-swap="outerHTML">{{ t('occupation.delete_occupation') }}</button>
+    </span>
+    {% endif %}
+  </div>
+</div>

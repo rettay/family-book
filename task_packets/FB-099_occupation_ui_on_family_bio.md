@@ -25,8 +25,9 @@ Add an "Occupation History" section to the Family Bio page (`/wiki/{slug}`) that
   - **Start** (optional text input, `name="start_date"`, free text — e.g. "1985" or "June 1985")
   - **End** (optional text input, `name="end_date"`, free text — hidden when checkbox below is checked)
   - **"Currently in this role"** checkbox — when checked, `end_date` is omitted from the POST/PUT payload (server treats missing or empty end_date as null = current)
+- If the server returns `"conflict": true` in the POST/PUT response (another role already has no end date), display an inline warning banner below the new card: "Another role is already marked as current — update it with an end date." The new role is saved; the user resolves the conflict manually.
 - Edit button on each role card — swaps card to edit form (prefilled), inline via HTMX
-- Remove button on each role card — admin only (rendered conditionally server-side) — confirm step before DELETE
+- Remove button on each role card — visible to the role's adder and to admins (rendered conditionally server-side, same pattern as story delete) — confirm step before DELETE
 - Empty state: `t('occupation.empty')` with an "Add Role" button
 - New partials:
   - `app/templates/partials/wiki_occupation_card.html` — single role card (used in list and as HTMX swap target)
@@ -98,8 +99,8 @@ uv run pytest tests/test_i18n.py -v
 - [ ] Add form submits via HTMX; the new role card appears without a full page reload.
 - [ ] "Currently in this role" checkbox hides the End date field and omits end_date from the payload.
 - [ ] Edit button on each card opens an inline prefilled form. Saving updates the card in place via HTMX.
-- [ ] Remove button is visible only to admins. Clicking shows a confirm step. Confirming sends DELETE and removes the card.
-- [ ] Non-admin members do NOT see the Remove button.
+- [ ] Remove button is visible to the role's adder and to admins. Clicking shows a confirm step. Confirming sends DELETE and removes the card.
+- [ ] Members who did not add the role and are not admin do NOT see the Remove button.
 - [ ] If `career[]` prose entries exist on the person, they are rendered read-only below the structured timeline as "Career Notes."
 - [ ] Section is readable on 390px mobile viewport (no horizontal overflow, all controls accessible).
 - [ ] No full page reload required for add, edit, or delete operations.
@@ -111,7 +112,7 @@ uv run pytest tests/test_i18n.py -v
 - `[data-wiki-occupation-empty]` visible only when list length is 0
 - Current role card has a visually distinct treatment (e.g. class `occupation-card--current`)
 - Add form contains `input[name="title"]`, `input[name="employer"]`, `input[name="start_date"]`, `input[name="end_date"]`, `input[type="checkbox"][name="currently_in_role"]`
-- Remove button has `data-admin-only` or is absent for non-admin users
+- Remove button present on cards where `current_user` is the adder or is admin; absent otherwise
 
 ## Risk and Verification Notes
 
@@ -132,8 +133,9 @@ uv run pytest tests/test_i18n.py -v
 | Add past role | Submit form with end_date | Card in timeline | Role in list below current | Sorted incorrectly |
 | Edit prefill | Click Edit on past role | Form appears prefilled | All fields populated | Blank form |
 | Currently-in-role checkbox on edit | Edit a current role | Checkbox pre-checked, End hidden | Correct pre-state | Checkbox unchecked, End shown |
-| Remove (admin) | Click Remove as admin | Confirm step, then card gone | Card removed | No confirm, or card stays |
-| Remove (non-admin) | Visit as member | No Remove button visible | Button absent | Button present |
+| Remove (adder) | Click Remove as the member who added it | Confirm step, then card gone | Card removed | Adder blocked from removing |
+| Remove (admin) | Click Remove as admin (not adder) | Confirm step, then card gone | Card removed | No confirm, or card stays |
+| Remove (unrelated member) | Visit as member who didn't add it | No Remove button visible | Button absent | Button present |
 | Mobile layout | 390px viewport | No overflow | Legible, no clipping | Controls off-screen |
 
 ## Definition of Done

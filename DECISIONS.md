@@ -180,3 +180,20 @@ Implications:
 - soft-deleted media is recoverable by admins via moderation queue
 - gallery thumbnails use variant endpoints, not original files, for performance
 - local filesystem storage is sufficient for a single-family app; cloud migration deferred until scale requires it
+
+### 24. Authentication should be passwordless, email-recoverable, and passkey-upgradable
+
+Family Book should not introduce site-local passwords unless a future decision explicitly reverses this direction. The near-term auth model is:
+
+- email magic links as the universal sign-in and recovery fallback
+- MXroute SMTP as the supported outbound email path
+- Google sign-in retained as optional convenience, not a requirement
+- passkeys/WebAuthn as the stronger repeat-login upgrade after email fallback is working
+- admin-issued one-time links for support, generated fresh and audited rather than reconstructed from stored raw tokens
+- no custom QR-code bearer-token login; QR-style cross-device login should come from platform passkey flows
+
+Implications:
+
+- invite and magic-link tokens remain bearer credentials and should be stored only as hashes
+- admin support can generate new one-time links but should not retrieve historical raw invite URLs
+- login and recovery flows must be easy for low-confidence relatives and must not reveal whether an email belongs to an account

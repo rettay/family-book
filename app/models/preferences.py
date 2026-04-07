@@ -12,6 +12,7 @@ DEFAULT_TREE_PREFERENCES = {
     "show_birth_dates": False,
     "show_country_flags": True,
     "show_photos": True,
+    "show_occupation": False,
 }
 
 

@@ -98,6 +98,10 @@ def create_app() -> FastAPI:
     from app.routes.wiki import router as wiki_router
     application.include_router(wiki_router)
 
+    # Occupation routes
+    from app.routes.occupations import router as occupations_router
+    application.include_router(occupations_router)
+
     # Research routes
     from app.routes.research import router as research_router
     application.include_router(research_router)

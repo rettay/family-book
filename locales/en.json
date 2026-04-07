@@ -564,6 +564,7 @@
     "show_birth_dates": "Show birth dates",
     "show_country_flags": "Show country flags",
     "show_photos": "Show photos",
+    "show_occupation": "Show occupation",
     "show_controls": "Show tree tools",
     "save_preferences": "Save Display Settings",
     "preferences_hint": "These settings are saved to your account and do not affect other family members.",
@@ -853,5 +854,23 @@
     "audio_player_label": "Voice recording",
     "listen": "Listen",
     "stop_listening": "Stop"
+  },
+  "occupation": {
+    "section_title": "Occupation History",
+    "current_role": "Current Role",
+    "add_occupation": "Add Role",
+    "edit_occupation": "Edit Role",
+    "delete_occupation": "Remove",
+    "title_label": "Job Title",
+    "employer_label": "Employer / Organization",
+    "start_date_label": "Start",
+    "end_date_label": "End",
+    "currently_in_role": "Currently in this role",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete_confirm": "Remove this role?",
+    "empty": "No occupation history recorded.",
+    "present": "Present",
+    "conflict_warning": "Another role is already marked as current — update it with an end date."
   }
 }

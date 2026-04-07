@@ -312,6 +312,7 @@ class PersonSummary(BaseModel):
     visibility: str
     slug: str | None = None
     media_count: int = 0
+    current_occupation: str | None = None
 
     model_config = {"from_attributes": True}
 

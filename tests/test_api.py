@@ -965,6 +965,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
         "show_birth_dates": True,
         "show_country_flags": False,
         "show_photos": False,
+        "show_occupation": False,
     })
     assert update.status_code == 200
     assert update.json() == {
@@ -973,6 +974,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
         "show_birth_dates": True,
         "show_country_flags": False,
         "show_photos": False,
+        "show_occupation": False,
     }
 
     member_reloaded = await member_client.get("/api/tree/preferences")
@@ -989,6 +991,7 @@ async def test_tree_preferences_persist_per_user(member_client: AsyncClient, adm
         "show_birth_dates": False,
         "show_country_flags": True,
         "show_photos": True,
+        "show_occupation": False,
     }
 
 

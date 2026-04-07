@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import (
@@ -15,6 +15,7 @@ from app.config import get_settings
 from app.auth import require_auth
 from app.database import get_db
 from app.models.media import Media
+from app.models.occupation import PersonOccupation
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.preferences import DEFAULT_TREE_PREFERENCES, TreePreference
 from app.models.relationships import ParentChild, Partnership
@@ -36,6 +37,7 @@ class TreePreferencesPayload(BaseModel):
     show_birth_dates: bool = DEFAULT_TREE_PREFERENCES["show_birth_dates"]
     show_country_flags: bool = DEFAULT_TREE_PREFERENCES["show_country_flags"]
     show_photos: bool = DEFAULT_TREE_PREFERENCES["show_photos"]
+    show_occupation: bool = DEFAULT_TREE_PREFERENCES["show_occupation"]
 
 
 class MapMarkerPerson(BaseModel):
@@ -152,6 +154,16 @@ async def get_tree(
         db, current_user, visible_person_ids
     )
 
+    # Batch-fetch current occupation (end_date IS NULL) per person — one query.
+    occ_result = await db.execute(
+        select(PersonOccupation.person_id, PersonOccupation.title)
+        .where(
+            PersonOccupation.person_id.in_(visible_person_ids),
+            PersonOccupation.end_date.is_(None),
+        )
+    )
+    current_occupations: dict[str, str] = {row.person_id: row.title for row in occ_result.all()}
+
     # Get root person
     result = await db.execute(
         select(Person).where(
@@ -165,6 +177,7 @@ async def get_tree(
     for person in persons:
         summary = redact_person_summary(person, await get_person_access(db, current_user, person))
         summary.media_count = media_counts.get(person.id, 0)
+        summary.current_occupation = current_occupations.get(person.id)
         summaries.append(summary)
 
     # Get all parent-child relationships

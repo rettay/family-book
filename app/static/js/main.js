@@ -1079,3 +1079,18 @@ function removeMediaTag(mediaId, personId, btn) {
       if (pill) pill.remove();
     });
 }
+
+// Toggle visibility of the end-date row based on "Currently in this role" checkbox.
+function toggleOccupationEndDate(checkbox, rowId, inputId) {
+  var row = document.getElementById(rowId);
+  var input = document.getElementById(inputId);
+  if (!row || !input) return;
+  if (checkbox.checked) {
+    row.style.display = 'none';
+    input.disabled = true;
+    input.value = '';
+  } else {
+    row.style.display = '';
+    input.disabled = false;
+  }
+}

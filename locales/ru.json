@@ -557,6 +557,7 @@
     "show_birth_dates": "Показывать даты рождения",
     "show_country_flags": "Показывать флаги стран",
     "show_photos": "Показывать фото",
+    "show_occupation": "Показывать род занятий",
     "show_controls": "Показать инструменты дерева",
     "save_preferences": "Сохранить вид",
     "preferences_hint": "Эти настройки сохраняются для вашей учётной записи и не меняют вид для других родственников.",
@@ -853,5 +854,23 @@
     "audio_player_label": "Голосовая запись",
     "listen": "Слушать",
     "stop_listening": "Остановить"
+  },
+  "occupation": {
+    "section_title": "История занятости",
+    "current_role": "Текущая должность",
+    "add_occupation": "Добавить должность",
+    "edit_occupation": "Изменить должность",
+    "delete_occupation": "Удалить",
+    "title_label": "Должность",
+    "employer_label": "Работодатель / Организация",
+    "start_date_label": "Начало",
+    "end_date_label": "Конец",
+    "currently_in_role": "Работает сейчас",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete_confirm": "Удалить эту должность?",
+    "empty": "История занятости не записана.",
+    "present": "по настоящее время",
+    "conflict_warning": "Другая должность уже отмечена как текущая — укажите для неё дату окончания."
   }
 }

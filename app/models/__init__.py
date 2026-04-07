@@ -19,6 +19,7 @@ from app.models.imports import (
     MemorialPlan,
 )
 from app.models.story import Story
+from app.models.occupation import PersonOccupation
 
 __all__ = [
     "Base",
@@ -46,4 +47,5 @@ __all__ = [
     "ExternalIdentity",
     "MemorialPlan",
     "Story",
+    "PersonOccupation",
 ]

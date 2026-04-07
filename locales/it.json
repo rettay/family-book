@@ -564,6 +564,7 @@
     "show_birth_dates": "Mostra date di nascita",
     "show_country_flags": "Mostra bandiere dei paesi",
     "show_photos": "Mostra foto",
+    "show_occupation": "Mostra occupazione",
     "show_controls": "Mostra strumenti dell'albero",
     "save_preferences": "Salva impostazioni di visualizzazione",
     "preferences_hint": "Queste impostazioni sono salvate sul tuo account e non influenzano gli altri membri della famiglia.",
@@ -853,5 +854,23 @@
     "audio_player_label": "Registrazione vocale",
     "listen": "Ascolta",
     "stop_listening": "Ferma"
+  },
+  "occupation": {
+    "section_title": "Storia occupazionale",
+    "current_role": "Ruolo attuale",
+    "add_occupation": "Aggiungi ruolo",
+    "edit_occupation": "Modifica ruolo",
+    "delete_occupation": "Rimuovi",
+    "title_label": "Titolo professionale",
+    "employer_label": "Datore di lavoro / Organizzazione",
+    "start_date_label": "Inizio",
+    "end_date_label": "Fine",
+    "currently_in_role": "Attualmente in questo ruolo",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete_confirm": "Rimuovere questo ruolo?",
+    "empty": "Nessuna storia occupazionale registrata.",
+    "present": "Presente",
+    "conflict_warning": "Un altro ruolo è già contrassegnato come attuale — aggiornalo con una data di fine."
   }
 }

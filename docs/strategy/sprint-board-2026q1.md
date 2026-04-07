@@ -6,6 +6,37 @@ None pending.
 
 ---
 
+## Planned Sprint
+
+### `S46 - Passwordless Auth and MXroute Email`
+
+Status: Planned
+
+### Sprint Goal
+
+Replace Resend-specific invite delivery with MXroute SMTP and make Family Book login passwordless, recoverable, and understandable for older family members through magic links, optional passkeys, admin-issued one-time links, and clearer authentication audit trails.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 104 | FB-104 | MXroute SMTP Email Delivery | P0 | todo |
+| 105 | FB-105 | Magic Link Authentication | P0 | todo |
+| 106 | FB-106 | Low-Friction Login and Admin Recovery UX | P0 | todo |
+| 108 | FB-108 | Auth Observability and Audit Trail | P1 | todo |
+| 107 | FB-107 | Passkey Authentication Foundation | P1 | todo |
+
+### Sprint Exit Criteria
+
+- Resend is no longer required for invite or login email delivery; MXroute SMTP is the supported outbound email path
+- Active family members can request and consume email magic links without Google or passwords
+- Admin can send or copy fresh one-time support links and fresh invite links without reconstructing old raw tokens
+- Login and invite UI remain understandable on desktop/mobile and in English/Spanish
+- Passkeys are available as an optional stronger repeat-login path while email remains the recovery fallback
+- Auth/invite delivery, failures, session creation, and support-link events are auditable without logging raw tokens or secrets
+
+---
+
 ## Current Sprint
 
 ### `S44 - Occupation History`
@@ -32,11 +63,12 @@ S43 completed the tree interaction and media editing surface. The family record 
 
 - `person_occupations` table exists; migration runs cleanly up and down
 - Any authenticated member can add, edit occupation roles for any person on the Family Bio page
-- SCD Type 2 invariant enforced: adding a new current role automatically closes the previous one
+- Dates are free text (fuzzy) — no validation; accepts "circa 1920", "early 1960s", etc.
+- Adding a new current role when one already exists warns the user rather than auto-closing the previous role; both roles are saved; user resolves the conflict manually
 - Occupation history renders as a timeline on the Family Bio page; current role shown prominently; past roles listed with date ranges
 - `t('occupation.present')` used when end_date is null (e.g. "2010 – Present")
 - "Currently in this role" checkbox hides the End date field and submits correctly
-- Admin-only Remove with inline confirm step
+- Remove allowed for the adder or admin (same pattern as stories); inline confirm step
 - `show_occupation` preference in tree panel; when enabled, current occupation appears as a sub-label on tree nodes (truncated to 22 chars)
 - Preference persisted to localStorage
 - All 15 occupation i18n keys + 1 tree key present in all 5 locales; `test_i18n.py` passes

@@ -564,6 +564,7 @@
     "show_birth_dates": "Mostrar fechas de nacimiento",
     "show_country_flags": "Mostrar banderas",
     "show_photos": "Mostrar fotos",
+    "show_occupation": "Mostrar ocupación",
     "show_controls": "Mostrar herramientas del árbol",
     "save_preferences": "Guardar Vista",
     "preferences_hint": "Estas opciones se guardan en tu cuenta y no cambian la vista de otros familiares.",
@@ -853,5 +854,23 @@
     "audio_player_label": "Grabación de voz",
     "listen": "Escuchar",
     "stop_listening": "Detener"
+  },
+  "occupation": {
+    "section_title": "Historial de ocupación",
+    "current_role": "Cargo actual",
+    "add_occupation": "Agregar cargo",
+    "edit_occupation": "Editar cargo",
+    "delete_occupation": "Eliminar",
+    "title_label": "Título del puesto",
+    "employer_label": "Empleador / Organización",
+    "start_date_label": "Inicio",
+    "end_date_label": "Fin",
+    "currently_in_role": "Actualmente en este cargo",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete_confirm": "¿Eliminar este cargo?",
+    "empty": "No se ha registrado historial de ocupación.",
+    "present": "Presente",
+    "conflict_warning": "Otro cargo ya está marcado como actual — actualízalo con una fecha de fin."
   }
 }

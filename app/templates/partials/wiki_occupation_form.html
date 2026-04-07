@@ -1,0 +1,66 @@
+{# Occupation add/edit form. #}
+{# Expects: occ (dict or None), edit_mode (bool), slug, current_user, t #}
+{% set _uid = occ.id if occ else 'new' %}
+{% set _is_current = (not occ) or occ.end_date is none %}
+{% if edit_mode %}
+<form id="occupation-{{ _uid }}-form"
+      hx-put="/api/wiki/{{ slug }}/occupations/{{ occ.id }}"
+      hx-target="#occupation-{{ occ.id }}"
+      hx-swap="outerHTML"
+      class="wiki-occupation-form">
+{% else %}
+<form id="occupation-new-form"
+      hx-post="/api/wiki/{{ slug }}/occupations"
+      hx-target="#wiki-occupation-add-slot"
+      hx-swap="outerHTML"
+      class="wiki-occupation-form">
+{% endif %}
+  <div class="wiki-occupation-form__row">
+    <label class="wiki-occupation-form__label">{{ t('occupation.title_label') }}</label>
+    <input class="form-input form-input--sm" type="text" name="title"
+           value="{{ occ.title if occ else '' }}"
+           placeholder="{{ t('occupation.title_label') }}" required>
+  </div>
+  <div class="wiki-occupation-form__row">
+    <label class="wiki-occupation-form__label">{{ t('occupation.employer_label') }}</label>
+    <input class="form-input form-input--sm" type="text" name="employer"
+           value="{{ occ.employer if occ and occ.employer else '' }}"
+           placeholder="{{ t('occupation.employer_label') }}">
+  </div>
+  <div class="wiki-occupation-form__row">
+    <label class="wiki-occupation-form__label">{{ t('occupation.start_date_label') }}</label>
+    <input class="form-input form-input--sm" type="text" name="start_date"
+           value="{{ occ.start_date if occ and occ.start_date else '' }}"
+           placeholder="e.g. 1985, circa 1920">
+  </div>
+  <div class="wiki-occupation-form__row" id="end-date-row-{{ _uid }}"
+       {% if _is_current %}style="display:none"{% endif %}>
+    <label class="wiki-occupation-form__label">{{ t('occupation.end_date_label') }}</label>
+    <input class="form-input form-input--sm" type="text" name="end_date"
+           id="end-date-input-{{ _uid }}"
+           value="{{ occ.end_date if occ and occ.end_date else '' }}"
+           placeholder="e.g. 1995, circa 2010"
+           {% if _is_current %}disabled{% endif %}>
+  </div>
+  <div class="wiki-occupation-form__row">
+    <label class="wiki-occupation-form__check-label">
+      <input type="checkbox" name="currently_in_role" value="1"
+             id="currently-in-role-{{ _uid }}"
+             {% if _is_current %}checked{% endif %}
+             onchange="toggleOccupationEndDate(this, 'end-date-row-{{ _uid }}', 'end-date-input-{{ _uid }}')">
+      {{ t('occupation.currently_in_role') }}
+    </label>
+  </div>
+  <div class="wiki-occupation-form__actions">
+    <button type="submit" class="btn btn--primary btn--sm">{{ t('occupation.save') }}</button>
+    {% if edit_mode %}
+    <button type="button" class="btn btn--outline btn--sm"
+            hx-get="/api/wiki/{{ slug }}/occupations/{{ occ.id }}/card"
+            hx-target="#occupation-{{ occ.id }}"
+            hx-swap="outerHTML">{{ t('occupation.cancel') }}</button>
+    {% else %}
+    <button type="button" class="btn btn--outline btn--sm"
+            onclick="(function(){var s=document.getElementById('wiki-occupation-add-slot');if(s)s.innerHTML=''})()">{{ t('occupation.cancel') }}</button>
+    {% endif %}
+  </div>
+</form>
