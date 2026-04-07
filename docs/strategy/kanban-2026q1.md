@@ -4,11 +4,6 @@
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
-| FB-104 | MXroute SMTP Email Delivery | P0 | `task_packets/FB-104_mxroute_smtp_email_delivery.md` |
-| FB-105 | Magic Link Authentication | P0 | `task_packets/FB-105_magic_link_authentication.md` |
-| FB-106 | Low-Friction Login and Admin Recovery UX | P0 | `task_packets/FB-106_low_friction_login_and_admin_recovery_ux.md` |
-| FB-108 | Auth Observability and Audit Trail | P1 | `task_packets/FB-108_auth_observability_and_audit_trail.md` |
-| FB-107 | Passkey Authentication Foundation | P1 | `task_packets/FB-107_passkey_authentication_foundation.md` |
 
 ## In Progress
 
@@ -32,6 +27,11 @@ None.
 
 | ID | Title | Priority | Packet |
 |---|---|---:|---|
+| FB-104 | MXroute SMTP Email Delivery | P0 | `task_packets/FB-104_mxroute_smtp_email_delivery.md` |
+| FB-105 | Magic Link Authentication | P0 | `task_packets/FB-105_magic_link_authentication.md` |
+| FB-106 | Low-Friction Login and Admin Recovery UX | P0 | `task_packets/FB-106_low_friction_login_and_admin_recovery_ux.md` |
+| FB-108 | Auth Observability and Audit Trail | P1 | `task_packets/FB-108_auth_observability_and_audit_trail.md` |
+| FB-107 | Passkey Authentication Foundation | P1 | `task_packets/FB-107_passkey_authentication_foundation.md` |
 | FB-100 | Occupation on Tree Nodes | P1 | `task_packets/FB-100_occupation_on_tree_nodes.md` |
 | FB-099 | Occupation UI on Family Bio | P0 | `task_packets/FB-099_occupation_ui_on_family_bio.md` |
 | FB-098 | Occupation Data Model and API | P0 | `task_packets/FB-098_occupation_data_model_and_api.md` |

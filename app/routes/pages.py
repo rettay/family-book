@@ -182,6 +182,41 @@ async def invite_page(
     ))
 
 
+@router.get("/auth/magic-link/{token}", response_class=HTMLResponse)
+async def magic_link_page(
+    token: str,
+    request: Request,
+    return_to: str | None = Query(None),
+    current_user: Person | None = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    if current_user:
+        safe_return_to = (
+            return_to
+            if return_to and return_to.startswith("/") and not return_to.startswith("//")
+            else "/tree"
+        )
+        return RedirectResponse(safe_return_to, status_code=302)
+
+    from app.services.auth_service import get_magic_link_rejection_reason
+
+    reason = await get_magic_link_rejection_reason(db, token)
+    error_msg = None
+    if reason == "expired":
+        error_msg = "This sign-in link has expired. Enter your email to request a new one."
+    elif reason == "used":
+        error_msg = "This sign-in link has already been used. Enter your email to request a new one."
+    elif reason != "valid":
+        error_msg = "This sign-in link is invalid. Enter your email to request a new one."
+
+    return templates.TemplateResponse("magic_link.html", _ctx(
+        request,
+        token=token,
+        return_to=return_to or "",
+        error=error_msg,
+    ))
+
+
 # ─── Tree ─────────────────────────────────────────────────────────
 
 @router.get("/tree", response_class=HTMLResponse)
@@ -498,7 +533,7 @@ async def admin_page(
         invite_people=invite_people,
         session_counts=session_counts,
         backup_health=get_backup_health(),
-        resend_enabled=settings.resend_enabled,
+        email_delivery_enabled=settings.email_delivery_enabled,
         staging_review_url=settings.STAGING_REVIEW_URL.strip() or None,
     ))
 

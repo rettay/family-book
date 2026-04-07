@@ -3,6 +3,7 @@ Security middleware — CORS, CSP headers, rate limiting, input sanitization.
 
 Rate limits per SPEC.md:
 - /auth/*: 10 req / 15 min per IP
+- /auth/magic-link/request: also throttled by normalized-email request key in the route
 - /api/*:  120 req / 1 min per user
 - /api/admin/backup: 2 req / 1 hour
 """

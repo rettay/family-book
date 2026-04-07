@@ -32,6 +32,15 @@
     <a href="/people/{{ current_user.id }}/edit" class="btn btn--primary btn--sm">{{ t('person.edit') }} Profile</a>
   </div>
 
+  <!-- Passkeys -->
+  <div class="settings-section">
+    <h2 class="settings-section__title">{{ t('auth.passkeys') }}</h2>
+    <p class="text-sm text-muted mb-8">{{ t('auth.passkeys_help') }}</p>
+    <div id="passkey-list" class="status-list" style="margin-bottom:12px;"></div>
+    <button class="btn btn--primary btn--sm hidden" id="passkey-register-btn" type="button">{{ t('auth.add_passkey') }}</button>
+    <p id="passkey-status" class="text-sm text-muted mt-8" role="status" aria-live="polite"></p>
+  </div>
+
   <!-- PWA Install -->
   <div class="settings-section" id="pwa-section" style="display:none;">
     <h2 class="settings-section__title">Install App</h2>
@@ -70,5 +79,117 @@ document.getElementById('pwa-install-btn')?.addEventListener('click', async () =
     document.getElementById('pwa-section').style.display = 'none';
   }
 });
+
+function base64urlToBuffer(value) {
+  const padding = '='.repeat((4 - value.length % 4) % 4);
+  const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+function bufferToBase64url(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function attestationToJSON(credential) {
+  return {
+    id: credential.id,
+    rawId: bufferToBase64url(credential.rawId),
+    type: credential.type,
+    authenticatorAttachment: credential.authenticatorAttachment,
+    response: {
+      clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
+      attestationObject: bufferToBase64url(credential.response.attestationObject),
+      transports: credential.response.getTransports ? credential.response.getTransports() : []
+    }
+  };
+}
+
+async function loadPasskeys() {
+  const list = document.getElementById('passkey-list');
+  const resp = await fetch('/auth/passkeys', {credentials: 'same-origin'});
+  const passkeys = await resp.json().catch(() => []);
+  if (!resp.ok || !Array.isArray(passkeys) || passkeys.length === 0) {
+    list.innerHTML = '<p class="status-list__item text-sm text-muted">{{ t("auth.no_passkeys") }}</p>';
+    return;
+  }
+  list.innerHTML = passkeys.map(passkey => `
+    <div class="status-list__item text-sm text-muted">
+      <strong>${escapeHtml(passkey.label)}</strong>
+      <button class="btn btn--outline btn--sm" type="button" onclick="deletePasskey('${passkey.id}')">{{ t('common.delete') }}</button>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+async function registerPasskey() {
+  const statusEl = document.getElementById('passkey-status');
+  statusEl.textContent = '{{ t("common.loading") }}';
+  try {
+    const optionsResp = await fetch('/auth/passkeys/register/options', {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+    const options = await optionsResp.json();
+    if (!optionsResp.ok) throw new Error(options.detail || '{{ t("auth.login_error") }}');
+    const challengeId = options.challenge_id;
+    delete options.challenge_id;
+    options.challenge = base64urlToBuffer(options.challenge);
+    options.user.id = base64urlToBuffer(options.user.id);
+    if (options.excludeCredentials) {
+      options.excludeCredentials = options.excludeCredentials.map(credential => ({
+        ...credential,
+        id: base64urlToBuffer(credential.id)
+      }));
+    }
+    const credential = await navigator.credentials.create({publicKey: options});
+    const verifyResp = await fetch('/auth/passkeys/register/verify', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        challenge_id: challengeId,
+        credential: attestationToJSON(credential),
+        label: '{{ t("auth.passkey_default_label") }}'
+      })
+    });
+    const data = await verifyResp.json().catch(() => ({}));
+    if (!verifyResp.ok) throw new Error(data.detail || '{{ t("auth.login_error") }}');
+    statusEl.textContent = '{{ t("auth.passkey_added") }}';
+    await loadPasskeys();
+  } catch (err) {
+    statusEl.textContent = err.message || '{{ t("auth.login_error") }}';
+  }
+}
+
+async function deletePasskey(id) {
+  const resp = await fetch('/auth/passkeys/' + id, {
+    method: 'DELETE',
+    credentials: 'same-origin'
+  });
+  if (resp.ok) await loadPasskeys();
+}
+
+if (window.PublicKeyCredential) {
+  document.getElementById('passkey-register-btn')?.classList.remove('hidden');
+  document.getElementById('passkey-register-btn')?.addEventListener('click', registerPasskey);
+  loadPasskeys();
+} else {
+  document.getElementById('passkey-status').textContent = '{{ t("auth.passkeys_unsupported") }}';
+}
 </script>
 {% endblock %}

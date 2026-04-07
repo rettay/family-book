@@ -10,6 +10,10 @@
   data-invite-fallback="{{ t('admin.invite_manual_fallback') }}"
   data-invite-failed="{{ t('admin.invite_delivery_failed') }}"
   data-invite-link-copied="{{ t('admin.invite_link_copied') }}"
+  data-signin-sent="{{ t('admin.signin_link_sent') }}"
+  data-signin-fallback="{{ t('admin.signin_link_manual_fallback') }}"
+  data-signin-failed="{{ t('admin.signin_link_delivery_failed') }}"
+  data-signin-link-copied="{{ t('admin.signin_link_copied') }}"
 >
   <div class="page-header mb-16">
     <h1 class="page-header__title">{{ t('admin.dashboard') }}</h1>
@@ -56,8 +60,8 @@
         <p class="status-list__item text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
         <p class="status-list__item text-sm text-muted">
           {{ t('admin.invite_delivery') }}:
-          {% if resend_enabled %}
-          {{ t('admin.invite_delivery_resend_ready') }}
+          {% if email_delivery_enabled %}
+          {{ t('admin.invite_delivery_smtp_ready') }}
           {% else %}
           {{ t('admin.invite_delivery_manual') }}
           {% endif %}
@@ -66,7 +70,7 @@
     </div>
   </div>
 
-  <div class="card mb-16" id="admin-accounts-card">
+  <div class="card mb-16">
     <div class="card__body">
       <div class="flex-between mb-16 admin-panel-header">
         <div>
@@ -139,7 +143,7 @@
     </div>
   </div>
 
-  <div class="card mb-16">
+  <div class="card mb-16" id="admin-accounts-card">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Accounts &amp; Invites</h2>
       {% for p in managed_people %}
@@ -164,7 +168,10 @@
           {% if sc > 0 %}
           <button class="btn btn--outline btn--sm" onclick="revokeAllSessions('{{ p.id }}')">Log out all</button>
           {% endif %}
-          {% if p.contact_email %}
+          {% if p.contact_email and p.account_state == 'active' %}
+          <button class="btn btn--secondary btn--sm" onclick="sendSignInLink('{{ p.id }}')">{{ t('admin.send_signin_link') }}</button>
+          <button class="btn btn--outline btn--sm" onclick="copySignInLink('{{ p.id }}')">{{ t('admin.copy_signin_link') }}</button>
+          {% elif p.contact_email %}
           <button class="btn btn--secondary btn--sm" onclick="createInvite('{{ p.id }}')">{{ t('admin.invite') }}</button>
           {% endif %}
           {% if p.account_state != 'active' %}
@@ -204,7 +211,7 @@
         </div>
         <div class="invite-row__actions">
           {% if not invite.revoked and not invite.claimed_at %}
-          <button class="btn btn--outline btn--sm" onclick="copyInviteLink('{{ invite.person_id }}')">Copy link</button>
+          <button class="btn btn--outline btn--sm" onclick="copyInviteLink('{{ invite.person_id }}')">{{ t('admin.generate_fresh_invite_link') }}</button>
           <button class="btn btn--secondary btn--sm" onclick="resendInvite('{{ invite.id }}')">Resend</button>
           <button class="btn btn--danger btn--sm" onclick="revokeInvite('{{ invite.id }}')">Revoke</button>
           {% endif %}
@@ -344,6 +351,41 @@ async function createInvite(id) {
   }
 }
 
+async function createMagicLink(id, sendEmail) {
+  const page = document.getElementById('admin-page');
+  const resp = await fetch('/api/admin/persons/' + id + '/magic-link', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({send_email: sendEmail})
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    showToast(data.detail || 'Sign-in link creation failed');
+    return;
+  }
+
+  let feedback = page.dataset.signinFallback;
+  if (data.delivery_status === 'sent') {
+    feedback = page.dataset.signinSent.replace('%s', data.contact_email || '');
+  } else if (data.delivery_status === 'failed') {
+    feedback = page.dataset.signinFailed.replace('%s', data.delivery_error || 'unknown error');
+  }
+  try {
+    await navigator.clipboard.writeText(data.magic_link_url);
+    showToast(feedback + ' ' + page.dataset.signinLinkCopied);
+  } catch (err) {
+    showToast(sendEmail ? feedback : data.magic_link_url);
+  }
+}
+
+async function sendSignInLink(id) {
+  await createMagicLink(id, true);
+}
+
+async function copySignInLink(id) {
+  await createMagicLink(id, false);
+}
+
 async function revokeInvite(id) {
   const resp = await fetch('/api/admin/invites/' + id + '/revoke', {method: 'POST'});
   if (resp.ok) window.location.reload();
@@ -366,7 +408,7 @@ async function resendInvite(inviteId) {
   const resp = await fetch('/api/admin/invites/' + inviteId + '/resend', {method: 'POST'});
   const data = await resp.json().catch(() => ({}));
   if (!resp.ok) {
-    showToast(data.detail || 'Resend failed');
+    showToast(data.detail || 'Send failed');
     return;
   }
   let feedback = page.dataset.inviteFallback;
@@ -385,7 +427,7 @@ async function resendInvite(inviteId) {
 }
 
 async function copyInviteLink(personId) {
-  // Create a fresh invite just to get the URL, then copy it
+  // Create a fresh invite just to get a one-time URL; raw invite tokens are not stored.
   const page = document.getElementById('admin-page');
   const resp = await fetch('/api/admin/persons/' + personId + '/invite', {method: 'POST'});
   const data = await resp.json().catch(() => ({}));

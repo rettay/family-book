@@ -24,6 +24,8 @@ async def test_admin_dashboard_renders_release_confidence_sections(admin_client:
     assert 'id="backup-status"' in resp.text
     assert 'id="theme-settings-form"' in resp.text
     assert 'id="admin-accounts-card"' in resp.text
+    assert resp.text.index('id="admin-accounts-card"') < resp.text.index("Accounts &amp; Invites")
+    assert resp.text.index('id="admin-accounts-card"') > resp.text.index("Theme &amp; Branding")
     assert 'class="flex gap-8 admin-action-row admin-action-row--wrap"' in resp.text
 
 
@@ -60,7 +62,13 @@ async def test_tree_page_renders_sidebar_dialog_and_labeled_controls(member_clie
 
 
 @pytest.mark.asyncio
-async def test_map_page_renders_accessible_svg_and_reset_filter(member_client: AsyncClient):
+async def test_map_page_renders_accessible_svg_and_reset_filter(
+    member_client: AsyncClient,
+    monkeypatch,
+):
+    monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "PENDING_SETUP")
+    monkeypatch.setenv("GOOGLE_MAPS_BROWSER_API_KEY", "PENDING_SETUP")
+    monkeypatch.setenv("GOOGLE_MAPS_SERVER_API_KEY", "PENDING_SETUP")
     resp = await member_client.get("/map")
 
     assert resp.status_code == 200
@@ -101,18 +109,30 @@ async def test_gallery_page_renders_filters_and_nav_link(member_client: AsyncCli
 
 
 @pytest.mark.asyncio
-async def test_admin_page_reports_resend_delivery_mode(
+async def test_admin_page_reports_smtp_delivery_mode(
     admin_client: AsyncClient,
     monkeypatch,
 ):
-    monkeypatch.setenv("RESEND_API_KEY", "resend-key")
-    monkeypatch.setenv("RESEND_FROM_EMAIL", "Family Book <invites@example.com>")
+    monkeypatch.setenv("SMTP_HOST", "smtp.example.com")
+    monkeypatch.setenv("SMTP_USER", "invites@example.com")
+    monkeypatch.setenv("SMTP_PASS", "smtp-secret")
+    monkeypatch.setenv("SMTP_FROM", "Family Book <invites@example.com>")
 
     resp = await admin_client.get("/admin")
 
     assert resp.status_code == 200
     assert 'Invite delivery' in resp.text
-    assert 'Resend is configured for direct email delivery.' in resp.text
+    assert 'SMTP email delivery is configured.' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_login_page_prioritizes_email_magic_link(client: AsyncClient):
+    resp = await client.get("/login?return_to=/tree")
+
+    assert resp.status_code == 200
+    assert 'id="magic-link-form"' in resp.text
+    assert 'Email me a sign-in link' in resp.text
+    assert "fetch('/auth/magic-link/request'" in resp.text
 
 
 @pytest.mark.asyncio

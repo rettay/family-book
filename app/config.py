@@ -42,24 +42,23 @@ class Settings(BaseSettings):
     BOOTSTRAP_ADMIN_FIRST_NAME: str = "Admin"
     BOOTSTRAP_ADMIN_LAST_NAME: str = "User"
 
-    # SMTP for magic links
+    # SMTP for invite and magic-link delivery
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASS: str = ""
     SMTP_FROM: str = ""
 
-    # Envelope API (alternative to SMTP)
+    # Passkeys / WebAuthn
+    PASSKEY_RP_ID: str = ""
+    PASSKEY_RP_NAME: str = "Family Book"
+
+    # Inbound Envelope webhook
     ENVELOPE_API_URL: str = ""
     ENVELOPE_API_KEY: str = ""
     ENVELOPE_WEBHOOK_SECRET: str = ""
     ENVELOPE_ALLOWED_HOSTS: str = ""
     ENVELOPE_MAX_ATTACHMENT_BYTES: int = 25 * 1024 * 1024
-
-    # Resend invite delivery
-    RESEND_API_KEY: str = ""
-    RESEND_FROM_EMAIL: str = ""
-    RESEND_REPLY_TO_EMAIL: str = ""
 
     # Matrix
     MATRIX_HOMESERVER: str = ""
@@ -184,8 +183,32 @@ class Settings(BaseSettings):
         return self._normalized_secret(self.GOOGLE_MAPS_MAP_ID)
 
     @property
-    def resend_enabled(self) -> bool:
-        return bool(self.RESEND_API_KEY.strip() and self.RESEND_FROM_EMAIL.strip())
+    def smtp_enabled(self) -> bool:
+        return bool(
+            self.SMTP_HOST.strip()
+            and self.SMTP_USER.strip()
+            and self.SMTP_PASS.strip()
+            and self.SMTP_FROM.strip()
+        )
+
+    @property
+    def email_delivery_enabled(self) -> bool:
+        return self.smtp_enabled
+
+    @property
+    def passkey_rp_id(self) -> str:
+        configured = self.PASSKEY_RP_ID.strip()
+        if configured:
+            return configured
+        base_host = urlparse(self.BASE_URL).hostname
+        return base_host or "localhost"
+
+    @property
+    def passkey_origin(self) -> str:
+        parsed = urlparse(self.BASE_URL)
+        if not parsed.scheme or not parsed.netloc:
+            return self.BASE_URL.rstrip("/")
+        return f"{parsed.scheme}://{parsed.netloc}"
 
 
 def get_settings() -> Settings:

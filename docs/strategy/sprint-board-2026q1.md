@@ -8,9 +8,21 @@ None pending.
 
 ## Planned Sprint
 
+None planned.
+
+---
+
+## Current Sprint
+
+None active.
+
+---
+
+## Closed Sprint
+
 ### `S46 - Passwordless Auth and MXroute Email`
 
-Status: Planned
+Status: Closed
 
 ### Sprint Goal
 
@@ -20,30 +32,20 @@ Replace Resend-specific invite delivery with MXroute SMTP and make Family Book l
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 104 | FB-104 | MXroute SMTP Email Delivery | P0 | todo |
-| 105 | FB-105 | Magic Link Authentication | P0 | todo |
-| 106 | FB-106 | Low-Friction Login and Admin Recovery UX | P0 | todo |
-| 108 | FB-108 | Auth Observability and Audit Trail | P1 | todo |
-| 107 | FB-107 | Passkey Authentication Foundation | P1 | todo |
+| 104 | FB-104 | MXroute SMTP Email Delivery | P0 | done |
+| 105 | FB-105 | Magic Link Authentication | P0 | done |
+| 106 | FB-106 | Low-Friction Login and Admin Recovery UX | P0 | done |
+| 108 | FB-108 | Auth Observability and Audit Trail | P1 | done |
+| 107 | FB-107 | Passkey Authentication Foundation | P1 | done |
 
-### Sprint Exit Criteria
+### Outcome
 
-- Resend is no longer required for invite or login email delivery; MXroute SMTP is the supported outbound email path
-- Active family members can request and consume email magic links without Google or passwords
-- Admin can send or copy fresh one-time support links and fresh invite links without reconstructing old raw tokens
-- Login and invite UI remain understandable on desktop/mobile and in English/Spanish
-- Passkeys are available as an optional stronger repeat-login path while email remains the recovery fallback
-- Auth/invite delivery, failures, session creation, and support-link events are auditable without logging raw tokens or secrets
-
----
-
-## Current Sprint
-
-### `S46 - Passwordless Auth and MXroute Email`
-
-Status: Planned
-
-See Planned Sprint above.
+- Resend is no longer required for invite or login email delivery; SMTP/MXroute is the supported outbound email path.
+- Active family members can request and consume email magic links without Google or passwords.
+- Admins can send or copy fresh one-time support links and fresh invite links without reconstructing old raw tokens.
+- Passkeys are available as an optional stronger repeat-login path while email remains the recovery fallback.
+- Auth/invite delivery, failures, session creation, support-link events, passkey failures, and session events are auditable without logging raw tokens or SMTP secrets.
+- Auditor result: PASS WITH FOLLOW-UPS after the prior passkey replay/audit, magic-link throttle, and admin selector defects were resolved. Follow-up remains around full release-confidence Playwright stability and additional FB-106 visual artifacts.
 
 ---
 

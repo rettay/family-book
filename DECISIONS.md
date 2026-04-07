@@ -197,3 +197,7 @@ Implications:
 - invite and magic-link tokens remain bearer credentials and should be stored only as hashes
 - admin support can generate new one-time links but should not retrieve historical raw invite URLs
 - login and recovery flows must be easy for low-confidence relatives and must not reveal whether an email belongs to an account
+
+Implementation note:
+
+- S46 closed this direction on 2026-04-07: SMTP/MXroute replaced Resend-specific outbound delivery, magic links became the primary login/recovery path, admin support links are fresh one-time credentials, and passkeys/WebAuthn are available as an optional repeat-login path.

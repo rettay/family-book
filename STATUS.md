@@ -2,9 +2,9 @@
 
 ## Overall State
 
-Family Book is in **power-user genealogy depth**.
+Family Book is in **passwordless family access hardening**.
 
-22 sprints closed (S01-S22). The product is a full-featured collaborative family wiki with tree workspace, multimedia archive, family timeline, calendar, relationship calculator, GEDCOM import, external record search, genetic profiles, structured medical conditions, and a family health dashboard. All V1 product requirements are met. The current sprint tightens tree trust by making mistaken family relationships directly repairable from the primary workspace.
+S46 is closed. The product is a full-featured collaborative family wiki with tree workspace, multimedia archive, family timeline, calendar, relationship calculator, GEDCOM import, external record search, genetic profiles, structured medical conditions, and a family health dashboard. Passwordless family access is now stronger: outbound invite/auth email uses SMTP/MXroute instead of Resend, email magic links are the primary login/recovery path, Google remains optional, passkeys are available as a progressive repeat-login enhancement, and admin support links are fresh one-time credentials with audit coverage.
 
 ## North Star
 
@@ -122,10 +122,23 @@ Family Book is in **power-user genealogy depth**.
 - Known repo-wide baseline before this sprint work:
   - `uv run pytest -q`
   - Result observed earlier: `143 passed, 2 failed, 1 xfailed`
+- Focused Sprint 46 verification:
+  - `uv run pytest tests/test_auth.py tests/test_pages.py -q`
+  - Result at closeout: `47 passed`
+  - `uv run pytest tests/test_email_delivery.py tests/test_config.py tests/test_pages.py tests/test_auth.py tests/test_i18n.py tests/test_phase1_edge_cases.py tests/test_security_guardrails.py -q`
+  - Result at closeout: `90 passed`
+  - `uv run ruff check app/routes/auth_routes.py app/middleware/security.py tests/test_auth.py tests/test_pages.py`
+  - Result at closeout: success
+  - `uv run python -m compileall app -q && bash -n tests/ui/playwright-flow-checks.sh`
+  - Result at closeout: success
+  - Focused rendered auth/admin smoke:
+  - Result at closeout: success; screenshots under `/Users/cheech/code/family-book/output/playwright/s46-auth-audit/screenshots/`
 
 ## Current Risks
 
 - Browser coverage is a targeted confidence layer, not a full cross-browser or visual-regression matrix
+- Full `tests/ui/playwright-flow-checks.sh` still needs separate stabilization; S46 focused auth/admin browser evidence passed, but the full local script timed out later in an existing person-create section during implementation.
+- FB-106 has follow-up visual-evidence debt for login-submitted and invite-page screenshots beyond the focused auth/admin smoke.
 - CodeMap still shows structural warnings in a few critical modules
 - CEMLA HTML scraping is inherently fragile and requires ongoing maintenance
 - Genetic and medical data is the most sensitive content — flat family access model may need revisiting
@@ -133,13 +146,13 @@ Family Book is in **power-user genealogy depth**.
 
 ## Current Priority Order
 
-1. Complete deferred media and platform items from S33
-2. Queue research UX overhaul and platform completeness after media is settled
-3. Keep broader platform completeness behind member-facing contribution improvements
+1. Stabilize full release-confidence Playwright where it still flakes outside the S46 auth/admin surface
+2. Complete FB-106 visual evidence debt for login-submitted and invite-page states
+3. Continue member-facing contribution improvements behind reliable login and admin recovery
 
 ## Sprint State
 
-- Recently closed: `S33 - Media Management Enhancement`
-- Recently closed: `S32 - Person Details Enhancement`
-- Candidate: `S34 - Media Polish and Platform Completeness`
+- Recently closed: `S46 - Passwordless Auth and MXroute Email`
+- Auditor result: PASS WITH FOLLOW-UPS
+- Current sprint: none active
 - See `backlog.md`, `docs/strategy/kanban-2026q1.md`, `docs/strategy/sprint-board-2026q1.md`

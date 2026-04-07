@@ -19,19 +19,29 @@
         <p id="login-error-text" style="margin:0; color:var(--danger); font-size:0.9rem;"></p>
       </div>
 
+      <form id="magic-link-form" class="auth-card__form">
+        <label for="magic-link-email" class="form-label">{{ t('auth.email_label') }}</label>
+        <input id="magic-link-email" name="email" type="email" class="form-input" autocomplete="email" inputmode="email" required placeholder="{{ t('auth.email_placeholder') }}">
+        <button type="submit" class="btn btn--primary btn--lg" style="width:100%; margin-top:12px;">
+          {{ t('auth.email_me_link') }}
+        </button>
+        <p id="magic-link-status" class="text-sm text-muted" style="margin-top:14px;" role="status" aria-live="polite">
+          {{ t('auth.magic_link_help') }}
+        </p>
+      </form>
+
+      <button id="passkey-signin-button" class="btn btn--outline btn--lg hidden" style="width:100%; margin-top:14px;" type="button">
+        {{ t('auth.sign_in_with_passkey') }}
+      </button>
+      <p id="passkey-auth-error" class="hidden" style="margin-top:12px; color:var(--danger); text-align:center;" role="status" aria-live="polite"></p>
+
       {% if google_client_id %}
+      <div class="auth-card__divider"><span>{{ t('auth.or_continue_with') }}</span></div>
       <p style="margin-bottom: 16px; text-align: center; color: var(--text-muted);">
         {{ t('auth.google_help') }}
       </p>
       <div id="google-signin" style="display:flex; justify-content:center;"></div>
       <p id="google-auth-error" class="hidden" style="margin-top:16px; color:var(--danger); text-align:center;" role="status" aria-live="polite"></p>
-      {% else %}
-      <p style="text-align:center; color:var(--text-muted);">
-        {{ t('auth.google_not_configured') }}
-      </p>
-      <p style="text-align:center; color:var(--text-muted); margin-top:8px;">
-        Set <code>GOOGLE_CLIENT_ID</code> in the server environment, then reload this page.
-      </p>
       {% endif %}
     </div>
   </main>
@@ -58,6 +68,126 @@
         }
       }
     })();
+
+    document.getElementById('magic-link-form')?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const statusEl = document.getElementById('magic-link-status');
+      const button = form.querySelector('button[type="submit"]');
+      const fd = new FormData(form);
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('return_to');
+      const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')
+        ? returnTo
+        : null;
+      button.disabled = true;
+      statusEl.textContent = '{{ t("common.loading") }}';
+      try {
+        const resp = await fetch('/auth/magic-link/request', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            email: fd.get('email'),
+            return_to: safeReturnTo
+          })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.detail || '{{ t("auth.login_error") }}');
+        statusEl.textContent = data.message || '{{ t("auth.magic_link_sent_generic") }}';
+      } catch (err) {
+        statusEl.textContent = '{{ t("auth.magic_link_sent_generic") }}';
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    function base64urlToBuffer(value) {
+      const padding = '='.repeat((4 - value.length % 4) % 4);
+      const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes.buffer;
+    }
+
+    function bufferToBase64url(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (const byte of bytes) binary += String.fromCharCode(byte);
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function assertionToJSON(credential) {
+      return {
+        id: credential.id,
+        rawId: bufferToBase64url(credential.rawId),
+        type: credential.type,
+        authenticatorAttachment: credential.authenticatorAttachment,
+        response: {
+          clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
+          authenticatorData: bufferToBase64url(credential.response.authenticatorData),
+          signature: bufferToBase64url(credential.response.signature),
+          userHandle: credential.response.userHandle
+            ? bufferToBase64url(credential.response.userHandle)
+            : null
+        }
+      };
+    }
+
+    async function handlePasskeySignIn() {
+      const button = document.getElementById('passkey-signin-button');
+      const errorEl = document.getElementById('passkey-auth-error');
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('return_to');
+      const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')
+        ? returnTo
+        : null;
+      button.disabled = true;
+      errorEl.classList.add('hidden');
+      try {
+        const optionsResp = await fetch('/auth/passkeys/authenticate/options', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        const options = await optionsResp.json();
+        if (!optionsResp.ok) throw new Error(options.detail || '{{ t("auth.login_error") }}');
+        const challengeId = options.challenge_id;
+        delete options.challenge_id;
+        options.challenge = base64urlToBuffer(options.challenge);
+        if (options.allowCredentials) {
+          options.allowCredentials = options.allowCredentials.map(credential => ({
+            ...credential,
+            id: base64urlToBuffer(credential.id)
+          }));
+        }
+        const credential = await navigator.credentials.get({publicKey: options});
+        const verifyResp = await fetch('/auth/passkeys/authenticate/verify', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            challenge_id: challengeId,
+            credential: assertionToJSON(credential),
+            return_to: safeReturnTo
+          })
+        });
+        const data = await verifyResp.json().catch(() => ({}));
+        if (!verifyResp.ok) throw new Error(data.detail || '{{ t("auth.login_error") }}');
+        window.location.href = data.return_to || '/tree';
+      } catch (err) {
+        errorEl.textContent = err.message || '{{ t("auth.login_error") }}';
+        errorEl.classList.remove('hidden');
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    if (window.PublicKeyCredential) {
+      const passkeyButton = document.getElementById('passkey-signin-button');
+      passkeyButton?.classList.remove('hidden');
+      passkeyButton?.addEventListener('click', handlePasskeySignIn);
+    }
   </script>
 
   {% if google_client_id %}

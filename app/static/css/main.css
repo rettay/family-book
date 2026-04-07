@@ -243,7 +243,7 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
 
 /* ===== Forms ===== */
 .form-group { margin-bottom: 16px; }
-.form-group label {
+.form-group label, .form-label {
   display: block; font-size: 0.88rem; font-weight: 700;
   color: var(--text-muted); margin-bottom: 6px;
   letter-spacing: 0.02em;
@@ -1942,6 +1942,9 @@ html { scroll-padding-top: calc(var(--nav-h) + 16px); }
   text-align: center; color: var(--text-muted); font-size: 0.9rem;
   margin-bottom: 28px;
   font-style: italic;
+}
+.auth-card__form {
+  margin-top: 20px;
 }
 .auth-card__divider {
   display: flex; align-items: center; gap: 12px;

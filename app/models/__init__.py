@@ -2,7 +2,13 @@ from app.models.base import Base
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
 from app.models.media import Media
-from app.models.auth import UserSession, Invite, MagicLinkToken
+from app.models.auth import (
+    Invite,
+    MagicLinkToken,
+    PasskeyChallenge,
+    PasskeyCredential,
+    UserSession,
+)
 from app.models.audit import AuditLog
 from app.models.revisions import EntityRevision
 from app.models.notifications import Notification, NotificationDelivery, NotificationPreference
@@ -30,6 +36,8 @@ __all__ = [
     "UserSession",
     "Invite",
     "MagicLinkToken",
+    "PasskeyCredential",
+    "PasskeyChallenge",
     "AuditLog",
     "EntityRevision",
     "Notification",

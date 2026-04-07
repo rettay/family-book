@@ -2,7 +2,9 @@
 
 Sprint: none active
 
-## Planned Sprint `S46 - Passwordless Auth and MXroute Email`
+## Closed Sprint `S46 - Passwordless Auth and MXroute Email`
+
+Status: Done
 
 Sprint goal:
 - Replace Resend-specific invite delivery with MXroute SMTP and make login passwordless, recoverable, and understandable for older family members through magic links, optional passkeys, admin-issued one-time links, and clearer authentication audit trails.
@@ -11,11 +13,11 @@ Committed packets:
 
 | ID | Title | Priority | Status | Task Packet |
 |---|---|---:|---|---|
-| FB-104 | MXroute SMTP Email Delivery | P0 | todo | `task_packets/FB-104_mxroute_smtp_email_delivery.md` |
-| FB-105 | Magic Link Authentication | P0 | todo | `task_packets/FB-105_magic_link_authentication.md` |
-| FB-106 | Low-Friction Login and Admin Recovery UX | P0 | todo | `task_packets/FB-106_low_friction_login_and_admin_recovery_ux.md` |
-| FB-108 | Auth Observability and Audit Trail | P1 | todo | `task_packets/FB-108_auth_observability_and_audit_trail.md` |
-| FB-107 | Passkey Authentication Foundation | P1 | todo | `task_packets/FB-107_passkey_authentication_foundation.md` |
+| FB-104 | MXroute SMTP Email Delivery | P0 | done | `task_packets/FB-104_mxroute_smtp_email_delivery.md` |
+| FB-105 | Magic Link Authentication | P0 | done | `task_packets/FB-105_magic_link_authentication.md` |
+| FB-106 | Low-Friction Login and Admin Recovery UX | P0 | done | `task_packets/FB-106_low_friction_login_and_admin_recovery_ux.md` |
+| FB-108 | Auth Observability and Audit Trail | P1 | done | `task_packets/FB-108_auth_observability_and_audit_trail.md` |
+| FB-107 | Passkey Authentication Foundation | P1 | done | `task_packets/FB-107_passkey_authentication_foundation.md` |
 
 Execution slices:
 - `S46-1` MXroute SMTP delivery
@@ -23,6 +25,13 @@ Execution slices:
 - `S46-3` older-relative login and admin recovery UX
 - `S46-4` auth observability and guardrails
 - `S46-5` passkey foundation
+
+Outcome:
+- Resend-specific outbound delivery was replaced with SMTP/MXroute-oriented delivery for invites and magic links.
+- Email magic-link login is now the primary login path; Google remains optional and passkeys are a progressive repeat-login enhancement.
+- Admins can send or copy fresh one-time sign-in links and fresh invite links without reconstructing stored raw bearer tokens.
+- Auth-relevant events now have safer audit coverage, including failed passkey branches and magic-link request throttling.
+- Auditor result: PASS WITH FOLLOW-UPS. Prior P1/P2 defects were resolved; remaining follow-up is full release-confidence Playwright stability and additional FB-106 visual artifacts beyond the focused auth/admin screenshots.
 
 ## Current Sprint `S41 - UAT/Staging Pipeline`
 

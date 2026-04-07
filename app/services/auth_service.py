@@ -83,6 +83,12 @@ def _hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
 
+def _as_aware_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
 def generate_session_token() -> str:
     return secrets.token_hex(SESSION_TOKEN_BYTES)
 
@@ -250,6 +256,25 @@ async def create_magic_link(db: AsyncSession, person_id: str) -> str:
     return token
 
 
+async def find_magic_link_person_by_email(db: AsyncSession, email: str | None) -> Person | None:
+    """Return the active person for a normalized contact email, or None."""
+    normalized_email = normalize_email_for_lookup(email)
+    if not normalized_email:
+        return None
+
+    result = await db.execute(
+        select(Person).where(
+            Person.contact_email_hash == contact_email_lookup_hash(normalized_email),
+            Person.account_state == AccountState.active.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+    )
+    matches = result.scalars().all()
+    if len(matches) != 1:
+        return None
+    return matches[0]
+
+
 async def validate_magic_link(db: AsyncSession, token: str) -> Person | None:
     """Validate and consume a magic link token. Returns Person if valid."""
     token_hash = _hash_token(token)
@@ -278,6 +303,32 @@ async def validate_magic_link(db: AsyncSession, token: str) -> Person | None:
 
     ml.used_at = now
     return person
+
+
+async def get_magic_link_rejection_reason(db: AsyncSession, token: str) -> str:
+    """Return a safe rejection reason for user-facing magic-link errors."""
+    token_hash = _hash_token(token)
+    result = await db.execute(
+        select(MagicLinkToken).where(MagicLinkToken.token_hash == token_hash)
+    )
+    magic_link = result.scalar_one_or_none()
+    if not magic_link:
+        return "not_found"
+    if magic_link.used_at is not None:
+        return "used"
+    now = datetime.now(timezone.utc)
+    if _as_aware_utc(magic_link.expires_at) <= now:
+        return "expired"
+    result = await db.execute(
+        select(Person).where(
+            Person.id == magic_link.person_id,
+            Person.account_state == AccountState.active.value,
+            Person.lifecycle_state == PersonLifecycleState.active.value,
+        )
+    )
+    if not result.scalar_one_or_none():
+        return "unavailable"
+    return "valid"
 
 
 async def authenticate_google_identity(

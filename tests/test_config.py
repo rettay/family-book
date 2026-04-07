@@ -54,14 +54,20 @@ def test_settings_envelope_allowed_hosts_dedupes_and_infers_api_host():
     assert settings.envelope_allowed_host_list == ["mail.example.com", "files.example.com"]
 
 
-def test_settings_google_maps_and_resend_flags_require_full_config():
+def test_settings_google_maps_and_smtp_flags_require_full_config(monkeypatch):
+    monkeypatch.delenv("GOOGLE_MAPS_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_MAPS_BROWSER_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_MAPS_SERVER_API_KEY", raising=False)
     settings = Settings(
         SECRET_KEY="secret",
         FERNET_KEY="fernet",
         GOOGLE_MAPS_BROWSER_API_KEY="maps-browser-key",
         GOOGLE_MAPS_SERVER_API_KEY="maps-server-key",
-        RESEND_API_KEY="resend-key",
-        RESEND_FROM_EMAIL="Family Book <invites@example.com>",
+        SMTP_HOST="smtp.example.com",
+        SMTP_USER="invites@example.com",
+        SMTP_PASS="smtp-secret",
+        SMTP_FROM="Family Book <invites@example.com>",
+        _env_file=None,
     )
 
     assert settings.google_maps_enabled is True
@@ -69,28 +75,35 @@ def test_settings_google_maps_and_resend_flags_require_full_config():
     assert settings.google_geocoding_enabled is True
     assert settings.google_maps_browser_api_key_value == "maps-browser-key"
     assert settings.google_maps_server_api_key_value == "maps-server-key"
-    assert settings.resend_enabled is True
+    assert settings.smtp_enabled is True
+    assert settings.email_delivery_enabled is True
 
     incomplete = Settings(
         SECRET_KEY="secret",
         FERNET_KEY="fernet",
-        RESEND_API_KEY="resend-key",
-        RESEND_FROM_EMAIL="",
+        SMTP_HOST="smtp.example.com",
+        SMTP_USER="invites@example.com",
+        SMTP_PASS="",
+        SMTP_FROM="Family Book <invites@example.com>",
+        _env_file=None,
     )
 
     assert incomplete.google_maps_enabled is False
     assert incomplete.google_places_enabled is False
     assert incomplete.google_geocoding_enabled is False
-    assert incomplete.resend_enabled is False
+    assert incomplete.smtp_enabled is False
+    assert incomplete.email_delivery_enabled is False
 
 
-def test_settings_google_maps_placeholder_values_fail_closed():
+def test_settings_google_maps_placeholder_values_fail_closed(monkeypatch):
+    monkeypatch.delenv("GOOGLE_MAPS_API_KEY", raising=False)
     settings = Settings(
         SECRET_KEY="secret",
         FERNET_KEY="fernet",
         GOOGLE_MAPS_BROWSER_API_KEY="PENDING_SETUP",
         GOOGLE_MAPS_SERVER_API_KEY="TODO",
         GOOGLE_MAPS_MAP_ID="REPLACE_ME",
+        _env_file=None,
     )
 
     assert settings.google_maps_enabled is False
@@ -101,11 +114,14 @@ def test_settings_google_maps_placeholder_values_fail_closed():
     assert settings.google_maps_map_id_value == ""
 
 
-def test_settings_google_maps_legacy_key_falls_back_for_browser_and_server():
+def test_settings_google_maps_legacy_key_falls_back_for_browser_and_server(monkeypatch):
+    monkeypatch.delenv("GOOGLE_MAPS_BROWSER_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_MAPS_SERVER_API_KEY", raising=False)
     settings = Settings(
         SECRET_KEY="secret",
         FERNET_KEY="fernet",
         GOOGLE_MAPS_API_KEY="legacy-key",
+        _env_file=None,
     )
 
     assert settings.google_maps_enabled is True
