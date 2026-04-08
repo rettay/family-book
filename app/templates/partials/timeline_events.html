@@ -1,4 +1,9 @@
-{% if events %}
+{% if error %}
+<div class="empty-state empty-state--error">
+  <div class="empty-state__icon">&#9888;</div>
+  <p class="empty-state__text">{{ error }}</p>
+</div>
+{% elif events %}
 <div class="timeline">
   {% set current_year = namespace(value=0) %}
   {% for ev in events %}

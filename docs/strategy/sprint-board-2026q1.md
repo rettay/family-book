@@ -2,19 +2,89 @@
 
 ## Backlog
 
-None pending.
+Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-plan-2026.md`.
+
+`S47a - Product Stabilization Before Commercialization` was inserted before the commercialization sequence because founder QA on the latest production site found timeline, research, and tree-sidebar issues that needed to be resolved before hosting/billing work.
+
+| Sprint | Title | Status | Packets |
+|---|---|---|---|
+| S47 | Hosting and Tenant Architecture | planned | `FB-109` to `FB-112` |
+| S48 | Privacy and Exit Trust | proposed | `FB-113` to `FB-116` |
+| S49 | Paid Hosted Platform | proposed | `FB-117` to `FB-119` |
+| S50 | Activation and Migration | proposed | `FB-120` to `FB-123` |
+| S51 | Lovable Engagement | proposed | `FB-124` to `FB-126` |
+| S52 | Launch Readiness and Growth | proposed | `FB-127` to `FB-129` |
 
 ---
 
 ## Planned Sprint
 
-None planned.
+### `S47 - Hosting and Tenant Architecture`
+
+Status: Planned
+
+### Sprint Goal
+
+Decide and implement the first hosted deployment shape, tenant boundary, and production runtime contract.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 109 | FB-109 | Hosting and Tenant Architecture ADR | P0 | proposed |
+| 110 | FB-110 | Production Container Runtime Contract | P0 | proposed |
+| 111 | FB-111 | Tenant Data Boundary and Storage Model | P0 | proposed |
+| 112 | FB-112 | Managed Hosting Environment Baseline | P1 | proposed |
+
+### Stretch / Queued Packets
+
+None yet.
+
+### Sprint References
+
+- Plan: `docs/strategy/commercialization-sprint-plan-2026.md`
+- Slices: `docs/strategy/commercialization-sprint-slices-2026.md`
 
 ---
 
 ## Current Sprint
 
 None active.
+
+---
+
+## Closed Sprint
+
+### `S47a - Product Stabilization Before Commercialization`
+
+Status: Closed
+
+### Sprint Goal
+
+Fix production-facing trust and usability issues before starting hosting, tenancy, billing, and broader commercialization work.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 132 | FB-132 | Timeline Filter Consistency and Error-State Fix | P0 | done |
+| 133 | FB-133 | Research Page Beta Gating and Source Health UI | P1 | done |
+| 131 | FB-131 | Tree Sidebar Popout Collapse/Dock Fix | P1 | done |
+
+### Stretch / Queued Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 134 | FB-134 | External Research Source Link and Result Quality Fixes | P2 | partial, queued |
+| 130 | FB-130 | Overlay and Workspace Panel Interaction Contract | P2 | proposed |
+
+### Outcome
+
+- Timeline filters now handle `All Events`, plural event aliases, and the reported `1880` to `2002` range without bogus content-load errors.
+- Research now presents beta/low-confidence framing, source health states, guided-lookup labeling, and localized result-count copy.
+- Popped-out tree sidebar collapse now docks instead of closing, with rendered browser coverage.
+- Auditor result: PASS after full Playwright lane, Spanish/mobile evidence, and research localization fixes were verified.
+- Closeout evidence: `docs/strategy/sprint-closeout-s47a.md`.
 
 ---
 

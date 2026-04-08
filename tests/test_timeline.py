@@ -95,6 +95,60 @@ async def test_timeline_partial_returns_html(admin_client: AsyncClient):
     assert resp.status_code == 200
 
 
+@pytest.mark.asyncio
+async def test_timeline_partial_accepts_empty_htmx_year_fields(admin_client: AsyncClient):
+    """Empty HTMX number inputs should not make the partial return a validation error."""
+    resp = await admin_client.get(
+        "/partials/timeline-events?event_type=&year_from=&year_to=&branch=",
+        headers={"HX-Request": "true"},
+    )
+    assert resp.status_code == 200
+    assert "could not load content" not in resp.text.lower()
+    assert "must be a valid year" not in resp.text
+
+
+@pytest.mark.asyncio
+async def test_timeline_partial_reported_range_all_events(admin_client: AsyncClient):
+    """Regression for founder-reported 1880-2002 + All Events filter flow."""
+    birth_resp = await admin_client.post("/api/persons", json={
+        "first_name": "RangeBirth",
+        "last_name": "Timeline",
+        "birth_date": "1880-01-01",
+        "birth_date_precision": "exact",
+    })
+    assert birth_resp.status_code == 201
+    death_resp = await admin_client.post("/api/persons", json={
+        "first_name": "RangeDeath",
+        "last_name": "Timeline",
+        "birth_date": "1920-01-01",
+        "birth_date_precision": "exact",
+        "death_date": "2002-12-31",
+        "death_date_precision": "exact",
+        "is_living": False,
+    })
+    assert death_resp.status_code == 201
+
+    resp = await admin_client.get(
+        "/partials/timeline-events?event_type=&year_from=1880&year_to=2002",
+        headers={"HX-Request": "true"},
+    )
+    assert resp.status_code == 200
+    assert "RangeBirth" in resp.text
+    assert "RangeDeath" in resp.text
+    assert "must be a valid year" not in resp.text
+
+
+@pytest.mark.asyncio
+async def test_timeline_api_accepts_all_and_plural_event_aliases(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/timeline?event_type=all&year_from=&year_to=")
+    assert resp.status_code == 200
+
+    resp = await admin_client.get("/api/timeline?event_type=births")
+    assert resp.status_code == 200
+    for ev in resp.json()["events"]:
+        assert ev["type"] == "birth"
+
+
 # ── Graph traversal tests ────────────────────────────────────────────
 
 @pytest.mark.asyncio

@@ -1,10 +1,12 @@
 import pytest
+from pathlib import Path
 from fastapi import Request
 from httpx import AsyncClient
 
 import app.routes.pages as pages_routes
 
 TYLER_ID = "tyler-000-0000-0000-000000000002"
+ROOT_DIR = Path(__file__).resolve().parents[1]
 
 
 @pytest.mark.asyncio
@@ -53,12 +55,35 @@ async def test_tree_page_renders_sidebar_dialog_and_labeled_controls(member_clie
 
     assert resp.status_code == 200
     assert 'id="person-sidebar"' in resp.text
+    assert 'id="sidebar-collapse-btn"' in resp.text
     assert 'role="dialog"' in resp.text
     assert 'aria-label="' in resp.text
     assert 'id="tree-status" role="status" aria-live="polite"' in resp.text
     assert 'data-saved-message="' in resp.text
     assert 'data-tree-graph-prompt-link="' in resp.text
     assert 'data-tree-graph-confirm-replace="' in resp.text
+
+
+def test_tree_sidebar_floating_collapse_docks_instead_of_closing():
+    tree_js = (ROOT_DIR / "app/static/js/tree.js").read_text()
+    collapse_block = tree_js[
+        tree_js.index("window.collapseSidebar = function()"):
+        tree_js.index("window.expandSidebar = function()")
+    ]
+    popout_block = tree_js[
+        tree_js.index("window.popOutSidebar = function()"):
+        tree_js.index("window.dockSidebar = function()")
+    ]
+    dock_block = tree_js[
+        tree_js.index("window.dockSidebar = function()"):
+        tree_js.index("function _initSidebarDrag")
+    ]
+
+    assert "classList.contains('person-sidebar--floating')" in collapse_block
+    assert "window.dockSidebar();" in collapse_block
+    assert "return;" in collapse_block
+    assert "collapseBtn.hidden = true" in popout_block
+    assert "collapseBtn.hidden = false" in dock_block
 
 
 @pytest.mark.asyncio

@@ -31,6 +31,10 @@ export BASE_URL
 export DATABASE_URL="sqlite:///${TMP_DIR}/family-book-ui.db"
 export DATA_DIR="${TMP_DIR}/data"
 export GOOGLE_CLIENT_ID="test-google-client-id.apps.googleusercontent.com"
+export GOOGLE_MAPS_API_KEY="PENDING_SETUP"
+export GOOGLE_MAPS_BROWSER_API_KEY="PENDING_SETUP"
+export GOOGLE_MAPS_SERVER_API_KEY="PENDING_SETUP"
+export GOOGLE_MAPS_MAP_ID=""
 export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 LOCAL_PWCLI="${ROOT_DIR}/tests/ui/playwright_cli.sh"
 SKILL_PWCLI="${CODEX_HOME}/skills/playwright/scripts/playwright_cli.sh"
@@ -157,8 +161,225 @@ assert_run "protected page redirects anonymous browser to login" \
 assert_run "authenticated root lands on tree" \
   "${PWCLI}" run-code "async page => { if (!page.url().includes('/tree')) throw new Error('expected tree landing'); if (!await page.locator('#tree-svg [role=\"button\"]').count()) throw new Error('tree did not render nodes'); }"
 
+assert_run "S47a timeline filters keep all-events range stable" \
+  "${PWCLI}" run-code "$(cat <<'EOF'
+async page => {
+  const origin = page.url().split('/').slice(0, 3).join('/');
+  await page.goto(origin + '/timeline?event_type=&year_from=1880&year_to=2002');
+  await page.locator('#timeline-events').waitFor();
+  let text = await page.locator('#timeline-events').textContent();
+  if (!text || !text.includes('Tyler Martin born') || !text.includes('Yuliya Semesock born')) {
+    throw new Error('timeline all-events range did not render expected seeded births: ' + text);
+  }
+  if (/could not load content|must be a valid year/i.test(text)) {
+    throw new Error('timeline showed filter error text: ' + text);
+  }
+
+  const birthResponse = page.waitForResponse((resp) => (
+    resp.url().includes('/partials/timeline-events') &&
+    resp.url().includes('event_type=birth') &&
+    resp.status() === 200
+  ), { timeout: 10000 });
+  await page.locator('#timeline-type-filter').selectOption('birth');
+  await birthResponse;
+  await page.waitForFunction(() => {
+    const text = document.querySelector('#timeline-events')?.textContent || '';
+    return text.includes('Tyler Martin born') && !/could not load content|must be a valid year/i.test(text);
+  }, null, { timeout: 10000 });
+
+  const allResponse = page.waitForResponse((resp) => (
+    resp.url().includes('/partials/timeline-events') &&
+    resp.url().includes('event_type=') &&
+    !resp.url().includes('event_type=birth') &&
+    resp.status() === 200
+  ), { timeout: 10000 });
+  await page.locator('#timeline-type-filter').selectOption('');
+  await allResponse;
+  await page.waitForFunction(() => {
+    const text = document.querySelector('#timeline-events')?.textContent || '';
+    return text.includes('Tyler Martin born') && text.includes('Yuliya Semesock born') && !/could not load content|must be a valid year/i.test(text);
+  }, null, { timeout: 10000 });
+}
+EOF
+)"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/s47a-timeline-filters.png" --full-page true >/dev/null
+
+"${PWCLI}" cookie-set locale es --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+"${PWCLI}" resize 390 844
+assert_run "S47a timeline filters cover Spanish mobile surface" \
+  "${PWCLI}" run-code "$(cat <<'EOF'
+async page => {
+  const origin = page.url().split('/').slice(0, 3).join('/');
+  await page.goto(origin + '/timeline?event_type=&year_from=1880&year_to=2002');
+  await page.locator('#timeline-events').waitFor();
+  const text = await page.locator('body').textContent();
+  const required = ['Cronología Familiar', 'Todos los eventos', 'Nacimientos', 'Tyler Martin born', 'Yuliya Semesock born'];
+  for (const value of required) {
+    if (!text || !text.includes(value)) {
+      throw new Error('Spanish mobile timeline missing expected text: ' + value);
+    }
+  }
+  if (/could not load content|must be a valid year|Research is beta/i.test(text)) {
+    throw new Error('Spanish mobile timeline showed error or unrelated English text: ' + text);
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  if (overflow > 4) {
+    throw new Error('Spanish mobile timeline overflows horizontally by ' + overflow + 'px');
+  }
+}
+EOF
+)"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/s47a-timeline-filters-mobile-es.png" --full-page true >/dev/null
+"${PWCLI}" resize 1440 960
+"${PWCLI}" cookie-set locale en --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+
+assert_run "S47a research page renders beta and source health framing" \
+  "${PWCLI}" run-code "$(cat <<'EOF'
+async page => {
+  const origin = page.url().split('/').slice(0, 3).join('/');
+  await page.goto(origin + '/research');
+  await page.locator('#research-page').waitFor();
+  await page.locator('.research-page__beta').waitFor();
+  const text = await page.locator('#research-page').textContent();
+  const required = ['Research is beta', 'External records are low-confidence', 'Chronicling America', 'NARA', 'Antenati', 'Guided lookup', 'FamilySearch', 'Not configured'];
+  for (const value of required) {
+    if (!text || !text.includes(value)) {
+      throw new Error('research page missing S47a source-health text: ' + value);
+    }
+  }
+  const betaBox = await page.locator('.research-page__beta').boundingBox();
+  if (!betaBox || betaBox.width < 200 || betaBox.height < 30) {
+    throw new Error('research beta notice is not visibly rendered');
+  }
+  const guidedBadges = await page.locator('.research-source-card__badge', { hasText: 'Guided lookup' }).count();
+  if (guidedBadges < 1) {
+    throw new Error('research guided lookup badge not rendered on source cards');
+  }
+}
+EOF
+)"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/s47a-research-beta-sources.png" --full-page true >/dev/null
+
+"${PWCLI}" cookie-set locale es --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+assert_run "S47a research page covers Spanish locale" \
+  "${PWCLI}" run-code "$(cat <<'EOF'
+async page => {
+  const origin = page.url().split('/').slice(0, 3).join('/');
+  await page.goto(origin + '/research');
+  await page.locator('#research-page').waitFor();
+  await page.locator('.research-page__beta').waitFor();
+  const text = await page.locator('#research-page').textContent();
+  const required = ['Investigación', 'La investigacion esta en beta', 'Los registros externos', 'Antenati', 'Busqueda guiada', 'FamilySearch', 'No configurada'];
+  for (const value of required) {
+    if (!text || !text.includes(value)) {
+      throw new Error('Spanish research page missing S47a source-health text: ' + value);
+    }
+  }
+  if (text.includes('Research is beta') || text.includes('External records are low-confidence')) {
+    throw new Error('Spanish research page leaked English beta copy');
+  }
+  const betaBox = await page.locator('.research-page__beta').boundingBox();
+  if (!betaBox || betaBox.width < 200 || betaBox.height < 30) {
+    throw new Error('Spanish research beta notice is not visibly rendered');
+  }
+}
+EOF
+)"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/s47a-research-beta-sources-es.png" --full-page true >/dev/null
+"${PWCLI}" cookie-set locale en --domain 127.0.0.1 --path / --sameSite Lax >/dev/null
+
+assert_run "S47a popped-out sidebar collapse docks instead of closing" \
+  "${PWCLI}" run-code "$(cat <<'EOF'
+async page => {
+  const origin = page.url().split('/').slice(0, 3).join('/');
+  await page.goto(origin + '/tree');
+  await page.locator('#tree-svg').waitFor();
+  await page.waitForTimeout(1200);
+  await page.locator('#tree-svg [data-id="tyler-000-0000-0000-000000000002"]').first().click();
+  await page.waitForFunction(() => document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === 'tyler-000-0000-0000-000000000002');
+  await page.locator('#sidebar-popout-btn').click();
+  await page.waitForFunction(() => document.getElementById('person-sidebar')?.classList.contains('person-sidebar--floating'));
+
+  const floatingState = await page.evaluate(() => {
+    const sidebar = document.getElementById('person-sidebar');
+    const collapse = document.getElementById('sidebar-collapse-btn');
+    const dock = document.getElementById('sidebar-dock-btn');
+    const popout = document.getElementById('sidebar-popout-btn');
+    return {
+      open: sidebar?.classList.contains('person-sidebar--open') || false,
+      floating: sidebar?.classList.contains('person-sidebar--floating') || false,
+      hidden: sidebar?.hidden || false,
+      collapseHidden: collapse?.hidden || false,
+      dockHidden: dock?.hidden || false,
+      popoutHidden: popout?.hidden || false,
+    };
+  });
+  if (!floatingState.open || !floatingState.floating || floatingState.hidden) {
+    throw new Error('sidebar was not open and floating after popout: ' + JSON.stringify(floatingState));
+  }
+  if (!floatingState.collapseHidden || floatingState.dockHidden || !floatingState.popoutHidden) {
+    throw new Error('floating sidebar controls are inconsistent: ' + JSON.stringify(floatingState));
+  }
+
+  await page.evaluate(() => window.collapseSidebar());
+  await page.waitForFunction(() => {
+    const sidebar = document.getElementById('person-sidebar');
+    return sidebar && sidebar.classList.contains('person-sidebar--open') && !sidebar.classList.contains('person-sidebar--floating');
+  }, null, { timeout: 10000 });
+  const dockedState = await page.evaluate(() => {
+    const sidebar = document.getElementById('person-sidebar');
+    const collapse = document.getElementById('sidebar-collapse-btn');
+    const dock = document.getElementById('sidebar-dock-btn');
+    const popout = document.getElementById('sidebar-popout-btn');
+    return {
+      open: sidebar?.classList.contains('person-sidebar--open') || false,
+      floating: sidebar?.classList.contains('person-sidebar--floating') || false,
+      hidden: sidebar?.hidden || false,
+      collapseHidden: collapse?.hidden || false,
+      dockHidden: dock?.hidden || false,
+      popoutHidden: popout?.hidden || false,
+    };
+  });
+  if (!dockedState.open || dockedState.floating || dockedState.hidden) {
+    throw new Error('collapseSidebar closed instead of docking popped-out sidebar: ' + JSON.stringify(dockedState));
+  }
+  if (dockedState.collapseHidden || !dockedState.dockHidden || dockedState.popoutHidden) {
+    throw new Error('docked sidebar controls are inconsistent after collapse: ' + JSON.stringify(dockedState));
+  }
+}
+EOF
+)"
+"${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/s47a-sidebar-docked-after-collapse.png" --full-page true >/dev/null
+
 assert_run "tree renders seeded headshot images and exposes sidebar headshot controls" \
-  "${PWCLI}" run-code "async page => { await page.waitForTimeout(1200); const rossNode = page.locator('#tree-svg [data-id=\"ross-0000-0000-000000000012\"]'); if (await rossNode.locator('image').count() === 0) throw new Error('ross node did not render an image element'); await rossNode.first().click(); await page.locator('button[data-tree-sidebar-tab=\"media\"]').click(); const mediaPanel = page.locator('[data-tree-sidebar-panel=\"media\"]:not([hidden])'); await mediaPanel.waitFor(); await mediaPanel.locator('.tree-sidebar-media-item').first().waitFor({ timeout: 5000 }); const headshotButton = mediaPanel.getByRole('button', { name: /Set as headshot/i }).first(); await headshotButton.waitFor({ timeout: 5000 }); const galleryLink = mediaPanel.getByRole('link', { name: /Person gallery/i }).first(); if (await galleryLink.count() === 0) throw new Error('person gallery link missing from tree sidebar'); }"
+  "${PWCLI}" run-code "$(cat <<'EOF'
+async page => {
+  const rossId = 'ross-0000-0000-000000000012';
+  await page.waitForTimeout(1200);
+  const rossNode = page.locator('#tree-svg [data-id="' + rossId + '"]').first();
+  if (await rossNode.locator('image').count() === 0) {
+    throw new Error('ross node did not render an image element');
+  }
+  await rossNode.click();
+  await page.waitForFunction((id) => {
+    return document.querySelector('[data-tree-sidebar-person-id]')?.getAttribute('data-tree-sidebar-person-id') === id;
+  }, rossId, { timeout: 30000 });
+  await page.locator('button[data-tree-sidebar-tab="media"]').click();
+  const mediaPanel = page.locator('[data-tree-sidebar-panel="media"]:not([hidden])');
+  await mediaPanel.waitFor();
+  await page.waitForFunction(() => {
+    const container = document.getElementById('tree-sidebar-media');
+    return container && container.getAttribute('aria-busy') !== 'true' && container.querySelector('.tree-sidebar-media-item');
+  }, null, { timeout: 30000 });
+  const headshotButton = mediaPanel.getByRole('button', { name: /Set as headshot/i }).first();
+  await headshotButton.waitFor({ timeout: 5000 });
+  const galleryLink = mediaPanel.getByRole('link', { name: /Person gallery/i }).first();
+  if (await galleryLink.count() === 0) {
+    throw new Error('person gallery link missing from tree sidebar');
+  }
+}
+EOF
+)"
 
 assert_run "tree keeps partners on the same generation row" \
   "${PWCLI}" run-code "async page => { const getTranslate = async (id) => { const transform = await page.locator('#tree-svg [data-id=\"' + id + '\"]').first().getAttribute('transform'); const match = /translate\\(([-\\d.]+),([-\\d.]+)\\)/.exec(transform || ''); if (!match) throw new Error('missing transform for ' + id); return { x: Number(match[1]), y: Number(match[2]) }; }; const tyler = await getTranslate('tyler-000-0000-0000-000000000002'); const yuliya = await getTranslate('yuliya-00-0000-0000-000000000003'); const root = await getTranslate('root-0000-0000-0000-000000000001'); const robert = await getTranslate('grndpa-00-0000-0000-000000000004'); if (Math.abs(tyler.y - yuliya.y) > 1) throw new Error('partners rendered on different rows'); if (Math.abs(tyler.x - yuliya.x) > 140) throw new Error('partners were not clustered as a family unit'); if (root.y <= tyler.y) throw new Error('child did not render below parents'); if (Math.abs(robert.x - tyler.x) > Math.abs(robert.x - yuliya.x)) throw new Error('ancestry line favors spouse over blood child'); if (await page.locator('#tree-svg .parent-child-line[data-from=\"tyler-000-0000-0000-000000000002\"][data-to=\"root-0000-0000-0000-000000000001\"]').count() === 0) throw new Error('missing direct parent-child edge'); if (await page.locator('#tree-svg .generation-band').count() < 2) throw new Error('missing generation bands'); }"
@@ -209,7 +430,8 @@ assert_run "tree nickname preference swaps node labels without changing canonica
   "${PWCLI}" run-code "async page => { await page.locator('#pref-show-names').check(); await page.locator('#pref-show-photos').check(); await page.locator('#pref-show-nicknames').check(); await page.locator('#save-tree-preferences').click(); await page.waitForTimeout(1200); const nodeLabel = await page.locator('#tree-svg [data-id=\"monica-000-0000-000000000014\"]').getAttribute('data-render-label'); if (nodeLabel !== 'Monica Branch') throw new Error('nickname preference did not preserve surname on node: ' + nodeLabel); await page.locator('#pref-show-nicknames').uncheck(); await page.locator('#save-tree-preferences').click(); await page.waitForTimeout(1200); }"
 
 "${PWCLI}" goto "${BASE_URL}/people/new"
-"${PWCLI}" run-code "async page => { await page.locator('#create-person-form').waitFor(); await page.locator('#person-first-name').fill('Playwright'); await page.locator('#person-last-name').fill('Relative'); await page.locator('#person-branch').fill('playwright'); await page.locator('#person-residence-place').fill('Lisbon'); await page.locator('#person-residence-country').fill('PT'); await page.locator('#person-contact-email').fill('playwright-relative@example.com'); await page.locator('#create-btn').click(); await page.waitForLoadState('networkidle'); }"
+assert_run "admin can submit create person form and land on tree" \
+  "${PWCLI}" run-code "async page => { await page.locator('#create-person-form').waitFor(); await page.locator('#person-first-name').fill('Playwright'); await page.locator('#person-last-name').fill('Relative'); await page.locator('#person-branch').fill('playwright'); await page.locator('#person-residence-place').fill('Lisbon'); await page.locator('#person-residence-country').fill('PT'); await page.locator('#person-contact-email').fill('playwright-relative@example.com'); await page.locator('#create-btn').click(); await page.waitForURL(/\\/tree\\?focus=/, { timeout: 30000 }); await page.locator('#tree-svg').waitFor({ timeout: 30000 }); }"
 "${PWCLI}" run-code "async page => { await page.waitForURL(/\\/tree/); await page.locator('#tree-svg').waitFor(); await page.waitForTimeout(1200); const focusId = await page.evaluate(() => new window.URL(window.location.href).searchParams.get('focus')); if (!focusId) throw new Error('create flow did not redirect to tree with focus'); await page.evaluate((id) => { localStorage.setItem('playwrightRelativeId', id); }, focusId); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/person-created.png" --full-page true >/dev/null
 
@@ -625,6 +847,7 @@ assert_run "person edit bio uses Trix rich text editor" \
 assert_run "address card Places autocomplete populates structured subfields" \
   "${PWCLI}" run-code "async page => { await page.evaluate(() => { const fakePlaces = { AutocompleteSessionToken: function() {}, AutocompleteSuggestion: { fetchAutocompleteSuggestions: async ({ input }) => ({ suggestions: safeText(input).toLowerCase().startsWith('123') ? [{ placePrediction: { text: { toString() { return '123 Main St, Chicago, IL 60601, USA'; } }, toPlace() { const place = { id: 'ChIJ_fake_place_id', fetchFields: async () => { place.formattedAddress = '123 Main St, Chicago, IL 60601, USA'; place.location = { lat: () => 41.8781, lng: () => -87.6298 }; place.addressComponents = [ { types: ['street_number'], shortText: '123', longText: '123' }, { types: ['route'], shortText: 'Main St', longText: 'Main Street' }, { types: ['locality'], shortText: 'Chicago', longText: 'Chicago' }, { types: ['administrative_area_level_1'], shortText: 'IL', longText: 'Illinois' }, { types: ['postal_code'], shortText: '60601', longText: '60601' }, { types: ['country'], shortText: 'US', longText: 'United States' } ]; } }; return place; } } }] : [] }) } }; window.google = { maps: { importLibrary: async (name) => { if (name !== 'places') throw new Error('unexpected library ' + name); return fakePlaces; } } }; function safeText(value) { return typeof value === 'string' ? value.trim() : ''; } const addrCards = document.querySelectorAll('#contact-address-list .person-edit-address-card'); addrCards.forEach(c => { const grp = c.querySelector('[data-place-field]'); if (grp) { delete grp.dataset.locationBound; grp.querySelectorAll('.place-autocomplete-suggestions').forEach(n => n.remove()); } }); window.familyBookLocations.init(document.getElementById('contact-address-list'), { apiKey: 'fake-key', hasGoogle: true, manualHint: 'Manual', configuredHint: 'Lookup', verifiedHint: 'Verified', failedHint: 'Failed', suggestionsLabel: 'Place suggestions' }); }); const lastCard = page.locator('#contact-address-list .person-edit-address-card').last(); const line1Input = lastCard.locator('input[data-address-key=\"line1\"]'); await line1Input.fill('123 Main'); await page.waitForSelector('.place-autocomplete-suggestions:not([hidden]) .place-autocomplete-suggestion'); await page.locator('.place-autocomplete-suggestion').first().click(); await page.waitForFunction(() => { const card = document.querySelector('#contact-address-list .person-edit-address-card:last-child'); if (!card) return false; const city = card.querySelector('[data-address-key=\"city\"]'); const state = card.querySelector('[data-address-key=\"state\"]'); const zip = card.querySelector('[data-address-key=\"postal_code\"]'); const country = card.querySelector('[data-address-key=\"country\"]'); return city && city.value === 'Chicago' && state && state.value === 'Illinois' && zip && zip.value === '60601' && country && country.value === 'United States'; }); const hiddenVal = JSON.parse(await page.locator('#contact-addresses-hidden').inputValue()); const lastAddr = hiddenVal[hiddenVal.length - 1]; if (lastAddr.city !== 'Chicago') throw new Error('city not populated: ' + lastAddr.city); if (lastAddr.state !== 'Illinois') throw new Error('state not populated: ' + lastAddr.state); if (lastAddr.postal_code !== '60601') throw new Error('postal_code not populated: ' + lastAddr.postal_code); if (lastAddr.country !== 'United States') throw new Error('country not populated: ' + lastAddr.country); }"
 
+"${PWCLI}" cookie-set session "${ADMIN_SESSION}" --domain 127.0.0.1 --path / --httpOnly true --sameSite Lax >/dev/null
 "${PWCLI}" goto "${BASE_URL}/map"
 "${PWCLI}" run-code "async page => { await page.locator('#map-svg').waitFor(); await page.waitForTimeout(1500); }"
 "${PWCLI}" screenshot --filename "${SCREENSHOT_DIR}/map.png" --full-page true >/dev/null

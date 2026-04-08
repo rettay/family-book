@@ -12,6 +12,7 @@ _SOURCE_DEFINITIONS = [
         "description": "Digitized US newspapers 1777-1963 from the Library of Congress",
         "coverage": "United States",
         "requires_key": False,
+        "mode": "search",
     },
     {
         "id": "nara",
@@ -19,6 +20,7 @@ _SOURCE_DEFINITIONS = [
         "description": "US National Archives federal records, documents, and photographs",
         "coverage": "United States",
         "requires_key": False,
+        "mode": "search",
     },
     {
         "id": "trove",
@@ -27,6 +29,7 @@ _SOURCE_DEFINITIONS = [
         "coverage": "Australia",
         "requires_key": True,
         "env_var": "TROVE_API_KEY",
+        "mode": "search",
     },
     {
         "id": "dpla",
@@ -35,6 +38,7 @@ _SOURCE_DEFINITIONS = [
         "coverage": "United States",
         "requires_key": True,
         "env_var": "DPLA_API_KEY",
+        "mode": "search",
     },
     {
         "id": "familysearch",
@@ -43,6 +47,7 @@ _SOURCE_DEFINITIONS = [
         "coverage": "Worldwide",
         "requires_key": True,
         "env_var": "FAMILYSEARCH_APP_KEY",
+        "mode": "search",
     },
     {
         "id": "antenati",
@@ -50,6 +55,7 @@ _SOURCE_DEFINITIONS = [
         "description": "Digitized Italian civil records — birth, marriage, and death registers",
         "coverage": "Italy",
         "requires_key": False,
+        "mode": "guided_lookup",
     },
     {
         "id": "cemla",
@@ -57,6 +63,7 @@ _SOURCE_DEFINITIONS = [
         "description": "Centro de Estudios Migratorios Latinoamericanos — Argentine immigration passenger lists",
         "coverage": "Argentina",
         "requires_key": False,
+        "mode": "guided_lookup",
     },
 ]
 
@@ -72,6 +79,7 @@ def get_available_sources() -> list[dict]:
             "description": defn["description"],
             "coverage": defn["coverage"],
             "configured": True,
+            "mode": defn["mode"],
         }
         if defn.get("requires_key"):
             env_var = defn["env_var"]

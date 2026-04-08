@@ -27,6 +27,15 @@ logger = logging.getLogger(__name__)
 # Simple in-memory TTL cache: key -> (timestamp, data)
 _cache: dict[str, tuple[float, list[dict]]] = {}
 _CACHE_TTL = 24 * 60 * 60  # 24 hours
+_SOURCE_LABELS = {
+    "chronicling_america": "Chronicling America",
+    "nara": "NARA Catalog",
+    "trove": "Trove",
+    "dpla": "DPLA",
+    "familysearch": "FamilySearch",
+    "antenati": "Antenati",
+}
+_GUIDED_RECORD_TYPES = {"link", "guided_link"}
 
 
 def _cache_key(source: str, params: dict) -> str:
@@ -298,33 +307,15 @@ async def search_familysearch(params: SearchParams) -> SourceResults:
     """FamilySearch historical record search (stub).
 
     Full integration requires OAuth 2 app registration and user authentication.
-    For now, returns a helpful link to search FamilySearch directly.
+    Until that is configured, report the source as unavailable rather than
+    presenting a synthetic link as a successful search result.
     """
     source = "familysearch"
-    query = f"{params.first_name} {params.last_name}".strip()
-    if not query:
-        return SourceResults(source=source, error="No search query")
-
-    # Build a direct search URL for the user
-    import urllib.parse
-    fs_params = {"q.givenName": params.first_name, "q.surname": params.last_name}
-    if params.birth_date:
-        fs_params["q.birthLikeDate.from"] = params.birth_date[:4]
-        fs_params["q.birthLikeDate.to"] = params.birth_date[:4]
-    if params.birth_place:
-        fs_params["q.birthLikePlace"] = params.birth_place
-
-    search_url = "https://www.familysearch.org/search/record/results?" + urllib.parse.urlencode(fs_params)
-
-    results = [SearchResult(
+    return SourceResults(
         source=source,
-        title=f"Search FamilySearch for {query}",
-        snippet="FamilySearch requires a free account. Click to search their historical records directly.",
-        url=search_url,
-        record_type="link",
-    )]
-
-    return SourceResults(source=source, results=results, total_count=1)
+        available=False,
+        error="FamilySearch OAuth integration is not configured",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -342,17 +333,18 @@ async def search_antenati(params: SearchParams) -> SourceResults:
     if not place:
         return SourceResults(source=source, error="Birth place required for Antenati lookup")
 
-    # Antenati has a browsable catalog — provide direct link
+    # Antenati has a browsable catalog, not a general records API. Preserve
+    # the query context but label this as guided lookup in downstream UI.
     import urllib.parse
-    base_url = "https://www.antenati.san.beniculturali.it/search-registry/"
-    search_url = base_url + "?" + urllib.parse.urlencode({"comune": place})
+    base_url = "https://antenati.cultura.gov.it/search-registry/"
+    search_url = base_url + "?" + urllib.parse.urlencode({"lang": "en", "localita": place})
 
     results = [SearchResult(
         source=source,
         title=f"Browse Antenati registers for {place}",
-        snippet="Browse digitized Italian civil records (birth, marriage, death registers). Antenati provides IIIF image access to original documents.",
+        snippet="Guided lookup for digitized Italian civil registers. Antenati is not a full-name search source; you may need to browse by place and year.",
         url=search_url,
-        record_type="link",
+        record_type="guided_link",
     )]
 
     return SourceResults(source=source, results=results, total_count=1)
@@ -405,10 +397,26 @@ def _result_to_dict(r: SearchResult) -> dict:
 
 
 def source_results_to_dict(sr: SourceResults) -> dict:
+    records = [_result_to_dict(r) for r in sr.results]
     return {
+        "source_id": sr.source,
         "source": sr.source,
-        "results": [_result_to_dict(r) for r in sr.results],
+        "source_label": _SOURCE_LABELS.get(sr.source, sr.source.replace("_", " ").title()),
+        "results": records,
         "total_count": sr.total_count,
         "error": sr.error,
         "available": sr.available,
+        "status": _source_status(sr),
     }
+
+
+def _source_status(sr: SourceResults) -> str:
+    if not sr.available:
+        return "not_configured"
+    if sr.error:
+        return "error"
+    if not sr.results:
+        return "no_results"
+    if all(result.record_type in _GUIDED_RECORD_TYPES for result in sr.results):
+        return "guided_lookup"
+    return "results"

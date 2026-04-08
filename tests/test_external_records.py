@@ -250,6 +250,7 @@ async def test_external_records_search_single_source(admin_client: AsyncClient):
     data = resp.json()
     assert len(data["sources"]) == 1
     assert data["sources"][0]["source"] == "familysearch"
+    assert data["sources"][0]["status"] == "not_configured"
 
 
 @pytest.mark.asyncio
@@ -317,5 +318,19 @@ async def test_source_failure_doesnt_break_others(admin_client: AsyncClient):
     # Even if external APIs fail (expected in test env), we get structured responses
     for src in sources:
         assert "source" in src
+        assert "status" in src
         assert "results" in src
         assert isinstance(src["results"], list)
+
+
+@pytest.mark.asyncio
+async def test_antenati_uses_current_guided_lookup_url():
+    from app.services.external_records import SearchParams, search_antenati, source_results_to_dict
+
+    result = await search_antenati(SearchParams(query="maglio"))
+    data = source_results_to_dict(result)
+
+    assert data["status"] == "guided_lookup"
+    assert data["results"][0]["record_type"] == "guided_link"
+    assert data["results"][0]["url"].startswith("https://antenati.cultura.gov.it/search-registry/")
+    assert "localita=maglio" in data["results"][0]["url"]

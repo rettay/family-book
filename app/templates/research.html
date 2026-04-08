@@ -5,14 +5,22 @@
 <style>
   .research-results { margin-top: 1.5rem; }
   .research-results__source { margin-bottom: 1.5rem; }
+  .research-results__source-header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
   .research-results__source-name { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.25rem; }
   .research-results__source-count { font-size: 0.82rem; color: #6b6054; margin: 0 0 0.5rem; }
+  .research-results__source-status { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-radius: 999px; padding: 0.2rem 0.55rem; background: #f3eee6; color: #6b6054; }
+  .research-results__source-status--results { background: #e8f5e9; color: #2e7d32; }
+  .research-results__source-status--guided_lookup { background: #fff7dc; color: #8a5b00; }
+  .research-results__source-status--not_configured, .research-results__source-status--error { background: #fee2e2; color: #991b1b; }
+  .research-results__source-status--no_results { background: #f5f5f5; color: #6b6054; }
+  .research-results__source-message { font-size: 0.86rem; color: #6b6054; margin: 0.25rem 0 0.5rem; }
   .research-results__list { list-style: none; padding: 0; margin: 0; }
   .research-results__item {
     padding: 0.75rem 0; border-bottom: 1px solid rgba(45, 80, 22, 0.08);
   }
   .research-results__title { font-weight: 600; color: #2d5016; text-decoration: none; display: block; }
   a.research-results__title:hover { text-decoration: underline; }
+  .research-results__record-badge { display: inline-block; margin-top: 0.25rem; font-size: 0.72rem; font-weight: 700; color: #8a5b00; background: #fff7dc; border-radius: 999px; padding: 0.15rem 0.5rem; }
   .research-results__meta { font-size: 0.82rem; color: #6b6054; display: block; margin-top: 2px; }
   .research-results__snippet { font-size: 0.88rem; color: #3a3a3a; margin: 4px 0 0; }
   .research-results__empty, .research-results__error {
@@ -24,6 +32,16 @@
   .research-loading {
     text-align: center; padding: 2rem; color: #6b6054; font-size: 0.9rem;
   }
+  .research-page__beta {
+    background: #fff7dc;
+    border: 1px solid #f0d98a;
+    border-radius: 10px;
+    color: #5f4300;
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+  }
+  .research-page__beta strong { display: block; margin-bottom: 0.25rem; }
+  .research-page__beta p { margin: 0; font-size: 0.9rem; }
 </style>
 {% endblock %}
 
@@ -32,6 +50,11 @@
   <div class="research-page__header">
     <h1 class="research-page__title">{{ t('research.title') }}</h1>
     <p class="research-page__subtitle">{{ t('research.subtitle') }}</p>
+  </div>
+
+  <div class="research-page__beta" role="note">
+    <strong>{{ t('research.beta_notice_title') }}</strong>
+    <p>{{ t('research.beta_notice_body') }}</p>
   </div>
 
   {% if person_context %}
@@ -83,7 +106,9 @@
       <div class="research-source-card">
         <div class="research-source-card__header">
           <h3 class="research-source-card__name">{{ source.name }}</h3>
-          <span class="research-source-card__badge research-source-card__badge--active">{{ t('research.source_active') }}</span>
+          <span class="research-source-card__badge research-source-card__badge--active">
+            {% if source.mode == 'guided_lookup' %}{{ t('research.source_guided_lookup') }}{% else %}{{ t('research.source_active') }}{% endif %}
+          </span>
         </div>
         <p class="research-source-card__description">{{ source.description }}</p>
         <p class="research-source-card__coverage">{{ t('research.coverage') }}: {{ source.coverage }}</p>

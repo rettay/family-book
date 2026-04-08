@@ -27,6 +27,8 @@ async def test_research_shows_configured_sources(admin_client: AsyncClient):
     # Chronicling America and NARA are always available (no key needed)
     assert "Chronicling America" in resp.text
     assert "NARA" in resp.text
+    assert "Research is beta" in resp.text
+    assert "Guided lookup" in resp.text
 
 
 @pytest.mark.asyncio
@@ -185,6 +187,106 @@ async def test_research_results_empty_query(admin_client: AsyncClient):
     assert resp.status_code == 200
 
 
+@pytest.mark.asyncio
+async def test_research_results_show_source_statuses(admin_client: AsyncClient, monkeypatch):
+    """Results partial should expose per-source health and distinguish guided links."""
+    from app.services.external_records import SearchResult, SourceResults
+
+    async def fake_search_all_sources(_params):
+        return [
+            SourceResults(
+                source="chronicling_america",
+                results=[
+                    SearchResult(
+                        source="chronicling_america",
+                        title="Useful newspaper hit",
+                        url="https://chroniclingamerica.loc.gov/example",
+                        record_type="newspaper",
+                    )
+                ],
+                total_count=1,
+            ),
+            SourceResults(source="nara", results=[], total_count=0),
+            SourceResults(source="dpla", available=False, error="DPLA API key not configured"),
+            SourceResults(source="trove", error="upstream unavailable"),
+            SourceResults(
+                source="antenati",
+                results=[
+                    SearchResult(
+                        source="antenati",
+                        title="Browse Antenati registers for maglio",
+                        url="https://antenati.cultura.gov.it/search-registry/?lang=en&localita=maglio",
+                        record_type="guided_link",
+                    )
+                ],
+                total_count=1,
+            ),
+        ]
+
+    monkeypatch.setattr("app.routes.research.search_all_sources", fake_search_all_sources)
+
+    resp = await admin_client.get("/partials/research-results?q=maglio")
+    assert resp.status_code == 200
+    text = resp.text
+    assert "Chronicling America" in text
+    assert "NARA Catalog" in text
+    assert "Results" in text
+    assert "No results" in text
+    assert "Not configured" in text
+    assert "upstream unavailable" in text
+    assert "Guided lookup" in text
+
+
+@pytest.mark.asyncio
+async def test_research_results_count_localizes_to_spanish(admin_client: AsyncClient, monkeypatch):
+    """Results partial should not compose English count text in Spanish."""
+    from app.services.external_records import SearchResult, SourceResults
+
+    async def fake_search_all_sources(_params):
+        return [
+            SourceResults(
+                source="chronicling_america",
+                results=[
+                    SearchResult(
+                        source="chronicling_america",
+                        title="Un resultado",
+                        url="https://chroniclingamerica.loc.gov/example-1",
+                        record_type="newspaper",
+                    )
+                ],
+                total_count=1,
+            ),
+            SourceResults(
+                source="antenati",
+                results=[
+                    SearchResult(
+                        source="antenati",
+                        title="Primer enlace guiado",
+                        url="https://antenati.cultura.gov.it/search-registry/?lang=en&localita=maglio",
+                        record_type="guided_link",
+                    ),
+                    SearchResult(
+                        source="antenati",
+                        title="Segundo enlace guiado",
+                        url="https://antenati.cultura.gov.it/search-registry/?lang=en&localita=cutroni",
+                        record_type="guided_link",
+                    ),
+                ],
+                total_count=2,
+            ),
+        ]
+
+    monkeypatch.setattr("app.routes.research.search_all_sources", fake_search_all_sources)
+    admin_client.cookies.set("locale", "es")
+
+    resp = await admin_client.get("/partials/research-results?q=maglio")
+    assert resp.status_code == 200
+    text = resp.text
+    assert "1 resultado de busqueda" in text
+    assert "2 resultados de busqueda" in text
+    assert "search result" not in text
+
+
 # ── Slice 3: Cross-Links and Person Context Tests ────────────────────
 
 
@@ -227,15 +329,15 @@ async def test_root_person_no_research_link(admin_client: AsyncClient):
 
     async with async_session_factory() as session:
         result = await session.execute(
-            select(Person).where(Person.is_root == True)
+            select(Person.id).where(Person.is_root == True)
         )
-        root = result.scalar_one_or_none()
+        root_id = result.scalar_one_or_none()
 
-    if root:
+    if root_id:
         # Fetch root's slug via API (seed data may not have one)
-        api_resp = await admin_client.get(f"/api/persons/{root.id}")
+        api_resp = await admin_client.get(f"/api/persons/{root_id}")
         slug = api_resp.json().get("slug") if api_resp.status_code == 200 else None
         if slug:
             resp = await admin_client.get(f"/wiki/{slug}")
             assert resp.status_code == 200
-            assert f"/research?person_id={root.id}" not in resp.text
+            assert f"/research?person_id={root_id}" not in resp.text

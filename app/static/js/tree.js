@@ -4048,6 +4048,10 @@
   };
 
   window.collapseSidebar = function() {
+    if (sidebar && sidebar.classList.contains('person-sidebar--floating')) {
+      window.dockSidebar();
+      return;
+    }
     sidebar.classList.remove('person-sidebar--open');
     window.closeAccessibleOverlay(sidebar);
     var expandTab = document.getElementById('sidebar-expand-tab');
@@ -5467,8 +5471,10 @@
     if (layout) layout.classList.add('tree-layout--sidebar-floating');
     var popBtn = document.getElementById('sidebar-popout-btn');
     var dockBtn = document.getElementById('sidebar-dock-btn');
+    var collapseBtn = document.getElementById('sidebar-collapse-btn');
     if (popBtn) popBtn.hidden = true;
     if (dockBtn) dockBtn.hidden = false;
+    if (collapseBtn) collapseBtn.hidden = true;
     // Restore or default position
     try {
       var stored = localStorage.getItem(SIDEBAR_FLOAT_KEY);
@@ -5510,8 +5516,10 @@
     if (layout) layout.classList.remove('tree-layout--sidebar-floating');
     var popBtn = document.getElementById('sidebar-popout-btn');
     var dockBtn = document.getElementById('sidebar-dock-btn');
+    var collapseBtn = document.getElementById('sidebar-collapse-btn');
     if (popBtn) popBtn.hidden = false;
     if (dockBtn) dockBtn.hidden = true;
+    if (collapseBtn) collapseBtn.hidden = false;
     try {
       localStorage.setItem(SIDEBAR_FLOAT_KEY, '0');
     } catch(e) {}

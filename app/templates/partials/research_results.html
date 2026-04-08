@@ -6,8 +6,38 @@
 <div class="research-results">
   {% for source_group in results %}
   <div class="research-results__source">
-    <h3 class="research-results__source-name">{{ source_group.source }}</h3>
-    <p class="research-results__source-count">{{ source_group.results | length }} {{ t('common.search') | lower }} result{{ 's' if source_group.results | length != 1 }}</p>
+    <div class="research-results__source-header">
+      <h3 class="research-results__source-name">{{ source_group.source_label or source_group.source }}</h3>
+      <span class="research-results__source-status research-results__source-status--{{ source_group.status }}">
+        {% if source_group.status == 'not_configured' %}
+          {{ t('research.source_status_not_configured') }}
+        {% elif source_group.status == 'error' %}
+          {{ t('research.source_status_error') }}
+        {% elif source_group.status == 'no_results' %}
+          {{ t('research.source_status_no_results') }}
+        {% elif source_group.status == 'guided_lookup' %}
+          {{ t('research.source_status_guided_lookup') }}
+        {% else %}
+          {{ t('research.source_status_results') }}
+        {% endif %}
+      </span>
+    </div>
+    <p class="research-results__source-count">
+      {% if source_group.results | length == 1 %}
+        {{ t('research.source_result_count_one').replace('{count}', source_group.results | length | string) }}
+      {% else %}
+        {{ t('research.source_result_count_many').replace('{count}', source_group.results | length | string) }}
+      {% endif %}
+    </p>
+    {% if source_group.status == 'not_configured' %}
+    <p class="research-results__source-message">{{ source_group.error or t('research.source_not_configured_hint') }}</p>
+    {% elif source_group.status == 'error' %}
+    <p class="research-results__source-message">{{ source_group.error }}</p>
+    {% elif source_group.status == 'no_results' %}
+    <p class="research-results__source-message">{{ t('research.no_results') }}</p>
+    {% elif source_group.status == 'guided_lookup' %}
+    <p class="research-results__source-message">{{ t('research.guided_lookup_hint') }}</p>
+    {% endif %}
     {% if source_group.results %}
     <ul class="research-results__list">
       {% for record in source_group.results %}
@@ -20,9 +50,12 @@
         {% if record.date or record.location %}
         <span class="research-results__meta">
           {% if record.date %}{{ record.date }}{% endif %}
-          {% if record.date and record.location %} &mdash; {% endif %}
+          {% if record.date and record.location %} - {% endif %}
           {% if record.location %}{{ record.location }}{% endif %}
         </span>
+        {% endif %}
+        {% if record.record_type == 'guided_link' or record.record_type == 'link' %}
+        <span class="research-results__record-badge">{{ t('research.guided_lookup_badge') }}</span>
         {% endif %}
         {% if record.snippet %}
         <p class="research-results__snippet">{{ record.snippet }}</p>

@@ -261,6 +261,7 @@
   .person-sidebar__dock { font-size: 0.75rem; padding: 3px 8px; border: 1px solid rgba(45,80,22,0.2); border-radius: 999px; background: transparent; cursor: pointer; color: #2d5016; white-space: nowrap; }
   .person-sidebar__dock[hidden] { display: none; }
   .person-sidebar__popout[hidden] { display: none; }
+  .person-sidebar__collapse[hidden] { display: none; }
   .person-sidebar--floating .person-sidebar__header { cursor: grab; }
   .person-sidebar--floating .person-sidebar__header:active { cursor: grabbing; }
   .tree-layout--sidebar-floating .tree-canvas { width: 100%; }
@@ -481,7 +482,7 @@
       <div class="person-sidebar" id="person-sidebar" hidden aria-hidden="true">
         <div role="dialog" aria-modal="true" aria-label="Person details" tabindex="-1" id="person-sidebar-dialog">
           <div class="person-sidebar__header">
-            <button class="person-sidebar__collapse" type="button" aria-label="Collapse sidebar" onclick="collapseSidebar()" title="Collapse sidebar">&#x276F;</button>
+            <button class="person-sidebar__collapse" type="button" id="sidebar-collapse-btn" aria-label="Collapse sidebar" onclick="collapseSidebar()" title="Collapse sidebar">&#x276F;</button>
             <!-- FB-094: pop-out / dock controls -->
             <button class="person-sidebar__popout" type="button" id="sidebar-popout-btn"
                     aria-label="{{ t('tree.sidebar_popout') }}" title="{{ t('tree.sidebar_popout') }}"
