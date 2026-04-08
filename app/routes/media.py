@@ -14,6 +14,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models.media import Media
 from app.models.person import Person, PersonLifecycleState
+from app.roles import is_admin_actor
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
 from app.services.media_service import (
     ALLOWED_MIME_TYPES,
@@ -229,7 +230,7 @@ async def get_media_metadata(
         "tagged_people": tagged_people,
         "created_at": str(media.created_at),
     }
-    if current_user.is_admin or current_user.id == media.person_id:
+    if is_admin_actor(current_user) or current_user.id == media.person_id:
         body["source"] = media.source
         body["uploaded_by"] = media.uploaded_by
     return body
@@ -481,7 +482,7 @@ async def delete_media(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     # Protect primary photos of other people
-    if not current_user.is_admin and media.uploaded_by == current_user.id:
+    if not is_admin_actor(current_user) and media.uploaded_by == current_user.id:
         photo_check = await db.execute(
             select(Person.id).where(
                 Person.photo_url == media.id,
@@ -502,7 +503,7 @@ async def delete_media(
         person.photo_url = None
         await db.flush()
 
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         # Admin delete is permanent by default; use PATCH visibility to soft-delete instead
         delete_media_files(media)
         await db.delete(media)
@@ -531,7 +532,7 @@ async def edit_image(
     if media.mime_type not in IMAGE_MIME_TYPES:
         raise HTTPException(status_code=400, detail="Only image media can be edited")
 
-    if not (current_user.is_admin or media.uploaded_by == current_user.id):
+    if not (is_admin_actor(current_user) or media.uploaded_by == current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to edit this media")
 
     if not file.content_type or file.content_type not in IMAGE_MIME_TYPES:
@@ -590,7 +591,7 @@ async def change_media_visibility(
     if visibility not in valid:
         raise HTTPException(status_code=422, detail=f"visibility must be one of: {', '.join(valid)}")
 
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         media.visibility = visibility
     elif media.uploaded_by == current_user.id:
         if visibility == "hidden":

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.config import get_settings
 from app.database import async_session_factory
-from app.models.person import AccountState, Person, PersonSource
+from app.models.person import AccountState, Person, PersonRole, PersonSource
 from app.services.field_protection import contact_email_lookup_hash, normalize_email_for_lookup
 
 logger = logging.getLogger(__name__)
@@ -32,8 +32,9 @@ async def ensure_bootstrap_admin(
         existing = existing_result.scalar_one_or_none()
 
         if existing:
-            if not existing.is_admin or existing.account_state != AccountState.active.value:
+            if existing.role != PersonRole.admin.value or existing.account_state != AccountState.active.value:
                 existing.is_admin = True
+                existing.role = PersonRole.admin.value
                 existing.account_state = AccountState.active.value
                 await session.commit()
                 logger.info("Promoted bootstrap admin account for %s", bootstrap_email)
@@ -51,6 +52,7 @@ async def ensure_bootstrap_admin(
             last_name=settings.BOOTSTRAP_ADMIN_LAST_NAME.strip() or "User",
             contact_email=bootstrap_email,
             is_admin=True,
+            role=PersonRole.admin.value,
             is_root=False,
             source=PersonSource.manual.value,
             account_state=AccountState.active.value,

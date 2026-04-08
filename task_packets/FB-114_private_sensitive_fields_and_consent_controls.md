@@ -1,6 +1,6 @@
 # Task Packet - FB-114 Private Sensitive Fields and Consent Controls
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -39,17 +39,30 @@ The app stores unusually sensitive living-family data. Users need safe defaults 
 
 ## Acceptance Criteria
 
-- [ ] Sensitive fields have documented defaults and UI copy.
-- [ ] Users cannot accidentally expose medical/genetic/contact data to all members.
-- [ ] Minor-related media/profile defaults are conservative.
-- [ ] Visibility changes create audit records.
-- [ ] Tests prove redaction in API and HTML paths.
+- [x] Sensitive fields have documented defaults and UI copy.
+- [x] Users cannot accidentally expose medical/genetic/contact data to all members.
+- [x] Minor-related media/profile defaults are conservative.
+- [x] Visibility changes create audit records.
+- [x] Tests prove redaction in API and HTML paths.
 
 ## Validation Commands
 
 - `uv run pytest tests/test_access_control.py tests/test_media.py tests/test_pages.py -q`
 - `git diff --check`
 
+## Evidence
+
+- `app/models/person.py`
+- `app/access_control.py`
+- `app/routes/persons.py`
+- `alembic/versions/c4f8e2a1b6d9_add_person_privacy_role_columns.py`
+- `app/templates/invite.html`
+- `app/templates/trust.html`
+- `tests/test_access_control.py`
+- `tests/test_migrations.py`
+- `tests/test_media.py`
+- `tests/test_pages.py`
+
 ## Definition of Done
 
-- [ ] Sensitive data handling is safe enough for paid beta.
+- [x] Sensitive data handling is safe enough for paid beta.

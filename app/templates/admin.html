@@ -44,7 +44,10 @@
         <a href="/people/new" class="btn btn--primary btn--sm" id="admin-add-person-button">+ Add Person</a>
         <button class="btn btn--secondary btn--sm" id="admin-backup-button" onclick="triggerBackup()">{{ t('admin.backup_now') }}</button>
         <button class="btn btn--secondary btn--sm" id="admin-download-backup-button" onclick="downloadBackup()">{{ t('admin.download_backup') }}</button>
+        <button class="btn btn--secondary btn--sm" id="admin-download-gedcom-button" onclick="downloadGedcom()">Download GEDCOM</button>
+        <button class="btn btn--secondary btn--sm" id="admin-download-archive-button" onclick="downloadArchiveExport()">Download Full Archive</button>
         <button class="btn btn--secondary btn--sm" id="admin-verify-restore-button" onclick="verifyBackupRestore()">Verify Restore</button>
+        <a href="/trust" class="btn btn--outline btn--sm" id="admin-open-trust-center-button">Open Trust Center</a>
       </div>
     </div>
   </div>
@@ -58,6 +61,9 @@
         <p class="status-list__item text-sm text-muted">Retention: {{ backup_health.retention_days }} days</p>
         <p class="status-list__item text-sm text-muted">Protected fields: {{ backup_health.protection.protected_person_fields | join(', ') }}</p>
         <p class="status-list__item text-sm text-muted">Storage contract: {{ backup_health.protection.storage_contract }}</p>
+        <p class="status-list__item text-sm text-muted">Privacy model: owner/admin see all active profiles, stewards manage visible non-staff profiles, members and viewers see graph-connected visible relatives only.</p>
+        <p class="status-list__item text-sm text-muted">Sensitive fields: medical and genetic data default to staff-only, and living minors always keep contact details staff-only.</p>
+        <p class="status-list__item text-sm text-muted">Exit path: admins can export GEDCOM or a full archive ZIP with JSON, media, stories, and a manifest.</p>
         <p class="status-list__item text-sm text-muted">
           {{ t('admin.invite_delivery') }}:
           {% if email_delivery_enabled %}
@@ -270,6 +276,14 @@ async function triggerBackup() {
 
 function downloadBackup() {
   window.location.href = '/api/admin/backup/download';
+}
+
+function downloadGedcom() {
+  window.location.href = '/api/admin/exports/gedcom';
+}
+
+function downloadArchiveExport() {
+  window.location.href = '/api/admin/exports/archive';
 }
 
 async function verifyBackupRestore() {

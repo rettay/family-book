@@ -76,7 +76,7 @@ class TestMediaUpload:
             data={"person_id": "tyler-000-0000-0000-000000000002"},
             files={"file": ("test.jpg", image_data, "image/jpeg")},
         )
-        assert resp.status_code == 201
+        assert resp.status_code == 403
 
     async def test_upload_rejects_unsupported_type(self, admin_client):
         resp = await admin_client.post(
@@ -229,7 +229,7 @@ class TestMediaServing:
         resp = await admin_client.get("/api/media/nonexistent/file")
         assert resp.status_code == 404
 
-    async def test_member_can_read_shared_media_for_any_visible_person(self, admin_client, member_client, tmp_path, monkeypatch):
+    async def test_member_cannot_read_shared_media_for_unlinked_visible_person(self, admin_client, member_client, tmp_path, monkeypatch):
         from app.config import Settings
         settings = Settings(
             SECRET_KEY="test", FERNET_KEY="dGVzdA==",
@@ -252,7 +252,7 @@ class TestMediaServing:
         media_id = upload_resp.json()["id"]
 
         resp = await member_client.get(f"/api/media/{media_id}/file")
-        assert resp.status_code == 200
+        assert resp.status_code == 403
 
     async def test_serve_file_rejects_db_backed_path_traversal(
         self,

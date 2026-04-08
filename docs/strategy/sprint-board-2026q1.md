@@ -8,7 +8,6 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 | Sprint | Title | Status | Packets |
 |---|---|---|---|
-| S48 | Privacy and Exit Trust | planned | `FB-113` to `FB-116` |
 | S49 | Paid Hosted Platform | proposed | `FB-117` to `FB-119` |
 | S50 | Activation and Migration | proposed | `FB-120` to `FB-123` |
 | S51 | Lovable Engagement | proposed | `FB-124` to `FB-126` |
@@ -18,22 +17,21 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 ## Planned Sprint
 
-### `S48 - Privacy and Exit Trust`
+### `S49 - Paid Hosted Platform`
 
-Status: Planned
+Status: Proposed
 
 ### Sprint Goal
 
-Remove the remaining privacy and exit-trust blockers before paid beta hosting expands.
+Turn Family Book into a hosted paid offering with the minimum viable provisioning, ops, and conversion path for early paying archives.
 
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 113 | FB-113 | Role and Graph-Distance Privacy Model | P0 | proposed |
-| 114 | FB-114 | Private Sensitive Fields and Consent Controls | P0 | proposed |
-| 115 | FB-115 | Archive Export and GEDCOM Export | P0 | proposed |
-| 116 | FB-116 | Paid Launch Trust Center | P1 | proposed |
+| 117 | FB-117 | Hosted Archive Provisioning Flow | P0 | proposed |
+| 118 | FB-118 | Hosted Ops and Admin Runbook | P0 | proposed |
+| 119 | FB-119 | Hosted Signup, Trial, and Conversion Path | P1 | proposed |
 
 ### Stretch / Queued Packets
 
@@ -49,7 +47,39 @@ None yet.
 
 ## Current Sprint
 
-None active.
+`S49 - Paid Hosted Platform`
+
+---
+
+## Closed Sprint
+
+### `S48 - Privacy and Exit Trust`
+
+Status: Closed
+
+### Sprint Goal
+
+Remove the remaining privacy and exit-trust blockers before paid beta hosting expands.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 113 | FB-113 | Role and Graph-Distance Privacy Model | P0 | done |
+| 114 | FB-114 | Private Sensitive Fields and Consent Controls | P0 | done |
+| 115 | FB-115 | Archive Export and GEDCOM Export | P0 | done |
+| 116 | FB-116 | Paid Launch Trust Center | P1 | done |
+
+### Outcome
+
+- Family Book now enforces `owner/admin/steward/member/viewer` behavior in the permission model instead of broad visible-person access for every active member.
+- Hidden profiles remain restricted to owner/admin even if a member originally created them.
+- Contact visibility and sensitive-field visibility are explicit per-profile policies, with conservative defaults for living minors and sensitive profile fields.
+- Existing archives now have an Alembic migration path for the new privacy-role columns.
+- Relationship-path lookups now respect visibility boundaries.
+- GEDCOM and full archive exports are available to admins, and server-side export artifacts are deleted before the response returns.
+- Auditor result: PASS.
+- Closeout evidence: `docs/strategy/sprint-closeout-s48.md`.
 
 ---
 

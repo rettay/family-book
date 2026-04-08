@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access_control import can_manage_person
+from app.access_control import can_manage_person, get_accessible_person_ids
 from app.auth import require_auth
 from app.database import get_db
 from app.models.person import Person, PersonLifecycleState
@@ -21,6 +21,7 @@ from app.schemas import (
 )
 from app.services.audit_service import log_audit
 from app.services.relationship_calculator import find_relationship
+from app.roles import is_admin_actor
 
 router = APIRouter(prefix="/api/relationships", tags=["relationships"])
 logger = logging.getLogger(__name__)
@@ -53,13 +54,26 @@ async def get_relationship_path(
     db: AsyncSession = Depends(get_db),
 ):
     """Find and label the shortest relationship path between two persons."""
+    allowed_person_ids = await get_accessible_person_ids(
+        db,
+        current_user,
+        include_hidden=is_admin_actor(current_user),
+    )
+
     # Validate both persons exist
     for pid in (from_id, to_id):
         result = await db.execute(select(Person.id).where(Person.id == pid))
         if not result.scalar_one_or_none():
             raise HTTPException(status_code=404, detail=f"Person {pid} not found")
+        if pid not in allowed_person_ids:
+            raise HTTPException(status_code=403, detail="Not visible")
 
-    calc_result = await find_relationship(db, from_id, to_id)
+    calc_result = await find_relationship(
+        db,
+        from_id,
+        to_id,
+        allowed_person_ids=allowed_person_ids,
+    )
     return RelationshipPathResponse(
         found=calc_result.found,
         relationship_label=calc_result.relationship_label,

@@ -113,6 +113,18 @@ async def home(
     return RedirectResponse("/tree", status_code=302)
 
 
+@router.get("/trust", response_class=HTMLResponse)
+async def trust_page(
+    request: Request,
+    current_user: Person | None = Depends(get_current_user),
+):
+    return templates.TemplateResponse("trust.html", _ctx(
+        request,
+        current_user,
+        active_page="trust",
+    ))
+
+
 # ─── Auth Pages ───────────────────────────────────────────────────
 
 @router.get("/login", response_class=HTMLResponse)

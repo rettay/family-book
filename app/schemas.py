@@ -177,6 +177,8 @@ class PersonCreate(BaseModel):
     social_tiktok: str | None = Field(None, max_length=300)
     social_youtube: str | None = Field(None, max_length=300)
     branch: str | None = Field(None, max_length=100)
+    contact_visibility: str = "close_family"
+    sensitive_visibility: str = "staff"
     source: str = "manual"
 
     @field_validator("confidence")
@@ -274,6 +276,8 @@ class PersonUpdate(BaseModel):
     social_youtube: str | None = Field(None, max_length=300)
     branch: str | None = Field(None, max_length=100)
     visibility: str | None = None
+    contact_visibility: str | None = None
+    sensitive_visibility: str | None = None
 
     @field_validator("confidence")
     @classmethod
@@ -385,6 +389,9 @@ class PersonDetail(PersonSummary):
     social_tiktok: str | None = None
     social_youtube: str | None = None
     is_admin: bool = False
+    role: str = "member"
+    contact_visibility: str | None = None
+    sensitive_visibility: str | None = None
     is_root: bool = False
     source: str = "manual"
     created_at: datetime | None = None
@@ -427,6 +434,9 @@ def person_to_detail(person) -> PersonDetail:
             patronymic=None,
             name_display_order=None,
             slug=person.slug,
+            role=getattr(person, "role", "member") or ("admin" if person.is_admin else "member"),
+            contact_visibility=getattr(person, "contact_visibility", None),
+            sensitive_visibility=getattr(person, "sensitive_visibility", None),
             is_root=True,
             source=person.source,
             created_at=person.created_at,
@@ -509,6 +519,9 @@ def person_to_detail(person) -> PersonDetail:
         social_tiktok=person.social_tiktok,
         social_youtube=person.social_youtube,
         is_admin=person.is_admin,
+        role=getattr(person, "role", "member") or ("admin" if person.is_admin else "member"),
+        contact_visibility=getattr(person, "contact_visibility", None),
+        sensitive_visibility=getattr(person, "sensitive_visibility", None),
         is_root=person.is_root,
         source=person.source,
         created_at=person.created_at,

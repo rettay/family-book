@@ -79,6 +79,8 @@ async def find_relationship(
     db: AsyncSession,
     from_id: str,
     to_id: str,
+    *,
+    allowed_person_ids: set[str] | None = None,
 ) -> RelationshipResult:
     """Find and label the shortest relationship path between two persons."""
     if from_id == to_id:
@@ -90,7 +92,7 @@ async def find_relationship(
         )
 
     # Load graph
-    adj, edge_meta, names = await _load_graph(db)
+    adj, edge_meta, names = await _load_graph(db, allowed_person_ids=allowed_person_ids)
 
     if from_id not in adj or to_id not in adj:
         return RelationshipResult(
@@ -132,6 +134,7 @@ async def find_relationship(
 
 async def _load_graph(
     db: AsyncSession,
+    allowed_person_ids: set[str] | None = None,
 ) -> tuple[dict[str, list[str]], dict[tuple[str, str], dict], dict[str, str]]:
     """Build adjacency list and edge metadata from DB."""
     adj: dict[str, list[str]] = {}
@@ -143,6 +146,8 @@ async def _load_graph(
     )
     persons = result.scalars().all()
     names: dict[str, str] = {p.id: p.display_name for p in persons}
+    if allowed_person_ids is not None:
+        names = {person_id: name for person_id, name in names.items() if person_id in allowed_person_ids}
     for pid in names:
         adj.setdefault(pid, [])
 

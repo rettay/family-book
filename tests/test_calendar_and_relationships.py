@@ -436,6 +436,23 @@ async def test_relationship_disconnected(admin_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_relationship_path_rejects_invisible_endpoint(admin_client: AsyncClient, member_client: AsyncClient):
+    resp = await admin_client.post("/api/persons", json={
+        "first_name": "Invisible",
+        "last_name": "Branch",
+    })
+    assert resp.status_code == 201
+    outsider_id = resp.json()["id"]
+
+    path_resp = await member_client.get(
+        f"/api/relationships/path?from=member-00-0000-0000-000000000005&to={outsider_id}"
+    )
+
+    assert path_resp.status_code == 403
+    assert path_resp.json()["detail"] == "Not visible"
+
+
+@pytest.mark.asyncio
 async def test_relationship_path_details_structure(admin_client: AsyncClient):
     """Path details should have the expected fields."""
     tyler_id = "tyler-000-0000-0000-000000000002"

@@ -1,6 +1,6 @@
 # Task Packet - FB-115 Archive Export and GEDCOM Export
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -35,18 +35,27 @@ The paid privacy/ownership story requires exitability. GEDCOM import exists, but
 
 ## Acceptance Criteria
 
-- [ ] Admin can download GEDCOM export.
-- [ ] Admin can download full archive export.
-- [ ] Export includes media and stories in portable formats.
-- [ ] Export manifest documents omissions and custom fields.
-- [ ] Sensitive-field export behavior is explicit and tested.
-- [ ] Export generation does not expose hidden/private data to unauthorized users.
+- [x] Admin can download GEDCOM export.
+- [x] Admin can download full archive export.
+- [x] Export includes media and stories in portable formats.
+- [x] Export manifest documents omissions and custom fields.
+- [x] Sensitive-field export behavior is explicit and tested.
+- [x] Export generation does not expose hidden/private data to unauthorized users.
 
 ## Validation Commands
 
-- `uv run pytest tests/test_export.py tests/test_gedcom_parser.py tests/test_access_control.py -q`
+- `uv run pytest tests/test_exports.py tests/test_access_control.py -q`
 - `git diff --check`
+
+## Evidence
+
+- `app/services/export_service.py`
+- `app/routes/exports.py`
+- `app/templates/admin.html`
+- `docs/ops/export-and-delete.md`
+- `tests/test_exports.py`
+- `tests/test_api.py`
 
 ## Definition of Done
 
-- [ ] "You can leave with your data" is true.
+- [x] "You can leave with your data" is true.

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.access_control import can_manage_person, get_accessible_person_ids
 from app.models.media import Media
 from app.models.person import Person, PersonLifecycleState
+from app.roles import is_admin_actor
 
 
 @dataclass
@@ -81,7 +82,7 @@ def _can_view_media_fast(
     accessible_person_ids: set[str],
 ) -> bool:
     """Check media visibility without per-item DB queries."""
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         return True
     visibility = getattr(media, "visibility", "family")
     if visibility == "hidden":
@@ -93,7 +94,7 @@ def _can_view_media_fast(
 
 def _build_visibility_filter(current_user: Person):
     """SQL WHERE clause fragment for media visibility."""
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         return None
     return or_(
         Media.visibility == "family",

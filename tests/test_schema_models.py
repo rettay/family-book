@@ -39,6 +39,7 @@ def test_person_schema_helpers_preserve_expected_fields():
     assert summary.display_name == "Schema Person"
     assert detail.contact_email == "schema@example.com"
     assert detail.branch == "martin"
+    assert detail.role == "member"
 
 
 def test_root_person_detail_redacts_name_fields():
@@ -96,6 +97,7 @@ def test_person_summary_helper_preserves_datetime_fields_for_detail():
 
     assert detail.created_at == created_at
     assert detail.is_admin is True
+    assert detail.role == "admin"
     assert detail.contact_email == "detail@example.com"
 
 

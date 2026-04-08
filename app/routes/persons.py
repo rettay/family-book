@@ -399,6 +399,8 @@ async def create_person(
         social_tiktok=payload.get("social_tiktok"),
         social_youtube=payload.get("social_youtube"),
         branch=payload.get("branch"),
+        contact_visibility=payload.get("contact_visibility") or "close_family",
+        sensitive_visibility=payload.get("sensitive_visibility") or "staff",
         source=payload.get("source") or "manual",
         created_by=current_user.id,
     )
@@ -467,6 +469,11 @@ async def update_person(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     old_snapshot = serialize_person_snapshot(person)
+    previous_privacy = {
+        "visibility": person.visibility,
+        "contact_visibility": person.contact_visibility,
+        "sensitive_visibility": person.sensitive_visibility,
+    }
     update_data = await _normalize_location_fields(
         body.model_dump(exclude_unset=True),
         person=person,
@@ -555,6 +562,23 @@ async def update_person(
     await log_audit(db, current_user.id, "update", "person", person.id,
                     old_value=old_snapshot,
                     new_value={"fields_changed": list(body.model_dump(exclude_unset=True).keys())})
+    privacy_fields = ("visibility", "contact_visibility", "sensitive_visibility")
+    changed_privacy = {
+        field: {"old": previous_privacy.get(field), "new": getattr(person, field)}
+        for field in privacy_fields
+        if field in body.model_dump(exclude_unset=True)
+        and previous_privacy.get(field) != getattr(person, field)
+    }
+    if changed_privacy:
+        await log_audit(
+            db,
+            current_user.id,
+            "privacy_update",
+            "person",
+            person.id,
+            old_value=previous_privacy,
+            new_value=changed_privacy,
+        )
     logger.info("Person %s updated by %s", person.id, current_user.id)
     await db.commit()
     await db.refresh(person)

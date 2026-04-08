@@ -30,6 +30,7 @@ async def test_hidden_person_denied_to_member(seeded_db):
     assert access.can_view is False
     assert access.can_view_profile is False
     assert access.can_view_contacts is False
+    assert access.can_view_sensitive_profile is False
     assert access.can_manage is False
 
 
@@ -49,6 +50,7 @@ async def test_admin_can_view_hidden_person(seeded_db):
 
     assert access.can_view is True
     assert access.can_view_contacts is True
+    assert access.can_view_sensitive_profile is True
     assert access.can_manage is True
 
 
@@ -91,6 +93,7 @@ def test_redact_person_detail_hides_sensitive_fields_without_profile_access():
         can_view=True,
         can_view_profile=False,
         can_view_contacts=False,
+        can_view_sensitive_profile=False,
         can_manage=False,
     )
 
@@ -112,9 +115,10 @@ async def test_get_accessible_person_ids_hides_hidden_people_from_members(seeded
     )
     seeded_db.add(hidden)
     await seeded_db.flush()
-
     member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
     assert member is not None
+    seeded_db.add(access_control.ParentChild(parent_id=member.id, child_id=hidden.id, kind="biological"))
+    await seeded_db.commit()
 
     visible_ids = await get_accessible_person_ids(seeded_db, member)
     all_ids = await get_accessible_person_ids(seeded_db, member, include_hidden=True)
@@ -135,7 +139,7 @@ def test_redact_person_summary_preserves_metrics_when_profile_visible():
         is_living=True,
     )
     person.media_count = 9
-    access = PersonAccess(True, True, False, False)
+    access = PersonAccess(True, True, False, False, False)
 
     summary = redact_person_summary(person, access)
 
@@ -143,3 +147,109 @@ def test_redact_person_summary_preserves_metrics_when_profile_visible():
     assert summary.branch == "martin"
     assert summary.residence_country_code == "US"
     assert summary.media_count == 9
+
+
+@pytest.mark.asyncio
+async def test_member_cannot_view_unlinked_visible_person(seeded_db):
+    outsider = Person(
+        first_name="Outsider",
+        last_name="Relative",
+        visibility=Visibility.visible.value,
+        account_state=AccountState.active.value,
+    )
+    seeded_db.add(outsider)
+    await seeded_db.commit()
+
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    access = await get_person_access(seeded_db, member, outsider)
+
+    assert access.can_view is False
+    assert access.distance is None
+
+
+@pytest.mark.asyncio
+async def test_member_contact_access_is_limited_to_close_family(seeded_db):
+    tyler = await seeded_db.get(Person, "tyler-000-0000-0000-000000000002")
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert tyler is not None
+    assert member is not None
+    tyler.contact_email = "tyler-private@example.com"
+    await seeded_db.commit()
+
+    access = await get_person_access(seeded_db, member, tyler)
+    detail = redact_person_detail(tyler, access)
+
+    assert access.can_view is True
+    assert access.distance == 2
+    assert access.can_view_contacts is False
+    assert detail.contact_email is None
+
+
+@pytest.mark.asyncio
+async def test_steward_can_manage_visible_non_staff_profiles(seeded_db):
+    steward = Person(
+        first_name="Steward",
+        last_name="User",
+        role="steward",
+        account_state=AccountState.active.value,
+    )
+    target = Person(
+        first_name="Managed",
+        last_name="Person",
+        visibility=Visibility.visible.value,
+        account_state=AccountState.active.value,
+    )
+    seeded_db.add_all([steward, target])
+    await seeded_db.commit()
+
+    access = await get_person_access(seeded_db, steward, target)
+
+    assert access.can_view is True
+    assert access.can_manage is True
+    assert can_manage_person(steward, target) is True
+
+
+@pytest.mark.asyncio
+async def test_viewer_cannot_manage_even_their_own_profile(seeded_db):
+    viewer = Person(
+        first_name="Viewer",
+        last_name="User",
+        role="viewer",
+        account_state=AccountState.active.value,
+    )
+    seeded_db.add(viewer)
+    await seeded_db.commit()
+
+    access = await get_person_access(seeded_db, viewer, viewer)
+
+    assert access.can_view is True
+    assert access.can_manage is False
+    assert can_manage_person(viewer, viewer) is False
+
+
+@pytest.mark.asyncio
+async def test_living_minor_contacts_are_staff_only(seeded_db):
+    minor = Person(
+        first_name="Minor",
+        last_name="Relative",
+        birth_date="2012-05-01",
+        is_living=True,
+        visibility=Visibility.visible.value,
+        account_state=AccountState.active.value,
+        contact_email="minor@example.com",
+    )
+    member = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    admin = await seeded_db.get(Person, "tyler-000-0000-0000-000000000002")
+    assert member is not None
+    assert admin is not None
+    seeded_db.add(minor)
+    await seeded_db.flush()
+    seeded_db.add(access_control.ParentChild(parent_id=member.id, child_id=minor.id, kind="biological"))
+    await seeded_db.commit()
+
+    member_access = await get_person_access(seeded_db, member, minor)
+    admin_access = await get_person_access(seeded_db, admin, minor)
+
+    assert member_access.can_view is True
+    assert member_access.can_view_contacts is False
+    assert admin_access.can_view_contacts is True

@@ -26,6 +26,9 @@ async def test_admin_dashboard_renders_release_confidence_sections(admin_client:
     assert 'id="backup-status"' in resp.text
     assert 'id="theme-settings-form"' in resp.text
     assert 'id="admin-accounts-card"' in resp.text
+    assert 'id="admin-download-gedcom-button"' in resp.text
+    assert 'id="admin-download-archive-button"' in resp.text
+    assert 'id="admin-open-trust-center-button"' in resp.text
     assert resp.text.index('id="admin-accounts-card"') < resp.text.index("Accounts &amp; Invites")
     assert resp.text.index('id="admin-accounts-card"') > resp.text.index("Theme &amp; Branding")
     assert 'class="flex gap-8 admin-action-row admin-action-row--wrap"' in resp.text
@@ -37,6 +40,16 @@ async def test_authenticated_root_redirects_to_tree(member_client: AsyncClient):
 
     assert resp.status_code == 302
     assert resp.headers["location"] == "/tree"
+
+
+@pytest.mark.asyncio
+async def test_trust_page_renders_privacy_and_export_commitments(client: AsyncClient):
+    resp = await client.get("/trust")
+
+    assert resp.status_code == 200
+    assert "Trust Center" in resp.text
+    assert "family-graph distance" in resp.text
+    assert "download a GEDCOM export" in resp.text
 
 
 @pytest.mark.asyncio
@@ -198,8 +211,8 @@ async def test_tree_person_card_renders_workspace_tabs_and_tree_native_sections(
 
 
 @pytest.mark.asyncio
-async def test_tree_person_card_uses_search_picker_not_raw_relationship_selects(member_client: AsyncClient):
-    resp = await member_client.get(f"/people/{TYLER_ID}/card")
+async def test_tree_person_card_uses_search_picker_not_raw_relationship_selects(admin_client: AsyncClient):
+    resp = await admin_client.get(f"/people/{TYLER_ID}/card")
 
     assert resp.status_code == 200
     assert 'data-tree-picker' in resp.text

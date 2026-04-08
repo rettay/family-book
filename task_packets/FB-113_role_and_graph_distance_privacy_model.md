@@ -1,6 +1,6 @@
 # Task Packet - FB-113 Role and Graph-Distance Privacy Model
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -41,18 +41,31 @@ Current access control allows active non-admin users to view full profile/contac
 
 ## Acceptance Criteria
 
-- [ ] Non-admin active members cannot edit every visible active person.
-- [ ] Contact fields are visible only according to explicit policy.
-- [ ] Medical/genetic fields are hidden unless policy permits.
-- [ ] Graph-distance behavior is either implemented and tested or removed from product copy.
-- [ ] Admin/steward/member/viewer behavior is covered by tests.
-- [ ] Existing invite/admin flows continue to work.
+- [x] Non-admin active members cannot edit every visible active person.
+- [x] Contact fields are visible only according to explicit policy.
+- [x] Medical/genetic fields are hidden unless policy permits.
+- [x] Graph-distance behavior is either implemented and tested or removed from product copy.
+- [x] Admin/steward/member/viewer behavior is covered by tests.
+- [x] Existing invite/admin flows continue to work.
 
 ## Validation Commands
 
 - `uv run pytest tests/test_access_control.py tests/test_api.py tests/test_media.py tests/test_pages.py -q`
 - `git diff --check`
 
+## Evidence
+
+- `app/models/person.py`
+- `app/roles.py`
+- `app/access_control.py`
+- `app/routes/relationships.py`
+- `app/services/relationship_calculator.py`
+- `tests/test_access_control.py`
+- `tests/test_api.py`
+- `tests/test_calendar_and_relationships.py`
+- `tests/test_media.py`
+- `tests/test_pages.py`
+
 ## Definition of Done
 
-- [ ] Privacy promise and enforcement match.
+- [x] Privacy promise and enforcement match.

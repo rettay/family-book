@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.models.person import Person
+from app.roles import is_admin_actor
 from app.services.auth_service import validate_session
 
 SESSION_COOKIE_NAME = "session"
@@ -29,6 +30,6 @@ async def require_auth(
 async def require_admin(
     current_user: Person = Depends(require_auth),
 ) -> Person:
-    if not current_user.is_admin:
+    if not is_admin_actor(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin required")
     return current_user

@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import select
+from sqlalchemy import or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from webauthn import (
     generate_authentication_options,
@@ -35,6 +36,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models.auth import AuthMethod, Invite, PasskeyChallenge, PasskeyCredential
 from app.models.person import AccountState, Person, PersonLifecycleState
+from app.roles import get_person_role, is_admin_actor
 from app.services.audit_service import log_audit
 from app.services.google_auth import GoogleAuthError, verify_google_credential
 from app.services.email_delivery import (
@@ -312,7 +314,7 @@ async def dev_login(
     result = await db.execute(
         select(Person).where(
             Person.lifecycle_state == "active",
-            Person.is_admin.is_(True),
+            or_(Person.is_admin.is_(True), Person.role.in_(["owner", "admin"])),
         ).limit(1)
     )
     person = result.scalar_one_or_none()
@@ -422,7 +424,8 @@ async def get_me(current_user: Person = Depends(require_auth)):
     return {
         "id": current_user.id,
         "display_name": current_user.display_name,
-        "is_admin": current_user.is_admin,
+        "is_admin": is_admin_actor(current_user),
+        "role": get_person_role(current_user),
         "branch": current_user.branch,
     }
 

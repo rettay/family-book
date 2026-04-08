@@ -19,7 +19,7 @@ from app.database import get_db
 from app.models.audit import AuditLog
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.story import Story
-from app.access_control import get_person_access, can_manage_person
+from app.access_control import get_accessible_person_ids, get_person_access, can_manage_person
 from app.routes.occupations import load_occupations
 from app.services.wiki_service import assemble_wiki_sections
 from app.services.revision_service import serialize_person_snapshot, record_revision
@@ -29,6 +29,7 @@ from app.services.theme_service import get_runtime_theme_from_app
 from pydantic import ValidationError
 from app.schemas import EducationEntry, CareerEntry, OrganizationEntry
 from app.i18n import translate
+from app.roles import is_admin_actor
 
 router = APIRouter(tags=["wiki"])
 logger = logging.getLogger(__name__)
@@ -67,11 +68,15 @@ async def wiki_index(
     db: AsyncSession = Depends(get_db),
 ):
     """Render wiki index page with alphabetical person list."""
+    accessible_ids = await get_accessible_person_ids(
+        db,
+        current_user,
+        include_hidden=is_admin_actor(current_user),
+    )
     query = select(Person).where(
         Person.lifecycle_state == PersonLifecycleState.active.value,
+        Person.id.in_(accessible_ids),
     )
-    if not current_user.is_admin:
-        query = query.where(Person.visibility != Visibility.hidden.value)
 
     result = await db.execute(query.order_by(Person.first_name, Person.last_name))
     persons = result.scalars().all()
@@ -629,7 +634,7 @@ async def confirm_delete_story(
     story = result.scalar_one_or_none()
     if not story:
         raise HTTPException(status_code=404, detail="Story not found")
-    if story.author_person_id != current_user.id and not current_user.is_admin:
+    if story.author_person_id != current_user.id and not is_admin_actor(current_user):
         raise HTTPException(status_code=403, detail="Not authorized")
 
     html = f"""
@@ -670,7 +675,7 @@ async def delete_story(
     if not story:
         raise HTTPException(status_code=404, detail="Story not found")
 
-    if story.author_person_id != current_user.id and not current_user.is_admin:
+    if story.author_person_id != current_user.id and not is_admin_actor(current_user):
         raise HTTPException(status_code=403, detail="Not authorized to delete this story")
 
     _audit_story(db, current_user.id, "delete", story)

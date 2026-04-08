@@ -22,7 +22,7 @@ os.environ.setdefault("GOOGLE_CLIENT_ID", "test-google-client-id.apps.googleuser
 import app.models  # noqa: F401
 from app.database import get_db
 from app.models.base import Base
-from app.models.person import Person, PersonSource, AccountState
+from app.models.person import AccountState, Person, PersonRole, PersonSource
 from app.models.relationships import ParentChild, Partnership
 from app.routes.auth_routes import router as auth_router
 from app.routes.health import router as health_router
@@ -89,6 +89,7 @@ async def seeded_db(db: AsyncSession):
         residence_country_code="ES",
         branch="martin",
         is_admin=True,
+        role=PersonRole.admin.value,
         is_root=False,
         contact_email="tyler@example.com",
         source=PersonSource.manual.value,
@@ -102,6 +103,7 @@ async def seeded_db(db: AsyncSession):
         residence_country_code="ES",
         branch="yuliya",
         is_admin=True,
+        role=PersonRole.admin.value,
         is_root=False,
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
@@ -114,6 +116,7 @@ async def seeded_db(db: AsyncSession):
         residence_country_code="CA",
         branch="martin",
         is_admin=False,
+        role=PersonRole.member.value,
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
     )
@@ -125,6 +128,7 @@ async def seeded_db(db: AsyncSession):
         residence_country_code="CA",
         branch="martin",
         is_admin=False,
+        role=PersonRole.member.value,
         source=PersonSource.manual.value,
         account_state=AccountState.active.value,
     )

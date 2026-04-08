@@ -87,7 +87,7 @@ Upload photos and documents. SHA-256 dedup means the same photo uploaded twice t
 A family timeline. First steps. Weddings. Graduations. That Tuesday when grandpa told the story about the war. Each moment has comments and emoji reactions. Sort by date, filter by person, search by keyword.
 
 ### 🔐 Privacy by Design
-No access control lists. No admin panels for permissions. **The family tree structure IS the permission system.** Graph distance determines what you can see. Close family sees everything. Distant relatives see less. It's how privacy works in real families.
+Family Book uses role plus relationship distance. Owner/admin accounts can view all active profiles. Stewards can manage visible non-staff profiles. Members and viewers only see visible relatives connected within the configured family-graph distance. Contact, medical, and genetic fields are further restricted by per-profile privacy policy.
 
 ### 🌍 Multi-Language
 English, Spanish, Russian out of the box. Add any language with a JSON file. Names render in their native script — Бабушка Юки stays Бабушка Юки.
@@ -250,9 +250,9 @@ A single place where:
 
 1. **Every family memory flows in automatically.** WhatsApp photos arrive via Matrix bridge. Email forwards get parsed. Old scanned photos get uploaded with dates and context.
 
-2. **The family tree IS the permission system.** Your cousin in Tokyo sees different things than your neighbor. No admin panel needed — closeness in the tree determines closeness in access. This is how privacy works in real families.
+2. **Access follows role and family context.** Your cousin in Tokyo can see a different slice of the archive than a steward or admin. Graph distance controls baseline visibility, while contact and sensitive fields stay behind stricter privacy policies.
 
-3. **Multiple families share one instance.** The Riveras and the Santoss on the same server, each seeing their own branch, with the shared grandchildren in the middle. Install once, serve the whole extended family.
+3. **The archive is portable.** Admins can download GEDCOM, full archive ZIP exports, and operational backups. Your family can leave with the data instead of negotiating with a vendor.
 
 4. **Every fact has provenance.** "Grandma was born in 1943" — who said that? When? Was it from a GEDCOM import, a WhatsApp message from Aunt Yuki, or a birth certificate scan? Source tracking on every piece of data.
 
@@ -277,7 +277,7 @@ This is an unsolved problem in the self-hosted space. Whoever solves it unlocks 
 - [x] **Phase 2B** — HTMX frontend: tree, profiles, people grid, media, moments, auth
 - [x] **Phase 3** — Docker, automated backup, i18n, PWA, security middleware
 - [ ] **Phase 4** — WhatsApp import via Matrix/Mautrix bridge
-- [ ] **Phase 5** — GEDCOM import/export (compatibility with Ancestry, FamilySearch)
+- [x] **Phase 5** — GEDCOM export and full archive export
 - [ ] **Phase 6** — Facebook/Messenger photo import
 - [ ] **Phase 7** — Push notifications, email digests
 - [ ] **Phase 8** — Advanced search, timeline filtering, family statistics
@@ -302,16 +302,19 @@ Please read `CLAUDE.md` for architecture rules before submitting PRs.
 ## FAQ
 
 **Q: Can I import from Ancestry/FamilySearch/MyHeritage?**
-GEDCOM import is on the roadmap. GEDCOM is the standard format — export from any platform, import into Family Book.
+GEDCOM is the interoperability path. Family Book now supports GEDCOM export and archive export, and GEDCOM import support continues to evolve around the existing parser/import pipeline.
 
 **Q: What about DNA/genetic data?**
-Not planned. Family Book is about stories, photos, and relationships — not genetics. There are better tools for that.
+Family Book can store genetic and medical context, but those fields default to stricter privacy rules than ordinary profile data.
 
 **Q: Can multiple family members use it?**
-Yes. Magic link auth means anyone with an email can log in. The tree structure determines what they see.
+Yes. Magic link auth means anyone with an email can log in, while role and family-graph distance determine what they can see and edit.
 
 **Q: How do I back up?**
 Automated daily backups run via cron. The database is a single SQLite file at `/data/family.db`. Copy it anywhere. Restore by replacing the file and running migrations.
+
+**Q: How do I leave with my data?**
+Admins can download a GEDCOM export, a full archive ZIP with JSON and media, or the latest operational backup ZIP.
 
 **Q: Is there a hosted version?**
 Not yet. Self-hosted only. If there's demand, a hosted option may come later.

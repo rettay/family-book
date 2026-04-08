@@ -57,6 +57,14 @@ class AccountState(str, enum.Enum):
     suspended = "suspended"
 
 
+class PersonRole(str, enum.Enum):
+    owner = "owner"
+    admin = "admin"
+    steward = "steward"
+    member = "member"
+    viewer = "viewer"
+
+
 class PersonLifecycleState(str, enum.Enum):
     active = "active"
     deleted = "deleted"
@@ -70,6 +78,18 @@ class PersonSource(str, enum.Enum):
     messenger_import = "messenger_import"
     federation = "federation"
     matrix = "matrix"
+
+
+class ContactVisibility(str, enum.Enum):
+    close_family = "close_family"
+    staff = "staff"
+    private = "private"
+
+
+class SensitiveVisibility(str, enum.Enum):
+    self = "self"
+    staff = "staff"
+    close_family = "close_family"
 
 
 class Person(Base, TimestampMixin):
@@ -179,7 +199,14 @@ class Person(Base, TimestampMixin):
 
     is_root: Mapped[bool] = mapped_column(Boolean, default=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    role: Mapped[str] = mapped_column(String(20), default=PersonRole.member.value)
     visibility: Mapped[str] = mapped_column(String(20), default=Visibility.visible.value)
+    contact_visibility: Mapped[str] = mapped_column(
+        String(20), default=ContactVisibility.close_family.value
+    )
+    sensitive_visibility: Mapped[str] = mapped_column(
+        String(20), default=SensitiveVisibility.staff.value
+    )
     account_state: Mapped[str] = mapped_column(String(20), default=AccountState.active.value)
     lifecycle_state: Mapped[str] = mapped_column(
         String(20), default=PersonLifecycleState.active.value
@@ -353,3 +380,27 @@ class Person(Base, TimestampMixin):
         normalized = normalize_email_for_lookup(value)
         self.contact_email_hash = contact_email_lookup_hash(normalized)
         return normalized
+
+    @validates("role")
+    def _validate_role(self, key: str, value: str | None) -> str:
+        normalized = (value or "").strip().lower()
+        valid = {role.value for role in PersonRole}
+        if normalized not in valid:
+            normalized = PersonRole.admin.value if self.is_admin else PersonRole.member.value
+        if normalized in {PersonRole.owner.value, PersonRole.admin.value}:
+            self.is_admin = True
+        elif normalized == PersonRole.steward.value:
+            self.is_admin = False
+        return normalized
+
+    @validates("contact_visibility")
+    def _validate_contact_visibility(self, key: str, value: str | None) -> str:
+        normalized = (value or "").strip().lower()
+        valid = {policy.value for policy in ContactVisibility}
+        return normalized if normalized in valid else ContactVisibility.close_family.value
+
+    @validates("sensitive_visibility")
+    def _validate_sensitive_visibility(self, key: str, value: str | None) -> str:
+        normalized = (value or "").strip().lower()
+        valid = {policy.value for policy in SensitiveVisibility}
+        return normalized if normalized in valid else SensitiveVisibility.staff.value

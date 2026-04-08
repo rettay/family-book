@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trust Center — {{ brand_display_name }}</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  {% include "partials/theme_head.html" %}
+</head>
+<body>
+  <main class="container-narrow" style="padding-top: 24px; padding-bottom: 48px;">
+    <div class="page-header mb-24">
+      <h1 class="page-header__title">Trust Center</h1>
+      <p class="page-header__subtitle">What the product currently protects, what it exports, and what it does not claim.</p>
+    </div>
+
+    <section class="card mb-16">
+      <div class="card__body">
+        <h2 style="font-size:1rem; font-weight:600; margin-bottom:12px;">Privacy Model</h2>
+        <p class="text-sm text-muted">Owner and admin accounts can view and manage all active profiles. Steward accounts can manage visible non-staff profiles. Member and viewer accounts only see visible relatives connected within the configured family-graph distance.</p>
+        <p class="text-sm text-muted">Contact fields default to close-family visibility, but living minors always keep contact details staff-only. Medical and genetic fields default to staff-only unless a stricter per-profile setting is chosen.</p>
+      </div>
+    </section>
+
+    <section class="card mb-16">
+      <div class="card__body">
+        <h2 style="font-size:1rem; font-weight:600; margin-bottom:12px;">Protection Boundaries</h2>
+        <p class="text-sm text-muted">Transport security depends on HTTPS at the deployment layer. Sensitive contact, medical, and genetic fields are encrypted at rest in application storage. Media files and backups are authenticated and access-controlled, but this is not a zero-knowledge or end-to-end encrypted system.</p>
+        <p class="text-sm text-muted">The current hosted-archive model is single-tenant per family archive, with one database and one media root inside the deployment data directory.</p>
+      </div>
+    </section>
+
+    <section class="card mb-16">
+      <div class="card__body">
+        <h2 style="font-size:1rem; font-weight:600; margin-bottom:12px;">Backups and Exit</h2>
+        <p class="text-sm text-muted">Admins can trigger a backup, verify restore, download the latest backup ZIP, download a GEDCOM export, and download a full archive export with JSON, stories, media files, and a manifest describing omissions and Family Book custom fields.</p>
+        <p class="text-sm text-muted">GEDCOM is included for portability, but it does not represent every Family Book field. Sensitive contact, medical, and genetic data are preserved in the full archive JSON export instead.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card__body">
+        <h2 style="font-size:1rem; font-weight:600; margin-bottom:12px;">Deletion and Cancellation</h2>
+        <p class="text-sm text-muted">Profiles are soft-deleted in the app so auditability and recovery remain possible. Hosted families should be able to export first, then request cancellation and archive deletion according to the hosting policy in force for that environment.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

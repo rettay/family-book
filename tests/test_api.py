@@ -1,8 +1,9 @@
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.audit import AuditLog
 from app.models.person import AccountState, Person
 from app.routes import auth_routes
 
@@ -39,6 +40,7 @@ async def test_get_person_detail(admin_client: AsyncClient):
     assert data["display_name"] == "Tyler Martin"
     assert data["first_name"] == "Tyler"
     assert data["is_admin"] is True
+    assert data["role"] == "admin"
 
 
 @pytest.mark.asyncio
@@ -70,7 +72,7 @@ async def test_member_sees_redacted_related_profile(member_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_member_can_access_shared_profile_outside_prior_graph_distance(admin_client: AsyncClient, member_client: AsyncClient):
+async def test_member_cannot_access_unlinked_visible_profile(admin_client: AsyncClient, member_client: AsyncClient):
     create_resp = await admin_client.post("/api/persons", json={
         "first_name": "Outsider",
         "last_name": "Branch",
@@ -79,8 +81,7 @@ async def test_member_can_access_shared_profile_outside_prior_graph_distance(adm
     outsider_id = create_resp.json()["id"]
 
     resp = await member_client.get(f"/api/persons/{outsider_id}")
-    assert resp.status_code == 200
-    assert resp.json()["display_name"] == "Outsider Branch"
+    assert resp.status_code == 403
 
 
 @pytest.mark.asyncio
@@ -228,6 +229,68 @@ async def test_update_person_living_or_cremated_clears_hidden_memorial_fields(
     assert living["burial_country_code"] is None
     assert living["burial_cemetery_name"] is None
     assert living["burial_plot_number"] is None
+
+
+@pytest.mark.asyncio
+async def test_privacy_policy_updates_create_dedicated_audit_entry(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    create_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Private",
+        "last_name": "Policy",
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    update_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "contact_visibility": "private",
+        "sensitive_visibility": "self",
+        "visibility": "memorial",
+    })
+    assert update_resp.status_code == 200
+
+    audit_rows = await seeded_db.execute(
+        select(AuditLog)
+        .where(
+            AuditLog.entity_type == "person",
+            AuditLog.entity_id == person_id,
+            AuditLog.action == "privacy_update",
+        )
+        .order_by(AuditLog.created_at.desc())
+    )
+    audit_entry = audit_rows.scalars().first()
+
+    assert audit_entry is not None
+    assert audit_entry.new_value["contact_visibility"]["new"] == "private"
+    assert audit_entry.new_value["sensitive_visibility"]["new"] == "self"
+    assert audit_entry.new_value["visibility"]["new"] == "memorial"
+
+
+@pytest.mark.asyncio
+async def test_hidden_profile_blocks_original_creator_after_admin_hides_it(
+    admin_client: AsyncClient,
+    member_client: AsyncClient,
+):
+    create_resp = await member_client.post("/api/persons", json={
+        "first_name": "Creator",
+        "last_name": "Target",
+    })
+    assert create_resp.status_code == 201
+    person_id = create_resp.json()["id"]
+
+    hide_resp = await admin_client.put(f"/api/persons/{person_id}", json={
+        "visibility": "hidden",
+    })
+    assert hide_resp.status_code == 200
+
+    get_resp = await member_client.get(f"/api/persons/{person_id}")
+    update_resp = await member_client.put(f"/api/persons/{person_id}", json={
+        "bio": "should fail",
+    })
+
+    assert get_resp.status_code == 403
+    assert update_resp.status_code == 403
 
 
 @pytest.mark.asyncio
@@ -509,8 +572,8 @@ async def test_update_other_profile_as_member_forbidden(member_client: AsyncClie
         "/api/persons/tyler-000-0000-0000-000000000002",
         json={"bio": "Hacked bio"},
     )
-    assert resp.status_code == 200
-    assert resp.json()["bio"] == "Hacked bio"
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Not authorized"
 
 
 @pytest.mark.asyncio
@@ -526,6 +589,13 @@ async def test_person_history_visible_to_member(admin_client: AsyncClient, membe
         "bio": "Second version",
     })
     assert update_resp.status_code == 200
+
+    rel_resp = await admin_client.post("/api/relationships/parent-child", json={
+        "parent_id": "member-00-0000-0000-000000000005",
+        "child_id": person_id,
+        "kind": "biological",
+    })
+    assert rel_resp.status_code == 201
 
     history_resp = await member_client.get(f"/api/persons/{person_id}/history")
     assert history_resp.status_code == 200
@@ -1144,7 +1214,7 @@ async def test_person_page_reuses_family_graph_per_request(member_client: AsyncC
 
     resp = await member_client.get("/people/tyler-000-0000-0000-000000000002/card")
     assert resp.status_code == 200
-    assert call_count == 0
+    assert call_count == 1
 
 
 # --- Auth route tests ---

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+from datetime import date, datetime, timezone
 import logging
 
 from sqlalchemy import select
@@ -9,8 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.models.media import Media
-from app.models.person import AccountState, Person, PersonLifecycleState, Visibility
+from app.models.person import (
+    AccountState,
+    ContactVisibility,
+    Person,
+    PersonLifecycleState,
+    PersonRole,
+    SensitiveVisibility,
+    Visibility,
+)
 from app.models.relationships import ParentChild, Partnership
+from app.roles import get_person_role, is_admin_actor, is_staff_actor, is_viewer_actor
 from app.schemas import PersonDetail, PersonSummary
 
 logger = logging.getLogger(__name__)
@@ -21,6 +31,7 @@ class PersonAccess:
     can_view: bool
     can_view_profile: bool
     can_view_contacts: bool
+    can_view_sensitive_profile: bool
     can_manage: bool
     distance: int | None = None
 
@@ -36,16 +47,17 @@ async def get_person_access(
 ) -> PersonAccess:
     if not can_collaborate(current_user):
         logger.debug("Access denied for non-collaborating user")
-        return PersonAccess(False, False, False, False)
+        return PersonAccess(False, False, False, False, False)
     if person.lifecycle_state != PersonLifecycleState.active.value:
         logger.debug("Access denied for inactive person %s", person.id)
-        return PersonAccess(False, False, False, False)
+        return PersonAccess(False, False, False, False, False)
 
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         return PersonAccess(
             can_view=True,
             can_view_profile=True,
             can_view_contacts=True,
+            can_view_sensitive_profile=True,
             can_manage=True,
             distance=0 if person.id == current_user.id else None,
         )
@@ -55,19 +67,64 @@ async def get_person_access(
             can_view=True,
             can_view_profile=True,
             can_view_contacts=True,
-            can_manage=True,
+            can_view_sensitive_profile=True,
+            can_manage=not is_viewer_actor(current_user),
             distance=0,
         )
 
     if person.visibility == Visibility.hidden.value:
         logger.debug("Hidden person %s denied to user %s", person.id, current_user.id)
-        return PersonAccess(False, False, False, False)
+        return PersonAccess(False, False, False, False, False)
+
+    if person.created_by == current_user.id and not is_viewer_actor(current_user):
+        return PersonAccess(
+            can_view=True,
+            can_view_profile=True,
+            can_view_contacts=True,
+            can_view_sensitive_profile=True,
+            can_manage=True,
+            distance=None,
+        )
+
+    settings = get_settings()
+    distances = await _graph_distances(db, current_user.id, settings.FAMILY_GRAPH_MAX_DISTANCE)
+    distance = distances.get(person.id)
+    role = get_person_role(current_user)
+    is_minor = _is_living_minor(person)
+
+    can_view = False
+    if role == PersonRole.steward.value:
+        can_view = True
+    elif distance is not None and distance <= settings.FAMILY_GRAPH_MAX_DISTANCE:
+        can_view = True
+
+    if not can_view:
+        return PersonAccess(False, False, False, False, False, distance=distance)
+
+    can_view_contacts = _can_view_contacts_for_policy(
+        person=person,
+        actor=current_user,
+        distance=distance,
+        is_minor=is_minor,
+    )
+    can_view_sensitive = _can_view_sensitive_for_policy(
+        person=person,
+        actor=current_user,
+        distance=distance,
+        is_minor=is_minor,
+    )
+    can_manage = role == PersonRole.steward.value and get_person_role(person) not in {
+        PersonRole.owner.value,
+        PersonRole.admin.value,
+        PersonRole.steward.value,
+    }
     return PersonAccess(
         can_view=True,
         can_view_profile=True,
-        can_view_contacts=True,
-        can_manage=False,
-        distance=None,
+        can_view_contacts=can_view_contacts,
+        can_view_sensitive_profile=can_view_sensitive,
+        can_manage=can_manage,
+        distance=distance,
     )
 
 
@@ -80,7 +137,7 @@ async def get_accessible_person_ids(
     if not can_collaborate(current_user):
         return set()
 
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         query = select(Person.id).where(
             Person.lifecycle_state == PersonLifecycleState.active.value
         )
@@ -89,11 +146,27 @@ async def get_accessible_person_ids(
         result = await db.execute(query)
         return set(result.scalars().all())
 
+    settings = get_settings()
+    role = get_person_role(current_user)
+    if role == PersonRole.steward.value:
+        query = select(Person.id, Person.visibility, Person.lifecycle_state)
+        result = await db.execute(query)
+        visible_ids: set[str] = set()
+        for person_id, visibility, lifecycle_state in result.all():
+            if lifecycle_state != PersonLifecycleState.active.value:
+                continue
+            if include_hidden or visibility != Visibility.hidden.value:
+                visible_ids.add(person_id)
+        return visible_ids
+
+    distances = await _graph_distances(db, current_user.id, settings.FAMILY_GRAPH_MAX_DISTANCE)
     query = select(Person.id, Person.visibility, Person.lifecycle_state)
     result = await db.execute(query)
     visible_ids: set[str] = set()
     for person_id, visibility, lifecycle_state in result.all():
         if lifecycle_state != PersonLifecycleState.active.value:
+            continue
+        if person_id not in distances:
             continue
         if include_hidden or visibility != Visibility.hidden.value:
             visible_ids.add(person_id)
@@ -105,9 +178,23 @@ def can_manage_person(current_user: Person, person: Person) -> bool:
         return False
     if person.lifecycle_state != PersonLifecycleState.active.value:
         return False
-    if current_user.is_admin or current_user.id == person.id:
+    if is_admin_actor(current_user):
         return True
-    return person.visibility != Visibility.hidden.value
+    if current_user.id == person.id:
+        return not is_viewer_actor(current_user)
+    if person.visibility == Visibility.hidden.value:
+        return False
+    if person.created_by == current_user.id:
+        return not is_viewer_actor(current_user)
+    if get_person_role(current_user) == PersonRole.steward.value:
+        return get_person_role(person) not in {
+            PersonRole.owner.value,
+            PersonRole.admin.value,
+            PersonRole.steward.value,
+        }
+    if is_viewer_actor(current_user):
+        return False
+    return False
 
 
 async def can_view_media(
@@ -116,7 +203,7 @@ async def can_view_media(
     media: Media,
 ) -> bool:
     # Admin can see everything including hidden
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         return True
     # Hidden media only visible to admins
     if getattr(media, "visibility", "family") == "hidden":
@@ -134,14 +221,14 @@ async def can_view_media(
 
 def can_edit_media(current_user: Person, media: Media) -> bool:
     """Uploader or admin can edit media metadata."""
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         return True
     return media.uploaded_by == current_user.id
 
 
 def can_soft_delete_media(current_user: Person, media: Media) -> bool:
     """Uploader or admin can soft-delete."""
-    if current_user.is_admin:
+    if is_admin_actor(current_user):
         return True
     return media.uploaded_by == current_user.id
 
@@ -188,11 +275,14 @@ def _detail_identity_payload(person: Person, access: PersonAccess) -> dict[str, 
         "visibility": person.visibility,
         "first_name": _root_redacted_name(person.first_name, person),
         "last_name": _root_redacted_name(person.last_name, person),
-        "is_admin": person.is_admin if access.can_manage else False,
+        "is_admin": is_admin_actor(person) if access.can_manage else False,
+        "role": get_person_role(person) if access.can_manage else PersonRole.member.value,
         "slug": person.slug,
         "is_root": person.is_root,
         "source": person.source if access.can_manage else "manual",
         "created_at": person.created_at if access.can_manage else None,
+        "contact_visibility": person.contact_visibility if access.can_manage else None,
+        "sensitive_visibility": person.sensitive_visibility if access.can_manage else None,
     }
 
 
@@ -225,7 +315,7 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "languages": _profile_list(person.languages, access),
         "bio": _profile_value(person.bio, access),
         "research_notes": _profile_value(person.research_notes, access),
-        "medical_history": _profile_value(person.medical_history, access),
+        "medical_history": _sensitive_value(person.medical_history, access),
         "obituary": _profile_value(person.obituary, access),
         "obituary_source": _profile_value(person.obituary_source, access),
         "obituary_url": _profile_value(person.obituary_url, access),
@@ -239,11 +329,11 @@ def _detail_profile_payload(person: Person, access: PersonAccess) -> dict[str, o
         "eye_color": _profile_value(person.eye_color, access),
         "hair_color": _profile_value(person.hair_color, access),
         "blood_type": _profile_value(person.blood_type, access),
-        "maternal_haplogroup": _profile_value(person.maternal_haplogroup, access),
-        "paternal_haplogroup": _profile_value(person.paternal_haplogroup, access),
-        "dna_test_provider": _profile_value(person.dna_test_provider, access),
-        "admixture": _profile_list(person.admixture, access),
-        "medical_conditions": _profile_list(person.medical_conditions, access),
+        "maternal_haplogroup": _sensitive_value(person.maternal_haplogroup, access),
+        "paternal_haplogroup": _sensitive_value(person.paternal_haplogroup, access),
+        "dna_test_provider": _sensitive_value(person.dna_test_provider, access),
+        "admixture": _sensitive_list(person.admixture, access),
+        "medical_conditions": _sensitive_list(person.medical_conditions, access),
         "source_detail": _profile_value(person.source_detail, access),
         "confidence": _profile_value(person.confidence, access),
     }
@@ -286,6 +376,74 @@ def _contact_value(value: str | None, access: PersonAccess) -> str | None:
 
 def _contact_list(value: list[dict], access: PersonAccess) -> list[dict]:
     return value if access.can_view_contacts else []
+
+
+def _sensitive_value(value, access: PersonAccess):
+    return value if access.can_view_sensitive_profile else None
+
+
+def _sensitive_list(value: list[dict], access: PersonAccess) -> list[dict]:
+    return value if access.can_view_sensitive_profile else []
+
+
+def _is_living_minor(person: Person) -> bool:
+    if not person.is_living or not person.birth_date:
+        return False
+    try:
+        birth_date = date.fromisoformat(person.birth_date[:10])
+    except ValueError:
+        return False
+    today = datetime.now(timezone.utc).date()
+    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    return age < 18
+
+
+def _can_view_contacts_for_policy(
+    *,
+    person: Person,
+    actor: Person,
+    distance: int | None,
+    is_minor: bool,
+) -> bool:
+    if is_admin_actor(actor):
+        return True
+    if actor.id == person.id:
+        return True
+    if is_minor:
+        return False
+
+    policy = (person.contact_visibility or ContactVisibility.close_family.value).strip().lower()
+    if policy == ContactVisibility.private.value:
+        return False
+    if policy == ContactVisibility.staff.value:
+        return is_staff_actor(actor)
+
+    settings = get_settings()
+    return distance is not None and distance <= settings.PERSON_CONTACT_MAX_DISTANCE
+
+
+def _can_view_sensitive_for_policy(
+    *,
+    person: Person,
+    actor: Person,
+    distance: int | None,
+    is_minor: bool,
+) -> bool:
+    if is_admin_actor(actor):
+        return True
+    if actor.id == person.id:
+        return True
+    if is_minor:
+        return is_staff_actor(actor)
+
+    policy = (person.sensitive_visibility or SensitiveVisibility.staff.value).strip().lower()
+    if policy == SensitiveVisibility.self.value:
+        return False
+    if policy == SensitiveVisibility.staff.value:
+        return is_staff_actor(actor)
+
+    settings = get_settings()
+    return distance is not None and distance <= settings.PERSON_CONTACT_MAX_DISTANCE
 
 
 async def _graph_distances(
