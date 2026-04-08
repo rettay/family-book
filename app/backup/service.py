@@ -57,6 +57,24 @@ def _restore_supported(latest_backup: Path | None, verification: dict | None) ->
         and verification.get("source_backup") == latest_backup.name
     )
 
+
+def _safe_extract_archive(zf: zipfile.ZipFile, destination: Path) -> None:
+    destination = destination.resolve()
+    for member in zf.infolist():
+        member_name = member.filename
+        if not member_name or member_name.endswith("/"):
+            continue
+
+        target_path = (destination / member_name).resolve()
+        try:
+            target_path.relative_to(destination)
+        except ValueError as exc:
+            raise ValueError(f"Backup archive contains an unsafe path: {member_name}") from exc
+
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        with zf.open(member) as src, open(target_path, "wb") as dst:
+            shutil.copyfileobj(src, dst)
+
 def run_backup() -> str:
     """Run a SQLite backup + compress. Returns backup file path."""
     settings = get_settings()
@@ -189,7 +207,7 @@ def restore_backup_archive(
     with tempfile.TemporaryDirectory(prefix="family-book-restore-") as tmp_dir:
         tmp_root = Path(tmp_dir)
         with zipfile.ZipFile(archive_path, "r") as zf:
-            zf.extractall(tmp_root)
+            _safe_extract_archive(zf, tmp_root)
 
         backup_candidates = sorted((tmp_root / "db").glob("*.db.gz"))
         if not backup_candidates:

@@ -1,6 +1,6 @@
 # Task Packet - FB-112 Managed Hosting Environment Baseline
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -32,11 +32,11 @@ The business needs a repeatable way to host real customers before deciding on a 
 
 ## Acceptance Criteria
 
-- [ ] Operator can provision a paid pilot archive from documented steps.
-- [ ] Baseline includes backup and restore verification before launch.
-- [ ] Baseline includes domain/TLS/passkey origin requirements.
-- [ ] Baseline states where logs live and how support should access them.
-- [ ] Baseline calls out unsupported hosting shapes for the current SQLite/media architecture.
+- [x] Operator can provision a paid pilot archive from documented steps.
+- [x] Baseline includes backup and restore verification before launch.
+- [x] Baseline includes domain/TLS/passkey origin requirements.
+- [x] Baseline states where logs live and how support should access them.
+- [x] Baseline calls out unsupported hosting shapes for the current SQLite/media architecture.
 
 ## Validation Commands
 
@@ -44,4 +44,11 @@ The business needs a repeatable way to host real customers before deciding on a 
 
 ## Definition of Done
 
-- [ ] Hosting baseline is accepted as enough for first paid pilots or explicitly rejected with replacement path.
+- [x] Hosting baseline is accepted as enough for first paid pilots or explicitly rejected with replacement path.
+
+## Builder Evidence
+
+- Deliverable: `docs/ops/managed-hosting-baseline.md`.
+- Supporting env examples: `.env.production.example`, `.env.hosted-archive.example`, `.env.staging.example`.
+- Staging reference updated to current SMTP flow: `docs/ops/staging-env-vars.md`.
+- Baseline explicitly supports managed single-tenant pilot archives and rejects pooled shared-data hosting for first paid pilots.

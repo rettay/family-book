@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import uuid
 from io import BytesIO
+from pathlib import Path
 
 from PIL import Image
 from sqlalchemy import select
@@ -234,18 +235,45 @@ def generate_video_poster(file_path: str, media_dir: str, media_id: str) -> bool
     return False
 
 
+def _resolve_under(base_dir: str, *parts: str) -> str | None:
+    base_path = Path(base_dir).resolve()
+    candidate = base_path.joinpath(*parts).resolve()
+    try:
+        candidate.relative_to(base_path)
+    except ValueError:
+        return None
+    return str(candidate)
+
+
+def get_media_root(data_dir: str | None = None) -> str:
+    if data_dir is None:
+        data_dir = get_settings().resolved_data_dir
+    return os.path.join(data_dir, "media")
+
+
+def get_media_file_path(relative_path: str, data_dir: str | None = None) -> str | None:
+    media_root = get_media_root(data_dir)
+    return _resolve_under(media_root, relative_path)
+
+
+def get_thumbnail_path(media_id: str, data_dir: str | None = None) -> str | None:
+    media_root = get_media_root(data_dir)
+    return _resolve_under(media_root, "thumbnails", f"{media_id}.jpg")
+
+
 def get_variant_path(media_id: str, variant: str, data_dir: str | None = None) -> str | None:
     """Return the filesystem path for a variant, or None if it doesn't exist."""
     if data_dir is None:
         data_dir = get_settings().resolved_data_dir
+    media_root = get_media_root(data_dir)
     # Check new variants directory first
-    path = os.path.join(data_dir, "media", "variants", media_id, f"{variant}.jpg")
-    if os.path.isfile(path):
+    path = _resolve_under(media_root, "variants", media_id, f"{variant}.jpg")
+    if path and os.path.isfile(path):
         return path
     # Backward compat: old thumbnails directory for "thumb" variant
     if variant == "thumb":
-        legacy = os.path.join(data_dir, "media", "thumbnails", f"{media_id}.jpg")
-        if os.path.isfile(legacy):
+        legacy = _resolve_under(media_root, "thumbnails", f"{media_id}.jpg")
+        if legacy and os.path.isfile(legacy):
             return legacy
     return None
 
@@ -575,16 +603,16 @@ def delete_media_files(media: Media, data_dir: str | None = None) -> None:
         data_dir = get_settings().resolved_data_dir
 
     if media.file_path:
-        file_path = os.path.join(data_dir, "media", media.file_path)
-        if os.path.isfile(file_path):
+        file_path = get_media_file_path(media.file_path, data_dir)
+        if file_path and os.path.isfile(file_path):
             os.unlink(file_path)
 
     # Legacy thumbnail
-    thumb_path = os.path.join(data_dir, "media", "thumbnails", f"{media.id}.jpg")
-    if os.path.isfile(thumb_path):
+    thumb_path = get_thumbnail_path(media.id, data_dir)
+    if thumb_path and os.path.isfile(thumb_path):
         os.unlink(thumb_path)
 
     # Variant directory
-    variant_dir = os.path.join(data_dir, "media", "variants", media.id)
-    if os.path.isdir(variant_dir):
+    variant_dir = _resolve_under(get_media_root(data_dir), "variants", media.id)
+    if variant_dir and os.path.isdir(variant_dir):
         shutil.rmtree(variant_dir, ignore_errors=True)

@@ -4,6 +4,9 @@ import os
 
 from PIL import Image
 
+from app.models.media import Media, MediaSource, MediaType
+from app.services.media_service import get_media_file_path, get_variant_path
+
 ADMIN_ID = "tyler-000-0000-0000-000000000002"
 
 
@@ -251,6 +254,44 @@ class TestMediaServing:
         resp = await member_client.get(f"/api/media/{media_id}/file")
         assert resp.status_code == 200
 
+    async def test_serve_file_rejects_db_backed_path_traversal(
+        self,
+        admin_client,
+        seeded_db,
+        tmp_path,
+        monkeypatch,
+    ):
+        from app.config import Settings
+
+        settings = Settings(
+            SECRET_KEY="test",
+            FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        outside_secret = tmp_path / "secret.txt"
+        outside_secret.write_bytes(b"top-secret")
+
+        media = Media(
+            id="11111111-1111-1111-1111-111111111111",
+            person_id=ADMIN_ID,
+            file_path="../secret.txt",
+            original_filename="secret.txt",
+            media_type=MediaType.document.value,
+            mime_type="application/pdf",
+            file_size_bytes=len(b"top-secret"),
+            file_hash="a" * 64,
+            source=MediaSource.manual.value,
+            uploaded_by=ADMIN_ID,
+        )
+        seeded_db.add(media)
+        await seeded_db.commit()
+
+        resp = await admin_client.get(f"/api/media/{media.id}/file")
+        assert resp.status_code == 404
+
 
 class TestMediaDeletion:
     """DELETE /api/media/{id}"""
@@ -354,6 +395,14 @@ class TestMediaMetadata:
         body = resp2.json()
         assert body["caption"] == "Test caption"
         assert body["person_id"] == ADMIN_ID
+
+
+class TestMediaPathSafety:
+    def test_get_media_file_path_rejects_traversal(self, tmp_path):
+        assert get_media_file_path("../secret.txt", str(tmp_path)) is None
+
+    def test_get_variant_path_rejects_traversal_media_id(self, tmp_path):
+        assert get_variant_path("../escape", "thumb", str(tmp_path)) is None
 
     async def test_list_media_for_person(self, admin_client, tmp_path, monkeypatch):
         from app.config import Settings

@@ -8,6 +8,7 @@ Set these in the Railway staging environment dashboard.
 |---|---|---|
 | `SECRET_KEY` | (generate unique) | **Must differ from production.** Use `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `FERNET_KEY` | (generate unique) | **Must differ from production.** Use `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` |
+| `FAMILY_BOOK_ENV` | `staging` | Keeps staging out of production fail-closed rules |
 | `BASE_URL` | `https://family-book-staging.up.railway.app` | Staging domain — used for CORS, OAuth redirects, invite links |
 | `DATABASE_URL` | `sqlite:///data/family.db` | Default is fine — staging has its own volume |
 | `DATA_DIR` | (leave empty) | Railway auto-sets `RAILWAY_VOLUME_MOUNT_PATH` |
@@ -21,8 +22,11 @@ Set these in the Railway staging environment dashboard.
 
 | Variable | Example Value | Notes |
 |---|---|---|
-| `RESEND_API_KEY` | (same as production) | For testing invite emails from staging |
-| `RESEND_FROM_EMAIL` | `staging@cutroni.xyz` | Separate sender for staging emails |
+| `SMTP_HOST` | your MXroute host | For testing invite and magic-link emails from staging |
+| `SMTP_PORT` | `587` | SMTP STARTTLS default |
+| `SMTP_USER` | `staging@cutroni.xyz` | Separate sender for staging emails |
+| `SMTP_PASS` | (secret) | SMTP password |
+| `SMTP_FROM` | `Family Book <staging@cutroni.xyz>` | Visible sender |
 | `GOOGLE_MAPS_BROWSER_API_KEY` | (same as production) | For map/places testing |
 | `GOOGLE_MAPS_SERVER_API_KEY` | (same as production) | For geocoding |
 | `GOOGLE_MAPS_MAP_ID` | (same as production) | For styled maps |

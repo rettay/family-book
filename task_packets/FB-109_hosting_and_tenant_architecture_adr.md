@@ -1,6 +1,6 @@
 # Task Packet - FB-109 Hosting and Tenant Architecture ADR
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -31,12 +31,12 @@ The current app is built around one SQLite database and media directory. Paid ho
 
 ## Acceptance Criteria
 
-- [ ] ADR has a clear decision, alternatives, consequences, and rollback/migration implications.
-- [ ] ADR explicitly states whether first paid hosted archives are single-tenant or pooled.
-- [ ] ADR includes tenant isolation boundaries for database, media, backups, secrets, logs, support, export, and deletion.
-- [ ] ADR explains why "just publish an image on AWS" is or is not sufficient for paid hosting.
-- [ ] ADR includes a future path to pooled multi-tenancy if not chosen now.
-- [ ] Docs include references to official provider docs used for assumptions.
+- [x] ADR has a clear decision, alternatives, consequences, and rollback/migration implications.
+- [x] ADR explicitly states whether first paid hosted archives are single-tenant or pooled.
+- [x] ADR includes tenant isolation boundaries for database, media, backups, secrets, logs, support, export, and deletion.
+- [x] ADR explains why "just publish an image on AWS" is or is not sufficient for paid hosting.
+- [x] ADR includes a future path to pooled multi-tenancy if not chosen now.
+- [x] Docs include references to official provider docs used for assumptions.
 
 ## Validation Commands
 
@@ -44,5 +44,13 @@ The current app is built around one SQLite database and media directory. Paid ho
 
 ## Definition of Done
 
-- [ ] ADR reviewed and accepted by the product owner.
-- [ ] Follow-up packets updated if the decision changes scope.
+- [x] ADR reviewed and accepted by the product owner.
+- [x] Follow-up packets updated if the decision changes scope.
+
+## Builder Evidence
+
+- Deliverable: `docs/ops/hosting-and-tenant-architecture-adr.md`.
+- Supporting comparison doc: `docs/ops/hosting-environment-options.md`.
+- Decision: first paid hosting is managed single-tenant family archives.
+- Official references captured in the ADR: AWS SaaS tenant isolation, ECS EFS volumes, Railway volumes, and Render disks.
+- Sprint evidence: `docs/strategy/sprint-closeout-s47.md`.

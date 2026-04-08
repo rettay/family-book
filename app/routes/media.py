@@ -20,6 +20,9 @@ from app.services.media_service import (
     IMAGE_MIME_TYPES,
     delete_media_files,
     generate_image_variants,
+    get_media_file_path,
+    get_media_root,
+    get_thumbnail_path,
     get_variant_path,
     save_media_temp_file,
 )
@@ -251,9 +254,9 @@ async def serve_media_file(
 
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
-    file_path = os.path.join(data_dir, "media", media.file_path)
+    file_path = get_media_file_path(media.file_path, data_dir)
 
-    if not os.path.isfile(file_path):
+    if not file_path or not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found on disk")
 
     return FileResponse(
@@ -280,9 +283,9 @@ async def serve_thumbnail(
 
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
-    thumb_path = os.path.join(data_dir, "media", "thumbnails", f"{media.id}.jpg")
+    thumb_path = get_thumbnail_path(media.id, data_dir)
 
-    if not os.path.isfile(thumb_path):
+    if not thumb_path or not os.path.isfile(thumb_path):
         raise HTTPException(status_code=404, detail="Thumbnail not available")
 
     return FileResponse(
@@ -540,12 +543,14 @@ async def edit_image(
 
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
-    media_dir = os.path.join(data_dir, "media")
+    media_dir = get_media_root(data_dir)
 
     if not media.file_path:
         raise HTTPException(status_code=409, detail="Media has no stored file to replace")
 
-    dest_path = os.path.join(media_dir, media.file_path)
+    dest_path = get_media_file_path(media.file_path, data_dir)
+    if not dest_path:
+        raise HTTPException(status_code=409, detail="Media has an invalid stored file path")
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
     with open(dest_path, "wb") as f:
         f.write(data)

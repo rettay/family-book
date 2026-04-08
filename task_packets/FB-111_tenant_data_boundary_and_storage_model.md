@@ -1,6 +1,6 @@
 # Task Packet - FB-111 Tenant Data Boundary and Storage Model
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -35,11 +35,11 @@ Family Book stores sensitive living-person data. Paid hosting must make cross-ar
 
 ## Acceptance Criteria
 
-- [ ] Tenant data boundary doc exists and is linked from hosting ADR.
-- [ ] Every durable data class has an owner, path/table, retention rule, and export/delete behavior.
-- [ ] Backup and export paths cannot mix data from two archives.
-- [ ] Media paths are normalized and tested against traversal.
-- [ ] Future pooled multi-tenant requirements are captured without forcing implementation now.
+- [x] Tenant data boundary doc exists and is linked from hosting ADR.
+- [x] Every durable data class has an owner, path/table, retention rule, and export/delete behavior.
+- [x] Backup and export paths cannot mix data from two archives.
+- [x] Media paths are normalized and tested against traversal.
+- [x] Future pooled multi-tenant requirements are captured without forcing implementation now.
 
 ## Validation Commands
 
@@ -48,4 +48,15 @@ Family Book stores sensitive living-person data. Paid hosting must make cross-ar
 
 ## Definition of Done
 
-- [ ] Tenant boundary is clear enough to drive provisioning and support work.
+- [x] Tenant boundary is clear enough to drive provisioning and support work.
+
+## Builder Evidence
+
+- Deliverable: `docs/ops/tenant-data-boundary.md`.
+- ADR cross-link: `docs/ops/hosting-and-tenant-architecture-adr.md`.
+- Enforcement improvement: `app/backup/service.py` now rejects unsafe zip paths during restore.
+- Regression coverage: `tests/test_phase3.py::test_restore_backup_archive_rejects_unsafe_zip_paths`.
+- Media file and variant helpers now reject traversal outside `DATA_DIR/media`.
+- Regression coverage: `tests/test_media.py::TestMediaServing::test_serve_file_rejects_db_backed_path_traversal`.
+- Regression coverage: `tests/test_media.py::TestMediaPathSafety::*`.
+- Runtime enforcement also blocks production SQLite paths outside `DATA_DIR`.

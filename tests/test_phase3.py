@@ -216,6 +216,29 @@ class TestBackup:
             assert health["restore_verification"]["status"] == "ok"
             assert health["restore_verification"]["source_backup"] == health["latest_file"]
 
+    def test_restore_backup_archive_rejects_unsafe_zip_paths(self, tmp_path):
+        import gzip
+        import io
+        import zipfile
+
+        archive_path = tmp_path / "unsafe-backup.zip"
+        db_payload = io.BytesIO()
+        with gzip.GzipFile(fileobj=db_payload, mode="wb") as gz:
+            gz.write(b"not-a-real-sqlite-db")
+
+        with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("../../escape.txt", "owned")
+            zf.writestr("db/family-20260101_000000.db.gz", db_payload.getvalue())
+
+        from app.backup.service import restore_backup_archive
+
+        try:
+            restore_backup_archive(str(archive_path), target_data_dir=str(tmp_path / "restored"))
+        except ValueError as exc:
+            assert "unsafe path" in str(exc)
+        else:
+            raise AssertionError("restore_backup_archive accepted an unsafe archive path")
+
 
 class TestBootstrapAdmin:
     @pytest.mark.asyncio

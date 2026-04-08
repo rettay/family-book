@@ -1,6 +1,6 @@
 # Task Packet - FB-110 Production Container Runtime Contract
 
-Status: Proposed
+Status: Partial
 
 ## Objective
 
@@ -36,12 +36,12 @@ Paid hosting requires repeatable deploys. A Dockerfile alone is not enough if se
 
 ## Acceptance Criteria
 
-- [ ] Production runtime docs list all required and optional env vars.
-- [ ] Runtime docs state required volume paths and what must persist across deploys.
-- [ ] Startup fails closed for missing invalid production secrets.
-- [ ] Health endpoint is sufficient for container orchestrator checks.
-- [ ] Demo data and dev bypass are impossible to enable accidentally in production docs.
-- [ ] Release image tagging and rollback instructions are documented.
+- [x] Production runtime docs list all required and optional env vars.
+- [x] Runtime docs state required volume paths and what must persist across deploys.
+- [x] Startup fails closed for missing invalid production secrets.
+- [x] Health endpoint is sufficient for container orchestrator checks.
+- [x] Demo data and dev bypass are impossible to enable accidentally in production docs.
+- [x] Release image tagging and rollback instructions are documented.
 
 ## Validation Commands
 
@@ -52,3 +52,15 @@ Paid hosting requires repeatable deploys. A Dockerfile alone is not enough if se
 ## Definition of Done
 
 - [ ] A new operator can run the image in a production-like environment from docs only.
+
+## Builder Evidence
+
+- Deliverable: `docs/ops/production-container-runtime.md`.
+- New runtime enforcement: `app/runtime_contract.py`.
+- Container startup now validates the production contract before migrations or demo seeding.
+- Container startup now honors `DATA_DIR`, not only hard-coded `/data`, when creating archive directories.
+- Production runtime validation now rejects unsupported non-SQLite `DATABASE_URL` values.
+- Example env files: `.env.production.example`, `.env.hosted-archive.example`.
+- Structural checks: `uv run pytest tests/test_config.py tests/test_runtime_contract.py tests/test_phase3.py -q`, `bash -n docker/start.sh`.
+- Verification blocker: `docker build -t family-book:local .` could not be run here because no local container runtime (`docker`, `podman`, `nerdctl`, `buildah`) is installed.
+- Remaining proof obligation: run a real image build on a machine with a container runtime before closing `FB-110`.

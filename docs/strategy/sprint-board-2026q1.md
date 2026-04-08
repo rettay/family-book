@@ -8,8 +8,7 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 | Sprint | Title | Status | Packets |
 |---|---|---|---|
-| S47 | Hosting and Tenant Architecture | planned | `FB-109` to `FB-112` |
-| S48 | Privacy and Exit Trust | proposed | `FB-113` to `FB-116` |
+| S48 | Privacy and Exit Trust | planned | `FB-113` to `FB-116` |
 | S49 | Paid Hosted Platform | proposed | `FB-117` to `FB-119` |
 | S50 | Activation and Migration | proposed | `FB-120` to `FB-123` |
 | S51 | Lovable Engagement | proposed | `FB-124` to `FB-126` |
@@ -19,22 +18,22 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 ## Planned Sprint
 
-### `S47 - Hosting and Tenant Architecture`
+### `S48 - Privacy and Exit Trust`
 
 Status: Planned
 
 ### Sprint Goal
 
-Decide and implement the first hosted deployment shape, tenant boundary, and production runtime contract.
+Remove the remaining privacy and exit-trust blockers before paid beta hosting expands.
 
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 109 | FB-109 | Hosting and Tenant Architecture ADR | P0 | proposed |
-| 110 | FB-110 | Production Container Runtime Contract | P0 | proposed |
-| 111 | FB-111 | Tenant Data Boundary and Storage Model | P0 | proposed |
-| 112 | FB-112 | Managed Hosting Environment Baseline | P1 | proposed |
+| 113 | FB-113 | Role and Graph-Distance Privacy Model | P0 | proposed |
+| 114 | FB-114 | Private Sensitive Fields and Consent Controls | P0 | proposed |
+| 115 | FB-115 | Archive Export and GEDCOM Export | P0 | proposed |
+| 116 | FB-116 | Paid Launch Trust Center | P1 | proposed |
 
 ### Stretch / Queued Packets
 
@@ -44,12 +43,43 @@ None yet.
 
 - Plan: `docs/strategy/commercialization-sprint-plan-2026.md`
 - Slices: `docs/strategy/commercialization-sprint-slices-2026.md`
+- Roadmap context: `docs/strategy/commercialization-sprint-plan-2026.md`
 
 ---
 
 ## Current Sprint
 
 None active.
+
+---
+
+## Closed Sprint
+
+### `S47 - Hosting and Tenant Architecture`
+
+Status: Closed
+
+### Sprint Goal
+
+Decide and implement the first hosted deployment shape, tenant boundary, and production runtime contract.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 109 | FB-109 | Hosting and Tenant Architecture ADR | P0 | done |
+| 111 | FB-111 | Tenant Data Boundary and Storage Model | P0 | done |
+| 110 | FB-110 | Production Container Runtime Contract | P0 | partial, follow-up required |
+| 112 | FB-112 | Managed Hosting Environment Baseline | P1 | done |
+
+### Outcome
+
+- Family Book now has an accepted first paid-hosting decision: managed single-tenant family archives.
+- Production runtime validation now rejects unsupported non-SQLite production configs and fails before migrations or demo seeding.
+- Backup restore rejects unsafe zip archive paths.
+- Media file and variant resolution reject DB-backed traversal outside the archive media root.
+- Auditor result: PASS WITH FOLLOW-UPS because `FB-110` still needs a real image build on a machine with a container runtime before it can be marked fully done.
+- Closeout evidence: `docs/strategy/sprint-closeout-s47.md`.
 
 ---
 
