@@ -6,7 +6,7 @@ from sqlalchemy import delete
 from app.database import async_session_factory, engine
 from app.models.base import Base
 from app.models.media import Media
-from app.models.person import AccountState, Person, PersonSource
+from app.models.person import AccountState, Person, PersonRole, PersonSource
 from app.models.relationships import ParentChild, Partnership
 from app.services.auth_service import create_session
 from app.services.media_service import save_media_file
@@ -85,6 +85,7 @@ async def seed() -> None:
             residence_place="Barcelona",
             branch="martin",
             is_admin=True,
+            role=PersonRole.admin.value,
             source=PersonSource.manual.value,
             account_state=AccountState.active.value,
             contact_email="tyler@example.com",
@@ -103,6 +104,7 @@ async def seed() -> None:
             residence_place="Barcelona",
             branch="yuliya",
             is_admin=True,
+            role=PersonRole.admin.value,
             source=PersonSource.manual.value,
             account_state=AccountState.active.value,
         )
