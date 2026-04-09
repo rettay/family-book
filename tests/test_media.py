@@ -6,7 +6,7 @@ from PIL import Image
 from sqlalchemy import select
 
 from app.models.hosted_archive import HostedArchive
-from app.models.media import Media, MediaSource, MediaType
+from app.models.media import Media, MediaInboxItem, MediaSource, MediaType
 from app.services.media_service import get_media_file_path, get_variant_path
 
 ADMIN_ID = "tyler-000-0000-0000-000000000002"
@@ -203,6 +203,104 @@ class TestMediaUpload:
 
         assert resp.status_code == 507
         assert "storage quota exceeded" in resp.json()["detail"].lower()
+
+    async def test_share_target_creates_media_inbox_item(self, member_client, seeded_db):
+        resp = await member_client.post(
+            "/api/share",
+            data={"title": "Shared photo", "text": "From mobile"},
+            files={"media": ("shared.jpg", _make_test_image(), "image/jpeg")},
+            follow_redirects=False,
+        )
+
+        assert resp.status_code == 302
+        assert resp.headers["location"] == "/media/inbox?shared=1"
+
+        result = await seeded_db.execute(select(MediaInboxItem))
+        item = result.scalar_one()
+        assert item.title == "Shared photo"
+        assert item.caption == "From mobile"
+        assert item.status == "pending"
+
+    async def test_media_inbox_item_can_attach_to_profile(
+        self,
+        member_client,
+        seeded_db,
+        tmp_path,
+        monkeypatch,
+    ):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.pwa.routes.get_settings", lambda: settings)
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+
+        share_resp = await member_client.post(
+            "/api/share",
+            data={"title": "Shared photo", "text": "From mobile"},
+            files={"media": ("shared.jpg", _make_test_image(), "image/jpeg")},
+            follow_redirects=False,
+        )
+        assert share_resp.status_code == 302
+
+        inbox_item = (await seeded_db.execute(select(MediaInboxItem))).scalar_one()
+        attach_resp = await member_client.post(
+            f"/media/inbox/{inbox_item.id}/attach",
+            data={"person_id": "member-00-0000-0000-000000000005", "title": "Inbox memory"},
+            follow_redirects=False,
+        )
+
+        assert attach_resp.status_code == 303
+
+        await seeded_db.refresh(inbox_item)
+        media = await seeded_db.get(Media, inbox_item.attached_media_id)
+        assert inbox_item.status == "attached"
+        assert media is not None
+        assert media.source == MediaSource.share_sheet.value
+
+    async def test_media_inbox_duplicate_attach_creates_media_for_target_person(
+        self,
+        admin_client,
+        member_client,
+        seeded_db,
+        tmp_path,
+        monkeypatch,
+    ):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.pwa.routes.get_settings", lambda: settings)
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+
+        image_data = _make_test_image()
+        existing_resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": ADMIN_ID},
+            files={"file": ("shared.jpg", image_data, "image/jpeg")},
+        )
+        assert existing_resp.status_code == 201
+        existing_media_id = existing_resp.json()["id"]
+
+        share_resp = await member_client.post(
+            "/api/share",
+            data={"title": "Shared photo", "text": "From mobile"},
+            files={"media": ("shared.jpg", image_data, "image/jpeg")},
+            follow_redirects=False,
+        )
+        assert share_resp.status_code == 302
+
+        inbox_item = (await seeded_db.execute(select(MediaInboxItem))).scalars().all()[-1]
+        attach_resp = await member_client.post(
+            f"/media/inbox/{inbox_item.id}/attach",
+            data={"person_id": "member-00-0000-0000-000000000005", "title": "Inbox memory"},
+            follow_redirects=False,
+        )
+        assert attach_resp.status_code == 303
+
+        await seeded_db.refresh(inbox_item)
+        media = await seeded_db.get(Media, inbox_item.attached_media_id)
+        assert media is not None
+        assert media.id != existing_media_id
+        assert media.person_id == "member-00-0000-0000-000000000005"
 
 
 class TestMediaDedup:

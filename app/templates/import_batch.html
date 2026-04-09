@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}GEDCOM Import Review — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" id="import-batch-page" style="padding-top: 16px; max-width: 960px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">GEDCOM Import Review</h1>
+    <p class="page-header__subtitle">{{ batch.filename }} · {{ batch.status }}</p>
+  </div>
+
+  <div class="card mb-16" id="import-batch-summary-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Summary</h2>
+      <ul class="status-list">
+        <li class="status-list__item">People created: {{ batch.persons_created }}</li>
+        <li class="status-list__item">Relationships created: {{ batch.relationships_created }}</li>
+        <li class="status-list__item">Duplicates skipped: {{ batch.duplicates_skipped }}</li>
+        <li class="status-list__item">Unsupported items: {{ batch_summary.unsupported_items | length }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card mb-16" id="import-batch-checklist-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Cleanup Checklist</h2>
+      <ul class="status-list">
+        <li class="status-list__item">Missing key dates: {{ batch_summary.checklist.missing_key_dates }}</li>
+        <li class="status-list__item">Unknown names: {{ batch_summary.checklist.unknown_names }}</li>
+        <li class="status-list__item">Unlinked people: {{ batch_summary.checklist.unlinked_people }}</li>
+        <li class="status-list__item">Duplicate candidates: {{ batch_summary.checklist.duplicate_candidates }}</li>
+      </ul>
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap" style="margin-top: 12px;">
+        <a class="btn btn--outline btn--sm" href="/tree">Review Tree</a>
+        <a class="btn btn--outline btn--sm" href="/gallery">Review Media</a>
+      </div>
+    </div>
+  </div>
+
+  {% if batch_summary.unsupported_items %}
+  <div class="card mb-16" id="import-batch-unsupported-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Unsupported Items</h2>
+      <ul class="status-list">
+        {% for item in batch_summary.unsupported_items %}
+        <li class="status-list__item">{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card mb-16" id="import-batch-duplicates-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Duplicate Review</h2>
+      {% if batch_summary.duplicate_candidates %}
+      <ul class="status-list">
+        {% for item in batch_summary.duplicate_candidates %}
+        <li class="status-list__item">{{ item.gedcom_name }} matched {{ item.existing_name }} ({{ item.match_reason }})</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-sm text-muted">No duplicate candidates were detected.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card mb-16" id="import-batch-rollback-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Recovery</h2>
+      <p class="text-sm text-muted mb-8">If this import created the wrong people, you can roll back the people created by this batch.</p>
+      <form action="/api/import/gedcom/{{ batch.id }}/rollback" method="post" id="import-batch-rollback-form">
+        <button class="btn btn--danger btn--sm" id="import-batch-rollback-button" type="submit">Roll Back This Import</button>
+      </form>
+      <p class="text-sm text-muted" id="import-batch-rollback-result" style="margin-top: 8px;"></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('import-batch-rollback-form')?.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const response = await fetch(event.currentTarget.action, { method: 'POST' });
+    const data = await response.json().catch(() => ({}));
+    const result = document.getElementById('import-batch-rollback-result');
+    if (!response.ok) {
+      result.textContent = data.detail || 'Rollback failed.';
+      return;
+    }
+    result.textContent = 'Rollback complete. Deleted people: ' + data.deleted_person_count;
+  });
+</script>
+{% endblock %}

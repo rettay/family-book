@@ -296,6 +296,7 @@ async def save_media_file(
     taken_date: str | None = None,
     tagged_person_ids: list[str] | None = None,
     data_dir: str | None = None,
+    dedupe_across_people: bool = True,
 ) -> tuple[Media, bool]:
     """
     Save a media file. Returns (media, is_duplicate).
@@ -312,7 +313,7 @@ async def save_media_file(
     file_hash = compute_sha256(file_data)
 
     existing = await check_duplicate(db, file_hash)
-    if existing:
+    if existing and (dedupe_across_people or existing.person_id == person_id):
         if tagged_person_ids:
             existing.tagged_person_ids = sorted(set(existing.tagged_person_ids) | set(tagged_person_ids))
         if caption and not existing.caption:

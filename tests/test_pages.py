@@ -2,10 +2,12 @@ import pytest
 from pathlib import Path
 from fastapi import Request
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.routes.pages as pages_routes
 from app.models.hosted_archive import HostedArchive
+from app.models.media import MediaInboxItem
 
 TYLER_ID = "tyler-000-0000-0000-000000000002"
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -72,6 +74,34 @@ async def test_authenticated_root_redirects_to_tree(member_client: AsyncClient):
 
     assert resp.status_code == 302
     assert resp.headers["location"] == "/tree"
+
+
+@pytest.mark.asyncio
+async def test_hosted_root_redirects_admin_to_onboarding(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+    monkeypatch,
+):
+    monkeypatch.setenv("HOSTED_ARCHIVE_ENABLED", "true")
+    seeded_db.add(
+        HostedArchive(
+            archive_key="archive-1",
+            archive_name="Hosted Archive",
+            owner_email="owner@example.com",
+            base_url="https://family.example.com",
+            hosting_mode="managed_single_tenant",
+            plan_code="founding",
+            lifecycle_state="active",
+            billing_provider="stripe",
+            billing_status="active",
+        )
+    )
+    await seeded_db.commit()
+
+    resp = await admin_client.get("/", follow_redirects=False)
+
+    assert resp.status_code == 302
+    assert resp.headers["location"] == "/onboarding"
 
 
 @pytest.mark.asyncio
@@ -206,6 +236,40 @@ async def test_gallery_page_renders_filters_and_nav_link(member_client: AsyncCli
     assert 'name="person_id"' in resp.text
     assert 'name="uploader_id"' in resp.text
     assert 'class="nav__link nav__link--active"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_media_inbox_page_renders_empty_state(member_client: AsyncClient):
+    resp = await member_client.get("/media/inbox")
+
+    assert resp.status_code == 200
+    assert 'id="media-inbox-page"' in resp.text
+    assert "No shared media is waiting for review." in resp.text
+
+
+@pytest.mark.asyncio
+async def test_media_inbox_page_only_lists_attachable_people(
+    member_client: AsyncClient,
+    seeded_db: AsyncSession,
+):
+    seeded_db.add(
+        MediaInboxItem(
+            file_path="inbox/test.jpg",
+            original_filename="test.jpg",
+            mime_type="image/jpeg",
+            media_type="image",
+            status="pending",
+            uploaded_by="member-00-0000-0000-000000000005",
+        )
+    )
+    await seeded_db.commit()
+
+    resp = await member_client.get("/media/inbox")
+
+    assert resp.status_code == 200
+    assert 'value="member-00-0000-0000-000000000005"' in resp.text
+    assert 'value="tyler-000-0000-0000-000000000002"' not in resp.text
+    assert 'value="grndpa-00-0000-0000-000000000004"' not in resp.text
 
 
 @pytest.mark.asyncio

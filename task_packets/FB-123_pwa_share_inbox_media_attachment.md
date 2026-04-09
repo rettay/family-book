@@ -1,6 +1,6 @@
 # Task Packet - FB-123 PWA Share Inbox and Media Attachment
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -36,11 +36,11 @@ Mobile sharing is a low-friction way to add family memories. The current share e
 
 ## Acceptance Criteria
 
-- [ ] PWA share target creates a persisted inbox item.
-- [ ] Inbox item can be attached to a person and converted to Media.
-- [ ] Inbox item can be rejected/deleted.
-- [ ] Access control prevents users from attaching media to unauthorized profiles.
-- [ ] Mobile flow has clear success/failure copy.
+- [x] PWA share target creates a persisted inbox item.
+- [x] Inbox item can be attached to a person and converted to Media.
+- [x] Inbox item can be rejected/deleted.
+- [x] Access control prevents users from attaching media to unauthorized profiles.
+- [x] Mobile flow has clear success/failure copy.
 
 ## Validation Commands
 
@@ -48,6 +48,15 @@ Mobile sharing is a low-friction way to add family memories. The current share e
 - `make test-ui-playwright`
 - `git diff --check`
 
+## Evidence
+
+- `app/models/media.py`
+- `app/pwa/routes.py`
+- `app/routes/pages.py`
+- `app/templates/media_inbox.html`
+- `tests/test_media.py`
+- `tests/test_pages.py`
+
 ## Definition of Done
 
-- [ ] Mobile sharing creates archive value instead of loose files.
+- [x] Mobile sharing creates archive value instead of loose files.

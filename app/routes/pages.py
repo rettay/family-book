@@ -23,6 +23,7 @@ from app.access_control import (
     redact_person_summary,
 )
 from app.auth import get_current_user, require_admin, require_auth
+from app.config import get_settings
 from app.database import get_db
 from app.i18n import translate
 from app.models.media import Media
@@ -32,6 +33,7 @@ from app.models.revisions import EntityRevision
 from app.models.auth import Invite
 from app.models.relationships import ParentChild, Partnership
 from app.backup.service import get_backup_health
+from app.roles import get_person_role
 from app.services.revision_service import list_revisions
 from app.services.media_queries import (
     can_upload_media_for_person,
@@ -46,6 +48,7 @@ from app.services.hosted_archive_service import (
     get_or_create_hosted_archive,
     get_plan_entitlement,
 )
+from app.services.onboarding_service import onboarding_required_for_person, sync_onboarding_progress
 from app.services.storage_usage_service import format_bytes
 from app.services.theme_service import get_runtime_theme_from_app
 
@@ -104,6 +107,21 @@ async def _actor_names(
     return {actor.id: actor.display_name for actor in result.scalars().all()}
 
 
+async def _maybe_redirect_to_onboarding(
+    request: Request,
+    *,
+    current_user: Person,
+    db: AsyncSession,
+) -> RedirectResponse | None:
+    settings = get_settings()
+    if not settings.hosted_archive_enabled:
+        return None
+    progress = await sync_onboarding_progress(db, person=current_user)
+    if onboarding_required_for_person(progress, current_user):
+        return RedirectResponse("/onboarding", status_code=302)
+    return None
+
+
 # ─── Landing / Home ───────────────────────────────────────────────
 
 @router.get("/", response_class=HTMLResponse)
@@ -117,6 +135,13 @@ async def home(
         logger.debug("Anonymous landing page rendered")
         return templates.TemplateResponse("landing.html", _ctx(request))
 
+    redirect = await _maybe_redirect_to_onboarding(
+        request,
+        current_user=current_user,
+        db=db,
+    )
+    if redirect is not None:
+        return redirect
     return RedirectResponse("/tree", status_code=302)
 
 
@@ -196,6 +221,7 @@ async def invite_page(
         request,
         person_name=person.display_name,
         branch=person.branch,
+        invite_role=get_person_role(person),
         token=token,
         error=None,
     ))
@@ -242,7 +268,15 @@ async def magic_link_page(
 async def tree_page(
     request: Request,
     current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
 ):
+    redirect = await _maybe_redirect_to_onboarding(
+        request,
+        current_user=current_user,
+        db=db,
+    )
+    if redirect is not None:
+        return redirect
     return templates.TemplateResponse("tree.html", _ctx(
         request, current_user, active_page="tree",
     ))
@@ -252,7 +286,15 @@ async def tree_page(
 async def map_page(
     request: Request,
     current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
 ):
+    redirect = await _maybe_redirect_to_onboarding(
+        request,
+        current_user=current_user,
+        db=db,
+    )
+    if redirect is not None:
+        return redirect
     return templates.TemplateResponse("map.html", _ctx(
         request,
         current_user,
@@ -272,6 +314,13 @@ async def gallery_page(
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
+    redirect = await _maybe_redirect_to_onboarding(
+        request,
+        current_user=current_user,
+        db=db,
+    )
+    if redirect is not None:
+        return redirect
     gallery_people = await list_gallery_people(db, current_user)
     gallery_page_result = await list_gallery_media(
         db,
@@ -311,7 +360,15 @@ async def gallery_page(
 async def new_person_page(
     request: Request,
     current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
 ):
+    redirect = await _maybe_redirect_to_onboarding(
+        request,
+        current_user=current_user,
+        db=db,
+    )
+    if redirect is not None:
+        return redirect
     return templates.TemplateResponse("person_new.html", _ctx(
         request, current_user, active_page="people",
     ))

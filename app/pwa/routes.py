@@ -7,15 +7,20 @@ POST /api/share — receives shared photos from mobile share sheet
 import logging
 import os
 import shutil
+import uuid
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.auth import get_current_user
 from app.config import get_settings
+from app.database import get_db
+from app.models.media import MediaInboxItem, MediaInboxStatus
 from app.models.person import Person
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
+from app.services.media_service import _media_type_for_mime
 from app.services.theme_service import get_runtime_theme_from_app
+from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +45,7 @@ async def share_target(
     text: str = Form(default=""),
     media: UploadFile | None = File(default=None),
     current_user: Person | None = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """Receive shared content from PWA share sheet.
 
@@ -67,27 +73,38 @@ async def share_target(
     settings = get_settings()
     data_dir = getattr(settings, "resolved_data_dir", settings.DATA_DIR)
     media_dir = os.path.join(data_dir, "media")
+    inbox_dir = os.path.join(media_dir, "inbox")
     os.makedirs(media_dir, exist_ok=True)
+    os.makedirs(inbox_dir, exist_ok=True)
 
     ext = _ext_from_content_type(media.content_type)
-    filename = f"share_{file_hash[:16]}{ext}"
-    file_path = os.path.join(media_dir, filename)
+    filename = f"{uuid.uuid4()}{ext}"
+    relative_path = os.path.join("inbox", filename)
+    file_path = os.path.join(inbox_dir, filename)
+    shutil.move(streamed_upload.path, file_path)
 
-    if os.path.exists(file_path):
-        os.unlink(streamed_upload.path)
-    else:
-        shutil.move(streamed_upload.path, file_path)
+    inbox_item = MediaInboxItem(
+        file_path=relative_path,
+        original_filename=media.filename or filename,
+        mime_type=media.content_type,
+        file_size_bytes=streamed_upload.size,
+        file_hash=file_hash,
+        media_type=_media_type_for_mime(media.content_type),
+        status=MediaInboxStatus.pending.value,
+        uploaded_by=current_user.id,
+        source_title=title.strip() or None,
+        source_text=text.strip() or None,
+        title=title.strip() or None,
+        caption=text.strip() or None,
+    )
+    db.add(inbox_item)
+    await db.flush()
 
     logger.info(
-        "Share target: user=%s file=%s size=%d hash=%s",
-        current_user.id[:8], filename, streamed_upload.size, file_hash[:12],
+        "Share target: user=%s inbox_item=%s file=%s size=%d hash=%s",
+        current_user.id[:8], inbox_item.id, filename, streamed_upload.size, file_hash[:12],
     )
-
-    # NOTE: Media + Moment record creation is handled by Phase 2 routes.
-    # This saves the file and redirects. Phase 2 merge point: create Media + Moment
-    # records here using the saved file at media/{filename}.
-
-    return RedirectResponse(url="/?toast=shared", status_code=302)
+    return RedirectResponse(url="/media/inbox?shared=1", status_code=302)
 
 
 def _ext_from_content_type(ct: str) -> str:

@@ -16,6 +16,7 @@ class ImportStatus(str, enum.Enum):
     paused = "paused"
     completed = "completed"
     failed = "failed"
+    rolled_back = "rolled_back"
 
 
 class WhatsappImportBatch(Base):

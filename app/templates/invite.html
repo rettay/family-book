@@ -33,6 +33,9 @@
       <p style="color: var(--text-muted); font-size:0.9rem; margin-bottom: 28px; line-height:1.6;">
         You've been invited to join the family. Confirm to view the family tree, shared stories, and photos that are relevant to your branch. Contact details and sensitive medical or DNA fields stay restricted by role and privacy policy.
       </p>
+      <p class="text-sm text-muted" style="margin-bottom: 20px;">
+        Invite role: <strong>{{ invite_role }}</strong>. Viewers browse visible relatives. Members and stewards can contribute within the archive rules for their role.
+      </p>
 
       <form id="claim-form" onsubmit="claimInvite(event)">
         <button type="submit" class="btn btn--primary btn--block btn--lg" id="claim-btn">
@@ -56,7 +59,8 @@
           body: '{}'
         });
         if (resp.ok) {
-          window.location.href = '/tree';
+          const data = await resp.json().catch(() => ({}));
+          window.location.href = data.landing_url || '/tree';
         } else {
           const data = await resp.json().catch(() => ({}));
           btn.disabled = true;

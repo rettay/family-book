@@ -1,6 +1,6 @@
 # Task Packet - FB-122 Invite Visibility and Contribution Flow
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -36,11 +36,11 @@ Family Book becomes valuable when relatives contribute. Invites must be safe, un
 
 ## Acceptance Criteria
 
-- [ ] Invite page states what the invitee can see and edit.
-- [ ] After claim, invitee lands on a relevant profile or contribution prompt.
-- [ ] Viewer/member/steward roles see different permitted actions.
-- [ ] High-risk edits are blocked or routed to review according to policy.
-- [ ] Invite conversion event is auditable.
+- [x] Invite page states what the invitee can see and edit.
+- [x] After claim, invitee lands on a relevant profile or contribution prompt.
+- [x] Viewer/member/steward roles see different permitted actions.
+- [x] High-risk edits are blocked or routed to review according to policy.
+- [x] Invite conversion event is auditable.
 
 ## Validation Commands
 
@@ -48,6 +48,15 @@ Family Book becomes valuable when relatives contribute. Invites must be safe, un
 - `make test-ui-playwright`
 - `git diff --check`
 
+## Evidence
+
+- `app/routes/auth_routes.py`
+- `app/routes/pages.py`
+- `app/templates/invite.html`
+- `app/templates/invite_first_steps.html`
+- `tests/test_auth.py`
+- `tests/test_pages.py`
+
 ## Definition of Done
 
-- [ ] Invited relatives know what to do and cannot over-contribute.
+- [x] Invited relatives know what to do and cannot over-contribute.

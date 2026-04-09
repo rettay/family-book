@@ -77,3 +77,49 @@ class Media(Base):
     @tagged_person_ids.setter
     def tagged_person_ids(self, value: list[str]) -> None:
         self._tagged_person_ids = json.dumps(value)
+
+
+class MediaInboxStatus(str, enum.Enum):
+    pending = "pending"
+    attached = "attached"
+    rejected = "rejected"
+
+
+class MediaInboxItem(Base):
+    __tablename__ = "media_inbox_items"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    file_path: Mapped[str] = mapped_column(String(500))
+    original_filename: Mapped[str | None] = mapped_column(String(300), default=None)
+    mime_type: Mapped[str | None] = mapped_column(String(50), default=None)
+    file_size_bytes: Mapped[int | None] = mapped_column(Integer, default=None)
+    file_hash: Mapped[str | None] = mapped_column(String(64), default=None)
+    media_type: Mapped[str] = mapped_column(String(20))
+    status: Mapped[str] = mapped_column(String(20), default=MediaInboxStatus.pending.value)
+    uploaded_by: Mapped[str] = mapped_column(String(36), ForeignKey("persons.id", ondelete="CASCADE"))
+    attached_media_id: Mapped[str | None] = mapped_column(String(36), default=None)
+    attached_person_id: Mapped[str | None] = mapped_column(String(36), default=None)
+    source_title: Mapped[str | None] = mapped_column(String(300), default=None)
+    source_text: Mapped[str | None] = mapped_column(Text, default=None)
+    title: Mapped[str | None] = mapped_column(String(300), default=None)
+    caption: Mapped[str | None] = mapped_column(String(1000), default=None)
+    taken_date: Mapped[str | None] = mapped_column(String(10), default=None)
+    taken_location: Mapped[str | None] = mapped_column(String(500), default=None)
+    _tagged_person_ids: Mapped[str | None] = mapped_column("tagged_person_ids", Text, default="[]")
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: __import__("datetime").datetime.now(__import__("datetime").timezone.utc)
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: __import__("datetime").datetime.now(__import__("datetime").timezone.utc),
+        onupdate=lambda: __import__("datetime").datetime.now(__import__("datetime").timezone.utc),
+    )
+
+    @property
+    def tagged_person_ids(self) -> list[str]:
+        if self._tagged_person_ids:
+            return json.loads(self._tagged_person_ids)
+        return []
+
+    @tagged_person_ids.setter
+    def tagged_person_ids(self, value: list[str]) -> None:
+        self._tagged_person_ids = json.dumps(value)

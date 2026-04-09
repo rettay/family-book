@@ -1,6 +1,6 @@
 # Task Packet - FB-120 Onboarding Activation Wizard
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -37,11 +37,11 @@ Paid conversion depends on fast activation: create archive, add/import relatives
 
 ## Acceptance Criteria
 
-- [ ] New archive owner is routed to onboarding until first-run is complete or skipped.
-- [ ] Wizard supports manual add and GEDCOM import paths.
-- [ ] Wizard records first media and first invite milestones.
-- [ ] Wizard can be resumed after closing the browser.
-- [ ] Activation events avoid storing private content.
+- [x] New archive owner is routed to onboarding until first-run is complete or skipped.
+- [x] Wizard supports manual add and GEDCOM import paths.
+- [x] Wizard records first media and first invite milestones.
+- [x] Wizard can be resumed after closing the browser.
+- [x] Activation events avoid storing private content.
 
 ## Validation Commands
 
@@ -49,6 +49,16 @@ Paid conversion depends on fast activation: create archive, add/import relatives
 - `make test-ui-playwright`
 - `git diff --check`
 
+## Evidence
+
+- `app/models/onboarding.py`
+- `app/services/onboarding_service.py`
+- `app/routes/onboarding.py`
+- `app/routes/pages.py`
+- `app/templates/onboarding.html`
+- `tests/test_onboarding.py`
+- `tests/test_pages.py`
+
 ## Definition of Done
 
-- [ ] A new user can reach first value in one session.
+- [x] A new user can reach first value in one session.

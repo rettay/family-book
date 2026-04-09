@@ -2,6 +2,7 @@ from app.models.base import Base
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
 from app.models.media import Media
+from app.models.media import MediaInboxItem
 from app.models.auth import (
     Invite,
     MagicLinkToken,
@@ -20,6 +21,7 @@ from app.models.saved_record import SavedRecord
 from app.models.imports import (
     WhatsappImportBatch,
     MessengerImportBatch,
+    GedcomImportBatch,
     AgentApiKey,
     ExternalIdentity,
     MemorialPlan,
@@ -27,6 +29,7 @@ from app.models.imports import (
 from app.models.story import Story
 from app.models.occupation import PersonOccupation
 from app.models.hosted_archive import HostedArchive, BillingEventReceipt
+from app.models.onboarding import OnboardingProgress
 
 __all__ = [
     "Base",
@@ -34,6 +37,7 @@ __all__ = [
     "ParentChild",
     "Partnership",
     "Media",
+    "MediaInboxItem",
     "UserSession",
     "Invite",
     "MagicLinkToken",
@@ -52,6 +56,7 @@ __all__ = [
     "SavedRecord",
     "WhatsappImportBatch",
     "MessengerImportBatch",
+    "GedcomImportBatch",
     "AgentApiKey",
     "ExternalIdentity",
     "MemorialPlan",
@@ -59,4 +64,5 @@ __all__ = [
     "PersonOccupation",
     "HostedArchive",
     "BillingEventReceipt",
+    "OnboardingProgress",
 ]

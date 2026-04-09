@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Welcome — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" id="invite-first-steps-page" style="padding-top: 16px; max-width: 840px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">Welcome to the Archive</h1>
+    <p class="page-header__subtitle">You joined as a {{ invite_role }}. Here is what you can do first.</p>
+  </div>
+
+  <div class="card mb-16" id="invite-role-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Role and Visibility</h2>
+      <ul class="status-list">
+        <li class="status-list__item">Role: {{ invite_role }}</li>
+        <li class="status-list__item">Profiles shown to you are filtered by the current family-graph privacy rules.</li>
+        <li class="status-list__item">Contact, medical, and DNA fields remain restricted by profile policy.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card mb-16" id="invite-first-action-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Suggested First Step</h2>
+      {% if invite_role in ['owner', 'admin', 'steward', 'member'] %}
+      <p class="text-sm text-muted mb-8">Start by checking your own profile, then add a missing photo, relationship, or correction.</p>
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap">
+        <a class="btn btn--primary btn--sm" id="invite-open-profile-button" href="/people/{{ invite_focus_person.id }}/edit">Open My Profile</a>
+        <a class="btn btn--outline btn--sm" id="invite-open-tree-button" href="/tree?focus={{ invite_focus_person.id }}">Open Tree</a>
+      </div>
+      {% else %}
+      <p class="text-sm text-muted mb-8">Start by browsing the family tree and stories that are visible to you.</p>
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap">
+        <a class="btn btn--primary btn--sm" id="invite-open-tree-button" href="/tree?focus={{ invite_focus_person.id }}">Open Tree</a>
+        <a class="btn btn--outline btn--sm" href="/wiki">Open Stories</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

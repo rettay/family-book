@@ -12,13 +12,25 @@ from app.database import get_db
 from app.importers.gedcom_parser import parse_gedcom
 from app.models.imports import GedcomImportBatch, ImportStatus
 from app.models.person import Person
-from app.services.import_service import import_gedcom, find_duplicates
+from app.roles import is_admin_actor, is_staff_actor
+from app.services.import_service import (
+    build_gedcom_import_summary,
+    detect_unsupported_gedcom_items,
+    find_duplicates,
+    import_gedcom,
+    rollback_gedcom_batch,
+)
 from app.models.base import utcnow
 
 router = APIRouter(prefix="/api/import", tags=["import"])
 logger = logging.getLogger(__name__)
 
 MAX_GEDCOM_SIZE = 10 * 1024 * 1024  # 10MB
+
+
+def _require_import_staff(current_user: Person) -> None:
+    if not is_staff_actor(current_user):
+        raise HTTPException(status_code=403, detail="Not authorized to manage GEDCOM imports")
 
 
 def _validate_and_parse(content: bytes, filename: str):
@@ -49,10 +61,12 @@ async def preview_gedcom(
     Does NOT import anything — allows the user to review duplicates
     before confirming the import.
     """
+    _require_import_staff(current_user)
     content = await file.read()
     parsed = _validate_and_parse(content, file.filename)
 
     duplicates = await find_duplicates(db, parsed.individuals)
+    unsupported_items = detect_unsupported_gedcom_items(content)
 
     individuals_preview = []
     for indi in parsed.individuals:
@@ -77,6 +91,7 @@ async def preview_gedcom(
         "individuals_count": len(parsed.individuals),
         "families_count": len(parsed.families),
         "duplicates_count": len(duplicates),
+        "unsupported_items": unsupported_items,
         "individuals": individuals_preview,
     }
 
@@ -89,6 +104,7 @@ async def upload_gedcom(
     db: AsyncSession = Depends(get_db),
 ):
     """Upload and import a GEDCOM file."""
+    _require_import_staff(current_user)
     content = await file.read()
     parsed = _validate_and_parse(content, file.filename)
 
@@ -102,8 +118,22 @@ async def upload_gedcom(
     await db.flush()
 
     # Import
+    skip_duplicate_xrefs = {
+        xref.strip()
+        for xref in skip_xrefs.split(",")
+        if xref.strip()
+    }
     result = await import_gedcom(
-        db, parsed, actor_id=current_user.id, batch_id=batch.id,
+        db,
+        parsed,
+        actor_id=current_user.id,
+        skip_duplicate_xrefs=skip_duplicate_xrefs,
+        batch_id=batch.id,
+    )
+    summary = build_gedcom_import_summary(
+        parsed=parsed,
+        result=result,
+        unsupported_items=detect_unsupported_gedcom_items(content),
     )
 
     # Finalize batch record
@@ -111,10 +141,7 @@ async def upload_gedcom(
     batch.persons_created = result.persons_created
     batch.relationships_created = result.relationships_created
     batch.duplicates_skipped = result.duplicates_skipped
-    batch.stats = {
-        "duplicate_candidates": len(result.duplicate_candidates),
-        "errors": result.errors,
-    }
+    batch.stats = summary
     batch.completed_at = utcnow()
     await db.flush()
 
@@ -134,4 +161,57 @@ async def upload_gedcom(
             for d in result.duplicate_candidates
         ],
         "errors": result.errors,
+        "unsupported_items": summary["unsupported_items"],
+    }
+
+
+@router.get("/gedcom/{batch_id}")
+async def get_gedcom_batch(
+    batch_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    _require_import_staff(current_user)
+    batch = await db.get(GedcomImportBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Import batch not found")
+    if batch.imported_by != current_user.id and not is_admin_actor(current_user):
+        raise HTTPException(status_code=403, detail="Not authorized to view this import batch")
+
+    return {
+        "id": batch.id,
+        "filename": batch.filename,
+        "status": batch.status,
+        "persons_created": batch.persons_created,
+        "relationships_created": batch.relationships_created,
+        "duplicates_skipped": batch.duplicates_skipped,
+        "created_at": batch.created_at.isoformat() if batch.created_at else None,
+        "completed_at": batch.completed_at.isoformat() if batch.completed_at else None,
+        "summary": batch.stats,
+    }
+
+
+@router.post("/gedcom/{batch_id}/rollback")
+async def rollback_batch(
+    batch_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    _require_import_staff(current_user)
+    batch = await db.get(GedcomImportBatch, batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail="Import batch not found")
+    if batch.imported_by != current_user.id and not is_admin_actor(current_user):
+        raise HTTPException(status_code=403, detail="Not authorized to roll back this import batch")
+
+    result = await rollback_gedcom_batch(
+        db,
+        batch=batch,
+        actor_id=current_user.id,
+    )
+    return {
+        "ok": True,
+        "batch_id": batch.id,
+        "status": batch.status,
+        **result,
     }

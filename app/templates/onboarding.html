@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Onboarding — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" id="onboarding-page" style="padding-top: 16px; max-width: 960px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">Set Up Your Archive</h1>
+    <p class="page-header__subtitle">Get to first value by adding a relative or importing GEDCOM, uploading one memory, and inviting one family member.</p>
+  </div>
+
+  {% if onboarding_notice %}
+  <div class="card mb-16"><div class="card__body"><p class="text-sm text-muted">Status: {{ onboarding_notice }}</p></div></div>
+  {% endif %}
+
+  <div class="card mb-16" id="onboarding-progress-card">
+    <div class="card__body">
+      <div class="flex-between" style="align-items: flex-start; gap: 16px;">
+        <div>
+          <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px;">Progress</h2>
+          <p class="text-sm text-muted">Complete three activation steps to finish onboarding, or skip if you need to come back later.</p>
+        </div>
+        <div class="text-sm text-muted">Completed: {{ onboarding_completion_count }} / 4</div>
+      </div>
+      <ul class="status-list" style="margin-top: 12px;">
+        <li class="status-list__item">Owner profile: {% if onboarding_milestones.owner_profile %}done{% else %}pending{% endif %}</li>
+        <li class="status-list__item">Manual relative added: {% if onboarding_milestones.relative_added %}done{% else %}pending{% endif %}</li>
+        <li class="status-list__item">GEDCOM imported: {% if onboarding_milestones.gedcom_imported %}done{% else %}pending{% endif %}</li>
+        <li class="status-list__item">First media uploaded: {% if onboarding_milestones.first_media %}done{% else %}pending{% endif %}</li>
+        <li class="status-list__item">First invite sent: {% if onboarding_milestones.first_invite %}done{% else %}pending{% endif %}</li>
+      </ul>
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap" style="margin-top: 12px;">
+        <form action="/onboarding/path" method="post">
+          <input type="hidden" name="path" value="manual">
+          <button class="btn btn--secondary btn--sm" id="onboarding-manual-path-button" type="submit">Choose Manual Setup</button>
+        </form>
+        <form action="/onboarding/path" method="post">
+          <input type="hidden" name="path" value="gedcom">
+          <button class="btn btn--secondary btn--sm" id="onboarding-gedcom-path-button" type="submit">Choose GEDCOM Import</button>
+        </form>
+        <form action="/onboarding/skip" method="post">
+          <button class="btn btn--outline btn--sm" id="onboarding-skip-button" type="submit">Skip For Now</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-16" id="onboarding-relative-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">1. Add a Close Relative</h2>
+      <form action="/onboarding/relative" method="post" class="theme-form-grid">
+        <div class="form-group">
+          <label for="onboarding-relative-first-name">First Name</label>
+          <input class="form-input" id="onboarding-relative-first-name" name="first_name" required>
+        </div>
+        <div class="form-group">
+          <label for="onboarding-relative-last-name">Last Name</label>
+          <input class="form-input" id="onboarding-relative-last-name" name="last_name" required>
+        </div>
+        <div class="form-group">
+          <label for="onboarding-relationship-type">Relationship</label>
+          <select class="form-input" id="onboarding-relationship-type" name="relationship_type">
+            <option value="relative">Relative</option>
+            <option value="child">Child</option>
+            <option value="parent">Parent</option>
+            <option value="partner">Partner</option>
+          </select>
+        </div>
+        <div class="form-group" style="align-self: end;">
+          <button class="btn btn--primary" id="onboarding-add-relative-button" type="submit">Add Relative</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-16" id="onboarding-gedcom-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">2. Import GEDCOM</h2>
+      <form action="/onboarding/import" method="post" enctype="multipart/form-data" class="flex gap-8 admin-action-row admin-action-row--wrap">
+        <input class="form-input" id="onboarding-gedcom-file" name="file" type="file" accept=".ged,.gedcom" required>
+        <button class="btn btn--primary" id="onboarding-import-button" type="submit">Import GEDCOM</button>
+      </form>
+      {% if import_batches %}
+      <div style="margin-top: 16px;">
+        <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 8px;">Recent Imports</h3>
+        <ul class="status-list">
+          {% for batch in import_batches %}
+          <li class="status-list__item"><a href="/imports/gedcom/{{ batch.id }}">{{ batch.filename }}</a> · {{ batch.status }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card mb-16" id="onboarding-media-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">3. Upload Your First Memory</h2>
+      <form action="/onboarding/media" method="post" enctype="multipart/form-data" class="theme-form-grid">
+        <div class="form-group">
+          <label for="onboarding-media-file">File</label>
+          <input class="form-input" id="onboarding-media-file" name="file" type="file" required>
+        </div>
+        <div class="form-group">
+          <label for="onboarding-media-title">Title</label>
+          <input class="form-input" id="onboarding-media-title" name="title">
+        </div>
+        <div class="form-group">
+          <label for="onboarding-media-caption">Caption</label>
+          <input class="form-input" id="onboarding-media-caption" name="caption">
+        </div>
+        <div class="form-group" style="align-self: end;">
+          <button class="btn btn--primary" id="onboarding-upload-media-button" type="submit">Upload Memory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-16" id="onboarding-invite-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">4. Invite a Relative</h2>
+      <form id="onboarding-invite-form">
+        <div class="theme-form-grid">
+          <div class="form-group">
+            <label for="onboarding-invite-person">Person</label>
+            <select class="form-input" id="onboarding-invite-person" name="person_id" required>
+              <option value="">Choose a relative</option>
+              {% for person in invite_people %}
+              <option value="{{ person.id }}">{{ person.display_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="onboarding-invite-email">Email</label>
+            <input class="form-input" id="onboarding-invite-email" name="contact_email" type="email" required>
+          </div>
+          <div class="form-group" style="align-self: end;">
+            <button class="btn btn--primary" id="onboarding-send-invite-button" type="submit">Send Invite</button>
+          </div>
+        </div>
+      </form>
+      <p class="text-sm text-muted" id="onboarding-invite-result" style="margin-top: 12px;"></p>
+    </div>
+  </div>
+
+  {% if inbox_items %}
+  <div class="card mb-16" id="onboarding-share-inbox-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Shared Media Inbox</h2>
+      <p class="text-sm text-muted mb-8">Mobile shares now land in a review queue instead of disappearing into loose files.</p>
+      <a class="btn btn--outline btn--sm" href="/media/inbox" id="onboarding-open-media-inbox">Open Media Inbox</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('onboarding-invite-form')?.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const result = document.getElementById('onboarding-invite-result');
+    const response = await fetch('/onboarding/invite', { method: 'POST', body: form });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      result.textContent = data.detail || 'Invite failed.';
+      return;
+    }
+    result.textContent = 'Invite ready: ' + data.delivery_status + '. ' + data.invite_url;
+  });
+</script>
+{% endblock %}

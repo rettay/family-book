@@ -1,6 +1,6 @@
 # Task Packet - FB-121 GEDCOM Migration Assistant
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -35,17 +35,25 @@ Existing genealogy users are a likely early buyer segment. They need confidence 
 
 ## Acceptance Criteria
 
-- [ ] User can view import batch details after import.
-- [ ] Import summary shows created people, relationships, duplicates, errors, and unsupported items.
-- [ ] Cleanup checklist links to relevant profiles/tree filters.
-- [ ] Rollback or quarantine plan exists and is implemented for failed imports.
-- [ ] Tests cover duplicate and failed-import paths.
+- [x] User can view import batch details after import.
+- [x] Import summary shows created people, relationships, duplicates, errors, and unsupported items.
+- [x] Cleanup checklist links to relevant profiles/tree filters.
+- [x] Rollback or quarantine plan exists and is implemented for failed imports.
+- [x] Tests cover duplicate and failed-import paths.
 
 ## Validation Commands
 
 - `uv run pytest tests/test_gedcom_parser.py tests/test_imports.py -q`
 - `git diff --check`
 
+## Evidence
+
+- `app/routes/imports.py`
+- `app/services/import_service.py`
+- `app/templates/import_batch.html`
+- `tests/test_imports.py`
+- `tests/test_gedcom_parser.py`
+
 ## Definition of Done
 
-- [ ] GEDCOM import feels safe enough for existing genealogy users.
+- [x] GEDCOM import feels safe enough for existing genealogy users.

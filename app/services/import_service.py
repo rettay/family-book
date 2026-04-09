@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.importers.gedcom_parser import (
@@ -13,6 +14,7 @@ from app.importers.gedcom_parser import (
     GedcomParseResult,
     _parse_date_to_raw_and_iso,
 )
+from app.models.imports import GedcomImportBatch
 from app.models.person import Person, PersonSource
 from app.models.relationships import (
     ParentChild,
@@ -25,6 +27,15 @@ from app.services.audit_service import log_audit
 from app.services.revision_service import record_revision, serialize_person_snapshot
 
 logger = logging.getLogger(__name__)
+
+
+UNSUPPORTED_GEDCOM_TAG_MESSAGES = {
+    "SOUR": "Source citations were detected but are not imported yet.",
+    "OBJE": "Embedded media references were detected but are not imported yet.",
+    "REPO": "Repository records were detected but are not imported yet.",
+    "ALIA": "Alias records were detected but are not imported yet.",
+    "_UID": "Custom identifier tags were detected but are not imported yet.",
+}
 
 
 @dataclass
@@ -44,6 +55,7 @@ class ImportResult:
     duplicate_candidates: list[DuplicateCandidate] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     xref_to_person_id: dict[str, str] = field(default_factory=dict)
+    created_person_ids: list[str] = field(default_factory=list)
 
 
 async def find_duplicates(
@@ -88,11 +100,74 @@ async def find_duplicates(
     return duplicates
 
 
+def detect_unsupported_gedcom_items(content: bytes) -> list[str]:
+    text = content.decode("utf-8", errors="ignore")
+    found_messages: list[str] = []
+    for tag, message in UNSUPPORTED_GEDCOM_TAG_MESSAGES.items():
+        if re.search(rf"(^|\n)\d+\s+{re.escape(tag)}\b", text):
+            found_messages.append(message)
+    return found_messages
+
+
+def build_gedcom_import_summary(
+    *,
+    parsed: GedcomParseResult,
+    result: ImportResult,
+    unsupported_items: list[str] | None = None,
+) -> dict:
+    linked_xrefs = set()
+    for family in parsed.families:
+        if family.husband_xref:
+            linked_xrefs.add(family.husband_xref)
+        if family.wife_xref:
+            linked_xrefs.add(family.wife_xref)
+        linked_xrefs.update(family.children_xrefs)
+
+    missing_key_dates = 0
+    unknown_names = 0
+    unlinked_people = 0
+    for individual in parsed.individuals:
+        if not ((individual.birth and individual.birth.date) or (individual.death and individual.death.date)):
+            missing_key_dates += 1
+        if not individual.first_name or individual.first_name.strip().lower() == "unknown":
+            unknown_names += 1
+        if individual.xref not in linked_xrefs:
+            unlinked_people += 1
+
+    return {
+        "individuals_count": len(parsed.individuals),
+        "families_count": len(parsed.families),
+        "persons_created": result.persons_created,
+        "relationships_created": result.relationships_created,
+        "duplicates_skipped": result.duplicates_skipped,
+        "duplicate_candidates": [
+            {
+                "existing_person_id": candidate.existing_person_id,
+                "existing_name": candidate.existing_name,
+                "gedcom_xref": candidate.gedcom_xref,
+                "gedcom_name": candidate.gedcom_name,
+                "match_reason": candidate.match_reason,
+            }
+            for candidate in result.duplicate_candidates
+        ],
+        "errors": result.errors,
+        "unsupported_items": unsupported_items or [],
+        "checklist": {
+            "missing_key_dates": missing_key_dates,
+            "unknown_names": unknown_names,
+            "unlinked_people": unlinked_people,
+            "duplicate_candidates": len(result.duplicate_candidates),
+        },
+        "created_person_ids": result.created_person_ids,
+    }
+
+
 async def import_gedcom(
     db: AsyncSession,
     parsed: GedcomParseResult,
     actor_id: str,
     skip_duplicates: bool = True,
+    skip_duplicate_xrefs: set[str] | None = None,
     batch_id: str | None = None,
 ) -> ImportResult:
     """Import parsed GEDCOM data into the database.
@@ -111,11 +186,12 @@ async def import_gedcom(
     # Find duplicates first
     duplicates = await find_duplicates(db, parsed.individuals)
     result.duplicate_candidates = list(duplicates.values())
+    skip_duplicate_xrefs = skip_duplicate_xrefs or set()
 
     # Create persons from INDI records
     for indi in parsed.individuals:
         if indi.xref in duplicates:
-            if skip_duplicates:
+            if skip_duplicates or indi.xref in skip_duplicate_xrefs:
                 result.duplicates_skipped += 1
                 # Map to existing person so relationships still work
                 result.xref_to_person_id[indi.xref] = duplicates[indi.xref].existing_person_id
@@ -163,6 +239,7 @@ async def import_gedcom(
 
         result.xref_to_person_id[indi.xref] = person.id
         result.persons_created += 1
+        result.created_person_ids.append(person.id)
 
         snapshot = serialize_person_snapshot(person)
         await record_revision(
@@ -252,3 +329,33 @@ async def import_gedcom(
     )
 
     return result
+
+
+async def rollback_gedcom_batch(
+    db: AsyncSession,
+    *,
+    batch: GedcomImportBatch,
+    actor_id: str,
+) -> dict:
+    stats = batch.stats
+    created_person_ids = stats.get("created_person_ids") or []
+
+    if created_person_ids:
+        await db.execute(delete(Person).where(Person.id.in_(created_person_ids)))
+
+    batch.status = "rolled_back"
+    stats["rollback_at"] = __import__("datetime").datetime.now(
+        __import__("datetime").timezone.utc
+    ).isoformat()
+    batch.stats = stats
+    await db.flush()
+
+    await log_audit(
+        db,
+        actor_id,
+        "rollback",
+        "gedcom_import",
+        batch.id,
+        new_value={"deleted_person_count": len(created_person_ids)},
+    )
+    return {"deleted_person_count": len(created_person_ids)}

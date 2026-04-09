@@ -8,46 +8,78 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 | Sprint | Title | Status | Packets |
 |---|---|---|---|
-| S50 | Activation and Migration | planned | `FB-120` to `FB-123` |
-| S51 | Lovable Engagement | proposed | `FB-124` to `FB-126` |
+| S51 | Lovable Engagement | planned next | `FB-124` to `FB-126` |
 | S52 | Launch Readiness and Growth | proposed | `FB-127` to `FB-129` |
 
 ---
 
 ## Planned Sprint
 
-### `S50 - Activation and Migration`
+### `S51 - Lovable Engagement`
 
-Status: Planned
+Status: Planned next
 
 ### Sprint Goal
 
-Improve first-run activation, onboarding, and migration so hosted archives can convert early signups into active, successful family stewards.
+Turn a functional hosted archive into a product that families actively return to by improving stories, media delight, and social proof loops.
 
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 120 | FB-120 | Hosted Onboarding and Setup Checklist | P0 | planned |
-| 121 | FB-121 | Guided First Archive Import and Validation | P0 | planned |
-| 122 | FB-122 | Invite Activation and Family Steward Handoff | P1 | planned |
-| 123 | FB-123 | Migration Confidence and Support Recovery Flows | P1 | planned |
-
-### Stretch / Queued Packets
-
-None yet.
+| 124 | FB-124 | Story Prompting and Capture Loop | P0 | proposed |
+| 125 | FB-125 | Memory Feed and Family Activity Surfaces | P1 | proposed |
+| 126 | FB-126 | Delight, Notifications, and Return Hooks | P1 | proposed |
 
 ### Sprint References
 
-- Plan: `docs/strategy/commercialization-sprint-plan-2026.md`
-- Slices: `docs/strategy/commercialization-sprint-slices-2026.md`
 - Roadmap context: `docs/strategy/commercialization-sprint-plan-2026.md`
+- Slice context: `docs/strategy/commercialization-sprint-slices-2026.md`
 
 ---
 
 ## Current Sprint
 
-`S50 - Activation and Migration`
+`S51 - Lovable Engagement`
+
+Status: Next sprint to plan in detail
+
+---
+
+## Closed Sprint
+
+### `S50 - Activation and Migration`
+
+Status: Closed
+
+### Sprint Goal
+
+Reduce first-run friction so a new hosted archive can reach visible value quickly, trust its migration path, and bring in at least one relative.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 120 | FB-120 | Onboarding Activation Wizard | P0 | done |
+| 121 | FB-121 | GEDCOM Migration Assistant | P0 | done |
+| 122 | FB-122 | Invite Visibility and Contribution Flow | P1 | done |
+
+### Stretch / Queued Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 123 | FB-123 | PWA Share Inbox and Media Attachment | P1 | done |
+
+### Outcome
+
+- Hosted archive admins are now redirected into a resumable onboarding flow until they finish or explicitly skip it.
+- Onboarding progress is derived from real archive actions instead of a disconnected checklist.
+- GEDCOM import now has preview, richer batch summaries, detail views, rollback, and staff-only permissions.
+- Invite claim now explains role and visibility and lands invitees on a role-aware first-steps page.
+- PWA/mobile shares now enter a reviewable inbox and can be attached only to permitted profiles.
+- Duplicate inbox attachments now create the correct target media record, and rolled-back GEDCOM imports no longer count toward onboarding completion.
+- Auditor result: PASS.
+- Closeout evidence: `docs/strategy/sprint-closeout-s50.md`.
 
 ---
 

@@ -199,11 +199,37 @@ async def test_create_and_claim_invite_activates_person_and_creates_session(
     claim_resp = await client.post(f"/invite/{invite.raw_token}/claim")
     assert claim_resp.status_code == 200
     assert "session=" in claim_resp.headers.get("set-cookie", "")
+    assert claim_resp.json()["landing_url"] == "/invite/first-steps"
 
     await seeded_db.refresh(person)
     refreshed = await seeded_db.get(Person, person.id)
     assert refreshed is not None
     assert refreshed.account_state == AccountState.active.value
+
+
+@pytest.mark.asyncio
+async def test_invite_page_explains_role_and_visibility(
+    seeded_db: AsyncSession,
+    client: AsyncClient,
+):
+    person = await seeded_db.get(Person, "member-00-0000-0000-000000000005")
+    assert person is not None
+    person.account_state = AccountState.pending.value
+    person.contact_email = "jane@example.com"
+    await seeded_db.commit()
+
+    invite = await create_invite(
+        seeded_db,
+        person_id=person.id,
+        created_by="tyler-000-0000-0000-000000000002",
+    )
+    await seeded_db.commit()
+
+    resp = await client.get(f"/invite/{invite.raw_token}")
+
+    assert resp.status_code == 200
+    assert "Invite role:" in resp.text
+    assert "restricted by role and privacy policy" in resp.text
 
 
 @pytest.mark.asyncio

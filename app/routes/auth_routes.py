@@ -1216,7 +1216,15 @@ async def claim_invite_route(
             "ip": request.client.host if request.client else None,
         },
     )
+    await log_audit(
+        db,
+        actor_id=person.id,
+        action="claim",
+        entity_type="invite_activation",
+        entity_id=person.id,
+        new_value={"role": get_person_role(person)},
+    )
     await db.commit()
     _set_session_cookie(response, session_token)
     logger.info("Invite claimed for person %s", person.id)
-    return {"status": "ok", "person_id": person.id}
+    return {"status": "ok", "person_id": person.id, "landing_url": "/invite/first-steps"}

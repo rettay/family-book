@@ -111,10 +111,12 @@ def create_app() -> FastAPI:
     from app.routes.external_records import router as external_records_router
     from app.routes.exports import router as exports_router
     from app.routes.hosted_platform import router as hosted_platform_router
+    from app.routes.onboarding import router as onboarding_router
     application.include_router(imports_router)
     application.include_router(external_records_router)
     application.include_router(exports_router)
     application.include_router(hosted_platform_router)
+    application.include_router(onboarding_router)
 
     # Phase 3 routes (infrastructure)
     from app.backup.routes import router as backup_router

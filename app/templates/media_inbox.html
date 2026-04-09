@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Media Inbox — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" id="media-inbox-page" style="padding-top: 16px; max-width: 960px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">Media Inbox</h1>
+    <p class="page-header__subtitle">Review mobile shares before attaching them to a profile.</p>
+  </div>
+
+  {% if inbox_items %}
+    {% for item in inbox_items %}
+    <div class="card mb-16 media-inbox-item" data-inbox-item-id="{{ item.id }}">
+      <div class="card__body">
+        <div class="flex-between" style="gap: 16px;">
+          <div>
+            <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 8px;">{{ item.title or item.original_filename or 'Shared media' }}</h2>
+            <p class="text-sm text-muted">Status: {{ item.status }} · {{ item.mime_type }} · {{ item.file_size_bytes }} bytes</p>
+            {% if item.source_text %}
+            <p class="text-sm text-muted" style="margin-top: 8px;">{{ item.source_text }}</p>
+            {% endif %}
+          </div>
+          <div><span class="text-sm text-muted">{{ item.created_at }}</span></div>
+        </div>
+
+        {% if item.status == 'pending' %}
+        <form action="/media/inbox/{{ item.id }}/attach" method="post" class="theme-form-grid" style="margin-top: 16px;">
+          <div class="form-group">
+            <label for="attach-person-{{ item.id }}">Attach To</label>
+            <select class="form-input" id="attach-person-{{ item.id }}" name="person_id" required>
+              <option value="">Choose a person</option>
+              {% for person in attach_people %}
+              <option value="{{ person.id }}">{{ person.display_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="attach-title-{{ item.id }}">Title</label>
+            <input class="form-input" id="attach-title-{{ item.id }}" name="title" value="{{ item.title or '' }}">
+          </div>
+          <div class="form-group">
+            <label for="attach-caption-{{ item.id }}">Caption</label>
+            <input class="form-input" id="attach-caption-{{ item.id }}" name="caption" value="{{ item.caption or '' }}">
+          </div>
+          <div class="form-group">
+            <label for="attach-date-{{ item.id }}">Date</label>
+            <input class="form-input" id="attach-date-{{ item.id }}" name="taken_date" value="{{ item.taken_date or '' }}">
+          </div>
+          <div class="form-group">
+            <label for="attach-location-{{ item.id }}">Location</label>
+            <input class="form-input" id="attach-location-{{ item.id }}" name="taken_location" value="{{ item.taken_location or '' }}">
+          </div>
+          <div class="form-group">
+            <label for="attach-tags-{{ item.id }}">Tagged People IDs</label>
+            <input class="form-input" id="attach-tags-{{ item.id }}" name="tagged_person_ids" value="{{ item.tagged_person_ids | join(',') }}">
+          </div>
+          <div class="flex gap-8 admin-action-row admin-action-row--wrap">
+            <button class="btn btn--primary btn--sm" type="submit">Attach To Archive</button>
+          </div>
+        </form>
+        <form action="/media/inbox/{{ item.id }}/reject" method="post" style="margin-top: 8px;">
+          <button class="btn btn--outline btn--sm" type="submit">Reject</button>
+        </form>
+        {% else %}
+        <p class="text-sm text-muted" style="margin-top: 12px;">This item has been {{ item.status }}.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="card"><div class="card__body"><p class="text-sm text-muted">No shared media is waiting for review.</p></div></div>
+  {% endif %}
+</div>
+{% endblock %}
