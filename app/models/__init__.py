@@ -26,6 +26,7 @@ from app.models.imports import (
 )
 from app.models.story import Story
 from app.models.occupation import PersonOccupation
+from app.models.hosted_archive import HostedArchive, BillingEventReceipt
 
 __all__ = [
     "Base",
@@ -56,4 +57,6 @@ __all__ = [
     "MemorialPlan",
     "Story",
     "PersonOccupation",
+    "HostedArchive",
+    "BillingEventReceipt",
 ]

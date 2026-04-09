@@ -16,6 +16,11 @@ from app.models.media import Media
 from app.models.person import Person, PersonLifecycleState
 from app.roles import is_admin_actor
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
+from app.services.hosted_archive_service import (
+    archive_allows_writes,
+    archive_usage_snapshot,
+    get_hosted_archive,
+)
 from app.services.media_service import (
     ALLOWED_MIME_TYPES,
     IMAGE_MIME_TYPES,
@@ -93,6 +98,24 @@ async def upload_media(
         streamed_upload = await stream_upload_to_temp(file, max_size)
     except SizeLimitExceeded:
         raise HTTPException(status_code=413, detail="File too large")
+
+    settings = get_settings()
+    if settings.hosted_archive_enabled:
+        archive = await get_hosted_archive(db)
+        writes_allowed, write_denial_reason = archive_allows_writes(archive)
+        if not writes_allowed:
+            status_code = 402 if "Billing" in (write_denial_reason or "") else 423
+            raise HTTPException(status_code=status_code, detail=write_denial_reason)
+
+        usage_snapshot = archive_usage_snapshot(archive)
+        quota_bytes = usage_snapshot["quota_bytes"]
+        if quota_bytes is not None and (
+            usage_snapshot["usage"].total_bytes + streamed_upload.size > quota_bytes
+        ):
+            raise HTTPException(
+                status_code=507,
+                detail="Hosted archive storage quota exceeded. Upgrade your plan or free space.",
+            )
 
     try:
         media, is_duplicate = await save_media_temp_file(

@@ -3,7 +3,9 @@ import io
 import os
 
 from PIL import Image
+from sqlalchemy import select
 
+from app.models.hosted_archive import HostedArchive
 from app.models.media import Media, MediaSource, MediaType
 from app.services.media_service import get_media_file_path, get_variant_path
 
@@ -157,6 +159,50 @@ class TestMediaUpload:
         assert body["title"] == "Family picnic"
         assert body["description"] == "Lunch by the lake"
         assert body["taken_date"] == "2024-07-04"
+
+    async def test_hosted_archive_blocks_upload_when_storage_quota_exceeded(
+        self,
+        admin_client,
+        seeded_db,
+        tmp_path,
+        monkeypatch,
+    ):
+        from app.config import Settings
+
+        monkeypatch.setenv("HOSTED_ARCHIVE_ENABLED", "true")
+        settings = Settings(
+            SECRET_KEY="test",
+            FERNET_KEY="dGVzdA==",
+            DATA_DIR=str(tmp_path),
+            HOSTED_ARCHIVE_ENABLED=True,
+            _env_file=None,
+        )
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        archive = HostedArchive(
+            archive_key="archive-1",
+            archive_name="Hosted Archive",
+            owner_email="owner@example.com",
+            base_url="https://family.example.com",
+            hosting_mode="managed_single_tenant",
+            plan_code="founding",
+            lifecycle_state="active",
+            billing_provider="stripe",
+            billing_status="active",
+            storage_quota_bytes=1,
+        )
+        seeded_db.add(archive)
+        await seeded_db.commit()
+
+        resp = await admin_client.post(
+            "/api/media",
+            data={"person_id": ADMIN_ID},
+            files={"file": ("quota.jpg", _make_test_image(), "image/jpeg")},
+        )
+
+        assert resp.status_code == 507
+        assert "storage quota exceeded" in resp.json()["detail"].lower()
 
 
 class TestMediaDedup:

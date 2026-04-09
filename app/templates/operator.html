@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Operator Console{% endblock %}
+
+{% block content %}
+<div class="container-wide" style="padding-top: 16px;">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">Operator Console</h1>
+    <p class="page-header__subtitle">Hosted archive support view without private family content.</p>
+  </div>
+
+  <div class="admin-grid mb-24">
+    <div class="stat-card">
+      <div class="stat-card__label">Archive</div>
+      <div class="stat-card__value">{{ summary.archive_name }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__label">Plan</div>
+      <div class="stat-card__value">{{ summary.plan_label }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__label">Storage</div>
+      <div class="stat-card__value">{{ summary.storage_total_human }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__label">Lifecycle</div>
+      <div class="stat-card__value">{{ summary.lifecycle_state }}</div>
+    </div>
+  </div>
+
+  <div class="card mb-16">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Support Snapshot</h2>
+      <div class="status-list">
+        <p class="status-list__item text-sm text-muted">Archive key: {{ summary.archive_key }}</p>
+        <p class="status-list__item text-sm text-muted">Owner email: {{ summary.owner_email }}</p>
+        <p class="status-list__item text-sm text-muted">Base URL: {{ summary.base_url }}</p>
+        <p class="status-list__item text-sm text-muted">Billing: {{ summary.billing_provider }} / {{ summary.billing_status }}</p>
+        <p class="status-list__item text-sm text-muted">Storage quota: {{ summary.storage_quota_human }}</p>
+        <p class="status-list__item text-sm text-muted">Backups fresh: {{ summary.backup_fresh }}</p>
+        <p class="status-list__item text-sm text-muted">Latest backup: {{ summary.backup_latest_file or 'none' }}</p>
+        <p class="status-list__item text-sm text-muted">People: {{ summary.persons_total }} · Media: {{ summary.media_total }} · Pending accounts: {{ summary.pending_accounts }} · Active sessions: {{ summary.active_sessions }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

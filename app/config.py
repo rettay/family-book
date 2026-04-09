@@ -49,6 +49,23 @@ class Settings(BaseSettings):
     SMTP_PASS: str = ""
     SMTP_FROM: str = ""
 
+    # Hosted archive / operator platform
+    HOSTED_ARCHIVE_ENABLED: bool = False
+    HOSTED_ARCHIVE_KEY: str = ""
+    HOSTED_ARCHIVE_NAME: str = "Family Book Hosted Archive"
+    HOSTED_ARCHIVE_OWNER_EMAIL: str = ""
+    HOSTED_ARCHIVE_PLAN: str = "founding"
+    HOSTED_ARCHIVE_BILLING_PROVIDER: str = "stripe"
+    HOSTED_ARCHIVE_STORAGE_QUOTA_BYTES: int = 0
+    OPERATOR_TOKENS: str = ""
+
+    # Stripe hosted billing
+    STRIPE_SECRET_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_FOUNDING: str = ""
+    STRIPE_PRICE_FAMILY: str = ""
+    STRIPE_PRICE_FAMILY_PLUS: str = ""
+
     # Passkeys / WebAuthn
     PASSKEY_RP_ID: str = ""
     PASSKEY_RP_NAME: str = "Family Book"
@@ -189,6 +206,44 @@ class Settings(BaseSettings):
             and self.SMTP_USER.strip()
             and self.SMTP_PASS.strip()
             and self.SMTP_FROM.strip()
+        )
+
+    @property
+    def hosted_archive_enabled(self) -> bool:
+        return bool(self.HOSTED_ARCHIVE_ENABLED)
+
+    @property
+    def operator_token_list(self) -> list[str]:
+        return [
+            token.strip()
+            for token in self.OPERATOR_TOKENS.split(",")
+            if token.strip()
+        ]
+
+    @property
+    def stripe_secret_key_value(self) -> str:
+        return self._normalized_secret(self.STRIPE_SECRET_KEY)
+
+    @property
+    def stripe_webhook_secret_value(self) -> str:
+        return self._normalized_secret(self.STRIPE_WEBHOOK_SECRET)
+
+    @property
+    def stripe_price_map(self) -> dict[str, str]:
+        mapping = {
+            "founding": self._normalized_secret(self.STRIPE_PRICE_FOUNDING),
+            "family": self._normalized_secret(self.STRIPE_PRICE_FAMILY),
+            "family_plus": self._normalized_secret(self.STRIPE_PRICE_FAMILY_PLUS),
+        }
+        return {plan_code: price_id for plan_code, price_id in mapping.items() if price_id}
+
+    @property
+    def stripe_enabled(self) -> bool:
+        return bool(
+            self.hosted_archive_enabled
+            and self.HOSTED_ARCHIVE_BILLING_PROVIDER.strip().lower() == "stripe"
+            and self.stripe_secret_key_value
+            and self.stripe_webhook_secret_value
         )
 
     @property

@@ -52,6 +52,29 @@
     </div>
   </div>
 
+  {% if hosted_archive_enabled and hosted_archive %}
+  <div class="card mb-16" id="admin-hosted-archive-card">
+    <div class="card__body">
+      <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Hosted Archive</h2>
+      <div class="status-list">
+        <p class="status-list__item text-sm text-muted">Archive: {{ hosted_archive.archive_name }}</p>
+        <p class="status-list__item text-sm text-muted">Owner: {{ hosted_archive.owner_email }}</p>
+        <p class="status-list__item text-sm text-muted">Plan: {{ hosted_archive.plan_label }} · {{ hosted_archive.monthly_price_display }}</p>
+        <p class="status-list__item text-sm text-muted">Billing: {{ hosted_archive.billing_status }}</p>
+        <p class="status-list__item text-sm text-muted">Lifecycle: {{ hosted_archive.lifecycle_state }}</p>
+        <p class="status-list__item text-sm text-muted">Storage: {{ hosted_archive.storage_total_human }} / {{ hosted_archive.storage_quota_human }}</p>
+        {% if hosted_archive.quota_exceeded %}
+        <p class="status-list__item text-sm" style="color: var(--danger);">Storage quota exceeded. Uploads are blocked until you free space or upgrade.</p>
+        {% endif %}
+      </div>
+      <div class="flex gap-8 admin-action-row admin-action-row--wrap" style="margin-top: 12px;">
+        <button class="btn btn--secondary btn--sm" id="admin-hosted-checkout-button" onclick="startHostedCheckout('{{ hosted_archive.plan_code }}')">Start Hosted Checkout</button>
+        <button class="btn btn--outline btn--sm" id="admin-hosted-portal-button" onclick="openBillingPortal()">Open Billing Portal</button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="card mb-16" id="admin-theme-card">
     <div class="card__body">
       <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Protection &amp; Backup Status</h2>
@@ -294,6 +317,30 @@ async function verifyBackupRestore() {
     return;
   }
   showToast(`Restore verified (${data.table_count} tables, ${data.person_count ?? 0} people)`);
+}
+
+async function startHostedCheckout(planCode) {
+  const resp = await fetch('/api/billing/checkout', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({plan_code: planCode})
+  });
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    alert(body.detail || 'Could not start checkout');
+    return;
+  }
+  window.location.href = body.checkout_url;
+}
+
+async function openBillingPortal() {
+  const resp = await fetch('/api/billing/portal', {method: 'POST'});
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    alert(body.detail || 'Could not open billing portal');
+    return;
+  }
+  window.location.href = body.portal_url;
 }
 
 async function saveThemeSettings(event) {

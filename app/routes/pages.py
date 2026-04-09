@@ -40,6 +40,13 @@ from app.services.media_queries import (
     list_media_for_person,
     serialize_media_item,
 )
+from app.services.hosted_archive_service import (
+    archive_usage_snapshot,
+    get_hosted_archive,
+    get_or_create_hosted_archive,
+    get_plan_entitlement,
+)
+from app.services.storage_usage_service import format_bytes
 from app.services.theme_service import get_runtime_theme_from_app
 
 router = APIRouter(tags=["pages"])
@@ -537,6 +544,24 @@ async def admin_page(
     from app.services.auth_service import get_active_session_counts
     session_counts = await get_active_session_counts(db)
 
+    hosted_archive_summary = None
+    if settings.hosted_archive_enabled:
+        archive = await get_or_create_hosted_archive(db, actor_id=current_user.id, settings=settings)
+        usage_snapshot = archive_usage_snapshot(archive)
+        entitlement = get_plan_entitlement(archive.plan_code)
+        hosted_archive_summary = {
+            "archive_name": archive.archive_name,
+            "owner_email": archive.owner_email,
+            "plan_code": archive.plan_code,
+            "plan_label": entitlement.label,
+            "monthly_price_display": entitlement.monthly_price_display,
+            "billing_status": archive.billing_status,
+            "lifecycle_state": archive.lifecycle_state,
+            "storage_total_human": format_bytes(usage_snapshot["usage"].total_bytes),
+            "storage_quota_human": format_bytes(usage_snapshot["quota_bytes"]),
+            "quota_exceeded": usage_snapshot["quota_exceeded"],
+        }
+
     return templates.TemplateResponse("admin.html", _ctx(
         request, current_user, active_page="admin",
         stats=stats, pending_persons=pending_persons,
@@ -547,6 +572,8 @@ async def admin_page(
         backup_health=get_backup_health(),
         email_delivery_enabled=settings.email_delivery_enabled,
         staging_review_url=settings.STAGING_REVIEW_URL.strip() or None,
+        hosted_archive_enabled=settings.hosted_archive_enabled,
+        hosted_archive=hosted_archive_summary,
     ))
 
 
@@ -566,9 +593,34 @@ async def admin_new_person_page(
 async def settings_page(
     request: Request,
     current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
 ):
+    from app.config import get_settings
+
+    settings = get_settings()
+    hosted_archive_summary = None
+    if settings.hosted_archive_enabled:
+        archive = await get_hosted_archive(db)
+        if archive is not None:
+            usage_snapshot = archive_usage_snapshot(archive)
+            entitlement = get_plan_entitlement(archive.plan_code)
+            hosted_archive_summary = {
+                "archive_name": archive.archive_name,
+                "plan_code": archive.plan_code,
+                "plan_label": entitlement.label,
+                "monthly_price_display": entitlement.monthly_price_display,
+                "billing_status": archive.billing_status,
+                "lifecycle_state": archive.lifecycle_state,
+                "storage_total_human": format_bytes(usage_snapshot["usage"].total_bytes),
+                "storage_quota_human": format_bytes(usage_snapshot["quota_bytes"]),
+                "quota_exceeded": usage_snapshot["quota_exceeded"],
+            }
     return templates.TemplateResponse("settings.html", _ctx(
-        request, current_user, active_page="settings",
+        request,
+        current_user,
+        active_page="settings",
+        hosted_archive_enabled=settings.hosted_archive_enabled,
+        hosted_archive=hosted_archive_summary,
     ))
 
 

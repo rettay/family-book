@@ -32,6 +32,27 @@
     <a href="/people/{{ current_user.id }}/edit" class="btn btn--primary btn--sm">{{ t('person.edit') }} Profile</a>
   </div>
 
+  {% if hosted_archive_enabled and hosted_archive %}
+  <div class="settings-section" id="hosted-subscription-section">
+    <h2 class="settings-section__title">Hosted Subscription</h2>
+    <p class="text-sm text-muted mb-8">{{ hosted_archive.archive_name }} is on the {{ hosted_archive.plan_label }} plan ({{ hosted_archive.monthly_price_display }}).</p>
+    <div class="status-list" style="margin-bottom: 12px;">
+      <p class="status-list__item text-sm text-muted">Billing: {{ hosted_archive.billing_status }}</p>
+      <p class="status-list__item text-sm text-muted">Lifecycle: {{ hosted_archive.lifecycle_state }}</p>
+      <p class="status-list__item text-sm text-muted">Storage: {{ hosted_archive.storage_total_human }} / {{ hosted_archive.storage_quota_human }}</p>
+      {% if hosted_archive.quota_exceeded %}
+      <p class="status-list__item text-sm" style="color: var(--danger);">Storage quota exceeded. Uploads are blocked until billing or plan limits are resolved.</p>
+      {% endif %}
+    </div>
+    {% if current_user.is_admin %}
+    <div class="flex gap-8 admin-action-row admin-action-row--wrap">
+      <button class="btn btn--primary btn--sm" type="button" onclick="startHostedCheckout('{{ hosted_archive.plan_code }}')">Open Checkout</button>
+      <button class="btn btn--outline btn--sm" type="button" onclick="openBillingPortal()">Open Billing Portal</button>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <!-- Passkeys -->
   <div class="settings-section">
     <h2 class="settings-section__title">{{ t('auth.passkeys') }}</h2>
@@ -190,6 +211,34 @@ if (window.PublicKeyCredential) {
   loadPasskeys();
 } else {
   document.getElementById('passkey-status').textContent = '{{ t("auth.passkeys_unsupported") }}';
+}
+
+async function startHostedCheckout(planCode) {
+  const resp = await fetch('/api/billing/checkout', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'same-origin',
+    body: JSON.stringify({plan_code: planCode})
+  });
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    alert(body.detail || 'Could not start checkout');
+    return;
+  }
+  window.location.href = body.checkout_url;
+}
+
+async function openBillingPortal() {
+  const resp = await fetch('/api/billing/portal', {
+    method: 'POST',
+    credentials: 'same-origin'
+  });
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    alert(body.detail || 'Could not open billing portal');
+    return;
+  }
+  window.location.href = body.portal_url;
 }
 </script>
 {% endblock %}

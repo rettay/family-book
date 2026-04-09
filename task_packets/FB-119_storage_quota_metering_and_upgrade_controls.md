@@ -1,6 +1,6 @@
 # Task Packet - FB-119 Storage Quota Metering and Upgrade Controls
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -27,26 +27,37 @@ Media-heavy family archives can create unbounded hosting cost. Users need unders
 
 - `app/services/storage_usage_service.py`
 - `app/routes/media.py`
-- `app/routes/admin.py`
-- `app/routes/operator.py`
+- `app/routes/pages.py`
+- `app/routes/hosted_platform.py`
 - `app/templates/admin.html`
 - `app/templates/operator.html`
+- `app/templates/settings.html`
 - `tests/test_media.py`
 - `tests/test_storage_usage.py`
 
 ## Acceptance Criteria
 
-- [ ] Storage usage can be computed for an archive.
-- [ ] Uploads are blocked gracefully when a hosted archive exceeds plan quota.
-- [ ] Admin/operator UI shows usage and quota.
-- [ ] Self-hosted deployments can opt out or use unlimited quota.
-- [ ] Tests cover media variants and backups in usage calculations.
+- [x] Storage usage can be computed for an archive.
+- [x] Uploads are blocked gracefully when a hosted archive exceeds plan quota.
+- [x] Admin/operator UI shows usage and quota.
+- [x] Self-hosted deployments can opt out or use unlimited quota.
+- [x] Tests cover media variants and backups in usage calculations.
 
 ## Validation Commands
 
 - `uv run pytest tests/test_media.py tests/test_storage_usage.py -q`
 - `git diff --check`
 
+## Evidence
+
+- `app/services/storage_usage_service.py`
+- `app/routes/media.py`
+- `app/templates/admin.html`
+- `app/templates/settings.html`
+- `app/templates/operator.html`
+- `tests/test_media.py`
+- `tests/test_storage_usage.py`
+
 ## Definition of Done
 
-- [ ] Hosted storage cost is bounded by plan controls.
+- [x] Hosted storage cost is bounded by plan controls.

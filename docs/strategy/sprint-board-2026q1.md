@@ -8,8 +8,7 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 | Sprint | Title | Status | Packets |
 |---|---|---|---|
-| S49 | Paid Hosted Platform | proposed | `FB-117` to `FB-119` |
-| S50 | Activation and Migration | proposed | `FB-120` to `FB-123` |
+| S50 | Activation and Migration | planned | `FB-120` to `FB-123` |
 | S51 | Lovable Engagement | proposed | `FB-124` to `FB-126` |
 | S52 | Launch Readiness and Growth | proposed | `FB-127` to `FB-129` |
 
@@ -17,21 +16,22 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 ## Planned Sprint
 
-### `S49 - Paid Hosted Platform`
+### `S50 - Activation and Migration`
 
-Status: Proposed
+Status: Planned
 
 ### Sprint Goal
 
-Turn Family Book into a hosted paid offering with the minimum viable provisioning, ops, and conversion path for early paying archives.
+Improve first-run activation, onboarding, and migration so hosted archives can convert early signups into active, successful family stewards.
 
 ### Committed Packets
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 117 | FB-117 | Hosted Archive Provisioning Flow | P0 | proposed |
-| 118 | FB-118 | Hosted Ops and Admin Runbook | P0 | proposed |
-| 119 | FB-119 | Hosted Signup, Trial, and Conversion Path | P1 | proposed |
+| 120 | FB-120 | Hosted Onboarding and Setup Checklist | P0 | planned |
+| 121 | FB-121 | Guided First Archive Import and Validation | P0 | planned |
+| 122 | FB-122 | Invite Activation and Family Steward Handoff | P1 | planned |
+| 123 | FB-123 | Migration Confidence and Support Recovery Flows | P1 | planned |
 
 ### Stretch / Queued Packets
 
@@ -47,7 +47,37 @@ None yet.
 
 ## Current Sprint
 
-`S49 - Paid Hosted Platform`
+`S50 - Activation and Migration`
+
+---
+
+## Closed Sprint
+
+### `S49 - Paid Hosted Platform`
+
+Status: Closed
+
+### Sprint Goal
+
+Turn Family Book into a hosted paid offering with the minimum viable provisioning, ops, and conversion path for early paying archives.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 117 | FB-117 | Tenant Provisioning and Operator Console | P0 | done |
+| 118 | FB-118 | Stripe Billing and Plan Entitlements | P0 | done |
+| 119 | FB-119 | Storage Quota Metering and Upgrade Controls | P1 | done |
+
+### Outcome
+
+- Family Book now has a single-archive hosted platform record with lifecycle, plan, billing, export, and deletion metadata.
+- Hosted operator access can provision the archive record, inspect a safe support summary, and transition lifecycle state with audited controls.
+- Hosted mode now fails closed when the archive record is missing, and invalid lifecycle states are rejected instead of being stored as bypass values.
+- Stripe checkout and webhook state are hosted-only and optional, keeping self-hosted deployments free of a hard Stripe dependency.
+- Storage usage is measured across database, media, variants, backups, and exports, with quota enforcement on uploads.
+- Auditor result: PASS.
+- Closeout evidence: `docs/strategy/sprint-closeout-s49.md`.
 
 ---
 

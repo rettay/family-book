@@ -1,6 +1,6 @@
 # Task Packet - FB-117 Tenant Provisioning and Operator Console
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -26,25 +26,34 @@ Paid hosting cannot rely on manual shell edits forever. Even if each archive is 
 ## Likely Files
 
 - `app/models/hosted_archive.py`
-- `app/routes/operator.py`
-- `app/services/provisioning_service.py`
+- `app/routes/hosted_platform.py`
+- `app/services/hosted_archive_service.py`
 - `app/templates/operator.html`
 - `tests/test_operator.py`
-- `docs/ops/managed-hosting-baseline.md`
+- `docs/ops/billing-runbook.md`
 
 ## Acceptance Criteria
 
-- [ ] Operator can create a new archive record with owner and plan.
-- [ ] Operator can suspend/reactivate archive access without deleting data.
-- [ ] Operator can mark deletion/export workflow states.
-- [ ] Support view shows health, plan, storage, backup, and auth status without private content.
-- [ ] All lifecycle transitions are audited.
+- [x] Operator can create a new archive record with owner and plan.
+- [x] Operator can suspend/reactivate archive access without deleting data.
+- [x] Operator can mark deletion/export workflow states.
+- [x] Support view shows health, plan, storage, backup, and auth status without private content.
+- [x] All lifecycle transitions are audited.
+- [x] Unsupported lifecycle states are rejected instead of being stored as live bypass values.
 
 ## Validation Commands
 
 - `uv run pytest tests/test_operator.py tests/test_auth.py -q`
 - `git diff --check`
 
+## Evidence
+
+- `app/models/hosted_archive.py`
+- `app/routes/hosted_platform.py`
+- `app/templates/operator.html`
+- `tests/test_operator.py`
+- `docs/ops/billing-runbook.md`
+
 ## Definition of Done
 
-- [ ] Hosted archive lifecycle is manageable without ad hoc database edits.
+- [x] Hosted archive lifecycle is manageable without ad hoc database edits.

@@ -130,3 +130,26 @@ def test_settings_google_maps_legacy_key_falls_back_for_browser_and_server(monke
     assert settings.google_maps_browser_api_key_value == "legacy-key"
     assert settings.google_maps_server_api_key_value == "legacy-key"
     assert settings.google_maps_api_key_value == "legacy-key"
+
+
+def test_settings_hosted_archive_operator_and_stripe_flags():
+    settings = Settings(
+        SECRET_KEY="secret",
+        FERNET_KEY="fernet",
+        HOSTED_ARCHIVE_ENABLED=True,
+        HOSTED_ARCHIVE_BILLING_PROVIDER="stripe",
+        OPERATOR_TOKENS="one, two ",
+        STRIPE_SECRET_KEY="sk_test_123",
+        STRIPE_WEBHOOK_SECRET="whsec_123",
+        STRIPE_PRICE_FOUNDING="price_founding",
+        STRIPE_PRICE_FAMILY="price_family",
+        _env_file=None,
+    )
+
+    assert settings.hosted_archive_enabled is True
+    assert settings.operator_token_list == ["one", "two"]
+    assert settings.stripe_price_map == {
+        "founding": "price_founding",
+        "family": "price_family",
+    }
+    assert settings.stripe_enabled is True

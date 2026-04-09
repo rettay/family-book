@@ -2,8 +2,10 @@ import pytest
 from pathlib import Path
 from fastapi import Request
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import app.routes.pages as pages_routes
+from app.models.hosted_archive import HostedArchive
 
 TYLER_ID = "tyler-000-0000-0000-000000000002"
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -35,6 +37,36 @@ async def test_admin_dashboard_renders_release_confidence_sections(admin_client:
 
 
 @pytest.mark.asyncio
+async def test_admin_dashboard_renders_hosted_archive_section_when_enabled(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+    monkeypatch,
+):
+    monkeypatch.setenv("HOSTED_ARCHIVE_ENABLED", "true")
+    seeded_db.add(
+        HostedArchive(
+            archive_key="archive-1",
+            archive_name="Hosted Archive",
+            owner_email="owner@example.com",
+            base_url="https://family.example.com",
+            hosting_mode="managed_single_tenant",
+            plan_code="founding",
+            lifecycle_state="active",
+            billing_provider="stripe",
+            billing_status="active",
+        )
+    )
+    await seeded_db.commit()
+
+    resp = await admin_client.get("/admin")
+
+    assert resp.status_code == 200
+    assert 'id="admin-hosted-archive-card"' in resp.text
+    assert "Hosted Archive" in resp.text
+    assert "Start Hosted Checkout" in resp.text
+
+
+@pytest.mark.asyncio
 async def test_authenticated_root_redirects_to_tree(member_client: AsyncClient):
     resp = await member_client.get("/")
 
@@ -60,6 +92,36 @@ async def test_login_page_preserves_safe_return_to_after_auth(client: AsyncClien
     assert "const params = new URLSearchParams(window.location.search);" in resp.text
     assert "const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')" in resp.text
     assert "window.location.href = safeReturnTo || '/tree';" in resp.text
+
+
+@pytest.mark.asyncio
+async def test_settings_page_renders_hosted_subscription_when_enabled(
+    admin_client: AsyncClient,
+    seeded_db: AsyncSession,
+    monkeypatch,
+):
+    monkeypatch.setenv("HOSTED_ARCHIVE_ENABLED", "true")
+    seeded_db.add(
+        HostedArchive(
+            archive_key="archive-1",
+            archive_name="Hosted Archive",
+            owner_email="owner@example.com",
+            base_url="https://family.example.com",
+            hosting_mode="managed_single_tenant",
+            plan_code="founding",
+            lifecycle_state="active",
+            billing_provider="stripe",
+            billing_status="active",
+        )
+    )
+    await seeded_db.commit()
+
+    resp = await admin_client.get("/settings")
+
+    assert resp.status_code == 200
+    assert 'id="hosted-subscription-section"' in resp.text
+    assert "Hosted Subscription" in resp.text
+    assert "Open Billing Portal" in resp.text
 
 
 @pytest.mark.asyncio

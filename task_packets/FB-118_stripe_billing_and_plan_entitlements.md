@@ -1,6 +1,6 @@
 # Task Packet - FB-118 Stripe Billing and Plan Entitlements
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -27,8 +27,8 @@ The product needs to accept payments, handle trials/cancellations/past-due state
 
 ## Likely Files
 
-- `app/models/billing.py`
-- `app/routes/billing.py`
+- `app/models/hosted_archive.py`
+- `app/routes/hosted_platform.py`
 - `app/services/billing_service.py`
 - `app/config.py`
 - `app/templates/settings.html`
@@ -39,17 +39,27 @@ The product needs to accept payments, handle trials/cancellations/past-due state
 
 ## Acceptance Criteria
 
-- [ ] Hosted user can start checkout for available plans.
-- [ ] Stripe webhooks update subscription state idempotently.
-- [ ] Past-due/canceled/suspended states degrade safely without deleting data.
-- [ ] Self-hosted mode has no Stripe dependency.
-- [ ] Billing secrets are not logged.
+- [x] Hosted user can start checkout for available plans.
+- [x] Stripe webhooks update subscription state idempotently.
+- [x] Past-due/canceled/suspended states degrade safely without deleting data.
+- [x] Hosted mode fails closed when the archive record is missing.
+- [x] Self-hosted mode has no Stripe dependency.
+- [x] Billing secrets are not logged.
 
 ## Validation Commands
 
-- `uv run pytest tests/test_billing.py tests/test_config.py tests/test_security_guardrails.py -q`
+- `uv run pytest tests/test_billing.py tests/test_config.py tests/test_auth.py -q`
 - `git diff --check`
+
+## Evidence
+
+- `app/services/billing_service.py`
+- `app/routes/hosted_platform.py`
+- `app/config.py`
+- `app/templates/settings.html`
+- `tests/test_billing.py`
+- `docs/ops/billing-runbook.md`
 
 ## Definition of Done
 
-- [ ] Paid hosted billing can support a founding-customer launch.
+- [x] Paid hosted billing can support a founding-customer launch.
