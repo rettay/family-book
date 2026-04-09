@@ -39,9 +39,11 @@ from app.services.media_queries import (
     can_upload_media_for_person,
     list_gallery_media,
     list_gallery_people,
+    list_visible_albums,
     list_media_for_person,
     serialize_media_item,
 )
+from app.services.prompt_service import get_or_create_digest_preference, digest_enabled
 from app.services.hosted_archive_service import (
     archive_usage_snapshot,
     get_hosted_archive,
@@ -306,6 +308,9 @@ async def map_page(
 async def gallery_page(
     request: Request,
     media_type: str | None = Query(None),
+    search: str | None = Query(None),
+    source: str | None = Query(None),
+    album_id: str | None = Query(None),
     person_id: str | None = Query(None),
     uploader_id: str | None = Query(None),
     date_from: str | None = Query(None),
@@ -322,10 +327,14 @@ async def gallery_page(
     if redirect is not None:
         return redirect
     gallery_people = await list_gallery_people(db, current_user)
+    gallery_albums = await list_visible_albums(db, current_user)
     gallery_page_result = await list_gallery_media(
         db,
         current_user,
         media_type=media_type,
+        search=search,
+        source=source,
+        album_id=album_id,
         person_id=person_id,
         uploader_id=uploader_id,
         date_from=date_from,
@@ -343,8 +352,12 @@ async def gallery_page(
             gallery_page=gallery_page_result,
             render_load_more_oob=False,
             gallery_people=gallery_people,
+            gallery_albums=gallery_albums,
             gallery_filters={
                 "media_type": media_type or "",
+                "search": search or "",
+                "source": source or "",
+                "album_id": album_id or "",
                 "person_id": person_id or "",
                 "uploader_id": uploader_id or "",
                 "date_from": date_from or "",
@@ -655,6 +668,7 @@ async def settings_page(
     from app.config import get_settings
 
     settings = get_settings()
+    digest_preference = await get_or_create_digest_preference(db, person=current_user)
     hosted_archive_summary = None
     if settings.hosted_archive_enabled:
         archive = await get_hosted_archive(db)
@@ -678,6 +692,8 @@ async def settings_page(
         active_page="settings",
         hosted_archive_enabled=settings.hosted_archive_enabled,
         hosted_archive=hosted_archive_summary,
+        digest_enabled_value=digest_enabled(digest_preference),
+        digest_email=(digest_preference.push_email or current_user.contact_email or ""),
     ))
 
 
@@ -710,6 +726,9 @@ async def partial_media_gallery(
 async def partial_global_gallery(
     request: Request,
     media_type: str | None = Query(None),
+    search: str | None = Query(None),
+    source: str | None = Query(None),
+    album_id: str | None = Query(None),
     person_id: str | None = Query(None),
     uploader_id: str | None = Query(None),
     date_from: str | None = Query(None),
@@ -722,6 +741,9 @@ async def partial_global_gallery(
         db,
         current_user,
         media_type=media_type,
+        search=search,
+        source=source,
+        album_id=album_id,
         person_id=person_id,
         uploader_id=uploader_id,
         date_from=date_from,
@@ -729,16 +751,21 @@ async def partial_global_gallery(
         page=page,
     )
     media_items = [await serialize_media_item(db, media) for media in gallery_page_result.items]
+    gallery_albums = await list_visible_albums(db, current_user)
     return templates.TemplateResponse(
         "partials/global_gallery_items.html",
         _ctx(
             request,
             current_user,
             media_list=media_items,
+            gallery_albums=gallery_albums,
             gallery_page=gallery_page_result,
             render_load_more_oob=True,
             gallery_filters={
                 "media_type": media_type or "",
+                "search": search or "",
+                "source": source or "",
+                "album_id": album_id or "",
                 "person_id": person_id or "",
                 "uploader_id": uploader_id or "",
                 "date_from": date_from or "",

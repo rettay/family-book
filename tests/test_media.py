@@ -667,6 +667,74 @@ class TestMediaPathSafety:
         assert uploader_resp.status_code == 200
         assert len(uploader_resp.json()["items"]) >= 2
 
+    async def test_gallery_api_supports_search_source_and_album_filters(
+        self,
+        admin_client,
+        seeded_db,
+        tmp_path,
+        monkeypatch,
+    ):
+        from app.config import Settings
+
+        settings = Settings(SECRET_KEY="test", FERNET_KEY="dGVzdA==", DATA_DIR=str(tmp_path))
+        monkeypatch.setattr("app.services.media_service.get_settings", lambda: settings)
+        monkeypatch.setattr("app.routes.media.get_settings", lambda: settings)
+
+        upload_resp = await admin_client.post(
+            "/api/media",
+            data={
+                "person_id": ADMIN_ID,
+                "title": "Wedding portrait",
+                "description": "Church steps",
+            },
+            files={"file": ("portrait.jpg", _make_test_image(), "image/jpeg")},
+        )
+        assert upload_resp.status_code == 201
+        media_id = upload_resp.json()["id"]
+
+        album_resp = await admin_client.post(
+            "/api/media/albums",
+            data={"title": "Best Of", "description": "Favorites"},
+            follow_redirects=False,
+        )
+        assert album_resp.status_code == 303
+
+        from app.models.media import Album
+
+        album = (await seeded_db.execute(select(Album))).scalar_one()
+        add_resp = await admin_client.post(
+            f"/api/media/albums/{album.id}/items",
+            data={"media_id": media_id},
+            follow_redirects=False,
+        )
+        assert add_resp.status_code == 303
+
+        edit_resp = await admin_client.post(
+            f"/api/media/albums/{album.id}",
+            data={"title": "Best Of 2026", "description": "Updated favorites"},
+            follow_redirects=False,
+        )
+        assert edit_resp.status_code == 303
+
+        gallery_resp = await admin_client.get(
+            f"/api/media/gallery?search=portrait&source=manual&album_id={album.id}"
+        )
+        assert gallery_resp.status_code == 200
+        items = gallery_resp.json()["items"]
+        assert len(items) == 1
+        assert items[0]["id"] == media_id
+        assert items[0]["albums"][0]["title"] == "Best Of 2026"
+
+        remove_resp = await admin_client.post(
+            f"/api/media/albums/{album.id}/items/{media_id}/remove",
+            follow_redirects=False,
+        )
+        assert remove_resp.status_code == 303
+
+        empty_resp = await admin_client.get(f"/api/media/gallery?album_id={album.id}")
+        assert empty_resp.status_code == 200
+        assert empty_resp.json()["total"] == 0
+
 
 class TestMediaVisibilityEnforcement:
     """Test that visibility field controls access correctly."""

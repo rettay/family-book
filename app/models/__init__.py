@@ -1,8 +1,7 @@
 from app.models.base import Base
 from app.models.person import Person
 from app.models.relationships import ParentChild, Partnership
-from app.models.media import Media
-from app.models.media import MediaInboxItem
+from app.models.media import Album, AlbumMedia, Media, MediaInboxItem
 from app.models.auth import (
     Invite,
     MagicLinkToken,
@@ -30,6 +29,8 @@ from app.models.story import Story
 from app.models.occupation import PersonOccupation
 from app.models.hosted_archive import HostedArchive, BillingEventReceipt
 from app.models.onboarding import OnboardingProgress
+from app.models.prompts import PromptCampaign, PromptCampaignRecipient
+from app.models.book import BookProject
 
 __all__ = [
     "Base",
@@ -38,6 +39,8 @@ __all__ = [
     "Partnership",
     "Media",
     "MediaInboxItem",
+    "Album",
+    "AlbumMedia",
     "UserSession",
     "Invite",
     "MagicLinkToken",
@@ -65,4 +68,7 @@ __all__ = [
     "HostedArchive",
     "BillingEventReceipt",
     "OnboardingProgress",
+    "PromptCampaign",
+    "PromptCampaignRecipient",
+    "BookProject",
 ]

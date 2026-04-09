@@ -8,16 +8,51 @@ Commercialization roadmap proposed in `docs/strategy/commercialization-sprint-pl
 
 | Sprint | Title | Status | Packets |
 |---|---|---|---|
-| S51 | Lovable Engagement | planned next | `FB-124` to `FB-126` |
-| S52 | Launch Readiness and Growth | proposed | `FB-127` to `FB-129` |
+| S52 | Launch Readiness and Growth | planned | `FB-127` to `FB-129` |
+| S51 | Lovable Engagement | closed | `FB-124` to `FB-126` |
 
 ---
 
 ## Planned Sprint
 
+### `S52 - Launch Readiness and Growth`
+
+Status: Planned
+
+### Sprint Goal
+
+Prepare Family Book for a credible paid beta by tightening operations, support, launch readiness, and growth instrumentation.
+
+### Committed Packets
+
+| Order | ID | Title | Priority | Status |
+|---|---|---|---:|---|
+| 127 | FB-127 | Production Readiness Security Performance Gate | P0 | planned |
+| 128 | FB-128 | Beta Operations Support and Metrics | P1 | planned |
+| 129 | FB-129 | Launch Funnel and Pricing Readiness | P1 | planned |
+
+### Sprint References
+
+- Plan: `docs/strategy/commercialization-sprint-plan-2026.md`
+- Slices: `docs/strategy/commercialization-sprint-slices-2026.md`
+- Roadmap context: `docs/strategy/commercialization-sprint-plan-2026.md`
+- Slice context: `docs/strategy/commercialization-sprint-slices-2026.md`
+
+---
+
+## Current Sprint
+
+`S52 - Launch Readiness and Growth`
+
+Status: Planned
+
+---
+
+## Closed Sprint
+
 ### `S51 - Lovable Engagement`
 
-Status: Planned next
+Status: Closed
 
 ### Sprint Goal
 
@@ -27,22 +62,20 @@ Turn a functional hosted archive into a product that families actively return to
 
 | Order | ID | Title | Priority | Status |
 |---|---|---|---:|---|
-| 124 | FB-124 | Story Prompting and Capture Loop | P0 | proposed |
-| 125 | FB-125 | Memory Feed and Family Activity Surfaces | P1 | proposed |
-| 126 | FB-126 | Delight, Notifications, and Return Hooks | P1 | proposed |
+| 124 | FB-124 | Family Prompt Campaigns and Digest | P0 | done |
+| 125 | FB-125 | Media Search, Albums, and Timeline Delight | P1 | done |
+| 126 | FB-126 | Family Book Export Foundation | P1 | done |
 
-### Sprint References
+### Outcome
 
-- Roadmap context: `docs/strategy/commercialization-sprint-plan-2026.md`
-- Slice context: `docs/strategy/commercialization-sprint-slices-2026.md`
-
----
-
-## Current Sprint
-
-`S51 - Lovable Engagement`
-
-Status: Next sprint to plan in detail
+- Staff can send prompt campaigns to selected relatives and capture responses as stories or media inbox contributions.
+- Prompt campaigns now fail closed if the chosen subject person is not visible to every selected recipient, and legacy hidden-target prompts no longer leak subject names or accept responses.
+- Weekly digests can be sent from the prompts workspace and only include content visible to each recipient.
+- Gallery browsing now supports search, source filtering, album filtering, and album creation/add flows.
+- Timeline now supports memory events plus decade/person/album filters.
+- Family-book drafts are created from saved project selections, downloaded as Markdown or PDF by the project creator, and generated on demand without durable export artifacts.
+- Auditor result: PASS.
+- Closeout evidence: `docs/strategy/sprint-closeout-s51.md`.
 
 ---
 

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Family Book Export — {{ brand_display_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 16px; padding-bottom: 16px;" id="book-export-page">
+  <div class="page-header mb-16">
+    <h1 class="page-header__title">Family Book Export</h1>
+    <p class="page-header__subtitle">Build a giftable draft from selected people, stories, media, and timeline highlights.</p>
+  </div>
+
+  {% if can_create_books %}
+  <section class="settings-section" id="book-project-create-section">
+    <h2 class="settings-section__title">Create a draft</h2>
+    <form method="post" action="/books" class="stack gap-8">
+      <input class="form-input" type="text" name="title" placeholder="Book title" required>
+      <input class="form-input" type="text" name="subtitle" placeholder="Subtitle">
+      <textarea class="form-input" name="introduction" rows="4" placeholder="Short introduction"></textarea>
+      <label class="text-sm"><input type="checkbox" name="include_timeline" value="true" checked> Include timeline highlights</label>
+      <div class="flex gap-16 admin-action-row admin-action-row--wrap" style="align-items: flex-start;">
+        <label>
+          People
+          <select class="form-input" name="person_ids" multiple size="8">
+            {% for person in people %}
+            <option value="{{ person.id }}">{{ person.display_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Stories
+          <select class="form-input" name="story_ids" multiple size="8">
+            {% for story in stories %}
+            <option value="{{ story.id }}">{{ story.title }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Media
+          <select class="form-input" name="media_ids" multiple size="8">
+            {% for media in media_items %}
+            <option value="{{ media.id }}">{{ media.title or media.caption or media.original_filename or media.id }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <button class="btn btn--primary" type="submit">Generate draft</button>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="settings-section">
+    <h2 class="settings-section__title">Drafts</h2>
+    {% if projects %}
+    <div class="status-list">
+      {% for project in projects %}
+      <div class="status-list__item text-sm">
+        <strong>{{ project.title }}</strong>
+        <span class="text-muted">· {{ project.generated_at.strftime('%Y-%m-%d') if project.generated_at else 'pending' }}</span>
+        <span class="flex gap-8" style="margin-left: 8px;">
+          <a class="btn btn--outline btn--sm" href="/books/{{ project.id }}/download?format=markdown">Markdown</a>
+          <a class="btn btn--outline btn--sm" href="/books/{{ project.id }}/download?format=pdf">PDF</a>
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-muted">No draft exports have been generated yet.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

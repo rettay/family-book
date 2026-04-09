@@ -5,8 +5,10 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access_control import can_view_media
 from app.models.person import Person, PersonLifecycleState, Visibility
 from app.models.relationships import Partnership
+from app.models.media import AlbumMedia, Media
 from app.access_control import get_accessible_person_ids
 
 
@@ -18,13 +20,15 @@ async def get_timeline_events(
     year_from: int | None = None,
     year_to: int | None = None,
     branch: str | None = None,
+    person_id: str | None = None,
+    album_id: str | None = None,
     lineage_person_ids: set[str] | None = None,
     limit: int = 100,
     offset: int = 0,
 ) -> tuple[list[dict], int]:
     """Return timeline events sorted by date DESC.
 
-    event_type: filter to 'birth', 'death', 'marriage'
+    event_type: filter to 'birth', 'death', 'marriage', 'memory'
     year_from/year_to: restrict date range
     branch: filter to a specific branch
     lineage_person_ids: if set, restrict to these person IDs (pre-computed by caller)
@@ -46,6 +50,8 @@ async def get_timeline_events(
 
     if branch:
         persons = [p for p in persons if p.branch and p.branch.lower() == branch.lower()]
+    if person_id:
+        persons = [p for p in persons if p.id == person_id]
 
     person_ids_set = {p.id for p in persons}
     names_by_id = {p.id: p.display_name for p in persons}
@@ -131,6 +137,42 @@ async def get_timeline_events(
                 "person_name": f"{name_a} & {name_b}",
                 "detail": p.kind or "",
             })
+
+    if event_type is None or event_type == "memory":
+        media_result = await db.execute(select(Media).order_by(Media.created_at.desc()))
+        album_media_ids: set[str] | None = None
+        if album_id:
+            album_result = await db.execute(
+                select(AlbumMedia.media_id).where(AlbumMedia.album_id == album_id)
+            )
+            album_media_ids = {row[0] for row in album_result.all()}
+        for media in media_result.scalars().all():
+            if album_media_ids is not None and media.id not in album_media_ids:
+                continue
+            if not await can_view_media(db, current_user, media):
+                continue
+            if person_id and media.person_id != person_id and person_id not in media.tagged_person_ids:
+                continue
+            event_date = _parse_date(media.taken_date) if media.taken_date else None
+            if event_date is None and media.created_at is not None:
+                event_date = media.created_at.date()
+            if event_date is None or not _in_year_range(event_date.year, year_from, year_to):
+                continue
+            owner_name = names_by_id.get(media.person_id)
+            if owner_name is None and media.person_id:
+                owner = await db.get(Person, media.person_id)
+                owner_name = owner.display_name if owner else "Unknown person"
+            events.append(
+                {
+                    "date": event_date.isoformat(),
+                    "year": event_date.year,
+                    "type": "memory",
+                    "label": media.title or media.caption or media.original_filename or "Family memory",
+                    "person_id": media.person_id,
+                    "person_name": owner_name or "Unknown person",
+                    "detail": media.taken_location or owner_name or "",
+                }
+            )
 
     # Sort by date DESC
     events.sort(key=lambda e: e["date"], reverse=True)

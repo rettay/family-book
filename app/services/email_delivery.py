@@ -12,6 +12,7 @@ from typing import Callable
 from pydantic import BaseModel
 
 from app.config import get_settings
+from app.services.prompt_service import render_weekly_digest_html, render_weekly_digest_text
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +121,29 @@ async def send_magic_link_email(
             recipient_name=recipient_name,
             magic_link_url=magic_link_url,
             expires_minutes=expires_minutes,
+            family_name=family_name,
+        ),
+    )
+
+
+async def send_weekly_digest_email(
+    *,
+    recipient_email: str,
+    recipient_name: str,
+    digest: dict[str, list[dict]],
+    family_name: str = "Family Book",
+) -> EmailDeliveryResult:
+    return await send_email(
+        recipient_email=recipient_email,
+        subject=f"{family_name} weekly digest",
+        html_body=render_weekly_digest_html(
+            recipient_name=recipient_name,
+            digest=digest,
+            family_name=family_name,
+        ),
+        text_body=render_weekly_digest_text(
+            recipient_name=recipient_name,
+            digest=digest,
             family_name=family_name,
         ),
     )

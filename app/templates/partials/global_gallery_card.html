@@ -10,6 +10,7 @@
   <div class="media-gallery__card-meta">
     <strong data-media-title>{{ m.title or m.caption or m.original_filename or t('media.photos') }}</strong>
     {% if m.description %}<p>{{ m.description }}</p>{% endif %}
+    {% if m.albums %}<p class="text-sm text-muted">Albums: {% for album in m.albums %}{{ album.title }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
     <div class="media-gallery__meta-row">
       {% if m.person_display_name and m.person_slug %}
       <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
@@ -38,6 +39,18 @@
               title="{{ t('media.delete') }}" aria-label="{{ t('media.delete') }}">&#128465;</button>
       {% endif %}
     </div>
+    {% if gallery_albums %}
+    <form method="post" action="/api/media/albums/{{ gallery_albums[0].id }}/items" class="flex gap-8 admin-action-row admin-action-row--wrap" style="margin-top: 8px;">
+      <select class="form-input" name="album_id_select" onchange="if (this.value) { this.form.action='/api/media/albums/' + this.value + '/items'; }">
+        <option value="">Add to album</option>
+        {% for album in gallery_albums %}
+        <option value="{{ album.id }}">{{ album.title }}</option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="media_id" value="{{ m.id }}">
+      <button class="btn btn--outline btn--sm" type="submit">Add</button>
+    </form>
+    {% endif %}
   </div>
 </article>
 {% elif m.media_type == 'video' %}
@@ -51,6 +64,7 @@
   <div class="media-gallery__card-meta">
     <strong data-media-title>{{ m.title or m.caption or m.original_filename or t('media.videos') }}</strong>
     {% if m.description %}<p>{{ m.description }}</p>{% endif %}
+    {% if m.albums %}<p class="text-sm text-muted">Albums: {% for album in m.albums %}{{ album.title }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
     <div class="media-gallery__meta-row">
       {% if m.person_display_name and m.person_slug %}
       <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
@@ -71,6 +85,7 @@
     <span class="media-gallery__audio-title" data-media-title>{{ m.title or m.caption or m.original_filename or t('media.recordings') }}</span>
   </div>
   {% if m.description %}<p class="media-gallery__description">{{ m.description }}</p>{% endif %}
+  {% if m.albums %}<p class="text-sm text-muted">Albums: {% for album in m.albums %}{{ album.title }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
   <div class="media-gallery__meta-row">
     {% if m.person_display_name and m.person_slug %}
     <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>
@@ -92,6 +107,7 @@
     <span data-media-title>{{ m.title or m.caption or m.original_filename or t('media.documents') }}</span>
   </a>
   {% if m.description %}<p class="media-gallery__description">{{ m.description }}</p>{% endif %}
+  {% if m.albums %}<p class="text-sm text-muted">Albums: {% for album in m.albums %}{{ album.title }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
   <div class="media-gallery__meta-row">
     {% if m.person_display_name and m.person_slug %}
     <a href="/wiki/{{ m.person_slug }}">{{ m.person_display_name }}</a>

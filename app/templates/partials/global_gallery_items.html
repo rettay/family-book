@@ -11,13 +11,13 @@
 {% if render_load_more_oob %}
 <div id="gallery-load-more" hx-swap-oob="true">
   {% if gallery_page.has_more %}
-  <button
-    type="button"
-    class="btn btn--ghost btn--block"
-    hx-get="/partials/global-gallery?media_type={{ gallery_filters.media_type | urlencode }}&person_id={{ gallery_filters.person_id | urlencode }}&uploader_id={{ gallery_filters.uploader_id | urlencode }}&date_from={{ gallery_filters.date_from | urlencode }}&date_to={{ gallery_filters.date_to | urlencode }}&page={{ gallery_page.next_page }}"
-    hx-target="#gallery-results"
-    hx-swap="beforeend">
-    {{ t('gallery.load_more') }}
+    <button
+      type="button"
+      class="btn btn--ghost btn--block"
+      hx-get="/partials/global-gallery?media_type={{ gallery_filters.media_type | urlencode }}&search={{ gallery_filters.search | urlencode }}&source={{ gallery_filters.source | urlencode }}&album_id={{ gallery_filters.album_id | urlencode }}&person_id={{ gallery_filters.person_id | urlencode }}&uploader_id={{ gallery_filters.uploader_id | urlencode }}&date_from={{ gallery_filters.date_from | urlencode }}&date_to={{ gallery_filters.date_to | urlencode }}&page={{ gallery_page.next_page }}"
+      hx-target="#gallery-results"
+      hx-swap="beforeend">
+      {{ t('gallery.load_more') }}
   </button>
   {% endif %}
 </div>

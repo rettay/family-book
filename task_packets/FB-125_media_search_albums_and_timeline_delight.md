@@ -1,6 +1,6 @@
 # Task Packet - FB-125 Media Search, Albums, and Timeline Delight
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -35,11 +35,11 @@ The media pipeline is a competitive strength, but users need retrieval and prese
 
 ## Acceptance Criteria
 
-- [ ] User can create/edit/delete albums.
-- [ ] Gallery search works across core media metadata.
-- [ ] Media can be added/removed from albums.
-- [ ] Timeline/gallery respect access control.
-- [ ] Query performance is acceptable on seeded large gallery data.
+- [x] User can create/edit/delete albums.
+- [x] Gallery search works across core media metadata.
+- [x] Media can be added/removed from albums.
+- [x] Timeline/gallery respect access control.
+- [x] Query performance is acceptable on seeded large gallery data.
 
 ## Validation Commands
 
@@ -49,4 +49,16 @@ The media pipeline is a competitive strength, but users need retrieval and prese
 
 ## Definition of Done
 
-- [ ] Media browsing becomes a reason to use the product.
+- [x] Media browsing becomes a reason to use the product.
+
+## Builder Notes
+
+- Albums are implemented in `app/models/media.py` and managed through `/api/media/albums`.
+- Gallery filtering now supports `search`, `source`, and `album_id`.
+- Timeline includes `memory` events plus `decade`, `person_id`, and `album_id` filters.
+
+## Verification
+
+- `uv run pytest tests/test_media.py tests/test_multimedia.py tests/test_timeline.py tests/test_pages.py -q`
+- `make test-ui-playwright`
+- `git diff --check`

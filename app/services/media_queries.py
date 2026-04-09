@@ -7,7 +7,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access_control import can_manage_person, get_accessible_person_ids
-from app.models.media import Media
+from app.models.media import Album, AlbumMedia, Media
 from app.models.person import Person, PersonLifecycleState
 from app.roles import is_admin_actor
 
@@ -54,6 +54,16 @@ async def serialize_media_item(
 ) -> dict[str, object]:
     owner = await db.get(Person, media.person_id)
     tagged_people = await build_tagged_people_payload(db, media.tagged_person_ids)
+    album_result = await db.execute(
+        select(Album)
+        .join(AlbumMedia, AlbumMedia.album_id == Album.id)
+        .where(AlbumMedia.media_id == media.id)
+        .order_by(Album.title)
+    )
+    albums = [
+        {"id": album.id, "title": album.title}
+        for album in album_result.scalars().all()
+    ]
     return {
         "id": media.id,
         "person_id": media.person_id,
@@ -68,6 +78,8 @@ async def serialize_media_item(
         "taken_location": media.taken_location,
         "original_filename": media.original_filename,
         "purpose": media.purpose,
+        "source": media.source,
+        "albums": albums,
         "tagged_person_ids": media.tagged_person_ids,
         "tagged_people": tagged_people,
         "uploaded_by": media.uploaded_by,
@@ -144,6 +156,9 @@ async def list_gallery_media(
     current_user: Person,
     *,
     media_type: str | None = None,
+    search: str | None = None,
+    source: str | None = None,
+    album_id: str | None = None,
     person_id: str | None = None,
     uploader_id: str | None = None,
     date_from: str | None = None,
@@ -163,18 +178,31 @@ async def list_gallery_media(
         type_filter = _media_type_sql_filter(media_type)
         if type_filter is not None:
             query = query.where(type_filter)
+    if source:
+        query = query.where(Media.source == source)
     if uploader_id:
         query = query.where(Media.uploaded_by == uploader_id)
 
     start_date = _parse_iso_date(date_from)
     end_date = _parse_iso_date(date_to)
+    album_media_ids: set[str] | None = None
+    if album_id:
+        album_result = await db.execute(
+            select(AlbumMedia.media_id).where(AlbumMedia.album_id == album_id)
+        )
+        album_media_ids = {row[0] for row in album_result.all()}
 
     result = await db.execute(query)
     filtered: list[Media] = []
+    search_term = (search or "").strip().lower()
     for media in result.scalars().all():
+        if album_media_ids is not None and media.id not in album_media_ids:
+            continue
         if person_id and media.person_id != person_id and person_id not in media.tagged_person_ids:
             continue
         if not _media_within_date_range(media, start_date, end_date):
+            continue
+        if search_term and not _matches_search(media, search_term):
             continue
         if not _can_view_media_fast(media, current_user, accessible_ids):
             continue
@@ -211,6 +239,43 @@ async def list_gallery_people(
     return result.scalars().all()
 
 
+async def list_visible_albums(
+    db: AsyncSession,
+    current_user: Person,
+) -> list[dict[str, object]]:
+    accessible_ids = await get_accessible_person_ids(db, current_user)
+    result = await db.execute(select(Album).order_by(Album.title))
+    albums = []
+    for album in result.scalars().all():
+        media_result = await db.execute(
+            select(Media)
+            .join(AlbumMedia, AlbumMedia.media_id == Media.id)
+            .where(AlbumMedia.album_id == album.id)
+            .order_by(AlbumMedia.created_at.desc())
+        )
+        visible_media = [
+            media for media in media_result.scalars().all()
+            if _can_view_media_fast(
+                media,
+                current_user,
+                accessible_ids,
+            )
+        ]
+        if not visible_media and not is_admin_actor(current_user) and album.created_by != current_user.id:
+            continue
+        albums.append(
+            {
+                "id": album.id,
+                "title": album.title,
+                "description": album.description,
+                "media_count": len(visible_media),
+                "cover_media_id": album.cover_media_id or (visible_media[0].id if visible_media else None),
+                "created_by": album.created_by,
+            }
+        )
+    return albums
+
+
 def can_upload_media_for_person(current_user: Person, person: Person | None) -> bool:
     return bool(person and can_manage_person(current_user, person))
 
@@ -223,6 +288,18 @@ def _media_type_sql_filter(media_type: str):
     if normalized == "photo":
         return Media.media_type.in_(["image", "gif"])
     return Media.media_type == normalized
+
+
+def _matches_search(media: Media, search_term: str) -> bool:
+    values = [
+        media.title,
+        media.caption,
+        media.description,
+        media.original_filename,
+        media.taken_location,
+        media.source,
+    ]
+    return any(search_term in (value or "").lower() for value in values)
 
 
 def _media_within_date_range(

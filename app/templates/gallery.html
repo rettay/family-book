@@ -12,6 +12,10 @@
 
   <form class="gallery-filters" method="get" action="/gallery">
     <label>
+      Search
+      <input type="text" name="search" class="form-input" value="{{ gallery_filters.search }}" placeholder="Title, caption, description, filename">
+    </label>
+    <label>
       {{ t('gallery.filter_type') }}
       <select name="media_type" class="form-input">
         <option value="">{{ t('gallery.filter_all_types') }}</option>
@@ -19,6 +23,24 @@
         <option value="video" {% if gallery_filters.media_type == 'video' %}selected{% endif %}>{{ t('media.videos') }}</option>
         <option value="audio" {% if gallery_filters.media_type == 'audio' %}selected{% endif %}>{{ t('media.recordings') }}</option>
         <option value="document" {% if gallery_filters.media_type == 'document' %}selected{% endif %}>{{ t('media.documents') }}</option>
+      </select>
+    </label>
+    <label>
+      Source
+      <select name="source" class="form-input">
+        <option value="">Any source</option>
+        <option value="manual" {% if gallery_filters.source == 'manual' %}selected{% endif %}>Manual</option>
+        <option value="share_sheet" {% if gallery_filters.source == 'share_sheet' %}selected{% endif %}>Share inbox</option>
+        <option value="whatsapp_import" {% if gallery_filters.source == 'whatsapp_import' %}selected{% endif %}>WhatsApp import</option>
+      </select>
+    </label>
+    <label>
+      Album
+      <select name="album_id" class="form-input">
+        <option value="">Any album</option>
+        {% for album in gallery_albums %}
+        <option value="{{ album.id }}" {% if gallery_filters.album_id == album.id %}selected{% endif %}>{{ album.title }}</option>
+        {% endfor %}
       </select>
     </label>
     <label>
@@ -53,6 +75,32 @@
     </div>
   </form>
 
+  <section class="settings-section" id="gallery-albums-section">
+    <h2 class="settings-section__title">Albums</h2>
+    <form method="post" action="/api/media/albums" class="flex gap-8 admin-action-row admin-action-row--wrap" style="margin-bottom: 12px;">
+      <input class="form-input" type="text" name="title" placeholder="Album title" required>
+      <input class="form-input" type="text" name="description" placeholder="Short description">
+      <button class="btn btn--primary btn--sm" type="submit">Create album</button>
+    </form>
+    {% if gallery_albums %}
+    <div class="status-list">
+      {% for album in gallery_albums %}
+      <form method="post" action="/api/media/albums/{{ album.id }}" class="status-list__item text-sm flex gap-8 admin-action-row admin-action-row--wrap">
+        <input class="form-input" type="text" name="title" value="{{ album.title }}" aria-label="Album title">
+        <input class="form-input" type="text" name="description" value="{{ album.description or '' }}" placeholder="Description" aria-label="Album description">
+        <span class="text-muted">{{ album.media_count }} items</span>
+        {% if current_user.is_admin or album.created_by == current_user.id %}
+        <button class="btn btn--outline btn--sm" type="submit">Save</button>
+        <button class="btn btn--ghost btn--sm" type="submit" formaction="/api/media/albums/{{ album.id }}/delete">Delete</button>
+        {% endif %}
+      </form>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-muted">No albums yet. Create one to group photos and documents.</p>
+    {% endif %}
+  </section>
+
   <div id="gallery-results" class="media-gallery media-gallery--grid">
     {% include "partials/global_gallery_items.html" %}
   </div>
@@ -61,7 +109,7 @@
     <button
       type="button"
       class="btn btn--ghost btn--block"
-      hx-get="/partials/global-gallery?media_type={{ gallery_filters.media_type | urlencode }}&person_id={{ gallery_filters.person_id | urlencode }}&uploader_id={{ gallery_filters.uploader_id | urlencode }}&date_from={{ gallery_filters.date_from | urlencode }}&date_to={{ gallery_filters.date_to | urlencode }}&page={{ gallery_page.next_page }}"
+      hx-get="/partials/global-gallery?media_type={{ gallery_filters.media_type | urlencode }}&search={{ gallery_filters.search | urlencode }}&source={{ gallery_filters.source | urlencode }}&album_id={{ gallery_filters.album_id | urlencode }}&person_id={{ gallery_filters.person_id | urlencode }}&uploader_id={{ gallery_filters.uploader_id | urlencode }}&date_from={{ gallery_filters.date_from | urlencode }}&date_to={{ gallery_filters.date_to | urlencode }}&page={{ gallery_page.next_page }}"
       hx-target="#gallery-results"
       hx-swap="beforeend">
       {{ t('gallery.load_more') }}

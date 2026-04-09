@@ -145,8 +145,44 @@ async def test_timeline_api_accepts_all_and_plural_event_aliases(admin_client: A
 
     resp = await admin_client.get("/api/timeline?event_type=births")
     assert resp.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_timeline_memory_events_support_person_album_and_decade_filters(
+    admin_client: AsyncClient,
+    seeded_db,
+):
+    from app.models.media import Album, AlbumMedia, Media
+
+    media = Media(
+        person_id="member-00-0000-0000-000000000005",
+        file_path="memory.jpg",
+        original_filename="memory.jpg",
+        media_type="image",
+        mime_type="image/jpeg",
+        title="Graduation memory",
+        taken_date="2002-06-15",
+        source="manual",
+        uploaded_by="tyler-000-0000-0000-000000000002",
+    )
+    album = Album(
+        title="Graduation Album",
+        created_by="tyler-000-0000-0000-000000000002",
+    )
+    seeded_db.add_all([media, album])
+    await seeded_db.flush()
+    seeded_db.add(AlbumMedia(album_id=album.id, media_id=media.id, added_by=album.created_by))
+    await seeded_db.commit()
+
+    resp = await admin_client.get(
+        f"/api/timeline?event_type=memory&person_id={media.person_id}&album_id={album.id}&decade=2000"
+    )
+
+    assert resp.status_code == 200
+    assert resp.json()["total"] == 1
+    assert resp.json()["events"][0]["label"] == "Graduation memory"
     for ev in resp.json()["events"]:
-        assert ev["type"] == "birth"
+        assert ev["type"] == "memory"
 
 
 # ── Graph traversal tests ────────────────────────────────────────────

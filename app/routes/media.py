@@ -4,7 +4,7 @@ import json
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +13,7 @@ from app.auth import require_admin, require_auth
 from app.config import get_settings
 from app.database import get_db
 from app.models.media import Media
+from app.models.media import Album, AlbumMedia
 from app.models.person import Person, PersonLifecycleState
 from app.roles import is_admin_actor
 from app.services.io_limits import SizeLimitExceeded, stream_upload_to_temp
@@ -34,6 +35,7 @@ from app.services.media_service import (
 )
 from app.services.media_queries import (
     build_tagged_people_payload,
+    list_visible_albums,
     list_gallery_media,
     list_media_for_person as query_media_for_person,
     serialize_media_item,
@@ -165,6 +167,9 @@ async def upload_media(
 @router.get("/gallery")
 async def list_gallery_media_api(
     media_type: str | None = Query(None),
+    search: str | None = Query(None),
+    source: str | None = Query(None),
+    album_id: str | None = Query(None),
     person_id: str | None = Query(None),
     uploader_id: str | None = Query(None),
     date_from: str | None = Query(None),
@@ -178,6 +183,9 @@ async def list_gallery_media_api(
         db,
         current_user,
         media_type=media_type,
+        search=search,
+        source=source,
+        album_id=album_id,
         person_id=person_id,
         uploader_id=uploader_id,
         date_from=date_from,
@@ -194,6 +202,134 @@ async def list_gallery_media_api(
         "has_more": page_result.has_more,
         "next_page": page_result.next_page,
     }
+
+
+def _can_manage_album(current_user: Person, album: Album) -> bool:
+    return is_admin_actor(current_user) or album.created_by == current_user.id
+
+
+@router.get("/albums")
+async def list_gallery_albums_api(
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    return await list_visible_albums(db, current_user)
+
+
+@router.post("/albums")
+async def create_album(
+    title: str = Form(...),
+    description: str | None = Form(None),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    album = Album(
+        title=title.strip(),
+        description=(description or "").strip() or None,
+        created_by=current_user.id,
+    )
+    db.add(album)
+    await db.flush()
+    return RedirectResponse("/gallery", status_code=303)
+
+
+@router.post("/albums/{album_id}/items")
+async def add_media_to_album(
+    album_id: str,
+    media_id: str = Form(...),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    album = await db.get(Album, album_id)
+    if album is None:
+        raise HTTPException(status_code=404, detail="Album not found")
+    if not _can_manage_album(current_user, album):
+        raise HTTPException(status_code=403, detail="Not authorized to edit this album")
+
+    media = await db.get(Media, media_id)
+    if media is None or not await can_view_media(db, current_user, media):
+        raise HTTPException(status_code=404, detail="Media not found")
+
+    existing = await db.execute(
+        select(AlbumMedia).where(
+            AlbumMedia.album_id == album.id,
+            AlbumMedia.media_id == media.id,
+        )
+    )
+    if existing.scalar_one_or_none() is None:
+        db.add(AlbumMedia(album_id=album.id, media_id=media.id, added_by=current_user.id))
+        if not album.cover_media_id:
+            album.cover_media_id = media.id
+        await db.flush()
+    return RedirectResponse("/gallery", status_code=303)
+
+
+@router.post("/albums/{album_id}")
+async def edit_album(
+    album_id: str,
+    title: str = Form(...),
+    description: str | None = Form(None),
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    album = await db.get(Album, album_id)
+    if album is None:
+        raise HTTPException(status_code=404, detail="Album not found")
+    if not _can_manage_album(current_user, album):
+        raise HTTPException(status_code=403, detail="Not authorized to edit this album")
+    album.title = title.strip()
+    album.description = (description or "").strip() or None
+    await db.flush()
+    return RedirectResponse("/gallery", status_code=303)
+
+
+@router.post("/albums/{album_id}/items/{media_id}/remove")
+async def remove_media_from_album(
+    album_id: str,
+    media_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    album = await db.get(Album, album_id)
+    if album is None:
+        raise HTTPException(status_code=404, detail="Album not found")
+    if not _can_manage_album(current_user, album):
+        raise HTTPException(status_code=403, detail="Not authorized to edit this album")
+
+    membership_result = await db.execute(
+        select(AlbumMedia).where(
+            AlbumMedia.album_id == album.id,
+            AlbumMedia.media_id == media_id,
+        )
+    )
+    membership = membership_result.scalar_one_or_none()
+    if membership is None:
+        raise HTTPException(status_code=404, detail="Album item not found")
+    await db.delete(membership)
+    if album.cover_media_id == media_id:
+        next_item_result = await db.execute(
+            select(AlbumMedia).where(AlbumMedia.album_id == album.id).order_by(AlbumMedia.created_at.asc())
+        )
+        next_item = next_item_result.scalars().first()
+        album.cover_media_id = next_item.media_id if next_item else None
+    await db.flush()
+    return RedirectResponse("/gallery", status_code=303)
+
+
+@router.post("/albums/{album_id}/delete")
+async def delete_album(
+    album_id: str,
+    current_user: Person = Depends(require_auth),
+    db: AsyncSession = Depends(get_db),
+):
+    album = await db.get(Album, album_id)
+    if album is None:
+        raise HTTPException(status_code=404, detail="Album not found")
+    if not _can_manage_album(current_user, album):
+        raise HTTPException(status_code=403, detail="Not authorized to delete this album")
+    await db.delete(album)
+    await db.flush()
+    return RedirectResponse("/gallery", status_code=303)
 
 
 @router.get("/moderation/hidden")

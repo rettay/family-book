@@ -1,6 +1,6 @@
 # Task Packet - FB-124 Family Prompt Campaigns and Digest
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -36,11 +36,11 @@ Ancestry retains users through hints; Storyworth retains through prompts. Family
 
 ## Acceptance Criteria
 
-- [ ] Steward can create/send a prompt campaign.
-- [ ] Relative can respond and create a story or media contribution.
-- [ ] Weekly digest includes only content visible to the recipient.
-- [ ] Digest preferences can disable emails.
-- [ ] Tests cover visibility filtering and unsubscribe behavior.
+- [x] Steward can create/send a prompt campaign.
+- [x] Relative can respond and create a story or media contribution.
+- [x] Weekly digest includes only content visible to the recipient.
+- [x] Digest preferences can disable emails.
+- [x] Tests cover visibility filtering and unsubscribe behavior.
 
 ## Validation Commands
 
@@ -49,4 +49,15 @@ Ancestry retains users through hints; Storyworth retains through prompts. Family
 
 ## Definition of Done
 
-- [ ] Families have a recurring reason to return.
+- [x] Families have a recurring reason to return.
+
+## Builder Notes
+
+- Implemented in `app/models/prompts.py`, `app/routes/prompts.py`, `app/services/prompt_service.py`, and `app/templates/prompts.html`.
+- Digest preferences are managed from `settings.html` using `NotificationPreference`.
+- Prompt creation now enforces recipient-side visibility for the selected subject person, and legacy prompt responses fail closed if the recipient cannot view the target.
+
+## Verification
+
+- `uv run pytest tests/test_prompts.py tests/test_email_delivery.py tests/test_pages.py -q`
+- `git diff --check`

@@ -1,6 +1,6 @@
 # Task Packet - FB-126 Family Book Export Foundation
 
-Status: Proposed
+Status: Done
 
 ## Objective
 
@@ -35,11 +35,11 @@ Storyworth and Remento prove that physical or printable outputs motivate payment
 
 ## Acceptance Criteria
 
-- [ ] User can create a book draft from selected people/stories/media.
-- [ ] Markdown export works.
-- [ ] PDF export works or has a documented staged fallback.
-- [ ] Export respects permissions and private media settings.
-- [ ] Output includes provenance/source notes when present.
+- [x] User can create a book draft from selected people/stories/media.
+- [x] Markdown export works.
+- [x] PDF export works or has a documented staged fallback.
+- [x] Export respects permissions and private media settings.
+- [x] Output includes provenance/source notes when present.
 
 ## Validation Commands
 
@@ -48,4 +48,16 @@ Storyworth and Remento prove that physical or printable outputs motivate payment
 
 ## Definition of Done
 
-- [ ] Product has a giftable deliverable for paid conversion.
+- [x] Product has a giftable deliverable for paid conversion.
+
+## Builder Notes
+
+- Export projects are stored in `app/models/book.py`.
+- Output is generated on demand by `app/services/book_export_service.py`.
+- Download access is restricted to the project creator, and generated files are not retained on disk.
+- Operational notes are documented in `docs/ops/book-export.md`.
+
+## Verification
+
+- `uv run pytest tests/test_book_export.py tests/test_pages.py -q`
+- `git diff --check`

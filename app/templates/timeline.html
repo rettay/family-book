@@ -19,6 +19,7 @@
       <option value="birth" {% if event_type == 'birth' %}selected{% endif %}>{{ t('timeline.filter_births') }}</option>
       <option value="death" {% if event_type == 'death' %}selected{% endif %}>{{ t('timeline.filter_deaths') }}</option>
       <option value="marriage" {% if event_type == 'marriage' %}selected{% endif %}>{{ t('timeline.filter_marriages') }}</option>
+      <option value="memory" {% if event_type == 'memory' %}selected{% endif %}>Memories</option>
     </select>
     <input type="number" class="form-input timeline-filter-input" name="year_from" placeholder="{{ t('timeline.year_from') }}"
            value="{{ year_from }}" style="width:100px;"
@@ -38,6 +39,39 @@
            hx-target="#timeline-events"
            hx-include=".timeline-filter-input, #timeline-type-filter"
            hx-trigger="change">
+    <select class="form-input timeline-filter-input" name="decade"
+            hx-get="/partials/timeline-events"
+            hx-target="#timeline-events"
+            hx-include=".timeline-filter-input, #timeline-type-filter"
+            hx-trigger="change">
+      <option value="">Any decade</option>
+      <option value="1880" {% if decade == '1880' %}selected{% endif %}>1880s</option>
+      <option value="1900" {% if decade == '1900' %}selected{% endif %}>1900s</option>
+      <option value="1920" {% if decade == '1920' %}selected{% endif %}>1920s</option>
+      <option value="1950" {% if decade == '1950' %}selected{% endif %}>1950s</option>
+      <option value="1980" {% if decade == '1980' %}selected{% endif %}>1980s</option>
+      <option value="2000" {% if decade == '2000' %}selected{% endif %}>2000s</option>
+    </select>
+    <select class="form-input timeline-filter-input" name="person_id"
+            hx-get="/partials/timeline-events"
+            hx-target="#timeline-events"
+            hx-include=".timeline-filter-input, #timeline-type-filter"
+            hx-trigger="change">
+      <option value="">Any person</option>
+      {% for person in timeline_people %}
+      <option value="{{ person.id }}" {% if person_id == person.id %}selected{% endif %}>{{ person.display_name }}</option>
+      {% endfor %}
+    </select>
+    <select class="form-input timeline-filter-input" name="album_id"
+            hx-get="/partials/timeline-events"
+            hx-target="#timeline-events"
+            hx-include=".timeline-filter-input, #timeline-type-filter"
+            hx-trigger="change">
+      <option value="">Any album</option>
+      {% for album in timeline_albums %}
+      <option value="{{ album.id }}" {% if album_id == album.id %}selected{% endif %}>{{ album.title }}</option>
+      {% endfor %}
+    </select>
   </div>
 
   <div id="timeline-events" aria-live="polite" aria-busy="false">

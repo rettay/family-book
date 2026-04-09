@@ -1,6 +1,7 @@
 """Tests for rich multimedia playback — PDF upload, audio upload, type mapping."""
 
 import pytest
+from time import monotonic
 from httpx import AsyncClient
 
 from app.services.media_service import _media_type_for_mime, _category_for_mime, ALLOWED_MIME_TYPES
@@ -100,3 +101,30 @@ async def test_media_list_includes_media_type(admin_client: AsyncClient):
     # Even if empty, the endpoint should work
     data = resp.json()
     assert isinstance(data, list)
+
+
+@pytest.mark.asyncio
+async def test_gallery_query_handles_realistic_media_volume(admin_client: AsyncClient):
+    person_resp = await admin_client.post("/api/persons", json={
+        "first_name": "Gallery",
+        "last_name": "Load",
+    })
+    assert person_resp.status_code == 201
+    person_id = person_resp.json()["id"]
+
+    for index in range(30):
+        image_content = b"\xff\xd8\xff\xe0" + bytes([index]) * 2048
+        resp = await admin_client.post(
+            "/api/media",
+            files={"file": (f"bulk-{index}.jpg", image_content, "image/jpeg")},
+            data={"person_id": person_id, "title": f"Bulk item {index}"},
+        )
+        assert resp.status_code == 201
+
+    started = monotonic()
+    resp = await admin_client.get("/api/media/gallery?search=Bulk&page_size=24")
+    elapsed = monotonic() - started
+
+    assert resp.status_code == 200
+    assert resp.json()["total"] >= 24
+    assert elapsed < 2.0

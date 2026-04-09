@@ -14,6 +14,7 @@ from app.database import get_db
 from app.models.person import Person
 from app.services.timeline_service import get_timeline_events
 from app.services.theme_service import get_runtime_theme_from_app
+from app.services.media_queries import list_gallery_people, list_visible_albums
 from app.i18n import translate
 
 router = APIRouter(tags=["timeline"])
@@ -27,6 +28,8 @@ _EVENT_TYPE_ALIASES = {
     "deaths": "death",
     "marriage": "marriage",
     "marriages": "marriage",
+    "memory": "memory",
+    "memories": "memory",
 }
 
 _template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
@@ -121,6 +124,9 @@ async def api_timeline(
     year_from: str | None = Query(None),
     year_to: str | None = Query(None),
     branch: str | None = Query(None),
+    decade: str | None = Query(None),
+    person_id: str | None = Query(None),
+    album_id: str | None = Query(None),
     lineage_person_id: str | None = Query(None),
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
@@ -128,6 +134,7 @@ async def api_timeline(
     db: AsyncSession = Depends(get_db),
 ):
     event_type, year_from, year_to, error = _normalize_timeline_filters(event_type, year_from, year_to)
+    year_from, year_to = _apply_decade_filter(decade, year_from, year_to)
     if error:
         raise HTTPException(status_code=400, detail=error)
     lineage_ids = await _resolve_lineage_ids(db, lineage_person_id, current_user)
@@ -137,6 +144,8 @@ async def api_timeline(
         year_from=year_from,
         year_to=year_to,
         branch=branch,
+        person_id=person_id,
+        album_id=album_id,
         lineage_person_ids=lineage_ids,
         limit=limit,
         offset=offset,
@@ -157,6 +166,9 @@ async def timeline_page(
     year_from: str | None = Query(None),
     year_to: str | None = Query(None),
     branch: str | None = Query(None),
+    decade: str | None = Query(None),
+    person_id: str | None = Query(None),
+    album_id: str | None = Query(None),
     lineage_person_id: str | None = Query(None),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
@@ -165,7 +177,10 @@ async def timeline_page(
     raw_year_from = year_from or ""
     raw_year_to = year_to or ""
     event_type, year_from, year_to, error = _normalize_timeline_filters(event_type, year_from, year_to)
+    year_from, year_to = _apply_decade_filter(decade, year_from, year_to)
     events = []
+    timeline_people = await list_gallery_people(db, current_user)
+    timeline_albums = await list_visible_albums(db, current_user)
     if not error:
         lineage_ids = await _resolve_lineage_ids(db, lineage_person_id, current_user)
         events, _total = await get_timeline_events(
@@ -174,6 +189,8 @@ async def timeline_page(
             year_from=year_from,
             year_to=year_to,
             branch=branch,
+            person_id=person_id,
+            album_id=album_id,
             lineage_person_ids=lineage_ids,
         )
 
@@ -193,6 +210,11 @@ async def timeline_page(
         year_from=year_from if year_from is not None else raw_year_from,
         year_to=year_to if year_to is not None else raw_year_to,
         branch=branch or "",
+        decade=decade or "",
+        person_id=person_id or "",
+        album_id=album_id or "",
+        timeline_people=timeline_people,
+        timeline_albums=timeline_albums,
         lineage_person_id=lineage_person_id or "",
         error=error,
     ))
@@ -205,11 +227,15 @@ async def partial_timeline_events(
     year_from: str | None = Query(None),
     year_to: str | None = Query(None),
     branch: str | None = Query(None),
+    decade: str | None = Query(None),
+    person_id: str | None = Query(None),
+    album_id: str | None = Query(None),
     lineage_person_id: str | None = Query(None),
     current_user: Person = Depends(require_auth),
     db: AsyncSession = Depends(get_db),
 ):
     event_type, year_from, year_to, error = _normalize_timeline_filters(event_type, year_from, year_to)
+    year_from, year_to = _apply_decade_filter(decade, year_from, year_to)
     events = []
     if not error:
         lineage_ids = await _resolve_lineage_ids(db, lineage_person_id, current_user)
@@ -219,6 +245,8 @@ async def partial_timeline_events(
             year_from=year_from,
             year_to=year_to,
             branch=branch,
+            person_id=person_id,
+            album_id=album_id,
             lineage_person_ids=lineage_ids,
         )
 
@@ -234,3 +262,18 @@ async def partial_timeline_events(
         years=years_seen,
         error=error,
     ))
+
+
+def _apply_decade_filter(
+    decade: str | None,
+    year_from: int | None,
+    year_to: int | None,
+) -> tuple[int | None, int | None]:
+    value = (decade or "").strip()
+    if not value:
+        return year_from, year_to
+    try:
+        start = int(value)
+    except ValueError:
+        return year_from, year_to
+    return start, start + 9

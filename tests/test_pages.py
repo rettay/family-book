@@ -232,10 +232,43 @@ async def test_gallery_page_renders_filters_and_nav_link(member_client: AsyncCli
 
     assert resp.status_code == 200
     assert 'action="/gallery"' in resp.text
+    assert 'name="search"' in resp.text
+    assert 'name="source"' in resp.text
+    assert 'name="album_id"' in resp.text
     assert 'name="media_type"' in resp.text
     assert 'name="person_id"' in resp.text
     assert 'name="uploader_id"' in resp.text
     assert 'class="nav__link nav__link--active"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_prompts_page_renders_digest_and_incoming_sections(member_client: AsyncClient):
+    resp = await member_client.get("/prompts")
+
+    assert resp.status_code == 200
+    assert 'id="prompts-page"' in resp.text
+    assert 'id="incoming-prompts-section"' in resp.text
+    assert 'id="digest-preview-section"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_books_page_renders_export_builder_for_admin(admin_client: AsyncClient):
+    resp = await admin_client.get("/books")
+
+    assert resp.status_code == 200
+    assert 'id="book-export-page"' in resp.text
+    assert 'id="book-project-create-section"' in resp.text
+
+
+@pytest.mark.asyncio
+async def test_settings_page_renders_engagement_controls(member_client: AsyncClient):
+    resp = await member_client.get("/settings")
+
+    assert resp.status_code == 200
+    assert 'id="engagement-section"' in resp.text
+    assert 'action="/settings/digest-preferences"' in resp.text
+    assert 'href="/prompts"' in resp.text
+    assert 'href="/books"' in resp.text
 
 
 @pytest.mark.asyncio

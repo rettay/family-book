@@ -1,10 +1,10 @@
 import enum
 import json
 
-from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base, generate_uuid
+from app.models.base import Base, TimestampMixin, generate_uuid, utcnow
 from datetime import datetime
 
 
@@ -123,3 +123,33 @@ class MediaInboxItem(Base):
     @tagged_person_ids.setter
     def tagged_person_ids(self, value: list[str]) -> None:
         self._tagged_person_ids = json.dumps(value)
+
+
+class Album(Base, TimestampMixin):
+    __tablename__ = "albums"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str | None] = mapped_column(Text, default=None)
+    created_by: Mapped[str] = mapped_column(
+        String(36), ForeignKey("persons.id", ondelete="CASCADE")
+    )
+    cover_media_id: Mapped[str | None] = mapped_column(String(36), default=None)
+
+
+class AlbumMedia(Base):
+    __tablename__ = "album_media"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=generate_uuid)
+    album_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("albums.id", ondelete="CASCADE")
+    )
+    media_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("media.id", ondelete="CASCADE")
+    )
+    added_by: Mapped[str] = mapped_column(String(36), ForeignKey("persons.id", ondelete="CASCADE"))
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("album_id", "media_id", name="uq_album_media"),
+    )
